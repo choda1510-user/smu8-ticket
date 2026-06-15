@@ -3,7 +3,9 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
-
+/*
+* 리액트 라우터가 이곳에 있어야 함
+*/
 function App() {
   const [count, setCount] = useState(0)
 

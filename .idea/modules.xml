@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/frontend/frontend.iml" filepath="$PROJECT_DIR$/frontend/frontend.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/smu8-ticket.iml" filepath="$PROJECT_DIR$/.idea/smu8-ticket.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ticket.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ticket.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ticket.test.iml" filepath="$PROJECT_DIR$/.idea/modules/ticket.test.iml" />
     </modules>
   </component>
 </project>

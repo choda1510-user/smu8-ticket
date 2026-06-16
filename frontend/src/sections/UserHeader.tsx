@@ -9,10 +9,10 @@ function UserHeader() {
         <div className={"header-container"}>
             {/*헤더 상단 로그인/회원가입 */}
             <div className="header-top">
-                <button>
-                    로그인
-                </button>
+                <button>로그인</button>
                 <button>회원가입</button>
+                {/* 로그인 후 - 나중에 조건부 렌더링으로 교체 예정 */}
+                {/* <button>로그아웃</button> */}
             </div>
             {/*헤더 미들 로고 / 검색창 */}
             <div className="header-middle">

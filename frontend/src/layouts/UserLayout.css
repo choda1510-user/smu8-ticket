@@ -1,0 +1,10 @@
+.user-layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.user-main {
+    width: 100%;
+    padding: 40px 0;
+}

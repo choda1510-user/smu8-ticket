@@ -1,0 +1,12 @@
+.search-result-layout {
+    display: flex;
+    align-items: center;
+    /**/
+    text-align: right;
+    padding: 20px 0;
+
+}
+.search-result-container {
+    display: flex;
+    gap: 20px;
+}

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-
 /*
  * 홈페이지
  * - UserLayout 내부 Outlet에 들어가는 본문 영역만 작성

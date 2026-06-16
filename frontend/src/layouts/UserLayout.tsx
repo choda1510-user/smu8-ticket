@@ -3,10 +3,12 @@ import { Outlet } from "react-router";
 
 function UserLayout() {
     return (
-        <>
+        <div className="user-layout">
             <UserHeader></UserHeader>
-            <Outlet></Outlet>
-        </>
+            <div className="user-main">
+                <Outlet></Outlet>
+            </div>
+        </div>
     )
 }
 export default UserLayout;

@@ -2,6 +2,7 @@
 * 내정보/사이드바
 * */
 import {NavLink} from "react-router";
+import "./UserMyPageSide.css";
 
 function UserMyPageSide() {
     return (
@@ -9,7 +10,7 @@ function UserMyPageSide() {
             <h2>마이페이지</h2>
             <ul>
                 <li>
-                    <NavLink to="/mypage">
+                    <NavLink to="/mypage" end>
                         내 정보
                     </NavLink>
                 </li>

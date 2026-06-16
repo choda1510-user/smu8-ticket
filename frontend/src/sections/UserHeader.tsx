@@ -5,7 +5,7 @@
 import{ useEffect, useState} from "react";
 import type {SyntheticEvent} from "react";
 import {Link,NavLink,useNavigate,useSearchParams} from "react-router";
-import logoImage from "../assets/logo.png";
+
 import "./UserHeader.css";
 
 function UserHeader() {
@@ -41,43 +41,48 @@ function UserHeader() {
                 </div>
 
                 <div className="user-header-main-row">
+
                     <Link to="/" className="user-header-logo" aria-label="홈으로 이동">
-                        <img src={logoImage} alt = "SM" className="user-header-logo-image"/>
+                        <span className="user-header-logo-mark">SM</span>
+                        <span className="user-header-logo-text">TICKET</span>
                     </Link>
-                    <form className="user-header-search" onSubmit={handleSearchSubmit}>
-                        <input
-                        type="text"
-                        value={keyword}
-                        onChange={(event) => setkeyword(event.target.value)}
-                        placeholder="검색어를 입력하세요"
-                        />
-                        <button type="submit" aria-label="검색">
-                            🔍
-                        </button>
-                    </form>
+
+                    <div className="user-header-center">
+                        <form className="user-header-search" onSubmit={handleSearchSubmit}>
+                            <input
+                                type="text"
+                                value={keyword}
+                                onChange={(event) => setkeyword(event.target.value)}
+                                placeholder="검색어를 입력하세요"
+                            />
+                            <button type="submit" aria-label="검색">
+                                🔍
+                            </button>
+                        </form>
+
+                        <nav className="user-header-nav">
+                            <NavLink
+                                to="/"
+                                className={({isActive}) =>
+                                    isActive ? "user-header-nav-link active" : "user-header-nav-link"
+                                }
+                                end
+                            >
+                                홈
+                            </NavLink>
+
+                            <NavLink
+                                to="/concerts"
+                                className={({isActive}) =>
+                                    isActive ? "user-header-nav-link active" : "user-header-nav-link"
+                                }
+                            >
+                                공연
+                            </NavLink>
+                        </nav>
+                    </div>
 
                 </div>
-
-                <nav className="user-header-nav">
-                    <NavLink
-                        to="/"
-                        className={({isActive}) =>
-                            isActive ? "user-header-nav-link active" : "user-header-nav-link"
-                    }
-                        end
-                  >
-                        홈
-                    </NavLink>
-
-                    <NavLink
-                        to="/concerts"
-                        className={({isActive}) =>
-                    isActive ? "user-header-nav-link active" : "user-header-nav-link"
-                    }
-                  >
-                  공연
-                  </NavLink>
-                </nav>
             </div>
         </header>
     )

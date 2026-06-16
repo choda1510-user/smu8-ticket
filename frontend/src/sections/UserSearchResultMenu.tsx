@@ -4,18 +4,28 @@
 * */
 
 
-function UserSearchResultMenu() {
+import {NavLink} from "react-router";
+
+interface UserSearchResultMenuProps {
+    keyword: string;
+}
+
+function UserSearchResultMenu({keyword}:UserSearchResultMenuProps) {
+    const encodedKeyword = encodeURIComponent(keyword);
+
     return (
-        <div className="search-result-container">
-            <div className="search-result-title">
-                <span className="search-keyword">세종문화회관</span> 검색결과
-            </div>
-            <div className="search-result-tabs">
-                <button className="tab-btn">통합검색</button>
-                <button className="tab-btn">공연</button>
-                <button className="tab-btn">공연장</button>
-            </div>
-        </div>
+        <nav className="search-result-menu">
+            <NavLink to={`/serch/all?ketword=${encodedKeyword}`}>
+                통합검색
+            </NavLink>
+
+            <NavLink to={`/serch/concerts?keyword=${encodedKeyword}`}>
+                공연
+            </NavLink>
+            <NavLink to={`/serch/venues?keyword=${encodedKeyword}`}>
+                공연장
+            </NavLink>
+        </nav>
     )
 }
 export default UserSearchResultMenu;

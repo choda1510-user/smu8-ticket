@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+
 /*
  * 홈페이지
  * - UserLayout 내부 Outlet에 들어가는 본문 영역만 작성
@@ -22,22 +23,23 @@ type ConcertCard = {
     concertId: number;
     posterUrl?: string;
     title: string;
-    period: string;
+    reservationPeriod: string;
+    reservationEndDate: string;
     badgeText: string;
 };
 
 const bannerList: BannerItem[] = [
     {
         bannerId: 1,
-        title: "Hero Banner / 썸네일",
+        title: "썸네일1",
     },
     {
         bannerId: 2,
-        title: "Hero Banner / 썸네일",
+        title: "썸네일2",
     },
     {
         bannerId: 3,
-        title: "Hero Banner / 썸네일",
+        title: "썸네일3",
     },
 ];
 
@@ -45,25 +47,36 @@ const openConcertList: ConcertCard[] = [
     {
         concertId: 1,
         title: "공연명",
-        period: "예매 기간",
+        reservationPeriod: "2026.06.01 - 2026.06.18",
+        reservationEndDate: "2026-06-18",
         badgeText: "OPEN",
     },
     {
         concertId: 2,
         title: "공연명",
-        period: "예매 기간",
+        reservationPeriod: "2026.06.01 - 2026.06.20",
+        reservationEndDate: "2026-06-20",
         badgeText: "OPEN",
     },
     {
         concertId: 3,
         title: "공연명",
-        period: "예매 기간",
+        reservationPeriod: "2026.06.01 - 2026.06.25",
+        reservationEndDate: "2026-06-25",
         badgeText: "OPEN",
     },
     {
         concertId: 4,
         title: "공연명",
-        period: "예매 기간",
+        reservationPeriod: "2026.06.01 - 2026.06.30",
+        reservationEndDate: "2026-06-30",
+        badgeText: "OPEN",
+    },
+    {
+        concertId: 9,
+        title: "공연명",
+        reservationPeriod: "2026.06.01 - 2026.07.03",
+        reservationEndDate: "2026-07-03",
         badgeText: "OPEN",
     },
 ];
@@ -72,54 +85,121 @@ const upcomingConcertList: ConcertCard[] = [
     {
         concertId: 5,
         title: "공연명",
-        period: "예매 기간",
+        reservationPeriod: "2026.06.18 - 2026.06.18",
+        reservationEndDate: "2026-06-18",
         badgeText: "D-DAY",
     },
     {
         concertId: 6,
         title: "공연명",
-        period: "예매 기간",
+        reservationPeriod: "2026.06.19 - 2026.06.19",
+        reservationEndDate: "2026-06-19",
         badgeText: "D-1",
     },
     {
         concertId: 7,
         title: "공연명",
-        period: "예매 기간",
+        reservationPeriod: "2026.06.20 - 2026.06.20",
+        reservationEndDate: "2026-06-20",
         badgeText: "D-2",
     },
     {
         concertId: 8,
         title: "공연명",
-        period: "예매 기간",
-        badgeText: "COMING SOON",
+        reservationPeriod: "2026.06.25 - 2026.06.25",
+        reservationEndDate: "2026-06-25",
+        badgeText: "D-7",
+    },
+    {
+        concertId: 10,
+        title: "공연명",
+        reservationPeriod: "2026.07.01 - 2026.07.01",
+        reservationEndDate: "2026-07-01",
+        badgeText: "D-13",
     },
 ];
+
+function sortByReservationEndDate(concerts: ConcertCard[]) {
+    return [...concerts].sort((a, b) => {
+        return (
+            new Date(a.reservationEndDate).getTime() -
+            new Date(b.reservationEndDate).getTime()
+        );
+    });
+}
 
 function HomePage() {
     const navigate = useNavigate();
 
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+    const [isBannerVisible, setIsBannerVisible] = useState(true);
 
     const currentBanner = bannerList[currentBannerIndex];
 
-    const handlePrevBannerClick = () => {
-        setCurrentBannerIndex((prevIndex) => {
-            if (prevIndex === 0) {
-                return bannerList.length - 1;
-            }
+    const sortedOpenConcertList = sortByReservationEndDate(openConcertList).slice(
+        0,
+        4
+    );
 
-            return prevIndex - 1;
-        });
+    const sortedUpcomingConcertList = sortByReservationEndDate(
+        upcomingConcertList
+    ).slice(0, 4);
+
+    useEffect(() => {
+        const bannerTimer = window.setInterval(() => {
+            setIsBannerVisible(false);
+
+            window.setTimeout(() => {
+                setCurrentBannerIndex((prevIndex) => {
+                    if (prevIndex === bannerList.length - 1) {
+                        return 0;
+                    }
+
+                    return prevIndex + 1;
+                });
+
+                setIsBannerVisible(true);
+            }, 250);
+        }, 5000);
+
+        return () => {
+            window.clearInterval(bannerTimer);
+        };
+    }, []);
+
+    const moveBanner = (nextIndex: number) => {
+        setIsBannerVisible(false);
+
+        window.setTimeout(() => {
+            setCurrentBannerIndex(nextIndex);
+            setIsBannerVisible(true);
+        }, 250);
+    };
+
+    const handlePrevBannerClick = () => {
+        const prevIndex =
+            currentBannerIndex === 0
+                ? bannerList.length - 1
+                : currentBannerIndex - 1;
+
+        moveBanner(prevIndex);
     };
 
     const handleNextBannerClick = () => {
-        setCurrentBannerIndex((prevIndex) => {
-            if (prevIndex === bannerList.length - 1) {
-                return 0;
-            }
+        const nextIndex =
+            currentBannerIndex === bannerList.length - 1
+                ? 0
+                : currentBannerIndex + 1;
 
-            return prevIndex + 1;
-        });
+        moveBanner(nextIndex);
+    };
+
+    const handleIndicatorClick = (index: number) => {
+        if (index === currentBannerIndex) {
+            return;
+        }
+
+        moveBanner(index);
     };
 
     const handleConcertClick = (concertId: number) => {
@@ -148,7 +228,13 @@ function HomePage() {
                     ‹
                 </button>
 
-                <div style={styles.bannerBox}>
+                <div
+                    style={
+                        isBannerVisible
+                            ? styles.bannerBox
+                            : { ...styles.bannerBox, ...styles.hiddenBannerBox }
+                    }
+                >
                     {currentBanner.imageUrl ? (
                         <img
                             src={currentBanner.imageUrl}
@@ -180,7 +266,7 @@ function HomePage() {
                                 ? { ...styles.bannerIndicator, ...styles.activeBannerIndicator }
                                 : styles.bannerIndicator
                         }
-                        onClick={() => setCurrentBannerIndex(index)}
+                        onClick={() => handleIndicatorClick(index)}
                         aria-label={`${index + 1}번 배너 보기`}
                     />
                 ))}
@@ -188,14 +274,14 @@ function HomePage() {
 
             <HomeConcertSection
                 title="예매중인 공연"
-                concerts={openConcertList}
+                concerts={sortedOpenConcertList}
                 onMoreClick={handleOpenConcertMoreClick}
                 onConcertClick={handleConcertClick}
             />
 
             <HomeConcertSection
                 title="오픈예정 공연"
-                concerts={upcomingConcertList}
+                concerts={sortedUpcomingConcertList}
                 onMoreClick={handleUpcomingConcertMoreClick}
                 onConcertClick={handleConcertClick}
             />
@@ -251,7 +337,13 @@ function HomeConcertSection({
 
                                 <div style={styles.cardInfo}>
                                     <strong style={styles.cardTitle}>{concert.title}</strong>
-                                    <span style={styles.cardPeriod}>{concert.period}</span>
+
+                                    <span style={styles.cardPeriodLabel}>예매기간</span>
+
+                                    <span style={styles.cardPeriod}>
+                    {concert.reservationPeriod}
+                  </span>
+
                                     <span style={styles.cardBadge}>{concert.badgeText}</span>
                                 </div>
                             </button>
@@ -269,6 +361,7 @@ const styles: Record<string, CSSProperties> = {
         margin: "0 auto",
         color: "#222",
         boxSizing: "border-box",
+        paddingBottom: "80px",
     },
 
     pageTitle: {
@@ -279,7 +372,7 @@ const styles: Record<string, CSSProperties> = {
 
     bannerSection: {
         width: "100%",
-        height: "140px",
+        height: "210px",
         border: "1px solid #d9d9e3",
         borderRadius: "4px",
         backgroundColor: "#fff",
@@ -305,7 +398,16 @@ const styles: Record<string, CSSProperties> = {
         alignItems: "center",
         justifyContent: "center",
         color: "#777",
-        fontSize: "15px",
+        fontSize: "18px",
+        fontWeight: 500,
+        opacity: 1,
+        transform: "translateX(0)",
+        transition: "opacity 0.25s ease, transform 0.25s ease",
+    },
+
+    hiddenBannerBox: {
+        opacity: 0,
+        transform: "translateX(10px)",
     },
 
     bannerImage: {
@@ -320,7 +422,7 @@ const styles: Record<string, CSSProperties> = {
         alignItems: "center",
         justifyContent: "center",
         gap: "6px",
-        marginBottom: "26px",
+        marginBottom: "34px",
     },
 
     bannerIndicator: {
@@ -339,7 +441,7 @@ const styles: Record<string, CSSProperties> = {
 
     concertSection: {
         width: "100%",
-        marginBottom: "38px",
+        marginBottom: "58px",
     },
 
     sectionHeader: {
@@ -347,7 +449,7 @@ const styles: Record<string, CSSProperties> = {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        marginBottom: "14px",
+        marginBottom: "16px",
         boxSizing: "border-box",
     },
 
@@ -363,6 +465,7 @@ const styles: Record<string, CSSProperties> = {
         backgroundColor: "transparent",
         color: "#222",
         fontSize: "12px",
+        fontWeight: 700,
         cursor: "pointer",
     },
 
@@ -390,7 +493,7 @@ const styles: Record<string, CSSProperties> = {
 
     posterBox: {
         width: "100%",
-        height: "170px",
+        height: "240px",
         border: "1px solid #d6d6df",
         borderRadius: "6px",
         backgroundColor: "#ececf3",
@@ -410,7 +513,7 @@ const styles: Record<string, CSSProperties> = {
     },
 
     cardInfo: {
-        marginTop: "10px",
+        marginTop: "12px",
         display: "flex",
         flexDirection: "column",
         gap: "4px",
@@ -422,18 +525,26 @@ const styles: Record<string, CSSProperties> = {
         fontWeight: 700,
     },
 
-    cardPeriod: {
-        color: "#777",
-        fontSize: "12px",
-    },
-
-    cardBadge: {
-        color: "#777",
+    cardPeriodLabel: {
+        color: "#999",
         fontSize: "11px",
     },
 
+    cardPeriod: {
+        color: "#777",
+        fontSize: "12px",
+        lineHeight: 1.35,
+    },
+
+    cardBadge: {
+        marginTop: "2px",
+        color: "#ff4f9a",
+        fontSize: "11px",
+        fontWeight: 700,
+    },
+
     emptyBox: {
-        height: "170px",
+        height: "240px",
         border: "1px solid #d9d9e3",
         display: "flex",
         alignItems: "center",

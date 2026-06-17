@@ -1,5 +1,6 @@
 import UserMyPageSide from "@/sections/UserMyPageSide";
 import { Outlet } from "react-router";
+import './UserMyPageLayout.css';
 
 function UserMyPageLayout() {
     return (

@@ -27,7 +27,7 @@ function UserHeader() {
             alert("검색어를 입력해주세요.");
             return;
         }
-        navigate(`/serch/all?keyword=${encodeURIComponent(trimmedKeyword)}&page=1`);
+        navigate(`/search/all?keyword=${encodeURIComponent(trimmedKeyword)}&page=1`);
     }
     return (
         <header className="user-header">

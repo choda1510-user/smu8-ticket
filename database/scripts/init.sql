@@ -56,7 +56,7 @@ CREATE TABLE `좌석등급` (
 );
 
 CREATE TABLE `좌석` (
-    `좌석_ID` bigint,
+    `좌석_ID` bigint PRIMARY KEY,
     `공연회차_ID` bigint,
     `좌석등급_ID` bigint NOT NULL COMMENT '영문명: seat_grade_id / 연결 좌석등급',
     `행_위치` varchar(20) NOT NULL COMMENT '영문명: row_name / 좌석 행',
@@ -113,7 +113,7 @@ ALTER TABLE `공연` ADD CONSTRAINT `회원_공연_수정관리자` FOREIGN KEY 
 
 ALTER TABLE `공연` ADD CONSTRAINT `공연장_공연` FOREIGN KEY (`공연장_ID`) REFERENCES `공연장` (`공연장_ID`);
 
-ALTER TABLE `공연` ADD CONSTRAINT `공연_공연회차` FOREIGN KEY (`공연_ID`) REFERENCES `공연회차` (`공연_ID`);
+ALTER TABLE `공연회차` ADD CONSTRAINT `공연_공연회차` FOREIGN KEY (`공연_ID`) REFERENCES `공연` (`공연_ID`);
 
 ALTER TABLE `좌석등급` ADD CONSTRAINT `공연_좌석등급` FOREIGN KEY (`공연_ID`) REFERENCES `공연` (`공연_ID`);
 
@@ -123,10 +123,11 @@ ALTER TABLE `예매` ADD CONSTRAINT `공연회차_예매` FOREIGN KEY (`공연�
 
 ALTER TABLE `예매좌석` ADD CONSTRAINT `예매_예매좌석` FOREIGN KEY (`예매_ID`) REFERENCES `예매` (`예매_ID`);
 
-ALTER TABLE `예매` ADD CONSTRAINT `예매_취소` FOREIGN KEY (`예매_ID`) REFERENCES `취소` (`예매_ID`);
+ALTER TABLE `취소` ADD CONSTRAINT `예매_취소` FOREIGN KEY (`예매_ID`) REFERENCES `예매` (`예매_ID`);
 
 ALTER TABLE `좌석` ADD FOREIGN KEY (`공연회차_ID`) REFERENCES `공연회차` (`공연회차_ID`);
 
 ALTER TABLE `좌석` ADD FOREIGN KEY (`좌석등급_ID`) REFERENCES `좌석등급` (`좌석등급_ID`);
+
 
 

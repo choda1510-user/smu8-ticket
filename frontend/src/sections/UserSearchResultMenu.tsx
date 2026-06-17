@@ -11,7 +11,8 @@ interface UserSearchResultMenuProps {
     keyword: string;
 }
 
-function UserSearchResultMenu({keyword}:UserSearchResultMenuProps) {
+function UserSearchResultMenu() {
+    const {keyword}: UserSearchResultMenuProps = {keyword: "문화예술공연"}
     const encodedKeyword = encodeURIComponent(keyword);
 
     return (

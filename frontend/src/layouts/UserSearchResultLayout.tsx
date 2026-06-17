@@ -6,7 +6,7 @@ function UserSearchResultLayout() {
     return (
         <section className="search-result-layout">
             <UserSearchResultMenu />
-            <div className="serch-result-content">
+            <div className="search-result-content">
                 <Outlet></Outlet>
             </div>
         </section>

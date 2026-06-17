@@ -15,6 +15,7 @@ import { useNavigate } from "react-router";
 
 type BannerItem = {
     bannerId: number;
+    concertId: number;
     imageUrl?: string;
     title: string;
 };
@@ -31,14 +32,17 @@ type ConcertCard = {
 const bannerList: BannerItem[] = [
     {
         bannerId: 1,
+        concertId: 1,
         title: "썸네일1",
     },
     {
         bannerId: 2,
+        concertId: 2,
         title: "썸네일2",
     },
     {
         bannerId: 3,
+        concertId: 3,
         title: "썸네일3",
     },
 ];
@@ -202,6 +206,10 @@ function HomePage() {
         moveBanner(index);
     };
 
+    const handleBannerClick = () => {
+        navigate(`/concerts/${currentBanner.concertId}`);
+    };
+
     const handleConcertClick = (concertId: number) => {
         navigate(`/concerts/${concertId}`);
     };
@@ -228,12 +236,15 @@ function HomePage() {
                     ‹
                 </button>
 
-                <div
+                <button
+                    type="button"
                     style={
                         isBannerVisible
                             ? styles.bannerBox
                             : { ...styles.bannerBox, ...styles.hiddenBannerBox }
                     }
+                    onClick={handleBannerClick}
+                    aria-label={`${currentBanner.title} 공연 상세보기`}
                 >
                     {currentBanner.imageUrl ? (
                         <img
@@ -244,7 +255,7 @@ function HomePage() {
                     ) : (
                         <span>{currentBanner.title}</span>
                     )}
-                </div>
+                </button>
 
                 <button
                     type="button"
@@ -393,7 +404,10 @@ const styles: Record<string, CSSProperties> = {
     },
 
     bannerBox: {
+        width: "100%",
         height: "100%",
+        border: "none",
+        backgroundColor: "transparent",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -403,6 +417,7 @@ const styles: Record<string, CSSProperties> = {
         opacity: 1,
         transform: "translateX(0)",
         transition: "opacity 0.25s ease, transform 0.25s ease",
+        cursor: "pointer",
     },
 
     hiddenBannerBox: {

@@ -90,6 +90,10 @@ function ConcertListPage() {
 
     const filter = searchParams.get("filter");
 
+    const isOpenFilter = filter === "open";
+    const isUpcomingFilter = filter === "upcoming";
+    const isMainPage = !filter;
+
     const handleConcertClick = (concertId: number) => {
         navigate(`/concerts/${concertId}`);
     };
@@ -110,16 +114,42 @@ function ConcertListPage() {
         navigate("/concerts?filter=upcoming");
     };
 
-    const isOpenFilter = filter === "open";
-    const isUpcomingFilter = filter === "upcoming";
-    const isMainPage = !filter;
-
     return (
         <section style={styles.page}>
+            <section style={styles.categoryBox}>
+                <div style={styles.tabMenu}>
+                    <button
+                        type="button"
+                        style={
+                            isOpenFilter
+                                ? { ...styles.tabButton, ...styles.activeTabButton }
+                                : styles.tabButton
+                        }
+                        onClick={handleOpenTabClick}
+                    >
+                        예매중인 공연
+                    </button>
+
+                    <button
+                        type="button"
+                        style={
+                            isUpcomingFilter
+                                ? { ...styles.tabButton, ...styles.activeTabButton }
+                                : styles.tabButton
+                        }
+                        onClick={handleUpcomingTabClick}
+                    >
+                        티켓팅 오픈예정
+                    </button>
+                </div>
+
+                <h1 style={styles.categoryTitle}>공연</h1>
+            </section>
+
             {isMainPage && (
                 <>
                     <ConcertSection
-                        title="예매중"
+                        title="예매중인 공연"
                         concerts={openConcertList.slice(0, 2)}
                         showMoreButton
                         onMoreClick={handleOpenConcertMoreClick}
@@ -127,7 +157,7 @@ function ConcertListPage() {
                     />
 
                     <ConcertSection
-                        title="티켓 오픈 예정"
+                        title="티켓팅 오픈 예정"
                         concerts={upcomingConcertList.slice(0, 2)}
                         showMoreButton
                         onMoreClick={handleUpcomingConcertMoreClick}
@@ -136,69 +166,35 @@ function ConcertListPage() {
                 </>
             )}
 
-            {(isOpenFilter || isUpcomingFilter) && (
+            {isOpenFilter && (
                 <>
-                    <section style={styles.categoryBox}>
-                        <h1 style={styles.categoryTitle}>공연</h1>
+                    <ConcertSection
+                        title="예매중인 공연"
+                        concerts={openConcertList}
+                        showMoreButton={false}
+                        onMoreClick={handleOpenConcertMoreClick}
+                        onConcertClick={handleConcertClick}
+                    />
 
-                        <div style={styles.tabMenu}>
-                            <button
-                                type="button"
-                                style={
-                                    isOpenFilter
-                                        ? { ...styles.tabButton, ...styles.activeTabButton }
-                                        : styles.tabButton
-                                }
-                                onClick={handleOpenTabClick}
-                            >
-                                예매중인 공연
-                            </button>
+                    <div style={styles.paginationArea}>
+                        <BottomPaginationBar />
+                    </div>
+                </>
+            )}
 
-                            <button
-                                type="button"
-                                style={
-                                    isUpcomingFilter
-                                        ? { ...styles.tabButton, ...styles.activeTabButton }
-                                        : styles.tabButton
-                                }
-                                onClick={handleUpcomingTabClick}
-                            >
-                                티켓팅 오픈예정
-                            </button>
-                        </div>
-                    </section>
+            {isUpcomingFilter && (
+                <>
+                    <ConcertSection
+                        title="티켓팅 오픈 예정"
+                        concerts={upcomingConcertList}
+                        showMoreButton={false}
+                        onMoreClick={handleUpcomingConcertMoreClick}
+                        onConcertClick={handleConcertClick}
+                    />
 
-                    {isOpenFilter && (
-                        <>
-                            <ConcertSection
-                                title="예매중인 공연"
-                                concerts={openConcertList}
-                                showMoreButton={false}
-                                onMoreClick={handleOpenConcertMoreClick}
-                                onConcertClick={handleConcertClick}
-                            />
-
-                            <div style={styles.paginationArea}>
-                                <BottomPaginationBar />
-                            </div>
-                        </>
-                    )}
-
-                    {isUpcomingFilter && (
-                        <>
-                            <ConcertSection
-                                title="티켓 오픈 예정"
-                                concerts={upcomingConcertList}
-                                showMoreButton={false}
-                                onMoreClick={handleUpcomingConcertMoreClick}
-                                onConcertClick={handleConcertClick}
-                            />
-
-                            <div style={styles.paginationArea}>
-                                <BottomPaginationBar />
-                            </div>
-                        </>
-                    )}
+                    <div style={styles.paginationArea}>
+                        <BottomPaginationBar />
+                    </div>
                 </>
             )}
         </section>
@@ -292,14 +288,7 @@ const styles: Record<string, CSSProperties> = {
 
     categoryBox: {
         width: "100%",
-        borderBottom: "1px solid #e0e0e0",
         marginBottom: "24px",
-    },
-
-    categoryTitle: {
-        margin: "0 0 18px",
-        fontSize: "16px",
-        fontWeight: 500,
     },
 
     tabMenu: {
@@ -307,6 +296,8 @@ const styles: Record<string, CSSProperties> = {
         display: "flex",
         alignItems: "center",
         gap: "28px",
+        borderBottom: "1px solid #e0e0e0",
+        boxSizing: "border-box",
     },
 
     tabButton: {
@@ -326,9 +317,15 @@ const styles: Record<string, CSSProperties> = {
         fontWeight: 600,
     },
 
+    categoryTitle: {
+        margin: "24px 0 18px",
+        fontSize: "18px",
+        fontWeight: 700,
+    },
+
     section: {
         width: "100%",
-        marginBottom: "0",
+        marginBottom: "34px",
     },
 
     sectionHeader: {

@@ -1,5 +1,6 @@
 import { useNavigate, useSearchParams } from "react-router";
 import type {CSSProperties} from "react";
+import {useGlobalConcertSearchPage} from "@/hooks/useGlobalConcertSearchPage";
 
 /*
  * 통합 검색 결과 페이지
@@ -7,58 +8,12 @@ import type {CSSProperties} from "react";
  * - Header, 검색창, 검색결과 탭 메뉴는 Layout 또는 Section에서 처리
  */
 
-type ConcertResult = {
-    id: number;
-    posterUrl?: string;
-    title: string;
-    period: string;
-    venueId: number;
-    venueName: string;
-    status: string;
-};
-
-type VenueResult = {
-    id: number;
-    logoUrl?: string;
-    venueName: string;
-    availableConcertCount: number;
-};
-
-const concertResults: ConcertResult[] = [
-    {
-        id: 1,
-        title: "공연명",
-        period: "공연기간",
-        venueId: 1,
-        venueName: "공연장명",
-        status: "예매중",
-    },
-    {
-        id: 2,
-        title: "공연명",
-        period: "공연기간",
-        venueId: 2,
-        venueName: "공연장명",
-        status: "예매예정",
-    }
-];
-
-const venueResults: VenueResult[] = [
-    {
-        id: 1,
-        venueName: "공연장명",
-        availableConcertCount: 0,
-    },
-    {
-        id: 2,
-        venueName: "공연장명",
-        availableConcertCount: 0,
-    },
-];
-
 function GlobalConcertSearchPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const {concertResults, venueResults} = useGlobalConcertSearchPage();
+    const concerts = concertResults.data;
+    const venues = venueResults.data;
 
     const keyword = searchParams.get("q") ?? "";
 
@@ -95,7 +50,7 @@ function GlobalConcertSearchPage() {
                 <div style={styles.sectionTitleRow}>
                     <div style={styles.sectionTitleGroup}>
                         <h2 style={styles.sectionTitle}>공연</h2>
-                        <span style={styles.resultCount}>{concertResults.length}건</span>
+                        <span style={styles.resultCount}>{concerts.length}건</span>
                     </div>
                     <button
                         type="button"
@@ -106,11 +61,11 @@ function GlobalConcertSearchPage() {
                     </button>
                 </div>
 
-                {concertResults.length === 0 ? (
+                {concerts.length === 0 ? (
                     <div style={styles.emptyBox}>검색된 공연이 없습니다.</div>
                 ) : (
                     <ul style={styles.concertList}>
-                        {concertResults.map((concert) => (
+                        {concerts.map((concert) => (
                             <li key={concert.id} style={styles.concertItem}>
 
                                 <div style={styles.posterArea}>
@@ -160,7 +115,7 @@ function GlobalConcertSearchPage() {
                 <div style={styles.sectionTitleRow}>
                     <div style={styles.sectionTitleGroup}>
                         <h2 style={styles.sectionTitle}>공연장</h2>
-                        <span style={styles.resultCount}>{venueResults.length}건</span>
+                        <span style={styles.resultCount}>{venues.length}건</span>
                     </div>
 
                     <button
@@ -172,11 +127,11 @@ function GlobalConcertSearchPage() {
                     </button>
                 </div>
 
-                {venueResults.length === 0 ? (
+                {venues.length === 0 ? (
                     <div style={styles.emptyBox}>검색된 공연장이 없습니다.</div>
                 ) : (
                     <ul style={styles.venueList}>
-                        {venueResults.map((venue) => (
+                        {venues.map((venue) => (
                             <li key={venue.id} style={styles.venueItem}>
                                 <div
                                     style={styles.venueCard}

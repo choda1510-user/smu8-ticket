@@ -30,6 +30,10 @@ function HomePage() {
     } = useHomePage();
 
     const handleBannerClick = () => {
+        if (!currentBanner) {
+            return;
+        }
+
         navigate(`/concerts/${currentBanner.concertId}`);
     };
 
@@ -67,16 +71,16 @@ function HomePage() {
                             : {...styles.bannerBox, ...styles.hiddenBannerBox}
                     }
                     onClick={handleBannerClick}
-                    aria-label={`${currentBanner.title} 공연 상세보기`}
+                    aria-label={`${currentBanner?.title ?? "배너"} 공연 상세보기`}
                 >
-                    {currentBanner.imageUrl ? (
+                    {currentBanner?.imageUrl ? (
                         <img
                             src={currentBanner.imageUrl}
                             alt={currentBanner.title}
                             style={styles.bannerImage}
                         />
                     ) : (
-                        <span>{currentBanner.title}</span>
+                        <span>{currentBanner?.title ?? "배너"}</span>
                     )}
                 </button>
 

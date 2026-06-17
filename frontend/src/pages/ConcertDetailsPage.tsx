@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import {useConcertDetailsPage} from "@/hooks/useConcertDetailsPage";
 
 /*
  * 공연 상세 페이지
@@ -12,53 +13,12 @@ import { useNavigate, useParams } from "react-router";
  *   대기열: /booking/waiting/:concertId
  */
 
-type ConcertSchedule = {
-    id: number;
-    date: string;
-    time: string;
-};
-
-type ConcertDetail = {
-    id: number;
-    venueId: number;
-    posterUrl?: string;
-    concertTitle: string;
-    artistName: string;
-    concertPeriod: string;
-    runningTime: string;
-    venueName: string;
-    reservationPeriod: string;
-    schedules: ConcertSchedule[];
-};
-
 type DetailMenu = "detail" | "venue" | "notice";
-
-const concertDetail: ConcertDetail = {
-    id: 1,
-    venueId: 1,
-    concertTitle: "공연명",
-    artistName: "아티스트명",
-    concertPeriod: "공연기간",
-    runningTime: "관람시간",
-    venueName: "공연장명",
-    reservationPeriod: "예매기간",
-    schedules: [
-        {
-            id: 1,
-            date: "공연날짜",
-            time: "공연시간",
-        },
-        {
-            id: 2,
-            date: "공연날짜",
-            time: "공연시간",
-        },
-    ],
-};
 
 function ConcertDetailsPage() {
     const navigate = useNavigate();
     const { concertId } = useParams();
+    const {concertDetail} = useConcertDetailsPage();
 
     const currentConcertId = concertId ?? String(concertDetail.id);
 

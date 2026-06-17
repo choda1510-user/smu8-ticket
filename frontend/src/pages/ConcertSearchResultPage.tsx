@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { useNavigate } from "react-router";
 import BottomPaginationBar from "@/sections/BottomPaginationBar";
+import {useConcertSearchResultPage} from "@/hooks/useConcertSearchResultPage";
 
 /*
  * 공연 검색 결과 페이지
@@ -12,37 +13,10 @@ import BottomPaginationBar from "@/sections/BottomPaginationBar";
  *   공연장상세: /venues/:venueId
  */
 
-type ConcertSearchResult = {
-    concertId: number;
-    venueId: number;
-    posterUrl?: string;
-    title: string;
-    period: string;
-    venueName: string;
-    badgeText: string;
-};
-
-const concertSearchResults: ConcertSearchResult[] = [
-    {
-        concertId: 1,
-        venueId: 1,
-        title: "공연명",
-        period: "공연날짜",
-        venueName: "공연장명",
-        badgeText: "D-1",
-    },
-    {
-        concertId: 2,
-        venueId: 2,
-        title: "공연명",
-        period: "공연날짜",
-        venueName: "공연장명",
-        badgeText: "D-2",
-    },
-];
-
 function ConcertSearchResultPage() {
     const navigate = useNavigate();
+    const {concertSearchResults} = useConcertSearchResultPage();
+    const concerts = concertSearchResults.data;
 
     const handleConcertClick = (concertId: number) => {
         navigate(`/concerts/${concertId}`);
@@ -56,16 +30,16 @@ function ConcertSearchResultPage() {
         <section style={styles.page}>
             <div style={styles.resultCountArea}>
         <span style={styles.resultCountText}>
-          검색결과 {concertSearchResults.length}건
+          검색결과 {concerts.length}건
         </span>
             </div>
 
-            {concertSearchResults.length === 0 ? (
+            {concerts.length === 0 ? (
                 <div style={styles.emptyBox}>검색된 공연이 없습니다.</div>
             ) : (
                 <>
                     <ul style={styles.concertList}>
-                        {concertSearchResults.map((concert) => (
+                        {concerts.map((concert) => (
                             <li key={concert.concertId} style={styles.concertItem}>
                                 <button
                                     type="button"

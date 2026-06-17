@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useState} from "react";
+import {useFetchJson} from "@/hooks/useFetchJson";
 
 export type BannerItem = {
     bannerId: number;
@@ -16,99 +17,9 @@ export type ConcertCard = {
     badgeText: string;
 };
 
-const bannerList: BannerItem[] = [
-    {
-        bannerId: 1,
-        concertId: 1,
-        title: "썸네일1",
-    },
-    {
-        bannerId: 2,
-        concertId: 2,
-        title: "썸네일2",
-    },
-    {
-        bannerId: 3,
-        concertId: 3,
-        title: "썸네일3",
-    },
-];
-
-const openConcertList: ConcertCard[] = [
-    {
-        concertId: 1,
-        title: "공연명",
-        reservationPeriod: "2026.06.01 - 2026.06.18",
-        reservationEndDate: "2026-06-18",
-        badgeText: "OPEN",
-    },
-    {
-        concertId: 2,
-        title: "공연명",
-        reservationPeriod: "2026.06.01 - 2026.06.20",
-        reservationEndDate: "2026-06-20",
-        badgeText: "OPEN",
-    },
-    {
-        concertId: 3,
-        title: "공연명",
-        reservationPeriod: "2026.06.01 - 2026.06.25",
-        reservationEndDate: "2026-06-25",
-        badgeText: "OPEN",
-    },
-    {
-        concertId: 4,
-        title: "공연명",
-        reservationPeriod: "2026.06.01 - 2026.06.30",
-        reservationEndDate: "2026-06-30",
-        badgeText: "OPEN",
-    },
-    {
-        concertId: 9,
-        title: "공연명",
-        reservationPeriod: "2026.06.01 - 2026.07.03",
-        reservationEndDate: "2026-07-03",
-        badgeText: "OPEN",
-    },
-];
-
-// const upcomingConcertList: ConcertCard[] = [
-//     {
-//         concertId: 5,
-//         title: "공연명",
-//         reservationPeriod: "2026.06.18 - 2026.06.18",
-//         reservationEndDate: "2026-06-18",
-//         badgeText: "D-DAY",
-//     },
-//     {
-//         concertId: 6,
-//         title: "공연명",
-//         reservationPeriod: "2026.06.19 - 2026.06.19",
-//         reservationEndDate: "2026-06-19",
-//         badgeText: "D-1",
-//     },
-//     {
-//         concertId: 7,
-//         title: "공연명",
-//         reservationPeriod: "2026.06.20 - 2026.06.20",
-//         reservationEndDate: "2026-06-20",
-//         badgeText: "D-2",
-//     },
-//     {
-//         concertId: 8,
-//         title: "공연명",
-//         reservationPeriod: "2026.06.25 - 2026.06.25",
-//         reservationEndDate: "2026-06-25",
-//         badgeText: "D-7",
-//     },
-//     {
-//         concertId: 10,
-//         title: "공연명",
-//         reservationPeriod: "2026.07.01 - 2026.07.01",
-//         reservationEndDate: "2026-07-01",
-//         badgeText: "D-13",
-//     },
-// ];
+const bannerListUrl = new URL("../data/homeBanners.json", import.meta.url).href;
+const openConcertListUrl = new URL("../data/homeOpenConcertList.json", import.meta.url).href;
+const upcomingConcertListUrl = new URL("../data/homeUpcomingConcertList.json", import.meta.url).href;
 
 function sortByReservationEndDate(concerts: ConcertCard[]) {
     return [...concerts].sort((a, b) => {
@@ -120,21 +31,28 @@ function sortByReservationEndDate(concerts: ConcertCard[]) {
 }
 
 export function useHomePage() {
+    const {data: bannerList} = useFetchJson<BannerItem[]>(bannerListUrl, []);
+    const {data: openConcertList} = useFetchJson<ConcertCard[]>(openConcertListUrl, []);
+    const {data: upcomingConcertList} = useFetchJson<ConcertCard[]>(upcomingConcertListUrl, []);
+
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const [isBannerVisible, setIsBannerVisible] = useState(true);
 
-    const currentBanner = bannerList[currentBannerIndex];
+    const currentBanner = bannerList[currentBannerIndex] ?? bannerList[0];
 
     const sortedOpenConcertList = useMemo(() => {
         return sortByReservationEndDate(openConcertList).slice(0, 4);
-    }, []);
+    }, [openConcertList]);
 
-    const sortedUpcomingConcertList = useMemo(async () => {
-        //return sortByReservationEndDate(upcomingConcertList).slice(0, 4);
-        return await fetch("./data/upcomingConcertList.json").then((res) => res.json());
-    }, []);
+    const sortedUpcomingConcertList = useMemo(() => {
+        return sortByReservationEndDate(upcomingConcertList).slice(0, 4);
+    }, [upcomingConcertList]);
 
     useEffect(() => {
+        if (bannerList.length === 0) {
+            return;
+        }
+
         const bannerTimer = window.setInterval(() => {
             setIsBannerVisible(false);
 
@@ -154,7 +72,13 @@ export function useHomePage() {
         return () => {
             window.clearInterval(bannerTimer);
         };
-    }, []);
+    }, [bannerList.length]);
+
+    useEffect(() => {
+        if (currentBannerIndex > bannerList.length - 1) {
+            setCurrentBannerIndex(0);
+        }
+    }, [bannerList.length, currentBannerIndex]);
 
     const moveBanner = (nextIndex: number) => {
         setIsBannerVisible(false);
@@ -166,6 +90,10 @@ export function useHomePage() {
     };
 
     const handlePrevBannerClick = () => {
+        if (bannerList.length === 0) {
+            return;
+        }
+
         const prevIndex =
             currentBannerIndex === 0
                 ? bannerList.length - 1
@@ -175,6 +103,10 @@ export function useHomePage() {
     };
 
     const handleNextBannerClick = () => {
+        if (bannerList.length === 0) {
+            return;
+        }
+
         const nextIndex =
             currentBannerIndex === bannerList.length - 1
                 ? 0

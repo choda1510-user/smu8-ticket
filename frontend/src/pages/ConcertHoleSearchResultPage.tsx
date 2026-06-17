@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { useNavigate } from "react-router";
 import BottomPaginationBar from "@/sections/BottomPaginationBar";
+import {useConcertHoleSearchResultPage} from "@/hooks/useConcertHoleSearchResultPage";
 
 /*
  * 공연장 검색 결과 페이지
@@ -11,28 +12,10 @@ import BottomPaginationBar from "@/sections/BottomPaginationBar";
  *   공연장 상세: /venues/:venueId
  */
 
-type VenueSearchResult = {
-    venueId: number;
-    logoUrl?: string;
-    venueName: string;
-    availableConcertCount: number;
-};
-
-const venueSearchResults: VenueSearchResult[] = [
-    {
-        venueId: 1,
-        venueName: "공연장명",
-        availableConcertCount: 0,
-    },
-    {
-        venueId: 2,
-        venueName: "공연장명",
-        availableConcertCount: 0,
-    },
-];
-
 function ConcertHoleSearchResultPage() {
     const navigate = useNavigate();
+    const {venueSearchResults} = useConcertHoleSearchResultPage();
+    const venues = venueSearchResults.data;
 
     const handleVenueClick = (venueId: number) => {
         navigate(`/venues/${venueId}`);
@@ -43,16 +26,16 @@ function ConcertHoleSearchResultPage() {
             <div style={styles.inner}>
                 <div style={styles.resultCountArea}>
           <span style={styles.resultCountText}>
-            검색결과 {venueSearchResults.length}건
+            검색결과 {venues.length}건
           </span>
                 </div>
 
-                {venueSearchResults.length === 0 ? (
+                {venues.length === 0 ? (
                     <div style={styles.emptyBox}>검색된 공연장이 없습니다.</div>
                 ) : (
                     <>
                         <ul style={styles.venueList}>
-                            {venueSearchResults.map((venue) => (
+                            {venues.map((venue) => (
                                 <li key={venue.venueId} style={styles.venueItem}>
                                     <button
                                         type="button"

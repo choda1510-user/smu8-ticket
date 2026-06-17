@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { useNavigate } from "react-router";
 import BottomPaginationBar from "@/sections/BottomPaginationBar";
+import {useBookingListPage} from "@/hooks/useBookingListPage";
 
 /*
  * 예매내역 페이지
@@ -13,65 +14,10 @@ import BottomPaginationBar from "@/sections/BottomPaginationBar";
  *   공연장상세: /venues/:venueId
  */
 
-type BookingItem = {
-    reserveId: number;
-    concertId: number;
-    venueId: number;
-    posterUrl?: string;
-    concertTitle: string;
-    concertPeriod: string;
-    venueName: string;
-    reservationNumber: string;
-    viewingDateTime: string;
-    ticketCount: string;
-    cancelDeadline: string;
-    status: string;
-};
-
-const bookingList: BookingItem[] = [
-    {
-        reserveId: 1,
-        concertId: 1,
-        venueId: 1,
-        concertTitle: "공연명",
-        concertPeriod: "공연기간",
-        venueName: "공연장명",
-        reservationNumber: "예매번호",
-        viewingDateTime: "관람일시",
-        ticketCount: "매수",
-        cancelDeadline: "취소가능일시",
-        status: "예매상태",
-    },
-    {
-        reserveId: 2,
-        concertId: 2,
-        venueId: 2,
-        concertTitle: "공연명",
-        concertPeriod: "공연기간",
-        venueName: "공연장명",
-        reservationNumber: "예매번호",
-        viewingDateTime: "관람일시",
-        ticketCount: "매수",
-        cancelDeadline: "취소가능일시",
-        status: "예매상태",
-    },
-    {
-        reserveId: 3,
-        concertId: 3,
-        venueId: 3,
-        concertTitle: "공연명",
-        concertPeriod: "공연기간",
-        venueName: "공연장명",
-        reservationNumber: "예매번호",
-        viewingDateTime: "관람일시",
-        ticketCount: "매수",
-        cancelDeadline: "취소가능일시",
-        status: "예매상태",
-    },
-];
-
 function BookingListPage() {
     const navigate = useNavigate();
+    const {bookingList} = useBookingListPage();
+    const bookings = bookingList.data;
 
     const handleReserveDetailClick = (reserveId: number) => {
         navigate(`/mypage/reserve/${reserveId}`);
@@ -92,11 +38,11 @@ function BookingListPage() {
             <section style={styles.contentBox}>
                 <h2 style={styles.sectionTitle}>최근예매 / 취소</h2>
 
-                {bookingList.length === 0 ? (
+                {bookings.length === 0 ? (
                     <div style={styles.emptyBox}>예매 내역이 없습니다.</div>
                 ) : (
                     <ul style={styles.bookingList}>
-                        {bookingList.map((booking) => (
+                        {bookings.map((booking) => (
                             <li key={booking.reserveId} style={styles.bookingItem}>
                                 <button
                                     type="button"
@@ -174,7 +120,7 @@ function BookingListPage() {
                 )}
             </section>
 
-            {bookingList.length > 0 && (
+            {bookings.length > 0 && (
                 <div style={styles.paginationArea}>
                     <BottomPaginationBar />
                 </div>

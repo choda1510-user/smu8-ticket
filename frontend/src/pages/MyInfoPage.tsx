@@ -1,6 +1,8 @@
 import type { CSSProperties, FormEvent, ReactNode } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import {useMyInfoPage} from "@/hooks/useMyInfoPage";
+import type {MyInfoForm} from "@/hooks/useMyInfoPage";
 
 /*
  * 내정보 페이지
@@ -10,24 +12,10 @@ import { useNavigate } from "react-router";
  *   내정보: /mypage
  */
 
-type MyInfoForm = {
-    userId: string;
-    nickname: string;
-    newPassword: string;
-    newPasswordConfirm: string;
-};
-
-const initialMyInfo: MyInfoForm = {
-    userId: "smu8@gmail.com",
-    nickname: "개발자",
-    newPassword: "",
-    newPasswordConfirm: "",
-};
-
 function MyInfoPage() {
     const navigate = useNavigate();
 
-    const [form, setForm] = useState<MyInfoForm>(initialMyInfo);
+    const {form, setForm} = useMyInfoPage();
     const [checkedNickname, setCheckedNickname] = useState("");
     const [isNicknameChecked, setIsNicknameChecked] = useState(false);
 

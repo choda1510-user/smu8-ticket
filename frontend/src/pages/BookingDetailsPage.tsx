@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { useNavigate } from "react-router";
+import {useBookingDetailsPage} from "@/hooks/useBookingDetailsPage";
 
 /*
  * 예매 상세페이지
@@ -12,62 +13,9 @@ import { useNavigate } from "react-router";
  *   공연장상세: /venues/:venueId
  */
 
-type SeatInfo = {
-    id: number;
-    seatGrade: string;
-    seatNumber: string;
-    priceGrade: string;
-    price: string;
-    cancelStatus: string;
-};
-
-type BookingDetail = {
-    concertId: number;
-    venueId: number;
-    concertTitle: string;
-    reservationNumber: string;
-    venueName: string;
-    reservationDate: string;
-    userId: string;
-    viewingDateTime: string;
-    cancelDeadline: string;
-    ticketCount: string;
-    status: string;
-    ticketPrice: string;
-    basePrice: string;
-    totalPrice: string;
-    seats: SeatInfo[];
-};
-
-const bookingDetail: BookingDetail = {
-    concertId: 1,
-    venueId: 1,
-    concertTitle: "공연명",
-    reservationNumber: "예매번호",
-    venueName: "공연장명",
-    reservationDate: "예매일시",
-    userId: "아이디",
-    viewingDateTime: "관람일시",
-    cancelDeadline: "취소가능일시",
-    ticketCount: "0매",
-    status: "예매상태",
-    ticketPrice: "티켓금액",
-    basePrice: "기본가",
-    totalPrice: "총 구매금액",
-    seats: [
-        {
-            id: 1,
-            seatGrade: "좌석 등급",
-            seatNumber: "좌석 번호",
-            priceGrade: "가격 등급",
-            price: "구매금액",
-            cancelStatus: "취소상태",
-        },
-    ],
-};
-
 function BookingDetailsPage() {
     const navigate = useNavigate();
+    const {bookingDetail} = useBookingDetailsPage();
 
     const handleConcertClick = () => {
         navigate(`/concerts/${bookingDetail.concertId}`);

@@ -1,6 +1,8 @@
 import type { CSSProperties } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import BottomPaginationBar from "@/sections/BottomPaginationBar";
+import {useConcertListPage} from "@/hooks/useConcertListPage";
+import type {ConcertItem} from "@/hooks/useConcertListPage";
 
 /*
  * 공연 목록 페이지
@@ -13,80 +15,12 @@ import BottomPaginationBar from "@/sections/BottomPaginationBar";
  *   공연상세: /concerts/:concertId
  */
 
-type ConcertItem = {
-    concertId: number;
-    posterUrl?: string;
-    title: string;
-    period: string;
-    venueName: string;
-    badgeText: string;
-};
-
-const openConcertList: ConcertItem[] = [
-    {
-        concertId: 1,
-        title: "공연명",
-        period: "공연날짜",
-        venueName: "공연장명",
-        badgeText: "OPEN",
-    },
-    {
-        concertId: 2,
-        title: "공연명",
-        period: "공연날짜",
-        venueName: "공연장명",
-        badgeText: "OPEN",
-    },
-    {
-        concertId: 3,
-        title: "공연명",
-        period: "공연날짜",
-        venueName: "공연장명",
-        badgeText: "OPEN",
-    },
-    {
-        concertId: 4,
-        title: "공연명",
-        period: "공연날짜",
-        venueName: "공연장명",
-        badgeText: "OPEN",
-    },
-];
-
-const upcomingConcertList: ConcertItem[] = [
-    {
-        concertId: 5,
-        title: "공연명",
-        period: "공연날짜",
-        venueName: "공연장명",
-        badgeText: "D-DAY",
-    },
-    {
-        concertId: 6,
-        title: "공연명",
-        period: "공연날짜",
-        venueName: "공연장명",
-        badgeText: "D-1",
-    },
-    {
-        concertId: 7,
-        title: "공연명",
-        period: "공연날짜",
-        venueName: "공연장명",
-        badgeText: "D-7",
-    },
-    {
-        concertId: 8,
-        title: "공연명",
-        period: "공연날짜",
-        venueName: "공연장명",
-        badgeText: "D-12",
-    },
-];
-
 function ConcertListPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const {openConcertList, upcomingConcertList} = useConcertListPage();
+    const openConcerts = openConcertList.data;
+    const upcomingConcerts = upcomingConcertList.data;
 
     const filter = searchParams.get("filter");
 
@@ -150,7 +84,7 @@ function ConcertListPage() {
                 <>
                     <ConcertSection
                         title="예매중인 공연"
-                        concerts={openConcertList.slice(0, 2)}
+                        concerts={openConcerts.slice(0, 2)}
                         showMoreButton
                         onMoreClick={handleOpenConcertMoreClick}
                         onConcertClick={handleConcertClick}
@@ -158,7 +92,7 @@ function ConcertListPage() {
 
                     <ConcertSection
                         title="티켓팅 오픈 예정"
-                        concerts={upcomingConcertList.slice(0, 2)}
+                        concerts={upcomingConcerts.slice(0, 2)}
                         showMoreButton
                         onMoreClick={handleUpcomingConcertMoreClick}
                         onConcertClick={handleConcertClick}
@@ -170,7 +104,7 @@ function ConcertListPage() {
                 <>
                     <ConcertSection
                         title="예매중인 공연"
-                        concerts={openConcertList}
+                        concerts={openConcerts}
                         showMoreButton={false}
                         onMoreClick={handleOpenConcertMoreClick}
                         onConcertClick={handleConcertClick}
@@ -186,7 +120,7 @@ function ConcertListPage() {
                 <>
                     <ConcertSection
                         title="티켓팅 오픈 예정"
-                        concerts={upcomingConcertList}
+                        concerts={upcomingConcerts}
                         showMoreButton={false}
                         onMoreClick={handleUpcomingConcertMoreClick}
                         onConcertClick={handleConcertClick}

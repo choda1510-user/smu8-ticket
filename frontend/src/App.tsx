@@ -12,6 +12,7 @@ import GlobalConcertSearchPage from './pages/GlobalConcertSearchPage'
 import ConcertHoleSearchResultPage from './pages/ConcertHoleSearchResultPage'
 import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
+import ConcertSearchResultPage from "@/pages/ConcertSearchResultPage.tsx";
 /*
 * 리액트 라우터가 이곳에 있어야 함
 */
@@ -28,7 +29,7 @@ function App() {
           <Route path={"/search"} element={<UserSearchResultLayout />}>
             <Route path={""} element={<Navigate to={'/search/all'} />} />
             <Route path={"all"} element={<GlobalConcertSearchPage />} />
-            <Route path={"concerts"} element={<ConcertListPage />} />
+            <Route path={"concerts"} element={<ConcertSearchResultPage />} />
             <Route path={"venues"} element={<ConcertHoleSearchResultPage />} />
           </Route>
           <Route path={"/concerts"}>

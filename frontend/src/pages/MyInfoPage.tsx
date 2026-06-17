@@ -1,41 +1,50 @@
+import type { CSSProperties, FormEvent, ReactNode } from "react";
 import { useState } from "react";
-import type { SyntheticEvent } from "react";
 import { useNavigate } from "react-router";
 
 /*
  * 내정보 페이지
  * - UserMyPageLayout 내부 Outlet에 들어가는 본문 영역만 작성
- * - Header, MyPageSide, Layout 제외
+ * - Header, MyPageSide 제외
+ * - 라우팅 기준:
+ *   내정보: /mypage
  */
 
-type MyInfo = {
+type MyInfoForm = {
     userId: string;
     nickname: string;
+    newPassword: string;
+    newPasswordConfirm: string;
 };
 
-const myInfo: MyInfo = {
-    userId: "아이디",
-    nickname: "닉네임",
+const initialMyInfo: MyInfoForm = {
+    userId: "smu8@gmail.com",
+    nickname: "개발자",
+    newPassword: "",
+    newPasswordConfirm: "",
 };
 
 function MyInfoPage() {
     const navigate = useNavigate();
 
-    const [nickname, setNickname] = useState(myInfo.nickname);
-    const [password, setPassword] = useState("");
-    const [passwordCheck, setPasswordCheck] = useState("");
-
+    const [form, setForm] = useState<MyInfoForm>(initialMyInfo);
+    const [checkedNickname, setCheckedNickname] = useState("");
     const [isNicknameChecked, setIsNicknameChecked] = useState(false);
-    const [nicknameMessage, setNicknameMessage] = useState("");
 
-    const handleNicknameChange = (value: string) => {
-        setNickname(value);
-        setIsNicknameChecked(false);
-        setNicknameMessage("");
+    const handleChange = (field: keyof MyInfoForm, value: string) => {
+        setForm((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+
+        if (field === "nickname") {
+            setIsNicknameChecked(false);
+            setCheckedNickname("");
+        }
     };
 
-    const handleNicknameCheck = () => {
-        const trimmedNickname = nickname.trim();
+    const handleNicknameCheckClick = () => {
+        const trimmedNickname = form.nickname.trim();
 
         if (!trimmedNickname) {
             alert("닉네임을 입력해주세요.");
@@ -45,60 +54,65 @@ function MyInfoPage() {
         /*
          * 추후 닉네임 중복확인 API 연결 예정
          * GET /members/check-nickname?nickname=...
+         *
+         * 중복이면:
+         * alert("이미 사용 중인 닉네임입니다.");
+         *
+         * 사용 가능하면:
+         * setIsNicknameChecked(true);
          */
 
+        setCheckedNickname(trimmedNickname);
         setIsNicknameChecked(true);
-        setNicknameMessage("사용 가능한 닉네임입니다.");
+        alert("사용 가능한 닉네임입니다.");
     };
 
-    const handleSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
+    const handlePreviousClick = () => {
+        navigate(-1);
+    };
+
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        const trimmedNickname = nickname.trim();
-        const trimmedPassword = password.trim();
-        const trimmedPasswordCheck = passwordCheck.trim();
+        const trimmedNickname = form.nickname.trim();
+        const trimmedPassword = form.newPassword.trim();
+        const trimmedPasswordConfirm = form.newPasswordConfirm.trim();
 
         if (!trimmedNickname) {
             alert("닉네임을 입력해주세요.");
             return;
         }
 
-        if (!isNicknameChecked && trimmedNickname !== myInfo.nickname) {
-            alert("닉네임 중복확인을 진행해주세요.");
+        if (!isNicknameChecked || checkedNickname !== trimmedNickname) {
+            alert("닉네임 중복확인을 해주세요.");
             return;
         }
 
-        if (trimmedPassword || trimmedPasswordCheck) {
-            if (!trimmedPassword) {
-                alert("변경할 비밀번호를 입력해주세요.");
-                return;
-            }
+        if (!trimmedPassword) {
+            alert("변경할 비밀번호를 입력해주세요.");
+            return;
+        }
 
-            if (!trimmedPasswordCheck) {
-                alert("비밀번호 확인을 입력해주세요.");
-                return;
-            }
+        if (!trimmedPasswordConfirm) {
+            alert("비밀번호 확인을 입력해주세요.");
+            return;
+        }
 
-            if (trimmedPassword !== trimmedPasswordCheck) {
-                alert("비밀번호가 일치하지 않습니다.");
-                return;
-            }
+        if (trimmedPassword !== trimmedPasswordConfirm) {
+            alert("비밀번호가 일치하지 않습니다.");
+            return;
         }
 
         /*
          * 추후 내정보 수정 API 연결 예정
-         * PATCH /mypage/me
+         * PATCH /mypage
          */
 
-        alert("내정보가 수정되었습니다.");
-    };
-
-    const handleBackClick = () => {
-        navigate(-1);
+        alert("회원 정보가 수정되었습니다.");
     };
 
     const handleWithdrawClick = () => {
-        const isConfirmed = window.confirm("정말 회원탈퇴를 진행하시겠습니까?");
+        const isConfirmed = window.confirm("정말 회원탈퇴 하시겠습니까?");
 
         if (!isConfirmed) {
             return;
@@ -106,96 +120,263 @@ function MyInfoPage() {
 
         /*
          * 추후 회원탈퇴 API 연결 예정
-         * DELETE /members/me
+         * DELETE /mypage
          */
 
-        alert("회원탈퇴가 처리되었습니다.");
-        navigate("/");
+        alert("회원탈퇴 기능은 추후 연결 예정입니다.");
     };
 
+    const isPasswordConfirmEmpty = form.newPasswordConfirm.trim() === "";
+    const isPasswordMatched =
+        form.newPassword.trim() !== "" &&
+        form.newPassword.trim() === form.newPasswordConfirm.trim();
+
     return (
-        <section className="my-info-page">
-            <h1>내정보</h1>
+        <section style={styles.page}>
+            <h1 style={styles.pageTitle}>내정보</h1>
 
-            <form className="my-info-form" onSubmit={handleSubmit}>
-                <div className="my-info-row">
-                    <label>아이디</label>
-                    <span>{myInfo.userId}</span>
-                </div>
+            <form style={styles.formBox} onSubmit={handleSubmit}>
+                <InfoRow label="아이디">
+                    <span style={styles.idText}>{form.userId}</span>
+                </InfoRow>
 
-                <div className="my-info-row">
-                    <label htmlFor="nickname">닉네임</label>
-
-                    <div className="nickname-input-area">
+                <InfoRow label="닉네임">
+                    <div style={styles.nicknameArea}>
                         <input
-                            id="nickname"
                             type="text"
-                            value={nickname}
-                            onChange={(event) => handleNicknameChange(event.target.value)}
+                            value={form.nickname}
+                            onChange={(event) => handleChange("nickname", event.target.value)}
+                            style={styles.input}
                         />
 
                         <button
                             type="button"
-                            className="duplicate-check-button"
-                            onClick={handleNicknameCheck}
+                            style={styles.checkButton}
+                            onClick={handleNicknameCheckClick}
                         >
                             중복확인
                         </button>
+
+                        {isNicknameChecked && (
+                            <span style={styles.checkCompleteText}>확인됨!</span>
+                        )}
                     </div>
-                </div>
+                </InfoRow>
 
-                {nicknameMessage && (
-                    <p className="check-message">{nicknameMessage}</p>
-                )}
-
-                <div className="my-info-row">
-                    <label htmlFor="password">비밀번호 변경</label>
-
+                <InfoRow label="비밀번호 변경">
                     <input
-                        id="password"
                         type="password"
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
+                        value={form.newPassword}
+                        onChange={(event) =>
+                            handleChange("newPassword", event.target.value)
+                        }
+                        style={styles.input}
                     />
-                </div>
+                </InfoRow>
 
-                <div className="my-info-row">
-                    <label htmlFor="password-check">비밀번호 변경확인</label>
-
-                    <div className="password-check-area">
+                <InfoRow label="비밀번호 변경확인">
+                    <div style={styles.passwordConfirmArea}>
                         <input
-                            id="password-check"
                             type="password"
-                            value={passwordCheck}
-                            onChange={(event) => setPasswordCheck(event.target.value)}
+                            value={form.newPasswordConfirm}
+                            onChange={(event) =>
+                                handleChange("newPasswordConfirm", event.target.value)
+                            }
+                            style={styles.input}
                         />
 
-                        {passwordCheck && password !== passwordCheck && (
-                            <p className="error-message">비밀번호가 일치하지 않습니다.</p>
+                        {!isPasswordConfirmEmpty && isPasswordMatched && (
+                            <span style={styles.passwordSuccessText}>일치</span>
                         )}
 
-                        {passwordCheck && password === passwordCheck && (
-                            <p className="success-message">비밀번호가 일치합니다.</p>
+                        {!isPasswordConfirmEmpty && !isPasswordMatched && (
+                            <span style={styles.passwordErrorText}>불일치</span>
                         )}
                     </div>
-                </div>
+                </InfoRow>
 
-                <div className="my-info-button-area">
-                    <button type="button" onClick={handleBackClick}>
+                <div style={styles.buttonArea}>
+                    <button
+                        type="button"
+                        style={styles.previousButton}
+                        onClick={handlePreviousClick}
+                    >
                         이전
                     </button>
 
-                    <button type="submit">저장</button>
+                    <button type="submit" style={styles.saveButton}>
+                        저장
+                    </button>
+                </div>
+
+                <div style={styles.withdrawArea}>
+                    <button
+                        type="button"
+                        style={styles.withdrawButton}
+                        onClick={handleWithdrawClick}
+                    >
+                        회원탈퇴
+                    </button>
                 </div>
             </form>
-
-            <div className="withdraw-area">
-                <button type="button" onClick={handleWithdrawClick}>
-                    회원탈퇴
-                </button>
-            </div>
         </section>
     );
 }
+
+type InfoRowProps = {
+    label: string;
+    children: ReactNode;
+};
+
+function InfoRow({ label, children }: InfoRowProps) {
+    return (
+        <div style={styles.infoRow}>
+            <label style={styles.label}>{label}</label>
+            <div style={styles.inputArea}>{children}</div>
+        </div>
+    );
+}
+
+const styles: Record<string, CSSProperties> = {
+    page: {
+        width: "430px",
+        margin: "0 auto",
+        color: "#222",
+        boxSizing: "border-box",
+    },
+
+    pageTitle: {
+        margin: "0 0 42px",
+        paddingBottom: "14px",
+        borderBottom: "1px solid #e2ddea",
+        textAlign: "center",
+        fontSize: "15px",
+        fontWeight: 700,
+    },
+
+    formBox: {
+        width: "100%",
+    },
+
+    infoRow: {
+        minHeight: "42px",
+        display: "grid",
+        gridTemplateColumns: "120px 1fr",
+        alignItems: "center",
+        marginBottom: "14px",
+        boxSizing: "border-box",
+    },
+
+    label: {
+        color: "#222",
+        fontSize: "12px",
+        textAlign: "right",
+        paddingRight: "28px",
+        boxSizing: "border-box",
+    },
+
+    inputArea: {
+        display: "flex",
+        alignItems: "center",
+        minHeight: "28px",
+    },
+
+    idText: {
+        color: "#222",
+        fontSize: "12px",
+    },
+
+    input: {
+        width: "170px",
+        height: "26px",
+        border: "1px solid #aaa",
+        backgroundColor: "#fff",
+        padding: "0 8px",
+        color: "#222",
+        fontSize: "12px",
+        outline: "none",
+        boxSizing: "border-box",
+    },
+
+    nicknameArea: {
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+    },
+
+    checkButton: {
+        width: "58px",
+        height: "26px",
+        border: "none",
+        borderRadius: "4px",
+        backgroundColor: "#9a63ff",
+        color: "#fff",
+        fontSize: "11px",
+        cursor: "pointer",
+    },
+
+    checkCompleteText: {
+        color: "#222",
+        fontSize: "11px",
+    },
+
+    passwordConfirmArea: {
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+    },
+
+    passwordErrorText: {
+        color: "#e55757",
+        fontSize: "11px",
+    },
+
+    passwordSuccessText: {
+        color: "#222",
+        fontSize: "11px",
+    },
+
+    buttonArea: {
+        marginTop: "70px",
+        display: "flex",
+        justifyContent: "center",
+        gap: "70px",
+    },
+
+    previousButton: {
+        padding: 0,
+        border: "none",
+        backgroundColor: "transparent",
+        color: "#d46b6b",
+        fontSize: "13px",
+        cursor: "pointer",
+    },
+
+    saveButton: {
+        padding: 0,
+        border: "none",
+        backgroundColor: "transparent",
+        color: "#d46b6b",
+        fontSize: "13px",
+        cursor: "pointer",
+    },
+
+    withdrawArea: {
+        marginTop: "34px",
+        display: "flex",
+        justifyContent: "center",
+    },
+
+    withdrawButton: {
+        padding: 0,
+        border: "none",
+        backgroundColor: "transparent",
+        color: "#777",
+        fontSize: "12px",
+        textDecoration: "underline",
+        textUnderlineOffset: "3px",
+        cursor: "pointer",
+    },
+};
 
 export default MyInfoPage;

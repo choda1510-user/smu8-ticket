@@ -1,5 +1,6 @@
 import UserHeader from "@/sections/UserHeader";
 import { Outlet } from "react-router";
+import './UserLayout.css';
 
 function UserLayout() {
     return (

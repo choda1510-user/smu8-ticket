@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "공연명",
+      "period": "공연기간",
+      "venueId": 1,
+      "venueName": "공연장명",
+      "status": "예매중"
+    },
+    {
+      "id": 2,
+      "title": "공연명",
+      "period": "공연기간",
+      "venueId": 2,
+      "venueName": "공연장명",
+      "status": "예매예정"
+    }
+  ],
+  "page": 1,
+  "totalPage": 1
+}

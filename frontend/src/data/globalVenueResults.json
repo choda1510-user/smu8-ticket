@@ -1,0 +1,16 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "venueName": "공연장명",
+      "availableConcertCount": 0
+    },
+    {
+      "id": 2,
+      "venueName": "공연장명",
+      "availableConcertCount": 0
+    }
+  ],
+  "page": 1,
+  "totalPage": 1
+}

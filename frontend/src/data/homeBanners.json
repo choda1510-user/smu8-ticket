@@ -1,0 +1,17 @@
+[
+  {
+    "bannerId": 1,
+    "concertId": 1,
+    "title": "메인 배너"
+  },
+  {
+    "bannerId": 2,
+    "concertId": 2,
+    "title": "메인 배너"
+  },
+  {
+    "bannerId": 3,
+    "concertId": 3,
+    "title": "메인 배너"
+  }
+]

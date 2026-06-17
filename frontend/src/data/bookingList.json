@@ -1,0 +1,45 @@
+{
+  "data": [
+    {
+      "reserveId": 1,
+      "concertId": 1,
+      "venueId": 1,
+      "concertTitle": "공연명",
+      "concertPeriod": "공연기간",
+      "venueName": "공연장명",
+      "reservationNumber": "예매번호",
+      "viewingDateTime": "관람일시",
+      "ticketCount": "매수",
+      "cancelDeadline": "취소가능일시",
+      "status": "예매상태"
+    },
+    {
+      "reserveId": 2,
+      "concertId": 2,
+      "venueId": 2,
+      "concertTitle": "공연명",
+      "concertPeriod": "공연기간",
+      "venueName": "공연장명",
+      "reservationNumber": "예매번호",
+      "viewingDateTime": "관람일시",
+      "ticketCount": "매수",
+      "cancelDeadline": "취소가능일시",
+      "status": "예매상태"
+    },
+    {
+      "reserveId": 3,
+      "concertId": 3,
+      "venueId": 3,
+      "concertTitle": "공연명",
+      "concertPeriod": "공연기간",
+      "venueName": "공연장명",
+      "reservationNumber": "예매번호",
+      "viewingDateTime": "관람일시",
+      "ticketCount": "매수",
+      "cancelDeadline": "취소가능일시",
+      "status": "예매상태"
+    }
+  ],
+  "page": 1,
+  "totalPage": 1
+}

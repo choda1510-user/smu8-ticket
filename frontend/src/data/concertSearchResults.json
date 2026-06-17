@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "concertId": 1,
+      "venueId": 1,
+      "title": "공연명",
+      "period": "공연날짜",
+      "venueName": "공연장명",
+      "badgeText": "D-1"
+    },
+    {
+      "concertId": 2,
+      "venueId": 2,
+      "title": "공연명",
+      "period": "공연날짜",
+      "venueName": "공연장명",
+      "badgeText": "D-2"
+    }
+  ],
+  "page": 1,
+  "totalPage": 1
+}

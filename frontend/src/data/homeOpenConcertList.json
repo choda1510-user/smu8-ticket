@@ -1,0 +1,37 @@
+[
+  {
+    "concertId": 1,
+    "title": "공연명",
+    "reservationPeriod": "2026.06.01 - 2026.06.18",
+    "reservationEndDate": "2026-06-18",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 2,
+    "title": "공연명",
+    "reservationPeriod": "2026.06.01 - 2026.06.20",
+    "reservationEndDate": "2026-06-20",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 3,
+    "title": "공연명",
+    "reservationPeriod": "2026.06.01 - 2026.06.25",
+    "reservationEndDate": "2026-06-25",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 4,
+    "title": "공연명",
+    "reservationPeriod": "2026.06.01 - 2026.06.30",
+    "reservationEndDate": "2026-06-30",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 9,
+    "title": "공연명",
+    "reservationPeriod": "2026.06.01 - 2026.07.03",
+    "reservationEndDate": "2026-07-03",
+    "badgeText": "OPEN"
+  }
+]

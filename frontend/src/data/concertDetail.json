@@ -1,0 +1,22 @@
+{
+  "id": 1,
+  "venueId": 1,
+  "concertTitle": "공연명",
+  "artistName": "아티스트명",
+  "concertPeriod": "공연기간",
+  "runningTime": "관람시간",
+  "venueName": "공연장명",
+  "reservationPeriod": "예매기간",
+  "schedules": [
+    {
+      "id": 1,
+      "date": "공연날짜",
+      "time": "공연시간"
+    },
+    {
+      "id": 2,
+      "date": "공연날짜",
+      "time": "공연시간"
+    }
+  ]
+}

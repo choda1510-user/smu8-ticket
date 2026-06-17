@@ -4,8 +4,11 @@
 * */
 
 function OpenStatusBadge() {
+    const OpenStatusBadge = ({status}: {status: string}) => {
+    }
     return (
-        <></>
-    )
+        <OpenStatusBadge status="open"></OpenStatusBadge>
+
+          )
 }
 export default OpenStatusBadge;

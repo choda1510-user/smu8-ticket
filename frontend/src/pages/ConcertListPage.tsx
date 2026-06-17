@@ -1,202 +1,442 @@
-import { useMemo } from "react";
-import { useLocation, useNavigate } from "react-router";
+import type { CSSProperties } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 
 /*
  * 공연 목록 페이지
  * - UserLayout 내부 Outlet에 들어가는 본문 영역만 작성
- * - Header, Navigation은 Layout에서 처리
+ * - Header, Navigation, Pagination 제외
+ * - 라우팅 기준:
+ *   공연목록 메인: /concerts
+ *   예매중 공연 목록: /concerts?filter=open
+ *   티켓 오픈예정 공연 목록: /concerts?filter=upcoming
+ *   공연상세: /concerts/:concertId
  */
-
-type ConcertStatus = "OPEN" | "UPCOMING" | "CLOSING" | "SOLD_OUT";
-
 type ConcertItem = {
-    id: number;
+    concertId: number;
     posterUrl?: string;
     title: string;
     period: string;
     venueName: string;
-    status: ConcertStatus;
     badgeText: string;
 };
 
-const concertList: ConcertItem[] = [
+const openConcertList: ConcertItem[] = [
     {
-        id: 1,
+        concertId: 1,
         title: "공연명",
-        period: "공연기간",
+        period: "공연날짜",
         venueName: "공연장명",
-        status: "OPEN",
         badgeText: "OPEN",
     },
     {
-        id: 2,
+        concertId: 2,
         title: "공연명",
-        period: "공연기간",
+        period: "공연날짜",
         venueName: "공연장명",
-        status: "OPEN",
         badgeText: "OPEN",
     },
     {
-        id: 3,
+        concertId: 3,
         title: "공연명",
-        period: "공연기간",
+        period: "공연날짜",
         venueName: "공연장명",
-        status: "CLOSING",
+        badgeText: "OPEN",
+    },
+    {
+        concertId: 4,
+        title: "공연명",
+        period: "공연날짜",
+        venueName: "공연장명",
+        badgeText: "OPEN",
+    },
+];
+
+const upcomingConcertList: ConcertItem[] = [
+    {
+        concertId: 5,
+        title: "공연명",
+        period: "공연날짜",
+        venueName: "공연장명",
         badgeText: "D-DAY",
     },
     {
-        id: 4,
+        concertId: 6,
         title: "공연명",
-        period: "공연기간",
+        period: "공연날짜",
         venueName: "공연장명",
-        status: "UPCOMING",
-        badgeText: "COMING SOON",
+        badgeText: "D-1",
+    },
+    {
+        concertId: 7,
+        title: "공연명",
+        period: "공연날짜",
+        venueName: "공연장명",
+        badgeText: "D-7",
+    },
+    {
+        concertId: 8,
+        title: "공연명",
+        period: "공연날짜",
+        venueName: "공연장명",
+        badgeText: "D-12",
     },
 ];
 
 function ConcertListPage() {
     const navigate = useNavigate();
-    const location = useLocation();
+    const [searchParams] = useSearchParams();
 
-    const currentPath = location.pathname;
-
-    const filteredConcertList = useMemo(() => {
-        if (currentPath === "/concerts/open") {
-            return concertList.filter((concert) => concert.status === "OPEN");
-        }
-
-        if (currentPath === "/concerts/closing") {
-            return concertList.filter((concert) => concert.status === "CLOSING");
-        }
-
-        if (currentPath === "/concerts/upcoming") {
-            return concertList.filter((concert) => concert.status === "UPCOMING");
-        }
-
-        return concertList;
-    }, [currentPath]);
-
-    const handleCategoryClick = (url: string) => {
-        navigate(url);
-    };
+    const filter = searchParams.get("filter");
 
     const handleConcertClick = (concertId: number) => {
         navigate(`/concerts/${concertId}`);
     };
 
-    const getPageTitle = () => {
-        if (currentPath === "/concerts/open") {
-            return "예매중인 공연";
-        }
-
-        if (currentPath === "/concerts/closing") {
-            return "예매임박 공연";
-        }
-
-        if (currentPath === "/concerts/upcoming") {
-            return "오픈예정 공연";
-        }
-
-        return "공연";
+    const handleOpenConcertMoreClick = () => {
+        navigate("/concerts?filter=open");
     };
 
+    const handleUpcomingConcertMoreClick = () => {
+        navigate("/concerts?filter=upcoming");
+    };
+
+    const handleOpenTabClick = () => {
+        navigate("/concerts?filter=open");
+    };
+
+    const handleUpcomingTabClick = () => {
+        navigate("/concerts?filter=upcoming");
+    };
+
+    const isOpenFilter = filter === "open";
+    const isUpcomingFilter = filter === "upcoming";
+    const isMainPage = !filter;
+
     return (
-        <section className="concert-list-page">
-            <div className="concert-list-title-area">
-                <h1>{getPageTitle()}</h1>
-            </div>
+        <section style={styles.page}>
+            {isMainPage && (
+                <>
+                    <ConcertSection
+                        title="예매중"
+                        concerts={openConcertList.slice(0, 2)}
+                        showMoreButton
+                        onMoreClick={handleOpenConcertMoreClick}
+                        onConcertClick={handleConcertClick}
+                    />
 
-            <nav className="concert-category-menu">
-                <button
-                    type="button"
-                    className={currentPath === "/concerts" ? "active" : ""}
-                    onClick={() => handleCategoryClick("/concerts")}
-                >
-                    전체 공연
-                </button>
+                    <ConcertSection
+                        title="티켓 오픈 예정"
+                        concerts={upcomingConcertList.slice(0, 2)}
+                        showMoreButton
+                        onMoreClick={handleUpcomingConcertMoreClick}
+                        onConcertClick={handleConcertClick}
+                    />
+                </>
+            )}
 
-                <button
-                    type="button"
-                    className={currentPath === "/concerts/open" ? "active" : ""}
-                    onClick={() => handleCategoryClick("/concerts/open")}
-                >
-                    예매중
-                </button>
+            {(isOpenFilter || isUpcomingFilter) && (
+                <>
+                    <section style={styles.categoryBox}>
+                        <h1 style={styles.categoryTitle}>공연</h1>
 
-                <button
-                    type="button"
-                    className={currentPath === "/concerts/closing" ? "active" : ""}
-                    onClick={() => handleCategoryClick("/concerts/closing")}
-                >
-                    예매임박
-                </button>
+                        <div style={styles.tabMenu}>
+                            <button
+                                type="button"
+                                style={
+                                    isOpenFilter
+                                        ? { ...styles.tabButton, ...styles.activeTabButton }
+                                        : styles.tabButton
+                                }
+                                onClick={handleOpenTabClick}
+                            >
+                                예매중인 공연
+                            </button>
 
-                <button
-                    type="button"
-                    className={currentPath === "/concerts/upcoming" ? "active" : ""}
-                    onClick={() => handleCategoryClick("/concerts/upcoming")}
-                >
-                    오픈예정
-                </button>
-            </nav>
+                            <button
+                                type="button"
+                                style={
+                                    isUpcomingFilter
+                                        ? { ...styles.tabButton, ...styles.activeTabButton }
+                                        : styles.tabButton
+                                }
+                                onClick={handleUpcomingTabClick}
+                            >
+                                티켓팅 오픈예정
+                            </button>
+                        </div>
+                    </section>
 
-            <section className="concert-result-section">
-                <div className="concert-count-row">
-                    <span>총</span>
-                    <strong>{filteredConcertList.length}</strong>
-                    <span>개의 공연</span>
-                </div>
+                    {isOpenFilter && (
+                        <ConcertSection
+                            title="예매중인 공연"
+                            concerts={openConcertList}
+                            showMoreButton={false}
+                            onMoreClick={handleOpenConcertMoreClick}
+                            onConcertClick={handleConcertClick}
+                        />
+                    )}
 
-                {filteredConcertList.length === 0 ? (
-                    <div className="empty-concert-list">등록된 공연이 없습니다.</div>
-                ) : (
-                    <ul className="concert-card-list">
-                        {filteredConcertList.map((concert) => (
-                            <li key={concert.id} className="concert-card-item">
-                                <button
-                                    type="button"
-                                    className="concert-card"
-                                    onClick={() => handleConcertClick(concert.id)}
-                                >
-                                    <div className="poster-box">
-                                        {concert.posterUrl ? (
-                                            <img src={concert.posterUrl} alt="공연 포스터" />
-                                        ) : (
-                                            <span>공연 카드</span>
-                                        )}
-                                    </div>
-
-                                    <div className="concert-card-info">
-                                        <span className="concert-badge">{concert.badgeText}</span>
-
-                                        <strong>{concert.title}</strong>
-
-                                        <span>{concert.period}</span>
-
-                                        <span>{concert.venueName}</span>
-                                    </div>
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                )}
-
-                <div className="pagination-area">
-                    <button type="button">‹</button>
-
-                    <button type="button" className="active">
-                        1
-                    </button>
-
-                    <button type="button">2</button>
-
-                    <button type="button">3</button>
-
-                    <button type="button">›</button>
-                </div>
-            </section>
+                    {isUpcomingFilter && (
+                        <ConcertSection
+                            title="티켓 오픈 예정"
+                            concerts={upcomingConcertList}
+                            showMoreButton={false}
+                            onMoreClick={handleUpcomingConcertMoreClick}
+                            onConcertClick={handleConcertClick}
+                        />
+                    )}
+                </>
+            )}
         </section>
     );
 }
+
+type ConcertSectionProps = {
+    title: string;
+    concerts: ConcertItem[];
+    showMoreButton: boolean;
+    onMoreClick: () => void;
+    onConcertClick: (concertId: number) => void;
+};
+
+function ConcertSection({
+                            title,
+                            concerts,
+                            showMoreButton,
+                            onMoreClick,
+                            onConcertClick,
+                        }: ConcertSectionProps) {
+    return (
+        <section style={styles.section}>
+            <div style={styles.sectionHeader}>
+                <h2 style={styles.sectionTitle}>{title}</h2>
+
+                {showMoreButton && (
+                    <button type="button" style={styles.moreButton} onClick={onMoreClick}>
+                        전체보기
+                    </button>
+                )}
+            </div>
+
+            {concerts.length === 0 ? (
+                <div style={styles.emptyBox}>등록된 공연이 없습니다.</div>
+            ) : (
+                <ul style={styles.concertList}>
+                    {concerts.map((concert) => (
+                        <li key={concert.concertId} style={styles.concertItem}>
+                            <button
+                                type="button"
+                                style={styles.posterButton}
+                                onClick={() => onConcertClick(concert.concertId)}
+                            >
+                                {concert.posterUrl ? (
+                                    <img
+                                        src={concert.posterUrl}
+                                        alt="공연 포스터"
+                                        style={styles.posterImage}
+                                    />
+                                ) : (
+                                    <span>포스터</span>
+                                )}
+                            </button>
+
+                            <button
+                                type="button"
+                                style={styles.concertTitleButton}
+                                onClick={() => onConcertClick(concert.concertId)}
+                            >
+                                {concert.title}
+                            </button>
+
+                            <div style={styles.periodArea}>
+                                <span style={styles.smallLabel}>공연날짜</span>
+                                <span style={styles.periodText}>{concert.period}</span>
+                            </div>
+
+                            <div style={styles.venueArea}>
+                                <span style={styles.venueName}>{concert.venueName}</span>
+                            </div>
+
+                            <div style={styles.badgeArea}>
+                                <span style={styles.badge}>{concert.badgeText}</span>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </section>
+    );
+}
+
+const styles: Record<string, CSSProperties> = {
+    page: {
+        width: "720px",
+        margin: "0 auto",
+        color: "#222",
+        boxSizing: "border-box",
+    },
+
+    categoryBox: {
+        width: "100%",
+        borderBottom: "1px solid #e0e0e0",
+        marginBottom: "24px",
+    },
+
+    categoryTitle: {
+        margin: "0 0 18px",
+        fontSize: "16px",
+        fontWeight: 500,
+    },
+
+    tabMenu: {
+        height: "44px",
+        display: "flex",
+        alignItems: "center",
+        gap: "28px",
+    },
+
+    tabButton: {
+        padding: "0 4px",
+        height: "44px",
+        border: "none",
+        borderBottom: "2px solid transparent",
+        backgroundColor: "transparent",
+        color: "#777",
+        fontSize: "13px",
+        cursor: "pointer",
+    },
+
+    activeTabButton: {
+        color: "#222",
+        borderBottom: "2px solid #222",
+        fontWeight: 600,
+    },
+
+    section: {
+        width: "100%",
+        marginBottom: "46px",
+    },
+
+    sectionHeader: {
+        height: "34px",
+        borderBottom: "1px solid #777",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        boxSizing: "border-box",
+    },
+
+    sectionTitle: {
+        margin: 0,
+        fontSize: "18px",
+        fontWeight: 500,
+    },
+
+    moreButton: {
+        padding: 0,
+        border: "none",
+        backgroundColor: "transparent",
+        color: "#222",
+        fontSize: "12px",
+        cursor: "pointer",
+    },
+
+    concertList: {
+        margin: 0,
+        padding: 0,
+        listStyle: "none",
+    },
+
+    concertItem: {
+        minHeight: "158px",
+        display: "grid",
+        gridTemplateColumns: "110px 1.5fr 1fr 1fr 70px",
+        alignItems: "center",
+        columnGap: "28px",
+        borderBottom: "1px solid #777",
+        boxSizing: "border-box",
+    },
+
+    posterButton: {
+        width: "80px",
+        height: "120px",
+        border: "1px solid #777",
+        backgroundColor: "#fff",
+        color: "#555",
+        fontSize: "13px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        overflow: "hidden",
+        boxSizing: "border-box",
+    },
+
+    posterImage: {
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+    },
+
+    concertTitleButton: {
+        padding: 0,
+        border: "none",
+        backgroundColor: "transparent",
+        color: "#222",
+        fontSize: "17px",
+        textAlign: "left",
+        textDecoration: "underline",
+        textUnderlineOffset: "3px",
+        cursor: "pointer",
+    },
+
+    periodArea: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px",
+        fontSize: "13px",
+    },
+
+    smallLabel: {
+        color: "#222",
+        fontSize: "11px",
+    },
+
+    periodText: {
+        color: "#222",
+        fontSize: "13px",
+        lineHeight: 1.35,
+    },
+
+    venueArea: {
+        display: "flex",
+        justifyContent: "center",
+    },
+
+    venueName: {
+        color: "#222",
+        fontSize: "14px",
+    },
+
+    badgeArea: {
+        display: "flex",
+        justifyContent: "center",
+    },
+
+    badge: {
+        color: "#222",
+        fontSize: "12px",
+    },
+
+    emptyBox: {
+        minHeight: "150px",
+        borderBottom: "1px solid #777",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#777",
+        fontSize: "14px",
+    },
+};
 
 export default ConcertListPage;

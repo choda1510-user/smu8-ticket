@@ -1,10 +1,11 @@
 import type { CSSProperties } from "react";
 import { useNavigate } from "react-router";
+import BottomPaginationBar from "@/sections/BottomPaginationBar";
 
 /*
  * 예매내역 페이지
  * - UserMyPageLayout 내부 Outlet에 들어가는 본문 영역만 작성
- * - Header, MyPageSide, Pagination 제외
+ * - Header, MyPageSide 제외
  * - 라우팅 기준:
  *   예매내역: /mypage/reserve
  *   예매상세: /mypage/reserve/:reserveId
@@ -172,6 +173,12 @@ function BookingListPage() {
                     </ul>
                 )}
             </section>
+
+            {bookingList.length > 0 && (
+                <div style={styles.paginationArea}>
+                    <BottomPaginationBar />
+                </div>
+            )}
         </section>
     );
 }
@@ -351,6 +358,13 @@ const styles: Record<string, CSSProperties> = {
         color: "#222",
         fontSize: "12px",
         cursor: "pointer",
+    },
+
+    paginationArea: {
+        width: "100%",
+        marginTop: "18px",
+        display: "flex",
+        justifyContent: "center",
     },
 };
 

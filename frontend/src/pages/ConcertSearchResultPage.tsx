@@ -1,10 +1,11 @@
 import type { CSSProperties } from "react";
 import { useNavigate } from "react-router";
+import BottomPaginationBar from "@/sections/BottomPaginationBar";
 
 /*
  * 공연 검색 결과 페이지
  * - UserSearchResultLayout 내부 Outlet에 들어가는 본문 영역만 작성
- * - Header, SearchBar, SearchResultMenu, Pagination 제외
+ * - Header, SearchBar, SearchResultMenu 제외
  * - 라우팅 기준:
  *   공연 검색결과: /search/concerts
  *   공연상세: /concerts/:concertId
@@ -32,7 +33,7 @@ const concertSearchResults: ConcertSearchResult[] = [
     },
     {
         concertId: 2,
-        venueId: 1,
+        venueId: 2,
         title: "공연명",
         period: "공연날짜",
         venueName: "공연장명",
@@ -53,56 +54,68 @@ function ConcertSearchResultPage() {
 
     return (
         <section style={styles.page}>
+            <div style={styles.resultCountArea}>
+        <span style={styles.resultCountText}>
+          검색결과 {concertSearchResults.length}건
+        </span>
+            </div>
+
             {concertSearchResults.length === 0 ? (
                 <div style={styles.emptyBox}>검색된 공연이 없습니다.</div>
             ) : (
-                <ul style={styles.concertList}>
-                    {concertSearchResults.map((concert) => (
-                        <li key={concert.concertId} style={styles.concertItem}>
-                            <button
-                                type="button"
-                                style={styles.posterButton}
-                                onClick={() => handleConcertClick(concert.concertId)}
-                            >
-                                {concert.posterUrl ? (
-                                    <img
-                                        src={concert.posterUrl}
-                                        alt="공연 포스터"
-                                        style={styles.posterImage}
-                                    />
-                                ) : (
-                                    <span>포스터</span>
-                                )}
-                            </button>
-
-                            <button
-                                type="button"
-                                style={styles.concertTitleButton}
-                                onClick={() => handleConcertClick(concert.concertId)}
-                            >
-                                {concert.title}
-                            </button>
-
-                            <div style={styles.periodArea}>
-                                <span style={styles.periodText}>{concert.period}</span>
-                            </div>
-
-                            <div style={styles.venueArea}>
+                <>
+                    <ul style={styles.concertList}>
+                        {concertSearchResults.map((concert) => (
+                            <li key={concert.concertId} style={styles.concertItem}>
                                 <button
                                     type="button"
-                                    style={styles.venueButton}
-                                    onClick={() => handleVenueClick(concert.venueId)}
+                                    style={styles.posterButton}
+                                    onClick={() => handleConcertClick(concert.concertId)}
                                 >
-                                    {concert.venueName}
+                                    {concert.posterUrl ? (
+                                        <img
+                                            src={concert.posterUrl}
+                                            alt="공연 포스터"
+                                            style={styles.posterImage}
+                                        />
+                                    ) : (
+                                        <span>포스터</span>
+                                    )}
                                 </button>
-                            </div>
 
-                            <div style={styles.badgeArea}>
-                                <span style={styles.badge}>{concert.badgeText}</span>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+                                <button
+                                    type="button"
+                                    style={styles.concertTitleButton}
+                                    onClick={() => handleConcertClick(concert.concertId)}
+                                >
+                                    {concert.title}
+                                </button>
+
+                                <div style={styles.periodArea}>
+                                    <span style={styles.periodText}>{concert.period}</span>
+                                </div>
+
+                                <div style={styles.venueArea}>
+                                    <button
+                                        type="button"
+                                        style={styles.venueButton}
+                                        onClick={() => handleVenueClick(concert.venueId)}
+                                    >
+                                        {concert.venueName}
+                                    </button>
+                                </div>
+
+                                <div style={styles.badgeArea}>
+                                    <span style={styles.badge}>{concert.badgeText}</span>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <div style={styles.paginationArea}>
+                        <BottomPaginationBar />
+                    </div>
+                </>
             )}
         </section>
     );
@@ -116,11 +129,24 @@ const styles: Record<string, CSSProperties> = {
         boxSizing: "border-box",
     },
 
+    resultCountArea: {
+        height: "56px",
+        display: "flex",
+        alignItems: "center",
+        borderBottom: "1px solid #777",
+        boxSizing: "border-box",
+    },
+
+    resultCountText: {
+        color: "#222",
+        fontSize: "18px",
+        fontWeight: 500,
+    },
+
     concertList: {
         margin: 0,
         padding: 0,
         listStyle: "none",
-        borderTop: "1px solid #777",
     },
 
     concertItem: {
@@ -168,9 +194,8 @@ const styles: Record<string, CSSProperties> = {
 
     periodArea: {
         display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        fontSize: "13px",
+        alignItems: "center",
+        justifyContent: "center",
     },
 
     periodText: {
@@ -206,13 +231,19 @@ const styles: Record<string, CSSProperties> = {
 
     emptyBox: {
         minHeight: "220px",
-        borderTop: "1px solid #777",
         borderBottom: "1px solid #777",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         color: "#777",
         fontSize: "14px",
+    },
+
+    paginationArea: {
+        width: "100%",
+        marginTop: "18px",
+        display: "flex",
+        justifyContent: "center",
     },
 };
 

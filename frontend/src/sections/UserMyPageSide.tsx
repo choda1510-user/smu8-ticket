@@ -1,16 +1,26 @@
 /*
 * 내정보/사이드바
 * */
+import {NavLink} from "react-router";
+import "./UserMyPageSide.css";
+
 function UserMyPageSide() {
     return (
-        <div className="mypage-side">
+        <nav className="mypage-side">
+            <h2>마이페이지</h2>
             <ul>
                 <li>
-                    <button>내 정보</button>
+                    <NavLink to="/mypage" end>
+                        내 정보
+                    </NavLink>
                 </li>
-                <li><button>예매내역</button></li>
+                <li>
+                    <NavLink to="/mypage/reserve">
+                        예매내역
+                    </NavLink>
+                </li>
             </ul>
-        </div>
+        </nav>
     )
 }
 export default UserMyPageSide;

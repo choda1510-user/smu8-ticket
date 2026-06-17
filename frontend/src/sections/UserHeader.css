@@ -1,0 +1,219 @@
+.user-header {
+    width: 100%;
+    background: #ffffff;
+    border-bottom: 1px solid #eeeeee;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.user-header-inner {
+    width: 100%;
+    max-width: 1126px;
+    margin: 0 auto;
+    padding: 10px 20px 0;
+    box-sizing: border-box;
+}
+
+/* 로그인 / 회원가입 */
+.user-header-auth-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 28px;
+}
+
+.user-header-auth {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.user-header-auth a {
+    color: #555555;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.user-header-auth a:hover {
+    color: #ff4fa3;
+}
+
+/* 메인 영역 */
+.user-header-main-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    align-items: start;
+    gap: 28px;
+    padding: 14px 0 18px;
+}
+
+/* 새 로고 */
+.user-header-logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    text-decoration: none;
+    padding-top: 4px;
+}
+
+.user-header-logo-mark {
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #ff4fa3 0%, #9b5cff 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    box-shadow: 0 8px 20px rgba(255, 79, 163, 0.32);
+}
+
+.user-header-logo-text {
+    color: #111111;
+    font-size: 19px;
+    font-weight: 900;
+    letter-spacing: -0.8px;
+}
+
+/* 검색창 + 카테고리 묶음 */
+.user-header-center {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* 검색창 */
+.user-header-search {
+    width: 100%;
+    max-width: 590px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    background: #f7f7fa;
+    border: 1px solid #e7e7ee;
+    border-radius: 999px;
+    overflow: hidden;
+    transition: 0.2s ease;
+}
+
+.user-header-search:focus-within {
+    background: #ffffff;
+    border-color: #ff4fa3;
+    box-shadow: 0 0 0 4px rgba(255, 79, 163, 0.12);
+}
+
+.user-header-search input {
+    flex: 1;
+    height: 100%;
+    padding: 0 20px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #222222;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.user-header-search input::placeholder {
+    color: #999999;
+}
+
+.user-header-search button {
+    width: 58px;
+    height: 100%;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff4fa3 0%, #9b5cff 100%);
+    color: #ffffff;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
+}
+
+.user-header-search button:hover {
+    filter: brightness(1.08);
+}
+
+/* 홈 / 공연 카테고리 */
+.user-header-nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-top: 13px;
+    padding-left: 4px;
+}
+
+.user-header-nav-link {
+    position: relative;
+    color: #555555;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: -0.3px;
+    transition: 0.2s ease;
+}
+
+.user-header-nav-link:hover {
+    color: #111111;
+}
+
+.user-header-nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -7px;
+    width: 0;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #ff4fa3, #9b5cff);
+    transition: width 0.25s ease;
+}
+
+.user-header-nav-link:hover::after,
+.user-header-nav-link.active::after {
+    width: 100%;
+}
+
+.user-header-nav-link.active {
+    color: #111111;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .user-header-inner {
+        padding: 10px 16px 0;
+    }
+
+    .user-header-main-row {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .user-header-logo {
+        justify-content: center;
+    }
+
+    .user-header-center {
+        align-items: stretch;
+    }
+
+    .user-header-search {
+        max-width: 100%;
+    }
+
+    .user-header-nav {
+        justify-content: flex-start;
+        gap: 24px;
+    }
+}

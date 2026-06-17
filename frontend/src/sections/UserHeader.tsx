@@ -2,31 +2,89 @@
 * 로고 |검색창|검색or돋보기    로그인 회원가입
 *   홈|공연
 * */
+import{ useEffect, useState} from "react";
+import type {SyntheticEvent} from "react";
+import {Link,NavLink,useNavigate,useSearchParams} from "react-router";
+
+import "./UserHeader.css";
 
 function UserHeader() {
+    const navigate = useNavigate();
+    const [searchParams]= useSearchParams();
+
+    const keywordFromUrl = searchParams.get("keyword") ?? "";
+    const [keyword, setkeyword] = useState(keywordFromUrl);
+
+    useEffect(()=>{
+        setkeyword(keywordFromUrl);
+    },[keywordFromUrl]);
+
+    const handleSearchSubmit=(event:SyntheticEvent<HTMLFormElement>)=> {
+        event.preventDefault();
+        const trimmedKeyword = keyword.trim();
+
+        if(!trimmedKeyword){
+            alert("검색어를 입력해주세요.");
+            return;
+        }
+        navigate(`/serch/all?keyword=${encodeURIComponent(trimmedKeyword)}&page=1`);
+    }
     return (
-        <div className={"header-container"}>
-            {/*헤더 상단 로그인/회원가입 */}
-            <div className="header-top">
-                <button>로그인</button>
-                <button>회원가입</button>
-                {/* 로그인 후 - 나중에 조건부 렌더링으로 교체 예정 */}
-                {/* <button>로그아웃</button> */}
-            </div>
-            {/*헤더 미들 로고 / 검색창 */}
-            <div className="header-middle">
-                <div className="header-log">이미지 삽입해서 넣기</div>
-                <div className="header-search"><input type="text" placeholder="검색어를 입력하세요"/>
-                <button>🔍</button>
+        <header className="user-header">
+            <div className="user-header-inner">
+
+                <div className="user-header-auth-row">
+                    <div className="user-header-auth">
+                        <Link to="/login">로그인</Link>
+                        <Link to="/signup">회원가입</Link>
+                    </div>
+                </div>
+
+                <div className="user-header-main-row">
+
+                    <Link to="/" className="user-header-logo" aria-label="홈으로 이동">
+                        <span className="user-header-logo-mark">SM</span>
+                        <span className="user-header-logo-text">TICKET</span>
+                    </Link>
+
+                    <div className="user-header-center">
+                        <form className="user-header-search" onSubmit={handleSearchSubmit}>
+                            <input
+                                type="text"
+                                value={keyword}
+                                onChange={(event) => setkeyword(event.target.value)}
+                                placeholder="검색어를 입력하세요"
+                            />
+                            <button type="submit" aria-label="검색">
+                                🔍
+                            </button>
+                        </form>
+
+                        <nav className="user-header-nav">
+                            <NavLink
+                                to="/"
+                                className={({isActive}) =>
+                                    isActive ? "user-header-nav-link active" : "user-header-nav-link"
+                                }
+                                end
+                            >
+                                홈
+                            </NavLink>
+
+                            <NavLink
+                                to="/concerts"
+                                className={({isActive}) =>
+                                    isActive ? "user-header-nav-link active" : "user-header-nav-link"
+                                }
+                            >
+                                공연
+                            </NavLink>
+                        </nav>
+                    </div>
+
                 </div>
             </div>
-            <div className="header-bottom">
-                <button>홈</button>
-                <button>공연</button>
-            </div>
-
-
-        </div>
+        </header>
     )
 }
 export default UserHeader;

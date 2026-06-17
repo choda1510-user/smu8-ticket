@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { useNavigate } from "react-router";
+import BottomPaginationBar from "@/sections/BottomPaginationBar";
 
 /*
  * 공연장 검색 결과 페이지
@@ -49,43 +50,49 @@ function ConcertHoleSearchResultPage() {
                 {venueSearchResults.length === 0 ? (
                     <div style={styles.emptyBox}>검색된 공연장이 없습니다.</div>
                 ) : (
-                    <ul style={styles.venueList}>
-                        {venueSearchResults.map((venue) => (
-                            <li key={venue.venueId} style={styles.venueItem}>
-                                <button
-                                    type="button"
-                                    style={styles.venueButton}
-                                    onClick={() => handleVenueClick(venue.venueId)}
-                                >
-                                    <div style={styles.logoArea}>
-                                        <div style={styles.logoBox}>
-                                            {venue.logoUrl ? (
-                                                <img
-                                                    src={venue.logoUrl}
-                                                    alt="공연장 로고"
-                                                    style={styles.logoImage}
-                                                />
-                                            ) : (
-                                                <span style={styles.logoText}>공연장 로고</span>
-                                            )}
+                    <>
+                        <ul style={styles.venueList}>
+                            {venueSearchResults.map((venue) => (
+                                <li key={venue.venueId} style={styles.venueItem}>
+                                    <button
+                                        type="button"
+                                        style={styles.venueButton}
+                                        onClick={() => handleVenueClick(venue.venueId)}
+                                    >
+                                        <div style={styles.logoArea}>
+                                            <div style={styles.logoBox}>
+                                                {venue.logoUrl ? (
+                                                    <img
+                                                        src={venue.logoUrl}
+                                                        alt="공연장 로고"
+                                                        style={styles.logoImage}
+                                                    />
+                                                ) : (
+                                                    <span style={styles.logoText}>공연장 로고</span>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div style={styles.venueInfoArea}>
-                                        <strong style={styles.venueName}>{venue.venueName}</strong>
+                                        <div style={styles.venueInfoArea}>
+                                            <strong style={styles.venueName}>{venue.venueName}</strong>
 
-                                        <p style={styles.availableConcertText}>
-                                            <span>예매가능 공연</span>
-                                            <strong style={styles.countNumber}>
-                                                {venue.availableConcertCount}
-                                            </strong>
-                                            <span>개</span>
-                                        </p>
-                                    </div>
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
+                                            <p style={styles.availableConcertText}>
+                                                <span>예매가능 공연</span>
+                                                <strong style={styles.countNumber}>
+                                                    {venue.availableConcertCount}
+                                                </strong>
+                                                <span>개</span>
+                                            </p>
+                                        </div>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+
+                        <div style={styles.paginationArea}>
+                            <BottomPaginationBar />
+                        </div>
+                    </>
                 )}
             </div>
         </section>
@@ -213,6 +220,13 @@ const styles: Record<string, CSSProperties> = {
         color: "#ff4f9a",
         fontSize: "18px",
         fontWeight: 600,
+    },
+
+    paginationArea: {
+        width: "100%",
+        marginTop: "18px",
+        display: "flex",
+        justifyContent: "center",
     },
 };
 

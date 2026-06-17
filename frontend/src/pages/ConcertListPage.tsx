@@ -1,16 +1,18 @@
 import type { CSSProperties } from "react";
 import { useNavigate, useSearchParams } from "react-router";
+import BottomPaginationBar from "@/sections/BottomPaginationBar";
 
 /*
  * 공연 목록 페이지
  * - UserLayout 내부 Outlet에 들어가는 본문 영역만 작성
- * - Header, Navigation, Pagination 제외
+ * - Header, Navigation 제외
  * - 라우팅 기준:
  *   공연목록 메인: /concerts
  *   예매중 공연 목록: /concerts?filter=open
  *   티켓 오픈예정 공연 목록: /concerts?filter=upcoming
  *   공연상세: /concerts/:concertId
  */
+
 type ConcertItem = {
     concertId: number;
     posterUrl?: string;
@@ -167,23 +169,35 @@ function ConcertListPage() {
                     </section>
 
                     {isOpenFilter && (
-                        <ConcertSection
-                            title="예매중인 공연"
-                            concerts={openConcertList}
-                            showMoreButton={false}
-                            onMoreClick={handleOpenConcertMoreClick}
-                            onConcertClick={handleConcertClick}
-                        />
+                        <>
+                            <ConcertSection
+                                title="예매중인 공연"
+                                concerts={openConcertList}
+                                showMoreButton={false}
+                                onMoreClick={handleOpenConcertMoreClick}
+                                onConcertClick={handleConcertClick}
+                            />
+
+                            <div style={styles.paginationArea}>
+                                <BottomPaginationBar />
+                            </div>
+                        </>
                     )}
 
                     {isUpcomingFilter && (
-                        <ConcertSection
-                            title="티켓 오픈 예정"
-                            concerts={upcomingConcertList}
-                            showMoreButton={false}
-                            onMoreClick={handleUpcomingConcertMoreClick}
-                            onConcertClick={handleConcertClick}
-                        />
+                        <>
+                            <ConcertSection
+                                title="티켓 오픈 예정"
+                                concerts={upcomingConcertList}
+                                showMoreButton={false}
+                                onMoreClick={handleUpcomingConcertMoreClick}
+                                onConcertClick={handleConcertClick}
+                            />
+
+                            <div style={styles.paginationArea}>
+                                <BottomPaginationBar />
+                            </div>
+                        </>
                     )}
                 </>
             )}
@@ -314,7 +328,7 @@ const styles: Record<string, CSSProperties> = {
 
     section: {
         width: "100%",
-        marginBottom: "46px",
+        marginBottom: "0",
     },
 
     sectionHeader: {
@@ -436,6 +450,13 @@ const styles: Record<string, CSSProperties> = {
         justifyContent: "center",
         color: "#777",
         fontSize: "14px",
+    },
+
+    paginationArea: {
+        width: "100%",
+        marginTop: "18px",
+        display: "flex",
+        justifyContent: "center",
     },
 };
 

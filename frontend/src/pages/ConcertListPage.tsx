@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import BottomPaginationBar from "@/sections/BottomPaginationBar";
 import {useConcertListPage} from "@/hooks/useConcertListPage";
-import type {ConcertItem} from "@/hooks/useConcertListPage";
+import type {ConcertItem} from "@/types/concert";
 
 /*
  * 공연 목록 페이지

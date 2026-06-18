@@ -1,27 +1,13 @@
 import {useEffect, useMemo, useState} from "react";
 import {useFetchJson} from "@/hooks/useFetchJson";
-
-export type BannerItem = {
-    bannerId: number;
-    concertId: number;
-    imageUrl?: string;
-    title: string;
-};
-
-export type ConcertCard = {
-    concertId: number;
-    posterUrl?: string;
-    title: string;
-    reservationPeriod: string;
-    reservationEndDate: string;
-    badgeText: string;
-};
+import type {HomeConcertCard} from "@/types/concert";
+import type {BannerItem, HomeOpenConcertItem, HomeUpcomingConcertItem} from "@/types/home";
 
 const bannerListUrl = new URL("../data/homeBanners.json", import.meta.url).href;
 const openConcertListUrl = new URL("../data/homeOpenConcertList.json", import.meta.url).href;
 const upcomingConcertListUrl = new URL("../data/homeUpcomingConcertList.json", import.meta.url).href;
 
-function sortByReservationEndDate(concerts: ConcertCard[]) {
+function sortByReservationEndDate(concerts: HomeConcertCard[]) {
     return [...concerts].sort((a, b) => {
         return (
             new Date(a.reservationEndDate).getTime() -
@@ -32,8 +18,8 @@ function sortByReservationEndDate(concerts: ConcertCard[]) {
 
 export function useHomePage() {
     const {data: bannerList} = useFetchJson<BannerItem[]>(bannerListUrl, []);
-    const {data: openConcertList} = useFetchJson<ConcertCard[]>(openConcertListUrl, []);
-    const {data: upcomingConcertList} = useFetchJson<ConcertCard[]>(upcomingConcertListUrl, []);
+    const {data: openConcertList} = useFetchJson<HomeOpenConcertItem[]>(openConcertListUrl, []);
+    const {data: upcomingConcertList} = useFetchJson<HomeUpcomingConcertItem[]>(upcomingConcertListUrl, []);
 
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const [isBannerVisible, setIsBannerVisible] = useState(true);

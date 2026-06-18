@@ -1,12 +1,6 @@
 import {useEffect, useState} from "react";
 import {useFetchJson} from "@/hooks/useFetchJson";
-
-export type MyInfoForm = {
-    userId: string;
-    nickname: string;
-    newPassword: string;
-    newPasswordConfirm: string;
-};
+import type {MyInfoForm} from "@/types/member";
 
 const initialMyInfo: MyInfoForm = {
     userId: "",

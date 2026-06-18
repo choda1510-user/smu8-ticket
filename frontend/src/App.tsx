@@ -14,6 +14,17 @@ import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
 import ConcertSearchResultPage from "@/pages/ConcertSearchResultPage.tsx";
 import HomePage from "@/pages/HomePage.tsx";
+import AdminLayout from "@/layouts/admin/AdminLayout.tsx";
+import AdminOperationPage from "@/pages/admin/AdminOperationPage.tsx";
+import AdminVenueListPage from "@/pages/admin/AdminVenueListPage.tsx";
+import AdminVenueDetailPage from "@/pages/admin/AdminVenueDetailPage.tsx";
+import AdminVenueCreatePage from "@/pages/admin/AdminVenueCreatePage.tsx";
+import AdminVenueEditPage from "@/pages/admin/AdminVenueEditPage.tsx";
+import AdminReservationListPage from "@/pages/admin/AdminReservationListPage.tsx";
+import AdminReservationDetailPage from "@/pages/admin/AdminReservationDetailPage.tsx";
+import AdminConcertListPage from "@/pages/admin/AdminConcertListPage.tsx";
+import AdminConcertDetailPage from "@/pages/admin/AdminConcertDetailPage.tsx";
+import AdminConcertCreatePage from "@/pages/admin/AdminConcertCreatePage.tsx";
 /*
 * 리액트 라우터가 이곳에 있어야 함
 */
@@ -42,6 +53,19 @@ function App() {
         </Route>
         <Route path={"/login"} element={<LoginPage />} />
         <Route path={"/signup"} element={<SignUpPage />} />
+        <Route path={"/admin"} element={<AdminLayout />}>
+          <Route path={""} element={<AdminOperationPage />} />
+          <Route path={"venues"} element={<AdminVenueListPage />} />
+          <Route path={"venues/:venueId"} element={<AdminVenueDetailPage />} />
+          <Route path={"venueadd"} element={<AdminVenueCreatePage />} />
+          <Route path={"venues/:venueId/update"} element={<AdminVenueEditPage />} />
+          <Route path={"reserve"} element={<AdminReservationListPage />} />
+          <Route path={"reserve/:reserveId"} element={<AdminReservationDetailPage />} />
+          <Route path={"concerts"} element={<AdminConcertListPage />} />
+          <Route path={"concertadd"} element={<AdminConcertCreatePage />} />
+          <Route path={"concerts/:concertId"} element={<AdminConcertDetailPage />} />
+        </Route>
+        
       </Routes>
     </BrowserRouter>
   )

@@ -1,7 +1,7 @@
 package com.smu8.ticket.authentication;
 
 
-import com.smu8.ticket.account.dto.AccountData;
+import com.smu8.ticket.account.dto.result.AccountDetailResult;
 import com.smu8.ticket.account.service.AccountAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
@@ -20,7 +20,7 @@ public class AccountAuthenticationProvider implements AuthenticationProvider {
     public @Nullable Authentication authenticate(@NonNull Authentication authentication) throws AuthenticationException {
         try {
             if (authentication.getClass().isAssignableFrom(UsernamePasswordAuthenticationToken.class)) {
-                AccountData account = accountService.getByUsername(authentication.getName());
+                AccountDetailResult account = accountService.getByUsername(authentication.getName());
                 String rawPassword = (String) authentication.getCredentials();
                 boolean isAuthenticated = passwordEncoder.matches(rawPassword, account.password());
                 return new AccountAuthentication(

@@ -1,7 +1,7 @@
 package com.smu8.ticket.account.service;
 
-import com.smu8.ticket.account.dto.AccountData;
-import com.smu8.ticket.account.dto.CreateAccount;
+import com.smu8.ticket.account.dto.result.AccountDetailResult;
+import com.smu8.ticket.account.dto.command.CreateAccountCommand;
 import com.smu8.ticket.account.entity.Account;
 import com.smu8.ticket.account.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,21 +20,21 @@ public class AccountServiceImpl implements AccountService, AccountAuthentication
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     @Override
-    public AccountData createAccount(CreateAccount request){
-        return AccountData
+    public AccountDetailResult createAccount(CreateAccountCommand request){
+        return AccountDetailResult
                 .from(accountRepository
                         .save(request
                                 .byId(UUID.randomUUID().toString(), passwordEncoder)));
     }
     @Override
-    public AccountData getByUsername(String username){
+    public AccountDetailResult getByUsername(String username){
         Account account = accountRepository.findByUsername(username).orElseThrow();
-        return AccountData.from(account);
+        return AccountDetailResult.from(account);
     }
     @Override
-    public AccountData getById(String id) {
+    public AccountDetailResult getById(String id) {
         Account account = accountRepository.findById(id).orElseThrow();
-        return AccountData.from(account);
+        return AccountDetailResult.from(account);
     }
 
     @Override

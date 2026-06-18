@@ -11,7 +11,7 @@ API 파일은 반드시 `Api.ts`로 시작하고 camelCase를 사용합니다.
 
 ## 2. 함수 이름 규칙
 
-API 함수 이름은 기능을 잘 설명하는 이름으로 짓습니다.
+API 함수 이름은 기능을 잘 설명하는 이름으로 짓고 camelCase를 사용합니다.
 
 API 함수들은 export default로 내보내지 않고 각자 따로 export 합니다.
 

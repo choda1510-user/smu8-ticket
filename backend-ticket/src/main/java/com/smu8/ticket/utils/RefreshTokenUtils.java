@@ -1,5 +1,6 @@
 package com.smu8.ticket.utils;
 
+import com.smu8.ticket.auth.filter.RefreshTokenCookieAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +23,7 @@ public class RefreshTokenUtils {
         else {
             maxAge = expiresAt.minusSeconds(expiresAt.getEpochSecond()).getEpochSecond();
         }
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken.getTokenValue())
+        ResponseCookie cookie = ResponseCookie.from(RefreshTokenCookieAuthenticationFilter.REFRESH_TOKEN_COOKIE_NAME, refreshToken.getTokenValue())
                 .httpOnly(true)
                 .secure(secure)
                 .path("/")

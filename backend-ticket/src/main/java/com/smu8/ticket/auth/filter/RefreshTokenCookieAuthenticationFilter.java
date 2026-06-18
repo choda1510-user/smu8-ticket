@@ -7,6 +7,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -25,15 +27,17 @@ import java.util.Arrays;
 
 public class RefreshTokenCookieAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
+    public static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
 
     private final AuthenticationManager authenticationManager;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final RequestMatcher requestMatcher =
-            new RegexRequestMatcher("/api/auth/refresh", HttpMethod.GET.name());
+            new RegexRequestMatcher("/api/refresh", HttpMethod.GET.name());
 
     private final SecurityContextHolderStrategy securityContextHolderStrategy =
             SecurityContextHolder.getContextHolderStrategy();
+
+    protected static final Log logger = LogFactory.getLog(RefreshTokenCookieAuthenticationFilter.class);
 
     public RefreshTokenCookieAuthenticationFilter(
             AuthenticationManager authenticationManager,
@@ -54,6 +58,10 @@ public class RefreshTokenCookieAuthenticationFilter extends OncePerRequestFilter
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("Entering RefreshTokenCookieAuthenticationFilter");
+        }
 
         try {
             String refreshToken = extractRefreshTokenFromCookie(request);

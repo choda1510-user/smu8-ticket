@@ -37,6 +37,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.util.StreamUtils;
 
 import javax.crypto.SecretKey;
@@ -71,13 +72,13 @@ public class SecurityConfig {
             BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter,
             RefreshTokenCookieAuthenticationFilter refreshTokenCookieAuthenticationFilter
     ) throws Exception {
-        return http.securityMatcher("/api")
+        return http.securityMatcher("/api/**")
                 .authorizeHttpRequests((authorize) -> {
                     authorize
-                            .requestMatchers(HttpMethod.GET, "/test").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/token").hasAuthority(Authority.BASIC_METHOD.toString())
-                            .requestMatchers(HttpMethod.GET, "/refresh").hasAuthority(Authority.REFRESH_TOKEN.toString())
-                            .requestMatchers(HttpMethod.POST, "/logout").hasAuthority(Authority.ACCESS_TOKEN.toString())
+                            .requestMatchers(HttpMethod.GET, "/api/token").hasAuthority(Authority.BASIC_METHOD.toString())
+                            .requestMatchers(HttpMethod.GET, "/api/refresh").hasAuthority(Authority.REFRESH_TOKEN.toString())
+                            .requestMatchers(HttpMethod.POST, "/api/logout").hasAuthority(Authority.ACCESS_TOKEN.toString())
+                            .requestMatchers(HttpMethod.GET, "/api/test").permitAll()
                             .anyRequest().authenticated();
                 })
                 .sessionManagement((session) ->
@@ -91,7 +92,7 @@ public class SecurityConfig {
                         AuthorizationFilter.class)
                 .addFilterBefore(
                         refreshTokenCookieAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class)
+                        BasicAuthenticationFilter.class)
                 .build();
     }
 

@@ -1,0 +1,42 @@
+{
+  "concertId": 1,
+  "concertTitle": "에스파 콘서트(금요대극장)",
+  "venueId": 1,
+  "venueName": "SMU8 홀",
+  "scheduleId": 1,
+  "performanceDate": "2026-07-10",
+  "performanceTime": "18:30",
+  "reservationLimitMinutes": 5,
+  "selectedSeats": [
+    {
+      "seatId": 3,
+      "seatNumber": "A열 3번",
+      "gradeName": "전석",
+      "price": 55000
+    },
+    {
+      "seatId": 14,
+      "seatNumber": "B열 6번",
+      "gradeName": "전석",
+      "price": 55000
+    }
+  ],
+  "ticketPrices": [
+    {
+      "priceId": "base",
+      "label": "기본가",
+      "price": 55000,
+      "quantity": 2
+    }
+  ],
+  "paymentSummary": {
+    "ticketAmount": 110000,
+    "discountAmount": 0,
+    "serviceFee": 0,
+    "totalAmount": 110000
+  },
+  "cancelPolicy" : {
+    "cancelDeadline" : "2026-07-09 17:00",
+    "cancelDeadline2" : "2026-07-09 17:00"
+  }
+}

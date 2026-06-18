@@ -2,15 +2,155 @@
   "data": [
     {
       "id": 1,
-      "venueName": "공연장명",
-      "availableConcertCount": 0
+      "venueName": "공연장 1",
+      "availableConcertCount": 1
     },
     {
       "id": 2,
-      "venueName": "공연장명",
-      "availableConcertCount": 0
+      "venueName": "공연장 2",
+      "availableConcertCount": 2
+    },
+    {
+      "id": 3,
+      "venueName": "공연장 3",
+      "availableConcertCount": 3
+    },
+    {
+      "id": 4,
+      "venueName": "공연장 4",
+      "availableConcertCount": 4
+    },
+    {
+      "id": 5,
+      "venueName": "공연장 5",
+      "availableConcertCount": 5
+    },
+    {
+      "id": 6,
+      "venueName": "공연장 6",
+      "availableConcertCount": 6
+    },
+    {
+      "id": 7,
+      "venueName": "공연장 7",
+      "availableConcertCount": 7
+    },
+    {
+      "id": 8,
+      "venueName": "공연장 8",
+      "availableConcertCount": 8
+    },
+    {
+      "id": 9,
+      "venueName": "공연장 9",
+      "availableConcertCount": 1
+    },
+    {
+      "id": 10,
+      "venueName": "공연장 10",
+      "availableConcertCount": 2
+    },
+    {
+      "id": 11,
+      "venueName": "공연장 11",
+      "availableConcertCount": 3
+    },
+    {
+      "id": 12,
+      "venueName": "공연장 12",
+      "availableConcertCount": 4
+    },
+    {
+      "id": 13,
+      "venueName": "공연장 13",
+      "availableConcertCount": 5
+    },
+    {
+      "id": 14,
+      "venueName": "공연장 14",
+      "availableConcertCount": 6
+    },
+    {
+      "id": 15,
+      "venueName": "공연장 15",
+      "availableConcertCount": 7
+    },
+    {
+      "id": 16,
+      "venueName": "공연장 16",
+      "availableConcertCount": 8
+    },
+    {
+      "id": 17,
+      "venueName": "공연장 17",
+      "availableConcertCount": 1
+    },
+    {
+      "id": 18,
+      "venueName": "공연장 18",
+      "availableConcertCount": 2
+    },
+    {
+      "id": 19,
+      "venueName": "공연장 19",
+      "availableConcertCount": 3
+    },
+    {
+      "id": 20,
+      "venueName": "공연장 20",
+      "availableConcertCount": 4
+    },
+    {
+      "id": 21,
+      "venueName": "공연장 21",
+      "availableConcertCount": 5
+    },
+    {
+      "id": 22,
+      "venueName": "공연장 22",
+      "availableConcertCount": 6
+    },
+    {
+      "id": 23,
+      "venueName": "공연장 23",
+      "availableConcertCount": 7
+    },
+    {
+      "id": 24,
+      "venueName": "공연장 24",
+      "availableConcertCount": 8
+    },
+    {
+      "id": 25,
+      "venueName": "공연장 25",
+      "availableConcertCount": 1
+    },
+    {
+      "id": 26,
+      "venueName": "공연장 26",
+      "availableConcertCount": 2
+    },
+    {
+      "id": 27,
+      "venueName": "공연장 27",
+      "availableConcertCount": 3
+    },
+    {
+      "id": 28,
+      "venueName": "공연장 28",
+      "availableConcertCount": 4
+    },
+    {
+      "id": 29,
+      "venueName": "공연장 29",
+      "availableConcertCount": 5
+    },
+    {
+      "id": 30,
+      "venueName": "공연장 30",
+      "availableConcertCount": 6
     }
   ],
   "page": 1,
-  "totalPage": 1
+  "totalPage": 3
 }

@@ -1,7 +1,7 @@
 import type {CSSProperties} from "react";
 import {useNavigate} from "react-router";
 import {useHomePage} from "@/hooks/useHomePage";
-import type {ConcertCard} from "@/hooks/useHomePage";
+import type {HomeConcertCard as ConcertCard} from "@/types/concert";
 
 /*
  * 홈페이지

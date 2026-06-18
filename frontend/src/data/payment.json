@@ -1,0 +1,88 @@
+{
+  "concertId": 1,
+  "concertTitle": "에스파 콘서트(금요대극장)",
+  "venueId": 1,
+  "venueName": "SMU8 홀",
+  "scheduleId": 1,
+  "performanceDate": "2026-07-10",
+  "performanceTime": "18:30",
+  "reservationLimitMinutes": 5,
+  "selectedSeats": [
+    {
+      "seatId": 3,
+      "seatNumber": "A열 3번",
+      "gradeName": "전석",
+      "price": 55000
+    },
+    {
+      "seatId": 14,
+      "seatNumber": "B열 6번",
+      "gradeName": "전석",
+      "price": 55000
+    }
+  ],
+  "paymentSummary": {
+    "ticketAmount": 110000,
+    "discountAmount": 0,
+    "serviceFee": 0,
+    "totalAmount": 110000
+  },
+  "deliveryMethods": [
+    {
+      "methodId": "onsite",
+      "label": "현장수령",
+      "description": "공연 당일 현장 매표소에서 예매번호와 본인 확인 후 티켓을 수령합니다."
+    }
+  ],
+  "selectedDeliveryMethodId": "onsite",
+  "orderer": {
+    "name": "홍길동",
+    "phoneNumber": "010-1234-5678",
+    "email": "abcd@naver.com"
+  },
+  "paymentMethods": [
+    {
+      "methodId": "bankTransfer",
+      "label": "무통장입금",
+      "isAvailable": true
+    },
+    {
+      "methodId": "creditCard",
+      "label": "신용카드",
+      "isAvailable": true
+    },
+    {
+      "methodId": "simplePay",
+      "label": "간편결제",
+      "isAvailable": true
+    }
+  ],
+  "selectedPaymentMethodId": "bankTransfer",
+  "bankOptions": [
+    {
+      "bankId": "kb",
+      "bankName": "국민은행"
+    },
+    {
+      "bankId": "shinhan",
+      "bankName": "신한은행"
+    },
+    {
+      "bankId": "woori",
+      "bankName": "우리은행"
+    },
+    {
+      "bankId": "hana",
+      "bankName": "하나은행"
+    }
+  ],
+  "depositForm": {
+    "selectedBankId": "kb",
+    "depositorName": "홍길동",
+    "cashReceiptType": "미신청"
+  },
+  "cancelPolicy": {
+    "cancelDeadline" : "2026-07-09 17:00",
+    "cancelDeadline2" : "2026-07-09 17:00"
+  }
+}

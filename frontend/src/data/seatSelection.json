@@ -1,0 +1,689 @@
+{
+  "concertId": 1,
+  "concertTitle": "에스파 공연",
+  "venueId": 1,
+  "venueName": "SMU8 홀",
+  "selectedScheduleId": 1,
+  "schedules": [
+    {
+      "scheduleId": 1,
+      "performanceDate": "2026-07-10",
+      "performanceTime": "19:00",
+      "label": "2026-07-10 19:00"
+    },
+    {
+      "scheduleId": 2,
+      "performanceDate": "2026-07-11",
+      "performanceTime": "18:00",
+      "label": "2026-07-11 18:00"
+    }
+  ],
+  "reservationLimitMinutes": 5,
+  "maxSelectableSeatCount": 2,
+  "seatGrades": [
+    {
+      "gradeId": "vip",
+      "gradeName": "전석",
+      "price": 55000,
+      "color": "#a8755b"
+    }
+  ],
+  "seatMaps": [
+    {
+      "scheduleId": 1,
+      "stageLabel": "STAGE",
+      "rowNames": ["A", "B", "C", "D", "E"],
+      "columnCount": 8,
+      "seats": [
+        {
+          "seatId": 1,
+          "seatNumber": "A열 1번",
+          "rowName": "A",
+          "columnNumber": 1,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 2,
+          "seatNumber": "A열 2번",
+          "rowName": "A",
+          "columnNumber": 2,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 3,
+          "seatNumber": "A열 3번",
+          "rowName": "A",
+          "columnNumber": 3,
+          "gradeId": "vip",
+          "status": "available"
+        },
+        {
+          "seatId": 4,
+          "seatNumber": "A열 4번",
+          "rowName": "A",
+          "columnNumber": 4,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 5,
+          "seatNumber": "A열 5번",
+          "rowName": "A",
+          "columnNumber": 5,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 6,
+          "seatNumber": "A열 6번",
+          "rowName": "A",
+          "columnNumber": 6,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 7,
+          "seatNumber": "A열 7번",
+          "rowName": "A",
+          "columnNumber": 7,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 8,
+          "seatNumber": "A열 8번",
+          "rowName": "A",
+          "columnNumber": 8,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 9,
+          "seatNumber": "B열 1번",
+          "rowName": "B",
+          "columnNumber": 1,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 10,
+          "seatNumber": "B열 2번",
+          "rowName": "B",
+          "columnNumber": 2,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 11,
+          "seatNumber": "B열 3번",
+          "rowName": "B",
+          "columnNumber": 3,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 12,
+          "seatNumber": "B열 4번",
+          "rowName": "B",
+          "columnNumber": 4,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 13,
+          "seatNumber": "B열 5번",
+          "rowName": "B",
+          "columnNumber": 5,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 14,
+          "seatNumber": "B열 6번",
+          "rowName": "B",
+          "columnNumber": 6,
+          "gradeId": "vip",
+          "status": "available"
+        },
+        {
+          "seatId": 15,
+          "seatNumber": "B열 7번",
+          "rowName": "B",
+          "columnNumber": 7,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 16,
+          "seatNumber": "B열 8번",
+          "rowName": "B",
+          "columnNumber": 8,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 17,
+          "seatNumber": "C열 1번",
+          "rowName": "C",
+          "columnNumber": 1,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 18,
+          "seatNumber": "C열 2번",
+          "rowName": "C",
+          "columnNumber": 2,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 19,
+          "seatNumber": "C열 3번",
+          "rowName": "C",
+          "columnNumber": 3,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 20,
+          "seatNumber": "C열 4번",
+          "rowName": "C",
+          "columnNumber": 4,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 21,
+          "seatNumber": "C열 5번",
+          "rowName": "C",
+          "columnNumber": 5,
+          "gradeId": "vip",
+          "status": "available"
+        },
+        {
+          "seatId": 22,
+          "seatNumber": "C열 6번",
+          "rowName": "C",
+          "columnNumber": 6,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 23,
+          "seatNumber": "C열 7번",
+          "rowName": "C",
+          "columnNumber": 7,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 24,
+          "seatNumber": "C열 8번",
+          "rowName": "C",
+          "columnNumber": 8,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 25,
+          "seatNumber": "D열 1번",
+          "rowName": "D",
+          "columnNumber": 1,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 26,
+          "seatNumber": "D열 2번",
+          "rowName": "D",
+          "columnNumber": 2,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 27,
+          "seatNumber": "D열 3번",
+          "rowName": "D",
+          "columnNumber": 3,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 28,
+          "seatNumber": "D열 4번",
+          "rowName": "D",
+          "columnNumber": 4,
+          "gradeId": "vip",
+          "status": "available"
+        },
+        {
+          "seatId": 29,
+          "seatNumber": "D열 5번",
+          "rowName": "D",
+          "columnNumber": 5,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 30,
+          "seatNumber": "D열 6번",
+          "rowName": "D",
+          "columnNumber": 6,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 31,
+          "seatNumber": "D열 7번",
+          "rowName": "D",
+          "columnNumber": 7,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 32,
+          "seatNumber": "D열 8번",
+          "rowName": "D",
+          "columnNumber": 8,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 33,
+          "seatNumber": "E열 1번",
+          "rowName": "E",
+          "columnNumber": 1,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 34,
+          "seatNumber": "E열 2번",
+          "rowName": "E",
+          "columnNumber": 2,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 35,
+          "seatNumber": "E열 3번",
+          "rowName": "E",
+          "columnNumber": 3,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 36,
+          "seatNumber": "E열 4번",
+          "rowName": "E",
+          "columnNumber": 4,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 37,
+          "seatNumber": "E열 5번",
+          "rowName": "E",
+          "columnNumber": 5,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 38,
+          "seatNumber": "E열 6번",
+          "rowName": "E",
+          "columnNumber": 6,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 39,
+          "seatNumber": "E열 7번",
+          "rowName": "E",
+          "columnNumber": 7,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 40,
+          "seatNumber": "E열 8번",
+          "rowName": "E",
+          "columnNumber": 8,
+          "gradeId": "vip",
+          "status": "selected"
+        }
+      ]
+    },
+    {
+      "scheduleId": 2,
+      "stageLabel": "STAGE",
+      "rowNames": ["A", "B", "C", "D", "E"],
+      "columnCount": 8,
+      "seats": [
+        {
+          "seatId": 1,
+          "seatNumber": "A열 1번",
+          "rowName": "A",
+          "columnNumber": 1,
+          "gradeId": "vip",
+          "status": "available"
+        },
+        {
+          "seatId": 2,
+          "seatNumber": "A열 2번",
+          "rowName": "A",
+          "columnNumber": 2,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 3,
+          "seatNumber": "A열 3번",
+          "rowName": "A",
+          "columnNumber": 3,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 4,
+          "seatNumber": "A열 4번",
+          "rowName": "A",
+          "columnNumber": 4,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 5,
+          "seatNumber": "A열 5번",
+          "rowName": "A",
+          "columnNumber": 5,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 6,
+          "seatNumber": "A열 6번",
+          "rowName": "A",
+          "columnNumber": 6,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 7,
+          "seatNumber": "A열 7번",
+          "rowName": "A",
+          "columnNumber": 7,
+          "gradeId": "vip",
+          "status": "available"
+        },
+        {
+          "seatId": 8,
+          "seatNumber": "A열 8번",
+          "rowName": "A",
+          "columnNumber": 8,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 9,
+          "seatNumber": "B열 1번",
+          "rowName": "B",
+          "columnNumber": 1,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 10,
+          "seatNumber": "B열 2번",
+          "rowName": "B",
+          "columnNumber": 2,
+          "gradeId": "vip",
+          "status": "available"
+        },
+        {
+          "seatId": 11,
+          "seatNumber": "B열 3번",
+          "rowName": "B",
+          "columnNumber": 3,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 12,
+          "seatNumber": "B열 4번",
+          "rowName": "B",
+          "columnNumber": 4,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 13,
+          "seatNumber": "B열 5번",
+          "rowName": "B",
+          "columnNumber": 5,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 14,
+          "seatNumber": "B열 6번",
+          "rowName": "B",
+          "columnNumber": 6,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 15,
+          "seatNumber": "B열 7번",
+          "rowName": "B",
+          "columnNumber": 7,
+          "gradeId": "vip",
+          "status": "available"
+        },
+        {
+          "seatId": 16,
+          "seatNumber": "B열 8번",
+          "rowName": "B",
+          "columnNumber": 8,
+          "gradeId": "vip",
+          "status": "available"
+        },
+        {
+          "seatId": 17,
+          "seatNumber": "C열 1번",
+          "rowName": "C",
+          "columnNumber": 1,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 18,
+          "seatNumber": "C열 2번",
+          "rowName": "C",
+          "columnNumber": 2,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 19,
+          "seatNumber": "C열 3번",
+          "rowName": "C",
+          "columnNumber": 3,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 20,
+          "seatNumber": "C열 4번",
+          "rowName": "C",
+          "columnNumber": 4,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 21,
+          "seatNumber": "C열 5번",
+          "rowName": "C",
+          "columnNumber": 5,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 22,
+          "seatNumber": "C열 6번",
+          "rowName": "C",
+          "columnNumber": 6,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 23,
+          "seatNumber": "C열 7번",
+          "rowName": "C",
+          "columnNumber": 7,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 24,
+          "seatNumber": "C열 8번",
+          "rowName": "C",
+          "columnNumber": 8,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 25,
+          "seatNumber": "D열 1번",
+          "rowName": "D",
+          "columnNumber": 1,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 26,
+          "seatNumber": "D열 2번",
+          "rowName": "D",
+          "columnNumber": 2,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 27,
+          "seatNumber": "D열 3번",
+          "rowName": "D",
+          "columnNumber": 3,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 28,
+          "seatNumber": "D열 4번",
+          "rowName": "D",
+          "columnNumber": 4,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 29,
+          "seatNumber": "D열 5번",
+          "rowName": "D",
+          "columnNumber": 5,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 30,
+          "seatNumber": "D열 6번",
+          "rowName": "D",
+          "columnNumber": 6,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 31,
+          "seatNumber": "D열 7번",
+          "rowName": "D",
+          "columnNumber": 7,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 32,
+          "seatNumber": "D열 8번",
+          "rowName": "D",
+          "columnNumber": 8,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 33,
+          "seatNumber": "E열 1번",
+          "rowName": "E",
+          "columnNumber": 1,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 34,
+          "seatNumber": "E열 2번",
+          "rowName": "E",
+          "columnNumber": 2,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 35,
+          "seatNumber": "E열 3번",
+          "rowName": "E",
+          "columnNumber": 3,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 36,
+          "seatNumber": "E열 4번",
+          "rowName": "E",
+          "columnNumber": 4,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 37,
+          "seatNumber": "E열 5번",
+          "rowName": "E",
+          "columnNumber": 5,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 38,
+          "seatNumber": "E열 6번",
+          "rowName": "E",
+          "columnNumber": 6,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 39,
+          "seatNumber": "E열 7번",
+          "rowName": "E",
+          "columnNumber": 7,
+          "gradeId": "vip",
+          "status": "selected"
+        },
+        {
+          "seatId": 40,
+          "seatNumber": "E열 8번",
+          "rowName": "E",
+          "columnNumber": 8,
+          "gradeId": "vip",
+          "status": "selected"
+        }
+      ]
+    }
+  ]
+}

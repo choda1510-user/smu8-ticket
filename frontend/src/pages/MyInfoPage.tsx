@@ -2,7 +2,7 @@ import type { CSSProperties, FormEvent, ReactNode } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import {useMyInfoPage} from "@/hooks/useMyInfoPage";
-import type {MyInfoForm} from "@/hooks/useMyInfoPage";
+import type {MyInfoForm} from "@/types/member";
 
 /*
  * 내정보 페이지

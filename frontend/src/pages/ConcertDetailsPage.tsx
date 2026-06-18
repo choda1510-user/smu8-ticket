@@ -42,7 +42,7 @@ function ConcertDetailsPage() {
             return;
         }
 
-        navigate(`/booking/waiting/${currentConcertId}`);
+        window.open(`/booking/waiting/${currentConcertId}`, "_blank", "noopener,noreferrer");
     };
 
     const handleVenueClick = () => {

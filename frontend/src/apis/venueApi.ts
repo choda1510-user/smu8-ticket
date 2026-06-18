@@ -1,12 +1,12 @@
-function getVenue() {
+export function getVenue() {
 
 }
-function getVenueList() {
+export function getVenueList() {
 
 }
-function addVenue() {
+export function addVenue() {
 
 }
-function removeVenue() {
+export function removeVenue() {
     
 }

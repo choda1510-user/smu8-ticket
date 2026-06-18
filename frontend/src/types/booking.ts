@@ -46,6 +46,14 @@ export type BookingItem = {
 
 export type BookingListResponse = ListResponse<BookingItem>;
 
+export type BookingWaiting = {
+    concertId: number;
+    waitingCount: number;
+    waitingTime: string;
+    waitingInformation: string;
+    nextRedirectPath: string;
+};
+
 export type SeatStatus = "available" | "selected" | "unavailable";
 
 export type SeatGrade = {
@@ -125,6 +133,7 @@ export type PriceSelection = {
     selectedSeats: PriceSelectionSeat[];
     ticketPrices: PriceSelectionTicketPrice[];
     paymentSummary: PriceSelectionPaymentSummary;
+    cancelPolicy: PaymentCancelPolicy;
 };
 
 export type PaymentDeliveryMethod = {
@@ -193,4 +202,34 @@ export type BookingSuccess = {
     message: string;
     confirmButtonText: string;
     confirmRedirectPath: string;
+};
+
+export type BookingWaitingHookResult = {
+    bookingWaiting: BookingWaiting;
+    isLoading: boolean;
+    error: Error | null;
+};
+
+export type SeatSelectionHookResult = {
+    seatSelection: SeatSelection;
+    isLoading: boolean;
+    error: Error | null;
+};
+
+export type PriceSelectionHookResult = {
+    priceSelection: PriceSelection;
+    isLoading: boolean;
+    error: Error | null;
+};
+
+export type PaymentHookResult = {
+    payment: Payment;
+    isLoading: boolean;
+    error: Error | null;
+};
+
+export type BookingSuccessHookResult = {
+    bookingSuccess: BookingSuccess;
+    isLoading: boolean;
+    error: Error | null;
 };

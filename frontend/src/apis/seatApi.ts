@@ -1,3 +1,3 @@
-function getSeats() {
+export function getSeats() {
 
 }

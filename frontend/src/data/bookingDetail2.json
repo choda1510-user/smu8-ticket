@@ -10,7 +10,7 @@
   "cancelDeadline": "2026.07.18 17:00",
   "ticketCount": "2매",
   "status": "예매완료",
-  "seats": [
+  "seats": [ 
     {
       "id": 1,
       "seatGrade": "S석",

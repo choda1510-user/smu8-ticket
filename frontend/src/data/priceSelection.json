@@ -5,7 +5,7 @@
   "venueName": "SMU8 홀",
   "scheduleId": 1,
   "performanceDate": "2026-07-10",
-  "performanceTime": "18:30",
+  "performanceTime": "19:00",
   "reservationLimitMinutes": 5,
   "selectedSeats": [
     {
@@ -35,8 +35,8 @@
     "serviceFee": 0,
     "totalAmount": 110000
   },
-  "cancelPolicy" : {
-    "cancelDeadline" : "2026-07-09 17:00",
-    "cancelDeadline2" : "2026-07-09 17:00"
+  "cancelPolicy": {
+    "cancelDeadline": "2026-07-09 17:00",
+    "cancelFeeNotice": "취소기한 이후에는 취소수수료가 부과될 수 있습니다."
   }
 }

@@ -1,23 +1,23 @@
-function getConcert() {
+export function getConcert() {
 
 }
-function getConcertList() {
+export function getConcertList() {
 
 }
 // 홈페이지 배너에 보여줄 콘서트 정보
-function getConcertListOnBanner() {
+export function getConcertListOnBanner() {
 
 }
 // 관리자 페이지에서 사용할 api
-function getConcertWithSeats() {
+export function getConcertWithSeats() {
 
 }
-function addConcert() {
+export function addConcert() {
 
 }
-function updateConcert() {
+export function updateConcert() {
 
 }
-function cancleConcert() {
+export function cancleConcert() {
 
 }

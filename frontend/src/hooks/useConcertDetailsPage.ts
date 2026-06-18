@@ -1,23 +1,5 @@
 import {useFetchJson} from "@/hooks/useFetchJson";
-
-export type ConcertSchedule = {
-    id: number;
-    date: string;
-    time: string;
-};
-
-export type ConcertDetail = {
-    id: number;
-    venueId: number;
-    posterUrl?: string;
-    concertTitle: string;
-    artistName: string;
-    concertPeriod: string;
-    runningTime: string;
-    venueName: string;
-    reservationPeriod: string;
-    schedules: ConcertSchedule[];
-};
+import type {ConcertDetail} from "@/types/concert";
 
 const initialConcertDetail: ConcertDetail = {
     id: 0,

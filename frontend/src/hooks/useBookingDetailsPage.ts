@@ -1,31 +1,5 @@
 import {useFetchJson} from "@/hooks/useFetchJson";
-
-export type SeatInfo = {
-    id: number;
-    seatGrade: string;
-    seatNumber: string;
-    priceGrade: string;
-    price: string;
-    cancelStatus: string;
-};
-
-export type BookingDetail = {
-    concertId: number;
-    venueId: number;
-    concertTitle: string;
-    reservationNumber: string;
-    venueName: string;
-    reservationDate: string;
-    userId: string;
-    viewingDateTime: string;
-    cancelDeadline: string;
-    ticketCount: string;
-    status: string;
-    ticketPrice: string;
-    basePrice: string;
-    totalPrice: string;
-    seats: SeatInfo[];
-};
+import type {BookingDetail} from "@/types/booking";
 
 const initialBookingDetail: BookingDetail = {
     concertId: 0,

@@ -2,21 +2,245 @@
   "data": [
     {
       "id": 1,
-      "title": "공연명",
-      "period": "공연기간",
+      "title": "통합검색 공연 1",
+      "period": "2026.07.01 - 2026.08.01",
       "venueId": 1,
-      "venueName": "공연장명",
+      "venueName": "상명아트센터",
       "status": "예매중"
     },
     {
       "id": 2,
-      "title": "공연명",
-      "period": "공연기간",
+      "title": "통합검색 공연 2",
+      "period": "2026.07.02 - 2026.08.02",
       "venueId": 2,
-      "venueName": "공연장명",
+      "venueName": "블루스퀘어",
       "status": "예매예정"
+    },
+    {
+      "id": 3,
+      "title": "통합검색 공연 3",
+      "period": "2026.07.03 - 2026.08.03",
+      "venueId": 3,
+      "venueName": "예술의전당",
+      "status": "예매마감"
+    },
+    {
+      "id": 4,
+      "title": "통합검색 공연 4",
+      "period": "2026.07.04 - 2026.08.04",
+      "venueId": 4,
+      "venueName": "세종문화회관",
+      "status": "예매중"
+    },
+    {
+      "id": 5,
+      "title": "통합검색 공연 5",
+      "period": "2026.07.05 - 2026.08.05",
+      "venueId": 5,
+      "venueName": "올림픽공원",
+      "status": "예매예정"
+    },
+    {
+      "id": 6,
+      "title": "통합검색 공연 6",
+      "period": "2026.07.06 - 2026.08.06",
+      "venueId": 1,
+      "venueName": "상명아트센터",
+      "status": "예매마감"
+    },
+    {
+      "id": 7,
+      "title": "통합검색 공연 7",
+      "period": "2026.07.07 - 2026.08.07",
+      "venueId": 2,
+      "venueName": "블루스퀘어",
+      "status": "예매중"
+    },
+    {
+      "id": 8,
+      "title": "통합검색 공연 8",
+      "period": "2026.07.08 - 2026.08.08",
+      "venueId": 3,
+      "venueName": "예술의전당",
+      "status": "예매예정"
+    },
+    {
+      "id": 9,
+      "title": "통합검색 공연 9",
+      "period": "2026.07.09 - 2026.08.09",
+      "venueId": 4,
+      "venueName": "세종문화회관",
+      "status": "예매마감"
+    },
+    {
+      "id": 10,
+      "title": "통합검색 공연 10",
+      "period": "2026.07.10 - 2026.08.10",
+      "venueId": 5,
+      "venueName": "올림픽공원",
+      "status": "예매중"
+    },
+    {
+      "id": 11,
+      "title": "통합검색 공연 11",
+      "period": "2026.07.11 - 2026.08.11",
+      "venueId": 1,
+      "venueName": "상명아트센터",
+      "status": "예매예정"
+    },
+    {
+      "id": 12,
+      "title": "통합검색 공연 12",
+      "period": "2026.07.12 - 2026.08.12",
+      "venueId": 2,
+      "venueName": "블루스퀘어",
+      "status": "예매마감"
+    },
+    {
+      "id": 13,
+      "title": "통합검색 공연 13",
+      "period": "2026.07.13 - 2026.08.13",
+      "venueId": 3,
+      "venueName": "예술의전당",
+      "status": "예매중"
+    },
+    {
+      "id": 14,
+      "title": "통합검색 공연 14",
+      "period": "2026.07.14 - 2026.08.14",
+      "venueId": 4,
+      "venueName": "세종문화회관",
+      "status": "예매예정"
+    },
+    {
+      "id": 15,
+      "title": "통합검색 공연 15",
+      "period": "2026.07.15 - 2026.08.15",
+      "venueId": 5,
+      "venueName": "올림픽공원",
+      "status": "예매마감"
+    },
+    {
+      "id": 16,
+      "title": "통합검색 공연 16",
+      "period": "2026.07.16 - 2026.08.16",
+      "venueId": 1,
+      "venueName": "상명아트센터",
+      "status": "예매중"
+    },
+    {
+      "id": 17,
+      "title": "통합검색 공연 17",
+      "period": "2026.07.17 - 2026.08.17",
+      "venueId": 2,
+      "venueName": "블루스퀘어",
+      "status": "예매예정"
+    },
+    {
+      "id": 18,
+      "title": "통합검색 공연 18",
+      "period": "2026.07.18 - 2026.08.18",
+      "venueId": 3,
+      "venueName": "예술의전당",
+      "status": "예매마감"
+    },
+    {
+      "id": 19,
+      "title": "통합검색 공연 19",
+      "period": "2026.07.19 - 2026.08.19",
+      "venueId": 4,
+      "venueName": "세종문화회관",
+      "status": "예매중"
+    },
+    {
+      "id": 20,
+      "title": "통합검색 공연 20",
+      "period": "2026.07.20 - 2026.08.20",
+      "venueId": 5,
+      "venueName": "올림픽공원",
+      "status": "예매예정"
+    },
+    {
+      "id": 21,
+      "title": "통합검색 공연 21",
+      "period": "2026.07.21 - 2026.08.21",
+      "venueId": 1,
+      "venueName": "상명아트센터",
+      "status": "예매마감"
+    },
+    {
+      "id": 22,
+      "title": "통합검색 공연 22",
+      "period": "2026.07.22 - 2026.08.22",
+      "venueId": 2,
+      "venueName": "블루스퀘어",
+      "status": "예매중"
+    },
+    {
+      "id": 23,
+      "title": "통합검색 공연 23",
+      "period": "2026.07.23 - 2026.08.23",
+      "venueId": 3,
+      "venueName": "예술의전당",
+      "status": "예매예정"
+    },
+    {
+      "id": 24,
+      "title": "통합검색 공연 24",
+      "period": "2026.07.24 - 2026.08.24",
+      "venueId": 4,
+      "venueName": "세종문화회관",
+      "status": "예매마감"
+    },
+    {
+      "id": 25,
+      "title": "통합검색 공연 25",
+      "period": "2026.07.25 - 2026.08.25",
+      "venueId": 5,
+      "venueName": "올림픽공원",
+      "status": "예매중"
+    },
+    {
+      "id": 26,
+      "title": "통합검색 공연 26",
+      "period": "2026.07.26 - 2026.08.26",
+      "venueId": 1,
+      "venueName": "상명아트센터",
+      "status": "예매예정"
+    },
+    {
+      "id": 27,
+      "title": "통합검색 공연 27",
+      "period": "2026.07.27 - 2026.08.27",
+      "venueId": 2,
+      "venueName": "블루스퀘어",
+      "status": "예매마감"
+    },
+    {
+      "id": 28,
+      "title": "통합검색 공연 28",
+      "period": "2026.07.28 - 2026.08.28",
+      "venueId": 3,
+      "venueName": "예술의전당",
+      "status": "예매중"
+    },
+    {
+      "id": 29,
+      "title": "통합검색 공연 29",
+      "period": "2026.07.29 - 2026.08.29",
+      "venueId": 4,
+      "venueName": "세종문화회관",
+      "status": "예매예정"
+    },
+    {
+      "id": 30,
+      "title": "통합검색 공연 30",
+      "period": "2026.07.30 - 2026.08.30",
+      "venueId": 5,
+      "venueName": "올림픽공원",
+      "status": "예매마감"
     }
   ],
   "page": 1,
-  "totalPage": 1
+  "totalPage": 3
 }

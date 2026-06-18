@@ -1,8 +1,0 @@
-{
-  "concertId": 1,
-  "waitingNumber": 120,
-  "estimatedSeconds": 5,
-  "progressPercent": 0,
-  "statusMessage": "현재 대기 중입니다",
-  "guideMessage": "잠시만 기다려주세요. 순서가 되면 좌석 선택 및 결제 화면으로 이동합니다."
-}

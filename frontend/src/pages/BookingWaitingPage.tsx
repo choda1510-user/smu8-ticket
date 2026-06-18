@@ -1,61 +1,65 @@
 import type {CSSProperties} from "react";
-import {useEffect, useState} from "react";
-import {useNavigate, useParams} from "react-router";
-import {useBookingWaitingPage} from "@/hooks/useBookingWaitingPage";
+import {useEffect, useMemo, useState} from "react";
+import {useNavigate} from "react-router";
+import {useFetchJson} from "@/hooks/useFetchJson";
+import type {BookingWaiting} from "@/types/booking";
 
-/*
- * 대기열 페이지
- * - 예매 프로세스 전용 새 창 화면
- * - Header, Navigation, Layout 제외
- * - 라우팅 기준:
- *   대기열: /booking/waiting/:concertId
- *   좌석선택 및 결제: 추후 연결 예정
- */
+const waitingListUrl = new URL("../data/waitingList.json", import.meta.url).href;
+
+const initialBookingWaiting: BookingWaiting = {
+    concertId: 0,
+    waitingCount: 0,
+    waitingTime: "",
+    waitingInformation: "",
+    nextRedirectPath: "",
+};
 
 function BookingWaitingPage() {
     const navigate = useNavigate();
-    const {concertId} = useParams();
-    const {waitingStatus} = useBookingWaitingPage();
-    const [remainingSeconds, setRemainingSeconds] = useState(waitingStatus.estimatedSeconds);
+    const {data: bookingWaiting} = useFetchJson<BookingWaiting>(waitingListUrl, initialBookingWaiting);
+    const totalSeconds = useMemo(() => parseWaitingSeconds(bookingWaiting.waitingTime), [bookingWaiting.waitingTime]);
+    const [remainingSeconds, setRemainingSeconds] = useState(() => (
+        parseWaitingSeconds(initialBookingWaiting.waitingTime)
+    ));
 
-    const currentConcertId = concertId ?? String(waitingStatus.concertId);
-    const totalSeconds = Math.max(waitingStatus.estimatedSeconds, 1);
     const progressPercent = Math.min(
-        Math.max(((totalSeconds - remainingSeconds) / totalSeconds) * 100, 0),
+        Math.max(((totalSeconds - remainingSeconds) / Math.max(totalSeconds, 1)) * 100, 0),
         100
     );
 
     useEffect(() => {
-        setRemainingSeconds(waitingStatus.estimatedSeconds);
-    }, [waitingStatus.estimatedSeconds]);
+        if (bookingWaiting.concertId === 0) {
+            return;
+        }
 
-    useEffect(() => {
         if (remainingSeconds <= 0) {
-            navigate(`/booking/select/${currentConcertId}`, {replace: true});
+            navigate(bookingWaiting.nextRedirectPath || `/booking/select/${bookingWaiting.concertId}`, {
+                replace: true,
+            });
             return;
         }
 
         const timerId = window.setTimeout(() => {
-            setRemainingSeconds((prevSecond) => prevSecond - 1);
+            setRemainingSeconds((prevSecond) => Math.max(prevSecond - 1, 0));
         }, 1000);
 
         return () => {
             window.clearTimeout(timerId);
         };
-    }, [currentConcertId, navigate, remainingSeconds]);
+    }, [bookingWaiting.concertId, bookingWaiting.nextRedirectPath, navigate, remainingSeconds]);
 
     return (
         <section style={styles.page}>
             <div style={styles.inner}>
                 <article style={styles.waitingCard}>
-                    <p style={styles.statusMessage}>{waitingStatus.statusMessage}</p>
+                    <p style={styles.statusMessage}>예매 대기 중입니다</p>
 
                     <strong style={styles.waitingNumber}>
-                        {waitingStatus.waitingNumber.toLocaleString()}
+                        {bookingWaiting.waitingCount.toLocaleString()}
                     </strong>
 
                     <p style={styles.estimatedTime}>
-                        좌석 선택까지 {remainingSeconds}초
+                        {bookingWaiting.waitingTime || `좌석 선택까지 ${remainingSeconds}초`}
                     </p>
 
                     <div style={styles.progressTrack} aria-label="대기 진행률">
@@ -67,11 +71,21 @@ function BookingWaitingPage() {
                         />
                     </div>
 
-                    <p style={styles.guideMessage}>{waitingStatus.guideMessage}</p>
+                    <p style={styles.guideMessage}>{bookingWaiting.waitingInformation}</p>
                 </article>
             </div>
         </section>
     );
+}
+
+function parseWaitingSeconds(waitingTime: string) {
+    const matchedMinute = waitingTime.match(/(\d+)분/);
+    const matchedSecond = waitingTime.match(/(\d+)초/);
+    const minutes = matchedMinute ? Number(matchedMinute[1]) : 0;
+    const seconds = matchedSecond ? Number(matchedSecond[1]) : 0;
+    const totalSeconds = minutes * 60 + seconds;
+
+    return totalSeconds > 0 ? totalSeconds : 180;
 }
 
 const styles: Record<string, CSSProperties> = {
@@ -85,7 +99,6 @@ const styles: Record<string, CSSProperties> = {
         boxSizing: "border-box",
         padding: "78px 20px 120px",
     },
-
     inner: {
         width: "100%",
         maxWidth: "760px",
@@ -97,7 +110,6 @@ const styles: Record<string, CSSProperties> = {
         justifyContent: "center",
         boxSizing: "border-box",
     },
-
     waitingCard: {
         width: "360px",
         minHeight: "330px",
@@ -112,7 +124,6 @@ const styles: Record<string, CSSProperties> = {
         boxSizing: "border-box",
         boxShadow: "0 16px 34px rgba(155, 92, 255, 0.08)",
     },
-
     statusMessage: {
         margin: 0,
         color: "#8a5cff",
@@ -120,7 +131,6 @@ const styles: Record<string, CSSProperties> = {
         fontWeight: 800,
         textAlign: "center",
     },
-
     waitingNumber: {
         marginTop: "30px",
         color: "#f05d9b",
@@ -129,7 +139,6 @@ const styles: Record<string, CSSProperties> = {
         lineHeight: 1,
         textAlign: "center",
     },
-
     estimatedTime: {
         margin: "24px 0 0",
         color: "#777",
@@ -137,7 +146,6 @@ const styles: Record<string, CSSProperties> = {
         fontWeight: 600,
         textAlign: "center",
     },
-
     progressTrack: {
         width: "220px",
         height: "14px",
@@ -146,14 +154,12 @@ const styles: Record<string, CSSProperties> = {
         backgroundColor: "#d8d8df",
         overflow: "hidden",
     },
-
     progressBar: {
         height: "100%",
         borderRadius: "999px",
         background: "linear-gradient(90deg, #eb75b0 0%, #8a5cff 100%)",
         transition: "width 0.3s ease",
     },
-
     guideMessage: {
         width: "100%",
         minHeight: "34px",

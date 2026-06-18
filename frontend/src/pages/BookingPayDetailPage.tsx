@@ -1,24 +1,44 @@
 import type {CSSProperties} from "react";
 import {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router";
-import {useBookingPayDetailPage} from "@/hooks/useBookingPayDetailPage";
+import {useFetchJson} from "@/hooks/useFetchJson";
+import type {PriceSelection} from "@/types/booking";
 
-/*
- * 결제 - 가격선택 페이지
- * - 예매 프로세스 전용 새 창 화면
- * - Header, Navigation, Layout 제외
- * - 라우팅 기준:
- *   가격선택: /booking/paydetail/:concertId
- */
+const priceSelectionUrl = new URL("../data/priceSelection.json", import.meta.url).href;
+
+const initialPriceSelection: PriceSelection = {
+    concertId: 0,
+    concertTitle: "",
+    venueId: 0,
+    venueName: "",
+    scheduleId: 0,
+    performanceDate: "",
+    performanceTime: "",
+    reservationLimitMinutes: 5,
+    selectedSeats: [],
+    ticketPrices: [],
+    paymentSummary: {
+        ticketAmount: 0,
+        discountAmount: 0,
+        serviceFee: 0,
+        totalAmount: 0,
+    },
+    cancelPolicy: {
+        cancelDeadline: "",
+        cancelFeeNotice: "",
+    },
+};
 
 function BookingPayDetailPage() {
     const navigate = useNavigate();
-    const {bookingPayDetailInfo} = useBookingPayDetailPage();
-    const [remainingSeconds, setRemainingSeconds] = useState(300);
+    const {data: priceSelection} = useFetchJson<PriceSelection>(priceSelectionUrl, initialPriceSelection);
+    const [remainingSeconds, setRemainingSeconds] = useState(
+        initialPriceSelection.reservationLimitMinutes * 60
+    );
     const hasHandledExpirationRef = useRef(false);
 
-    const totalPrice = bookingPayDetailInfo.ticketPrice * bookingPayDetailInfo.ticketCount;
     const formattedRemainingTime = formatRemainingTime(remainingSeconds);
+    const selectedSeatText = priceSelection.selectedSeats.map((seat) => seat.seatNumber).join(", ");
 
     useEffect(() => {
         if (remainingSeconds <= 0) {
@@ -35,21 +55,21 @@ function BookingPayDetailPage() {
     }, [remainingSeconds]);
 
     useEffect(() => {
-        if (remainingSeconds > 0 || hasHandledExpirationRef.current) {
+        if (remainingSeconds > 0 || priceSelection.concertId === 0 || hasHandledExpirationRef.current) {
             return;
         }
 
         hasHandledExpirationRef.current = true;
         alert("예매 가능 시간이 종료되었습니다.");
-        navigate(`/concerts/${bookingPayDetailInfo.concertId}`, {replace: true});
-    }, [bookingPayDetailInfo.concertId, navigate, remainingSeconds]);
+        navigate(`/concerts/${priceSelection.concertId}`, {replace: true});
+    }, [navigate, priceSelection.concertId, remainingSeconds]);
 
     const handlePreviousClick = () => {
-        navigate(`/booking/select/${bookingPayDetailInfo.concertId}`);
+        navigate(`/booking/select/${priceSelection.concertId}`);
     };
 
     const handleNextClick = () => {
-        navigate(`/booking/payment/${bookingPayDetailInfo.concertId}`);
+        navigate(`/booking/payment/${priceSelection.concertId}`);
     };
 
     return (
@@ -74,33 +94,34 @@ function BookingPayDetailPage() {
 
                             <div style={styles.priceTable}>
                                 <div style={styles.tableHeader}>
-                                    <span>{bookingPayDetailInfo.ticketGrade}</span>
+                                    <span>가격등급</span>
+                                    <span>금액</span>
                                     <span>매수</span>
                                 </div>
 
-                                <div style={styles.tableRow}>
-                                    <strong>{bookingPayDetailInfo.priceGrade}</strong>
-                                    <strong>{formatWon(bookingPayDetailInfo.ticketPrice)}</strong>
-                                    <strong>{bookingPayDetailInfo.ticketCount}매</strong>
-                                </div>
+                                {priceSelection.ticketPrices.map((ticketPrice) => (
+                                    <div key={ticketPrice.priceId} style={styles.tableRow}>
+                                        <strong>{ticketPrice.label}</strong>
+                                        <strong>{formatWon(ticketPrice.price)}</strong>
+                                        <strong>{ticketPrice.quantity}매</strong>
+                                    </div>
+                                ))}
                             </div>
                         </section>
 
                         <aside style={styles.sidePanel}>
                             <div style={styles.logoBox}>SM</div>
 
-                            <h2 style={styles.concertTitle}>
-                                {bookingPayDetailInfo.concertTitle}(공연제목)
-                            </h2>
+                            <h2 style={styles.concertTitle}>{priceSelection.concertTitle}</h2>
 
                             <div style={styles.selectedInfoBox}>
-                                <p style={styles.selectedSchedule}>{bookingPayDetailInfo.scheduleText}</p>
+                                <p style={styles.selectedSchedule}>
+                                    {priceSelection.performanceDate} {priceSelection.performanceTime}
+                                </p>
                                 <p style={styles.selectedSeatCount}>
-                                    총 {bookingPayDetailInfo.ticketCount}석 선택
+                                    총 {priceSelection.selectedSeats.length}석 선택
                                 </p>
-                                <p style={styles.selectedSeatText}>
-                                    {bookingPayDetailInfo.selectedSeatText}
-                                </p>
+                                <p style={styles.selectedSeatText}>{selectedSeatText}</p>
                             </div>
 
                             <h3 style={styles.paymentTitle}>결제금액</h3>
@@ -108,28 +129,33 @@ function BookingPayDetailPage() {
                             <div style={styles.paymentBox}>
                                 <div style={styles.paymentRow}>
                                     <span>티켓금액</span>
-                                    <strong>{formatWon(bookingPayDetailInfo.ticketPrice)}</strong>
+                                    <strong>{formatWon(priceSelection.paymentSummary.ticketAmount)}</strong>
                                 </div>
-                                <div style={{...styles.paymentRow, ...styles.dimmedPaymentRow}}>
-                                    <span>기본가</span>
-                                    <span>{formatWon(bookingPayDetailInfo.ticketPrice)}</span>
-                                </div>
+
+                                {priceSelection.ticketPrices.map((ticketPrice) => (
+                                    <div
+                                        key={ticketPrice.priceId}
+                                        style={{...styles.paymentRow, ...styles.dimmedPaymentRow}}
+                                    >
+                                        <span>{ticketPrice.label}</span>
+                                        <span>{formatWon(ticketPrice.price)}</span>
+                                    </div>
+                                ))}
+
                                 <div style={styles.countRow}>
-                                    <span>총 매수 : {bookingPayDetailInfo.ticketCount}</span>
-                                    <span>
-                                        {formatWon(bookingPayDetailInfo.ticketPrice)} x {bookingPayDetailInfo.ticketCount}
-                                    </span>
+                                    <span>총 매수 : {priceSelection.selectedSeats.length}</span>
+                                    <span>{formatWon(priceSelection.paymentSummary.ticketAmount)}</span>
                                 </div>
                             </div>
 
                             <div style={styles.totalRow}>
                                 <span>총 결제금액</span>
-                                <strong>{formatWon(totalPrice)}</strong>
+                                <strong>{formatWon(priceSelection.paymentSummary.totalAmount)}</strong>
                             </div>
 
                             <ul style={styles.noticeList}>
-                                <li>취소기한: {bookingPayDetailInfo.cancelDeadline}</li>
-                                <li>취소기한: {bookingPayDetailInfo.cancelDeadline}</li>
+                                <li>취소기한: {priceSelection.cancelPolicy.cancelDeadline}</li>
+                                <li>{priceSelection.cancelPolicy.cancelFeeNotice}</li>
                             </ul>
 
                             <div style={styles.buttonArea}>
@@ -172,7 +198,6 @@ const styles: Record<string, CSSProperties> = {
         boxSizing: "border-box",
         padding: "28px 32px",
     },
-
     frame: {
         width: "100%",
         maxWidth: "980px",
@@ -182,7 +207,6 @@ const styles: Record<string, CSSProperties> = {
         padding: "28px",
         boxSizing: "border-box",
     },
-
     bookingBox: {
         width: "100%",
         border: "1px solid #222",
@@ -190,7 +214,6 @@ const styles: Record<string, CSSProperties> = {
         boxSizing: "border-box",
         overflow: "hidden",
     },
-
     stepBar: {
         height: "58px",
         display: "grid",
@@ -199,7 +222,6 @@ const styles: Record<string, CSSProperties> = {
         borderBottom: "1px solid #dedee6",
         backgroundColor: "#fff",
     },
-
     stepItem: {
         height: "100%",
         display: "flex",
@@ -209,24 +231,20 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "18px",
         fontWeight: 700,
     },
-
     activeStepItem: {
         color: "#ff5aa5",
     },
-
     stepDivider: {
         color: "#555",
         fontSize: "34px",
         textAlign: "center",
     },
-
     contentArea: {
         display: "grid",
         gridTemplateColumns: "1fr 270px",
         minHeight: "474px",
         backgroundColor: "#fff",
     },
-
     priceArea: {
         position: "relative",
         minHeight: "474px",
@@ -234,7 +252,6 @@ const styles: Record<string, CSSProperties> = {
         boxSizing: "border-box",
         backgroundColor: "#fff",
     },
-
     remainingTime: {
         position: "absolute",
         top: "8px",
@@ -243,24 +260,21 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "14px",
         fontWeight: 700,
     },
-
     sectionTitle: {
         margin: "0 0 18px",
         paddingLeft: "64px",
         fontSize: "22px",
         fontWeight: 700,
     },
-
     priceTable: {
         width: "100%",
         borderTop: "1px solid #e1e1e7",
         borderBottom: "1px solid #aaa",
     },
-
     tableHeader: {
         height: "46px",
         display: "grid",
-        gridTemplateColumns: "1fr 120px",
+        gridTemplateColumns: "1fr 160px 120px",
         alignItems: "center",
         padding: "0 38px 0 64px",
         backgroundColor: "#f0f0f2",
@@ -268,18 +282,16 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "15px",
         boxSizing: "border-box",
     },
-
     tableRow: {
         height: "58px",
         display: "grid",
         gridTemplateColumns: "1fr 160px 120px",
         alignItems: "center",
-        padding: "0 38px 0 94px",
+        padding: "0 38px 0 64px",
         borderTop: "1px solid #e2e2e2",
         fontSize: "18px",
         boxSizing: "border-box",
     },
-
     sidePanel: {
         borderLeft: "1px solid #ececf2",
         backgroundColor: "#fff",
@@ -288,7 +300,6 @@ const styles: Record<string, CSSProperties> = {
         display: "flex",
         flexDirection: "column",
     },
-
     logoBox: {
         height: "52px",
         display: "flex",
@@ -297,14 +308,12 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "34px",
         color: "#222",
     },
-
     concertTitle: {
         margin: "10px 0 14px",
         fontSize: "18px",
         fontWeight: 700,
         textAlign: "center",
     },
-
     selectedInfoBox: {
         border: "1px solid #aaa",
         padding: "12px",
@@ -312,33 +321,27 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "13px",
         lineHeight: 1.45,
     },
-
     selectedSchedule: {
         margin: "0 0 10px",
         textAlign: "center",
         fontSize: "14px",
     },
-
     selectedSeatCount: {
         margin: 0,
     },
-
     selectedSeatText: {
         margin: 0,
     },
-
     paymentTitle: {
         margin: "14px 0 8px",
         fontSize: "15px",
         fontWeight: 700,
     },
-
     paymentBox: {
         backgroundColor: "#fafafa",
         padding: "12px",
         boxSizing: "border-box",
     },
-
     paymentRow: {
         display: "flex",
         alignItems: "center",
@@ -346,12 +349,10 @@ const styles: Record<string, CSSProperties> = {
         minHeight: "30px",
         fontSize: "14px",
     },
-
     dimmedPaymentRow: {
         color: "#999",
         fontSize: "13px",
     },
-
     countRow: {
         display: "flex",
         justifyContent: "space-between",
@@ -361,7 +362,6 @@ const styles: Record<string, CSSProperties> = {
         color: "#999",
         fontSize: "12px",
     },
-
     totalRow: {
         display: "flex",
         justifyContent: "space-between",
@@ -371,7 +371,6 @@ const styles: Record<string, CSSProperties> = {
         borderTop: "1px solid #888",
         fontSize: "16px",
     },
-
     noticeList: {
         margin: "12px 0 14px",
         paddingLeft: "12px",
@@ -380,13 +379,11 @@ const styles: Record<string, CSSProperties> = {
         lineHeight: 1.35,
         wordBreak: "keep-all",
     },
-
     buttonArea: {
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
         marginTop: "auto",
     },
-
     previousButton: {
         height: "44px",
         border: "1px solid #ddd",
@@ -396,7 +393,6 @@ const styles: Record<string, CSSProperties> = {
         fontWeight: 700,
         cursor: "pointer",
     },
-
     nextButton: {
         height: "44px",
         border: "none",

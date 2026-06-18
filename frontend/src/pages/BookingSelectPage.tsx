@@ -1,29 +1,58 @@
 import type {CSSProperties} from "react";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {useNavigate} from "react-router";
-import {useBookingSelectPage} from "@/hooks/useBookingSelectPage";
-import type {BookingSeat, SeatGrade} from "@/hooks/useBookingSelectPage";
+import {useFetchJson} from "@/hooks/useFetchJson";
+import type {
+    SeatGrade,
+    SeatSelection,
+    SeatSelectionSeat,
+    SeatSelectionSeatMap,
+} from "@/types/booking";
 
-/*
- * 좌석 선택 및 결제 페이지
- * - 예매 프로세스 전용 새 창 화면
- * - Header, Navigation, Layout 제외
- * - 라우팅 기준:
- *   좌석선택 및 결제: /booking/select/:concertId
- */
+const seatSelectionUrl = new URL("../data/seatSelection.json", import.meta.url).href;
+
+const initialSeatSelection: SeatSelection = {
+    concertId: 0,
+    concertTitle: "",
+    venueId: 0,
+    venueName: "",
+    selectedScheduleId: 0,
+    schedules: [],
+    reservationLimitMinutes: 5,
+    maxSelectableSeatCount: 2,
+    seatGrades: [],
+    seatMaps: [],
+};
 
 function BookingSelectPage() {
     const navigate = useNavigate();
-    const {bookingSelectInfo} = useBookingSelectPage();
-    const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(null);
+    const {data: seatSelection} = useFetchJson<SeatSelection>(seatSelectionUrl, initialSeatSelection);
+    const [selectedScheduleId, setSelectedScheduleId] = useState(initialSeatSelection.selectedScheduleId);
     const [selectedSeatIds, setSelectedSeatIds] = useState<number[]>([]);
-    const [remainingSeconds, setRemainingSeconds] = useState(300);
+    const [remainingSeconds, setRemainingSeconds] = useState(
+        initialSeatSelection.reservationLimitMinutes * 60
+    );
     const hasHandledExpirationRef = useRef(false);
-    const currentSchedule =
-        bookingSelectInfo.schedules.find((schedule) => schedule.id === selectedScheduleId) ??
-        bookingSelectInfo.schedules[0];
 
+    const currentScheduleId = selectedScheduleId || seatSelection.selectedScheduleId;
+    const currentSchedule = seatSelection.schedules.find((schedule) => schedule.scheduleId === currentScheduleId);
+    const currentSeatMap =
+        seatSelection.seatMaps.find((seatMap) => seatMap.scheduleId === currentScheduleId) ??
+        seatSelection.seatMaps[0];
     const formattedRemainingTime = formatRemainingTime(remainingSeconds);
+
+    const gradeSummaries = useMemo(() => {
+        return seatSelection.seatGrades.map((grade) => {
+            const remainingCount = (currentSeatMap?.seats ?? []).filter((seat) => (
+                seat.gradeId === grade.gradeId && seat.status === "available"
+            )).length;
+
+            return {
+                ...grade,
+                remainingCount,
+            };
+        });
+    }, [currentSeatMap?.seats, seatSelection.seatGrades]);
 
     useEffect(() => {
         if (remainingSeconds <= 0) {
@@ -40,29 +69,34 @@ function BookingSelectPage() {
     }, [remainingSeconds]);
 
     useEffect(() => {
-        if (remainingSeconds > 0 || hasHandledExpirationRef.current) {
+        if (remainingSeconds > 0 || seatSelection.concertId === 0 || hasHandledExpirationRef.current) {
             return;
         }
 
         hasHandledExpirationRef.current = true;
         alert("예매 가능 시간이 종료되었습니다.");
-        navigate(`/concerts/${bookingSelectInfo.concertId}`, {replace: true});
-    }, [bookingSelectInfo.concertId, navigate, remainingSeconds]);
+        navigate(`/concerts/${seatSelection.concertId}`, {replace: true});
+    }, [navigate, remainingSeconds, seatSelection.concertId]);
 
-    const handleSeatClick = (seat: BookingSeat) => {
-        const isAlreadySelected = selectedSeatIds.includes(seat.id);
+    const handleSeatClick = (seat: SeatSelectionSeat) => {
+        if (seat.status !== "available") {
+            alert("선택할 수 없는 좌석입니다.");
+            return;
+        }
 
-        if (!isAlreadySelected && selectedSeatIds.length >= 2) {
-            alert("좌석은 최대 2개까지 선택할 수 있습니다.");
+        const isAlreadySelected = selectedSeatIds.includes(seat.seatId);
+
+        if (!isAlreadySelected && selectedSeatIds.length >= seatSelection.maxSelectableSeatCount) {
+            alert(`좌석은 최대 ${seatSelection.maxSelectableSeatCount}개까지 선택할 수 있습니다.`);
             return;
         }
 
         setSelectedSeatIds((prevSeatIds) => {
-            if (prevSeatIds.includes(seat.id)) {
-                return prevSeatIds.filter((seatId) => seatId !== seat.id);
+            if (prevSeatIds.includes(seat.seatId)) {
+                return prevSeatIds.filter((seatId) => seatId !== seat.seatId);
             }
 
-            return [...prevSeatIds, seat.id];
+            return [...prevSeatIds, seat.seatId];
         });
     };
 
@@ -72,21 +106,12 @@ function BookingSelectPage() {
     };
 
     const handleCompleteClick = () => {
-        const selectedSeats = (currentSchedule?.seats ?? []).filter((seat) =>
-            selectedSeatIds.includes(seat.id)
-        );
-
-        if (selectedSeats.length === 0) {
+        if (selectedSeatIds.length === 0) {
             alert("좌석을 선택해주세요.");
             return;
         }
 
-        if (selectedSeats.some((seat) => seat.status === "alreadySelected")) {
-            alert("이미 선택된 좌석입니다.");
-            return;
-        }
-
-        navigate(`/booking/paydetail/${bookingSelectInfo.concertId}`);
+        navigate(`/booking/paydetail/${seatSelection.concertId}`);
     };
 
     return (
@@ -104,16 +129,16 @@ function BookingSelectPage() {
                     <div style={styles.contentArea}>
                         <section style={styles.seatArea}>
                             <div style={styles.concertInfoRow}>
-                                <strong style={styles.concertTitle}>{bookingSelectInfo.concertTitle}</strong>
+                                <strong style={styles.concertTitle}>{seatSelection.concertTitle}</strong>
 
                                 <select
-                                    value={currentSchedule?.id ?? ""}
+                                    value={currentSchedule?.scheduleId ?? ""}
                                     style={styles.dateSelect}
                                     onChange={(event) => handleScheduleChange(Number(event.target.value))}
                                 >
-                                    {bookingSelectInfo.schedules.map((schedule) => (
-                                        <option key={schedule.id} value={schedule.id}>
-                                            {schedule.date}
+                                    {seatSelection.schedules.map((schedule) => (
+                                        <option key={schedule.scheduleId} value={schedule.scheduleId}>
+                                            {schedule.label}
                                         </option>
                                     ))}
                                 </select>
@@ -123,59 +148,77 @@ function BookingSelectPage() {
                                 </span>
                             </div>
 
-                            <div style={styles.stageArea}>STAGE</div>
+                            <div style={styles.stageArea}>{currentSeatMap?.stageLabel ?? "STAGE"}</div>
 
-                            <div style={styles.seatGrid} aria-label="좌석 선택">
-                                {(currentSchedule?.seats ?? []).map((seat) => (
-                                    <button
-                                        key={seat.id}
-                                        type="button"
-                                        style={{
-                                            ...styles.seatButton,
-                                            ...getSeatStyle(seat),
-                                            ...(selectedSeatIds.includes(seat.id) ? styles.currentSelectedSeat : {}),
-                                        }}
-                                        disabled={seat.status === "occupied"}
-                                        onClick={() => handleSeatClick(seat)}
-                                        aria-label={`${seat.row}열 ${seat.column}번 좌석`}
-                                    />
-                                ))}
+                            <div
+                                style={{
+                                    ...styles.seatGrid,
+                                    gridTemplateColumns: getSeatGridColumns(currentSeatMap),
+                                }}
+                                aria-label="좌석 선택"
+                            >
+                                {(currentSeatMap?.seats ?? []).map((seat) => {
+                                    const grade = findGrade(seatSelection.seatGrades, seat.gradeId);
+
+                                    return (
+                                        <button
+                                            key={seat.seatId}
+                                            type="button"
+                                            style={{
+                                                ...styles.seatButton,
+                                                ...getSeatStyle(seat, grade),
+                                                ...(selectedSeatIds.includes(seat.seatId)
+                                                    ? styles.currentSelectedSeat
+                                                    : {}),
+                                            }}
+                                            disabled={seat.status !== "available"}
+                                            onClick={() => handleSeatClick(seat)}
+                                            aria-label={seat.seatNumber}
+                                            title={seat.seatNumber}
+                                        />
+                                    );
+                                })}
                             </div>
                         </section>
 
                         <aside style={styles.sidePanel}>
                             <div style={styles.logoBox}>SM</div>
 
-                            <div style={styles.miniMap}>
-                                {(currentSchedule?.seats ?? []).map((seat) => (
-                                    <span
-                                        key={seat.id}
-                                        style={{
-                                            ...styles.miniSeat,
-                                            ...getMiniSeatStyle(seat),
-                                        }}
-                                    />
-                                ))}
+                            <div
+                                style={{
+                                    ...styles.miniMap,
+                                    gridTemplateColumns: getMiniSeatGridColumns(currentSeatMap),
+                                }}
+                            >
+                                {(currentSeatMap?.seats ?? []).map((seat) => {
+                                    const grade = findGrade(seatSelection.seatGrades, seat.gradeId);
+
+                                    return (
+                                        <span
+                                            key={seat.seatId}
+                                            style={{
+                                                ...styles.miniSeat,
+                                                ...getMiniSeatStyle(seat, grade),
+                                            }}
+                                        />
+                                    );
+                                })}
                             </div>
 
                             <h2 style={styles.sideTitle}>좌석등급/잔여석</h2>
 
                             <div style={styles.gradeBox}>
-                                {(currentSchedule?.gradeSummaries ?? []).map((gradeSummary) => (
-                                    <div key={gradeSummary.grade} style={styles.gradeRow}>
+                                {gradeSummaries.map((grade) => (
+                                    <div key={grade.gradeId} style={styles.gradeRow}>
                                         <span
                                             style={{
                                                 ...styles.gradeMark,
-                                                ...getGradeMarkStyle(gradeSummary.grade),
+                                                backgroundColor: grade.color,
                                             }}
                                         />
-                                        <span>{gradeSummary.label}</span>
-                                        <strong style={styles.gradePrice}>
-                                            {gradeSummary.price}
-                                        </strong>
-                                        <span style={styles.availableCount}>
-                                            {gradeSummary.remainingCount}석
-                                        </span>
+                                        <span>{grade.gradeName}</span>
+                                        <strong style={styles.gradePrice}>{formatWon(grade.price)}</strong>
+                                        <span style={styles.availableCount}>{grade.remainingCount}석</span>
                                     </div>
                                 ))}
                             </div>
@@ -202,56 +245,42 @@ function formatRemainingTime(totalSeconds: number) {
     return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-function getSeatStyle(seat: BookingSeat): CSSProperties {
-    if (seat.status === "occupied") {
-        return styles.occupiedSeat;
-    }
-
-    return getGradeSeatStyle(seat.grade);
+function formatWon(price: number) {
+    return `${price.toLocaleString()}원`;
 }
 
-function getMiniSeatStyle(seat: BookingSeat): CSSProperties {
-    if (seat.status === "occupied") {
-        return styles.occupiedMiniSeat;
-    }
-
-    return getGradeMiniSeatStyle(seat.grade);
+function findGrade(grades: SeatGrade[], gradeId: string) {
+    return grades.find((grade) => grade.gradeId === gradeId);
 }
 
-function getGradeSeatStyle(grade: SeatGrade): CSSProperties {
-    if (grade === "vip") {
-        return styles.vipSeat;
-    }
-
-    if (grade === "r") {
-        return styles.rSeat;
-    }
-
-    return styles.sSeat;
+function getSeatGridColumns(seatMap?: SeatSelectionSeatMap) {
+    return `repeat(${seatMap?.columnCount ?? 8}, 48px)`;
 }
 
-function getGradeMiniSeatStyle(grade: SeatGrade): CSSProperties {
-    if (grade === "vip") {
-        return styles.vipMiniSeat;
-    }
-
-    if (grade === "r") {
-        return styles.rMiniSeat;
-    }
-
-    return styles.sMiniSeat;
+function getMiniSeatGridColumns(seatMap?: SeatSelectionSeatMap) {
+    return `repeat(${seatMap?.columnCount ?? 8}, 14px)`;
 }
 
-function getGradeMarkStyle(grade: SeatGrade): CSSProperties {
-    if (grade === "vip") {
-        return styles.vipGradeMark;
+function getSeatStyle(seat: SeatSelectionSeat, grade?: SeatGrade): CSSProperties {
+    if (seat.status !== "available") {
+        return styles.unavailableSeat;
     }
 
-    if (grade === "r") {
-        return styles.rGradeMark;
+    return {
+        border: `1px solid ${grade?.color ?? "#7d87c8"}`,
+        backgroundColor: grade?.color ?? "#7d87c8",
+    };
+}
+
+function getMiniSeatStyle(seat: SeatSelectionSeat, grade?: SeatGrade): CSSProperties {
+    if (seat.status !== "available") {
+        return styles.unavailableMiniSeat;
     }
 
-    return styles.sGradeMark;
+    return {
+        border: `1px solid ${grade?.color ?? "#7d87c8"}`,
+        backgroundColor: grade?.color ?? "#7d87c8",
+    };
 }
 
 const styles: Record<string, CSSProperties> = {
@@ -263,7 +292,6 @@ const styles: Record<string, CSSProperties> = {
         boxSizing: "border-box",
         padding: "54px 40px",
     },
-
     frame: {
         width: "100%",
         maxWidth: "980px",
@@ -273,16 +301,13 @@ const styles: Record<string, CSSProperties> = {
         padding: "44px",
         boxSizing: "border-box",
     },
-
     bookingBox: {
         width: "100%",
         border: "1px solid #222",
-        borderRight: "1px solid #222",
         backgroundColor: "#fff",
         boxSizing: "border-box",
         overflow: "hidden",
     },
-
     stepBar: {
         height: "68px",
         display: "grid",
@@ -291,7 +316,6 @@ const styles: Record<string, CSSProperties> = {
         borderBottom: "1px solid #dedee6",
         backgroundColor: "#fff",
     },
-
     stepItem: {
         height: "100%",
         display: "flex",
@@ -301,30 +325,24 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "20px",
         fontWeight: 700,
     },
-
     activeStepItem: {
         color: "#ff5aa5",
     },
-
     stepDivider: {
         color: "#555",
         fontSize: "34px",
         textAlign: "center",
     },
-
     contentArea: {
         display: "grid",
         gridTemplateColumns: "1fr 270px",
         minHeight: "520px",
         backgroundColor: "#f8f8fb",
-        borderRight: "1px solid #222",
     },
-
     seatArea: {
         padding: "36px 28px",
         boxSizing: "border-box",
     },
-
     concertInfoRow: {
         display: "flex",
         alignItems: "center",
@@ -332,12 +350,10 @@ const styles: Record<string, CSSProperties> = {
         marginBottom: "22px",
         flexWrap: "wrap",
     },
-
     concertTitle: {
         fontSize: "18px",
         fontWeight: 800,
     },
-
     dateSelect: {
         height: "26px",
         border: "1px solid #777",
@@ -346,14 +362,12 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "14px",
         fontWeight: 600,
     },
-
     remainingTime: {
         marginLeft: "auto",
         color: "#ff3333",
         fontSize: "14px",
         fontWeight: 700,
     },
-
     stageArea: {
         height: "56px",
         borderBottom: "1px solid #9c9ca8",
@@ -365,73 +379,47 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "15px",
         fontWeight: 800,
     },
-
     seatGrid: {
         display: "grid",
-        gridTemplateColumns: "repeat(8, 48px)",
         gap: "18px 18px",
         justifyContent: "center",
         padding: "46px 14px 52px",
         backgroundColor: "#f1f1f4",
         boxSizing: "border-box",
     },
-
     seatButton: {
         width: "48px",
         height: "36px",
         borderRadius: "10px",
         cursor: "pointer",
     },
-
-    vipSeat: {
-        border: "1px solid #9b5f35",
-        backgroundColor: "#9b5f35",
-    },
-
-    rSeat: {
-        border: "1px solid #d477a2",
-        backgroundColor: "#d477a2",
-    },
-
-    sSeat: {
-        border: "1px solid #7d87c8",
-        backgroundColor: "#7d87c8",
-    },
-
     currentSelectedSeat: {
         outline: "3px solid #ff5aa5",
         outlineOffset: "3px",
     },
-
-    occupiedSeat: {
+    unavailableSeat: {
         border: "1px solid #cfcfd8",
         backgroundColor: "#e5e5ec",
         cursor: "not-allowed",
     },
-
     sidePanel: {
         borderLeft: "1px solid #ececf2",
-        borderRight: "1px solid #222",
         backgroundColor: "#fff",
         padding: "28px 22px",
         boxSizing: "border-box",
         display: "flex",
         flexDirection: "column",
     },
-
     logoBox: {
         height: "74px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         fontSize: "34px",
-        fontWeight: 400,
         color: "#222",
     },
-
     miniMap: {
         display: "grid",
-        gridTemplateColumns: "repeat(8, 14px)",
         gap: "7px",
         justifyContent: "center",
         margin: "0 6px",
@@ -439,40 +427,21 @@ const styles: Record<string, CSSProperties> = {
         backgroundColor: "#fafafa",
         boxSizing: "border-box",
     },
-
     miniSeat: {
         width: "14px",
         height: "10px",
         borderRadius: "3px",
         display: "block",
     },
-
-    vipMiniSeat: {
-        border: "1px solid #9b5f35",
-        backgroundColor: "#9b5f35",
-    },
-
-    rMiniSeat: {
-        border: "1px solid #d477a2",
-        backgroundColor: "#d477a2",
-    },
-
-    sMiniSeat: {
-        border: "1px solid #7d87c8",
-        backgroundColor: "#7d87c8",
-    },
-
-    occupiedMiniSeat: {
+    unavailableMiniSeat: {
         border: "1px solid #cfcfd8",
         backgroundColor: "#e5e5ec",
     },
-
     sideTitle: {
         margin: "28px 0 12px",
         fontSize: "16px",
         fontWeight: 800,
     },
-
     gradeBox: {
         minHeight: "128px",
         margin: "0 6px",
@@ -485,42 +454,25 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "12px",
         boxSizing: "border-box",
     },
-
     gradeRow: {
         display: "grid",
-        gridTemplateColumns: "10px 38px 68px 32px",
+        gridTemplateColumns: "10px 38px 74px 32px",
         alignItems: "center",
         gap: "8px",
         whiteSpace: "nowrap",
     },
-
     gradeMark: {
         width: "9px",
         height: "9px",
     },
-
-    vipGradeMark: {
-        backgroundColor: "#9b5f35",
-    },
-
-    rGradeMark: {
-        backgroundColor: "#d477a2",
-    },
-
-    sGradeMark: {
-        backgroundColor: "#7d87c8",
-    },
-
     gradePrice: {
         color: "#777",
         fontWeight: 700,
     },
-
     availableCount: {
         color: "#aaa",
         textDecoration: "underline",
     },
-
     completeButton: {
         width: "calc(100% - 12px)",
         height: "44px",

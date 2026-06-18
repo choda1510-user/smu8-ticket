@@ -1,23 +1,66 @@
 import type {CSSProperties} from "react";
 import {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router";
-import {useBookingPaymentPage} from "@/hooks/useBookingPaymentPage";
+import {useFetchJson} from "@/hooks/useFetchJson";
+import type {Payment} from "@/types/booking";
 
-/*
- * 결제 페이지
- * - 예매 프로세스 전용 새 창 화면
- * - Header, Navigation, Layout 제외
- * - 라우팅 기준:
- *   결제: /booking/payment/:concertId
- */
+const paymentUrl = new URL("../data/payment.json", import.meta.url).href;
+
+const initialPayment: Payment = {
+    concertId: 0,
+    concertTitle: "",
+    venueId: 0,
+    venueName: "",
+    scheduleId: 0,
+    performanceDate: "",
+    performanceTime: "",
+    reservationLimitMinutes: 5,
+    selectedSeats: [],
+    paymentSummary: {
+        ticketAmount: 0,
+        discountAmount: 0,
+        serviceFee: 0,
+        totalAmount: 0,
+    },
+    deliveryMethods: [],
+    selectedDeliveryMethodId: "",
+    orderer: {
+        name: "",
+        phoneNumber: "",
+        email: "",
+    },
+    paymentMethods: [],
+    selectedPaymentMethodId: "",
+    bankOptions: [],
+    depositForm: {
+        selectedBankId: "",
+        depositorName: "",
+        cashReceiptType: "",
+    },
+    cancelPolicy: {
+        cancelDeadline: "",
+        cancelFeeNotice: "",
+    },
+};
 
 function BookingPaymentPage() {
     const navigate = useNavigate();
-    const {bookingPaymentInfo} = useBookingPaymentPage();
-    const [remainingSeconds, setRemainingSeconds] = useState(300);
+    const {data: payment} = useFetchJson<Payment>(paymentUrl, initialPayment);
+    const [remainingSeconds, setRemainingSeconds] = useState(
+        initialPayment.reservationLimitMinutes * 60
+    );
     const [receiptPhoneNumbers, setReceiptPhoneNumbers] = useState(["010", "", ""]);
+    const [selectedBankId, setSelectedBankId] = useState("");
     const hasHandledExpirationRef = useRef(false);
 
+    const selectedDeliveryMethod = payment.deliveryMethods.find((deliveryMethod) => (
+        deliveryMethod.methodId === payment.selectedDeliveryMethodId
+    ));
+    const selectedPaymentMethod = payment.paymentMethods.find((paymentMethod) => (
+        paymentMethod.methodId === payment.selectedPaymentMethodId
+    ));
+    const selectedSeatText = payment.selectedSeats.map((seat) => seat.seatNumber).join(", ");
+    const phoneNumbers = splitPhoneNumber(payment.orderer.phoneNumber);
     const formattedRemainingTime = formatRemainingTime(remainingSeconds);
 
     useEffect(() => {
@@ -35,21 +78,21 @@ function BookingPaymentPage() {
     }, [remainingSeconds]);
 
     useEffect(() => {
-        if (remainingSeconds > 0 || hasHandledExpirationRef.current) {
+        if (remainingSeconds > 0 || payment.concertId === 0 || hasHandledExpirationRef.current) {
             return;
         }
 
         hasHandledExpirationRef.current = true;
         alert("예매 가능 시간이 종료되었습니다.");
-        navigate(`/concerts/${bookingPaymentInfo.concertId}`, {replace: true});
-    }, [bookingPaymentInfo.concertId, navigate, remainingSeconds]);
+        navigate(`/concerts/${payment.concertId}`, {replace: true});
+    }, [navigate, payment.concertId, remainingSeconds]);
 
     const handlePreviousClick = () => {
-        navigate(`/booking/paydetail/${bookingPaymentInfo.concertId}`);
+        navigate(`/booking/paydetail/${payment.concertId}`);
     };
 
     const handleNextClick = () => {
-        alert("결제 완료 페이지는 추후 연결 예정입니다.");
+        navigate("/mypage/reserve");
     };
 
     const handleReceiptPhoneChange = (index: number, value: string) => {
@@ -79,22 +122,27 @@ function BookingPaymentPage() {
                             </div>
 
                             <h1 style={styles.sectionTitle}>수령방법</h1>
-                            <h2 style={styles.receiveTitle}>현장수령</h2>
+                            <h2 style={styles.receiveTitle}>{selectedDeliveryMethod?.label ?? "현장수령"}</h2>
                             <p style={styles.receiveDescription}>
-                                공연 당일 현장 교부처에서 예매번호 및 본인 확인 후 티켓을 수령하여 입장이 가능합니다.
+                                {selectedDeliveryMethod?.description}
                             </p>
 
                             <section style={styles.orderInfoBox}>
                                 <h3 style={styles.boxTitle}>주문자 정보</h3>
                                 <div style={styles.orderRow}>
                                     <span>이름</span>
-                                    <strong>{bookingPaymentInfo.receiverName}</strong>
+                                    <strong>{payment.orderer.name}</strong>
                                     <span>연락처*</span>
-                                    <input value={bookingPaymentInfo.phonePrefix} readOnly style={styles.shortInput} />
-                                    <input value={bookingPaymentInfo.phoneMiddle} readOnly style={styles.shortInput} />
-                                    <input value={bookingPaymentInfo.phoneLast} readOnly style={styles.shortInput} />
+                                    {phoneNumbers.map((phoneNumber, index) => (
+                                        <input
+                                            key={index}
+                                            value={phoneNumber}
+                                            readOnly
+                                            style={styles.shortInput}
+                                        />
+                                    ))}
                                     <span>이메일</span>
-                                    <input value={bookingPaymentInfo.email} readOnly style={styles.emailInput} />
+                                    <input value={payment.orderer.email} readOnly style={styles.emailInput} />
                                 </div>
                                 <p style={styles.orderGuide}>
                                     입력하신 정보는 공연장에서 예매확인을 위해 사용될 수 있습니다.
@@ -108,30 +156,40 @@ function BookingPaymentPage() {
 
                             <section style={styles.bankTransferBox}>
                                 <div style={styles.bankHeader}>
-                                    <strong>무통장입금</strong>
+                                    <strong>{selectedPaymentMethod?.label ?? "무통장입금"}</strong>
                                     <span>무통</span>
                                 </div>
                                 <div style={styles.bankBody}>
                                     <label style={styles.bankRow}>
                                         <span>입금은행</span>
-                                        <select style={styles.bankSelect} defaultValue="">
-                                            <option value="" disabled>
-                                                입금하실 은행을 선택해주세요.
-                                            </option>
-                                            <option value="shinhan">신한은행</option>
-                                            <option value="kb">국민은행</option>
-                                            <option value="woori">우리은행</option>
+                                        <select
+                                            style={styles.bankSelect}
+                                            value={selectedBankId || payment.depositForm.selectedBankId}
+                                            onChange={(event) => setSelectedBankId(event.target.value)}
+                                        >
+                                            {payment.bankOptions.map((bankOption) => (
+                                                <option key={bankOption.bankId} value={bankOption.bankId}>
+                                                    {bankOption.bankName}
+                                                </option>
+                                            ))}
                                         </select>
                                     </label>
                                     <div style={styles.bankRow}>
                                         <span>예금주</span>
-                                        <strong>{bookingPaymentInfo.depositorName}</strong>
+                                        <strong>{payment.depositForm.depositorName}</strong>
                                     </div>
                                     <div style={styles.receiptRow}>
                                         <span>현금영수증</span>
-                                        <label><input type="radio" name="receipt" defaultChecked /> 소득공제용</label>
-                                        <label><input type="radio" name="receipt" /> 지출증빙용</label>
-                                        <label><input type="radio" name="receipt" /> 미발행</label>
+                                        {["소득공제용", "지출증빙용", payment.depositForm.cashReceiptType].map((type) => (
+                                            <label key={type}>
+                                                <input
+                                                    type="radio"
+                                                    name="receipt"
+                                                    defaultChecked={type === payment.depositForm.cashReceiptType}
+                                                />{" "}
+                                                {type}
+                                            </label>
+                                        ))}
                                     </div>
                                     <div style={styles.phoneRow}>
                                         {receiptPhoneNumbers.map((phoneNumber, index) => (
@@ -153,18 +211,16 @@ function BookingPaymentPage() {
                         <aside style={styles.sidePanel}>
                             <div style={styles.logoBox}>SM</div>
 
-                            <h2 style={styles.concertTitle}>
-                                {bookingPaymentInfo.concertTitle}(공연제목)
-                            </h2>
+                            <h2 style={styles.concertTitle}>{payment.concertTitle}</h2>
 
                             <div style={styles.selectedInfoBox}>
-                                <p style={styles.selectedSchedule}>{bookingPaymentInfo.scheduleText}</p>
+                                <p style={styles.selectedSchedule}>
+                                    {payment.performanceDate} {payment.performanceTime}
+                                </p>
                                 <p style={styles.selectedSeatCount}>
-                                    총 {bookingPaymentInfo.ticketCount}석 선택
+                                    총 {payment.selectedSeats.length}석 선택
                                 </p>
-                                <p style={styles.selectedSeatText}>
-                                    {bookingPaymentInfo.selectedSeatText}
-                                </p>
+                                <p style={styles.selectedSeatText}>{selectedSeatText}</p>
                             </div>
 
                             <h3 style={styles.paymentTitle}>결제금액</h3>
@@ -172,22 +228,26 @@ function BookingPaymentPage() {
                             <div style={styles.paymentBox}>
                                 <div style={styles.paymentRow}>
                                     <span>티켓금액</span>
-                                    <strong>{formatWon(bookingPaymentInfo.ticketPrice)}</strong>
+                                    <strong>{formatWon(payment.paymentSummary.ticketAmount)}</strong>
                                 </div>
                                 <div style={{...styles.paymentRow, ...styles.dimmedPaymentRow}}>
-                                    <span>기본가</span>
-                                    <span>{formatWon(bookingPaymentInfo.ticketPrice)}</span>
+                                    <span>할인금액</span>
+                                    <span>{formatWon(payment.paymentSummary.discountAmount)}</span>
+                                </div>
+                                <div style={{...styles.paymentRow, ...styles.dimmedPaymentRow}}>
+                                    <span>수수료</span>
+                                    <span>{formatWon(payment.paymentSummary.serviceFee)}</span>
                                 </div>
                             </div>
 
                             <div style={styles.totalRow}>
                                 <span>총 결제금액</span>
-                                <strong>{formatWon(bookingPaymentInfo.totalPrice)}</strong>
+                                <strong>{formatWon(payment.paymentSummary.totalAmount)}</strong>
                             </div>
 
                             <ul style={styles.noticeList}>
-                                <li>취소기한: {bookingPaymentInfo.cancelDeadline}</li>
-                                <li>취소기한: {bookingPaymentInfo.cancelDeadline}</li>
+                                <li>취소기한: {payment.cancelPolicy.cancelDeadline}</li>
+                                <li>{payment.cancelPolicy.cancelFeeNotice}</li>
                             </ul>
 
                             <div style={styles.buttonArea}>
@@ -210,6 +270,12 @@ function BookingPaymentPage() {
     );
 }
 
+function splitPhoneNumber(phoneNumber: string) {
+    const phoneNumbers = phoneNumber.split("-");
+
+    return [phoneNumbers[0] ?? "", phoneNumbers[1] ?? "", phoneNumbers[2] ?? ""];
+}
+
 function formatRemainingTime(totalSeconds: number) {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
@@ -230,7 +296,6 @@ const styles: Record<string, CSSProperties> = {
         boxSizing: "border-box",
         padding: "28px 32px",
     },
-
     frame: {
         width: "100%",
         maxWidth: "980px",
@@ -240,7 +305,6 @@ const styles: Record<string, CSSProperties> = {
         padding: "28px",
         boxSizing: "border-box",
     },
-
     bookingBox: {
         width: "100%",
         border: "1px solid #222",
@@ -248,7 +312,6 @@ const styles: Record<string, CSSProperties> = {
         boxSizing: "border-box",
         overflow: "hidden",
     },
-
     stepBar: {
         height: "58px",
         display: "grid",
@@ -257,7 +320,6 @@ const styles: Record<string, CSSProperties> = {
         borderBottom: "1px solid #dedee6",
         backgroundColor: "#fff",
     },
-
     stepItem: {
         height: "100%",
         display: "flex",
@@ -267,31 +329,26 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "18px",
         fontWeight: 700,
     },
-
     activeStepItem: {
         color: "#ff5aa5",
     },
-
     stepDivider: {
         color: "#555",
         fontSize: "34px",
         textAlign: "center",
     },
-
     contentArea: {
         display: "grid",
         gridTemplateColumns: "1fr 270px",
         minHeight: "560px",
         backgroundColor: "#fff",
     },
-
     paymentArea: {
         position: "relative",
         padding: "34px 28px 42px",
         boxSizing: "border-box",
         backgroundColor: "#fff",
     },
-
     remainingTime: {
         position: "absolute",
         top: "8px",
@@ -300,37 +357,32 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "14px",
         fontWeight: 700,
     },
-
     sectionTitle: {
         margin: "0 0 18px",
         fontSize: "22px",
         fontWeight: 700,
     },
-
     receiveTitle: {
         margin: "0 0 18px",
         fontSize: "22px",
         fontWeight: 700,
     },
-
     receiveDescription: {
+        minHeight: "18px",
         margin: "0 0 20px",
         fontSize: "14px",
         fontWeight: 600,
     },
-
     orderInfoBox: {
         marginBottom: "20px",
         padding: "14px",
         backgroundColor: "#e9e9e9",
         boxSizing: "border-box",
     },
-
     boxTitle: {
         margin: "0 0 14px",
         fontSize: "15px",
     },
-
     orderRow: {
         display: "flex",
         alignItems: "center",
@@ -338,7 +390,6 @@ const styles: Record<string, CSSProperties> = {
         flexWrap: "wrap",
         fontSize: "13px",
     },
-
     shortInput: {
         width: "52px",
         height: "22px",
@@ -346,7 +397,6 @@ const styles: Record<string, CSSProperties> = {
         backgroundColor: "#f7f7f7",
         textAlign: "center",
     },
-
     emailInput: {
         width: "150px",
         height: "22px",
@@ -354,23 +404,19 @@ const styles: Record<string, CSSProperties> = {
         backgroundColor: "#fff",
         padding: "0 8px",
     },
-
     orderGuide: {
         margin: "28px 0 6px",
         fontSize: "11px",
         color: "#333",
     },
-
     warningGuide: {
         margin: 0,
         color: "#f4a600",
         fontSize: "11px",
     },
-
     bankTransferBox: {
         backgroundColor: "#eeeeee",
     },
-
     bankHeader: {
         height: "58px",
         display: "flex",
@@ -381,12 +427,10 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "22px",
         boxSizing: "border-box",
     },
-
     bankBody: {
         padding: "18px 14px",
         boxSizing: "border-box",
     },
-
     bankRow: {
         display: "grid",
         gridTemplateColumns: "62px 1fr",
@@ -394,14 +438,12 @@ const styles: Record<string, CSSProperties> = {
         minHeight: "34px",
         fontSize: "13px",
     },
-
     bankSelect: {
         width: "240px",
         height: "30px",
         border: "1px solid #d8d8e4",
         backgroundColor: "#fff",
     },
-
     receiptRow: {
         display: "flex",
         alignItems: "center",
@@ -409,21 +451,18 @@ const styles: Record<string, CSSProperties> = {
         minHeight: "34px",
         fontSize: "12px",
     },
-
     phoneRow: {
         display: "grid",
         gridTemplateColumns: "repeat(3, 1fr)",
         gap: "8px",
         marginTop: "6px",
     },
-
     phoneInput: {
         height: "30px",
         border: "1px solid #d8d8e4",
         backgroundColor: "#fff",
         boxSizing: "border-box",
     },
-
     sidePanel: {
         borderLeft: "1px solid #ececf2",
         backgroundColor: "#fff",
@@ -432,7 +471,6 @@ const styles: Record<string, CSSProperties> = {
         display: "flex",
         flexDirection: "column",
     },
-
     logoBox: {
         height: "52px",
         display: "flex",
@@ -441,14 +479,12 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "34px",
         color: "#222",
     },
-
     concertTitle: {
         margin: "10px 0 14px",
         fontSize: "18px",
         fontWeight: 700,
         textAlign: "center",
     },
-
     selectedInfoBox: {
         border: "1px solid #aaa",
         padding: "12px",
@@ -456,34 +492,28 @@ const styles: Record<string, CSSProperties> = {
         fontSize: "13px",
         lineHeight: 1.45,
     },
-
     selectedSchedule: {
         margin: "0 0 10px",
         textAlign: "center",
         fontSize: "14px",
     },
-
     selectedSeatCount: {
         margin: 0,
     },
-
     selectedSeatText: {
         margin: 0,
     },
-
     paymentTitle: {
         margin: "14px 0 8px",
         fontSize: "15px",
         fontWeight: 700,
     },
-
     paymentBox: {
         minHeight: "112px",
         border: "1px solid #aaa",
         padding: "12px",
         boxSizing: "border-box",
     },
-
     paymentRow: {
         display: "flex",
         alignItems: "center",
@@ -491,12 +521,10 @@ const styles: Record<string, CSSProperties> = {
         minHeight: "30px",
         fontSize: "14px",
     },
-
     dimmedPaymentRow: {
         color: "#999",
         fontSize: "13px",
     },
-
     totalRow: {
         display: "flex",
         justifyContent: "space-between",
@@ -506,7 +534,6 @@ const styles: Record<string, CSSProperties> = {
         borderTop: "1px solid #888",
         fontSize: "16px",
     },
-
     noticeList: {
         margin: "12px 0 14px",
         paddingLeft: "12px",
@@ -515,13 +542,11 @@ const styles: Record<string, CSSProperties> = {
         lineHeight: 1.35,
         wordBreak: "keep-all",
     },
-
     buttonArea: {
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
         marginTop: "auto",
     },
-
     previousButton: {
         height: "44px",
         border: "1px solid #ddd",
@@ -531,7 +556,6 @@ const styles: Record<string, CSSProperties> = {
         fontWeight: 700,
         cursor: "pointer",
     },
-
     nextButton: {
         height: "44px",
         border: "none",

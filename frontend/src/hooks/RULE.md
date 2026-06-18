@@ -32,11 +32,11 @@ Hook에는 JSX를 작성하지 않습니다.
 
 ## 6. 타입 정의 규칙
 
-Hook의 props와 return 타입은 반드시 @/src/types에 있는 타입을 사용합니다.
+Hook의 props와 return 타입은 반드시 `@/src/types`에 있는 타입을 사용합니다.
 알맞은 타입이 없는 경우 작업을 중지하고 문제의 원인을 보고합니다.
 
 ## 7. API 호출 Hook 규칙
-Hook의 API 호출은 @/src/apis안에 있는 함수를 사용합니다.
+Hook의 API 호출은 `@/src/apis`안에 있는 함수를 사용합니다.
 알맞은 타입이 없는 경우 작업을 중지하고 문제의 원인을 보고합니다.
 
 ## 8. useEffect 사용 규칙
@@ -49,7 +49,7 @@ dependency를 비우는 경우에는 왜 비웠는지 주석으로 설명합니�
 
 Hook이 많아지면 도메인별로 분리합니다.
 
-공통 Hook은 @/src/hooks 루트에 둡니다.
+공통 Hook은 `@/src/hooks` 루트에 둡니다.
 특정 도메인에서만 사용하는 Hook은 해당 도메인 하위 디렉토리에 둡니다.
 
 ## 10. 금지 사항
@@ -79,6 +79,6 @@ Hook을 추가하거나 수정할 때는 다음을 확인합니다.
 * 하나의 책임만 가지는가?
 * JSX를 반환하지 않는가?
 * 반환값의 의미가 명확한가?
-* TypeScript 타입이 @/src/types안에 존재하는 타입인가?
+* TypeScript 타입이 `@/src/types`안에 존재하는 타입인가?
 * `useEffect` dependency가 올바른가?
 * 컴포넌트에서 중복되던 로직이 Hook으로 적절히 분리되었는가?

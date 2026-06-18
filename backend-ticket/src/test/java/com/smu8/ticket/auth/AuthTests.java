@@ -4,18 +4,20 @@ import com.smu8.ticket.account.entity.Account;
 import com.smu8.ticket.account.repository.AccountRepository;
 import com.smu8.ticket.auth.filter.RefreshTokenCookieAuthenticationFilter;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.Base64;
 import java.util.UUID;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -36,6 +38,8 @@ public class AuthTests {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private FilterChainProxy springSecurityFilterChain;
+    @Autowired
+    private JwtDecoder jwtDecoder;
     @AfterEach
     public void afterEach() {
         accountRepository.deleteAll();
@@ -46,8 +50,9 @@ public class AuthTests {
         String username = "username";
         String password = "password";
         String nickname = "nickname";
+        String id = UUID.randomUUID().toString();
         accountRepository.save(Account.builder()
-                .id(UUID.randomUUID().toString())
+                .id(id)
                 .username(username)
                 .password(passwordEncoder.encode(password))
                 .nickname(nickname)
@@ -56,10 +61,13 @@ public class AuthTests {
         ResultActions result = mockMvc.perform(get("/api/token")
                 .with(httpBasic(username, password)));
 
-        System.out.println(result.andReturn().getResponse().getContentAsString());
         result.andExpect(status().isOk())
                 .andExpect(cookie().exists(RefreshTokenCookieAuthenticationFilter.REFRESH_TOKEN_COOKIE_NAME))
                 .andExpect(cookie().httpOnly(RefreshTokenCookieAuthenticationFilter.REFRESH_TOKEN_COOKIE_NAME, true));
+        Jwt ajwt = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), Jwt.class);
+        Jwt rjwt = jwtDecoder.decode(result.andReturn().getResponse().getCookie(RefreshTokenCookieAuthenticationFilter.REFRESH_TOKEN_COOKIE_NAME).getValue());
+        Assertions.assertEquals(ajwt.getSubject(), id);
+        Assertions.assertEquals(rjwt.getSubject(), id);
     }
     @Test
     @DisplayName("로그인 실패")
@@ -77,7 +85,6 @@ public class AuthTests {
         ResultActions result = mockMvc.perform(get("/api/token")
                 .with(httpBasic(nickname, password)));
 
-        System.out.println(result.andReturn().getResponse().getContentAsString());
         result.andExpect(status().isUnauthorized());
     }
     @Test

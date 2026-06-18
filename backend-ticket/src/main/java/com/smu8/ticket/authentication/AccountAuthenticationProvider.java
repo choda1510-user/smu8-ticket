@@ -10,7 +10,12 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public class AccountAuthenticationProvider implements AuthenticationProvider {
@@ -23,9 +28,14 @@ public class AccountAuthenticationProvider implements AuthenticationProvider {
                 AccountDetailResult account = accountService.getByUsername(authentication.getName());
                 String rawPassword = (String) authentication.getCredentials();
                 boolean isAuthenticated = passwordEncoder.matches(rawPassword, account.password());
+
+                Set<GrantedAuthority> authorities = new HashSet<>();
+                authorities.add(new SimpleGrantedAuthority(Authority.BASIC_METHOD.toString()));
+
                 return new AccountAuthentication(
                         account,
-                        isAuthenticated
+                        isAuthenticated,
+                        authorities
                 );
             } else {
                 return null;

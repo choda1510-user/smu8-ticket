@@ -3,16 +3,19 @@ package com.smu8.ticket.authentication;
 import com.smu8.ticket.account.dto.result.AccountDetailResult;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 public class AccountAuthentication extends AbstractAuthenticationToken {
     private final AccountDetailResult accountDetailResult;
     private boolean authenticated;
 
-    public AccountAuthentication(AccountDetailResult accountDetailResult, boolean authenticated) {
-        // super(accountData.authorities() != null ? accountData.authorities().stream().map(SimpleGrantedAuthority::new).toList() : new HashSet<>());
-        super(new HashSet<>());
+    public AccountAuthentication(AccountDetailResult accountDetailResult, boolean authenticated, Collection<? extends GrantedAuthority> authorities) {
+        super(authorities);
         this.accountDetailResult = accountDetailResult;
         this.authenticated = authenticated;
     }

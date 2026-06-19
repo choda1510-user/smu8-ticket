@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -18,7 +19,13 @@ public class AccountAuthenticationConvertor implements Converter<Jwt, AccountAut
     public AccountAuthentication convert(Jwt source) {
         AccountDetailResult account = accountService.getById(source.getSubject());
         Set<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority(Authority.ACCESS_TOKEN.toString()));
+        List<String> authorityList = null;
+        try {
+            authorityList = (List<String>) source.getClaims().get("authorities");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        authorityList.stream().map(SimpleGrantedAuthority::new).forEach(authorities::add);
 
         return new AccountAuthentication(
                 account,

@@ -21,25 +21,25 @@ public class RefreshTokenUtils {
             maxAge = defaultMaxAge;
         }
         else {
-            maxAge = expiresAt.minusSeconds(expiresAt.getEpochSecond()).getEpochSecond();
+            maxAge = expiresAt.minusSeconds(issuedAt.getEpochSecond()).getEpochSecond();
         }
         ResponseCookie cookie = ResponseCookie.from(RefreshTokenCookieAuthenticationFilter.REFRESH_TOKEN_COOKIE_NAME, refreshToken.getTokenValue())
                 .httpOnly(true)
                 .secure(secure)
                 .path("/")
                 .maxAge(maxAge)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
     public void deleteRefreshTokenCookie(HttpServletResponse response) {
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+        ResponseCookie cookie = ResponseCookie.from(RefreshTokenCookieAuthenticationFilter.REFRESH_TOKEN_COOKIE_NAME, "")
                 .httpOnly(true)
                 .secure(secure)
                 .path("/")
                 .maxAge(0)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

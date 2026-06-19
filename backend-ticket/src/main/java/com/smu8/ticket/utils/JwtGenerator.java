@@ -23,7 +23,7 @@ public class JwtGenerator {
                 .issuer(issuer)
                 .expiresAt(expiresAt)
                 .issuedAt(Instant.now())
-                .claim("authorities", authorities)
+                .claim("authorities", authorities.stream().map(GrantedAuthority::toString).toList())
                 .build();
         return jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet));
     }

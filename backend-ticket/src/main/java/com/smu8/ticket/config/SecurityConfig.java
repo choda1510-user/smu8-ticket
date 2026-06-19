@@ -12,6 +12,7 @@ import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -66,20 +67,30 @@ public class SecurityConfig {
 
         return new SecretKeySpec(keyBytes, "HmacSHA256");
     }
+    @Order(4)
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter,
-            RefreshTokenCookieAuthenticationFilter refreshTokenCookieAuthenticationFilter
+    public SecurityFilterChain swaggerFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/swagger-ui/**", "/v3/api-docs/**")
+                .authorizeHttpRequests((authorize) -> {
+                    authorize
+                            .anyRequest().permitAll();
+                })
+                .sessionManagement((session) ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
+    }
+    @Order(1)
+    @Bean
+    public SecurityFilterChain basicFilterChain(
+            HttpSecurity http
     ) throws Exception {
-        return http.securityMatcher("/api/**")
+        return http
+                .securityMatcher("/api/token")
                 .authorizeHttpRequests((authorize) -> {
                     authorize
                             .requestMatchers(HttpMethod.GET, "/api/token").hasAuthority(Authority.BASIC_METHOD.toString())
-                            .requestMatchers(HttpMethod.GET, "/api/refresh").hasAuthority(Authority.REFRESH_TOKEN.toString())
-                            .requestMatchers(HttpMethod.POST, "/api/logout").hasAuthority(Authority.ACCESS_TOKEN.toString())
-                            .requestMatchers(HttpMethod.GET, "/api/test").permitAll()
-                            .anyRequest().authenticated();
+                            .anyRequest().permitAll();
                 })
                 .sessionManagement((session) ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -87,12 +98,54 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(AbstractHttpConfigurer::disable)
+                .build();
+    }
+    @Order(2)
+    @Bean
+    public SecurityFilterChain refreshTokenFilterChain(
+            HttpSecurity http,
+            RefreshTokenCookieAuthenticationFilter refreshTokenCookieAuthenticationFilter
+    ) {
+        return http.securityMatcher("/api/refresh")
+                .authorizeHttpRequests((authorize) -> {
+                    authorize
+                            .requestMatchers(HttpMethod.GET, "/api/refresh").hasAuthority(Authority.REFRESH_TOKEN.toString())
+                            .anyRequest().permitAll();
+                })
+                .sessionManagement((session) ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .addFilterBefore(
+                        refreshTokenCookieAuthenticationFilter,
+                        AuthorizationFilter.class)
+                .build();
+    }
+    @Order(3)
+    @Bean
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter
+    ) throws Exception {
+        return http.securityMatcher("/api/**")
+                .authorizeHttpRequests((authorize) -> {
+                    authorize
+                            .requestMatchers(HttpMethod.POST, "/api/logout").hasAuthority(Authority.ACCESS_TOKEN.toString())
+                            .requestMatchers(HttpMethod.POST, "/api/account").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/test").permitAll()
+                            .anyRequest().authenticated();
+                })
+                .sessionManagement((session) ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
                 .addFilterBefore(
                         bearerTokenAuthenticationFilter,
                         AuthorizationFilter.class)
-                .addFilterBefore(
-                        refreshTokenCookieAuthenticationFilter,
-                        BasicAuthenticationFilter.class)
                 .build();
     }
 

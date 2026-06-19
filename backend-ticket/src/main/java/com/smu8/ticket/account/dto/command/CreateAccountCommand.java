@@ -23,6 +23,7 @@ public record CreateAccountCommand(
                 .id(id)
                 .username(username)
                 .password(passwordEncoder.encode(password))
+                .nickname(nickname)
                 .build();
     }
 }

@@ -1,6 +1,6 @@
 package com.smu8.ticket.account.http.response;
 
-import com.smu8.ticket.account.entity.Account;
+import com.smu8.ticket.account.dto.result.AccountDetailResult;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -12,12 +12,12 @@ public record AccountDetailResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static AccountDetailResponse from(Account account) {
+    public static AccountDetailResponse from(AccountDetailResult accountDetailResult) {
         return AccountDetailResponse.builder()
-                .id(account.getId())
-                .nickname(account.getNickname())
-                .createdAt(account.getCreatedAt())
-                .updatedAt(account.getUpdatedAt())
+                .id(accountDetailResult.id())
+                .nickname(accountDetailResult.nickname())
+                .createdAt(accountDetailResult.createdAt())
+                .updatedAt(accountDetailResult.updatedAt())
                 .build();
     }
 }

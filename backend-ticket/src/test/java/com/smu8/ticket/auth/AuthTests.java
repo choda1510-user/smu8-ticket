@@ -3,6 +3,7 @@ package com.smu8.ticket.auth;
 import com.smu8.ticket.account.entity.Account;
 import com.smu8.ticket.account.repository.AccountRepository;
 import com.smu8.ticket.auth.filter.RefreshTokenCookieAuthenticationFilter;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -84,6 +85,48 @@ public class AuthTests {
 
         ResultActions result = mockMvc.perform(get("/api/token")
                 .with(httpBasic(nickname, password)));
+
+        result.andExpect(status().isUnauthorized());
+    }
+    @Test
+    @DisplayName("토큰 재발급")
+    public void refresh() throws Exception {
+        String username = "username";
+        String password = "password";
+        String nickname = "nickname";
+        String id = UUID.randomUUID().toString();
+        accountRepository.save(Account.builder()
+                .id(id)
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .nickname(nickname)
+                .build());
+        ResultActions tokenResult = mockMvc.perform(get("/api/token")
+                .with(httpBasic(username, password)));
+        Cookie refreshCookie = tokenResult.andReturn().getResponse().getCookie(RefreshTokenCookieAuthenticationFilter.REFRESH_TOKEN_COOKIE_NAME);
+
+        ResultActions result = mockMvc.perform(get("/api/refresh")
+                .cookie(refreshCookie));
+
+        result.andExpect(status().isOk());
+        Jwt ajwt = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), Jwt.class);
+        Assertions.assertEquals(ajwt.getSubject(), id);
+    }
+    @Test
+    @DisplayName("토큰 재발급 실패")
+    public void refreshFailed() throws Exception {
+        String username = "username";
+        String password = "password";
+        String nickname = "nickname";
+        String id = UUID.randomUUID().toString();
+        accountRepository.save(Account.builder()
+                .id(id)
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .nickname(nickname)
+                .build());
+
+        ResultActions result = mockMvc.perform(get("/api/refresh"));
 
         result.andExpect(status().isUnauthorized());
     }

@@ -1,9 +1,39 @@
+import {useState} from "react";
 import {useNavigate, useParams} from "react-router";
+import {useBookingDetailsPage} from "@/hooks/useBookingDetailsPage";
 import "./AdminPages.css";
 
 function AdminReservationDetailPage() {
     const navigate = useNavigate();
-    const {reserveId = "98653287"} = useParams();
+    const {reserveId} = useParams();
+    const {bookingDetail} = useBookingDetailsPage();
+    const [isCancelChecked, setIsCancelChecked] = useState(false);
+    const [cancelReason, setCancelReason] = useState("");
+    const reservationNumber = reserveId ?? bookingDetail.reservationNumber;
+    const seatText = bookingDetail.seats.map((seat) => seat.seatNumber).join(", ");
+    const totalPrice = bookingDetail.totalPrice || bookingDetail.ticketPrice || bookingDetail.seats[0]?.price || "-";
+    const canCancelReservation = isCancelChecked && cancelReason.trim().length > 0;
+
+    const handleCancelCheckChange = (checked: boolean) => {
+        setIsCancelChecked(checked);
+
+        if (!checked) {
+            setCancelReason("");
+        }
+    };
+
+    const handleReservationCancelClick = () => {
+        if (!canCancelReservation) {
+            return;
+        }
+
+        if (!confirm("정말 예매를 취소하시겠습니까?")) {
+            return;
+        }
+
+        alert("예매 취소가 접수되었습니다.");
+        navigate("/admin/reserve");
+    };
 
     return (
         <section className="admin-page">
@@ -15,56 +45,47 @@ function AdminReservationDetailPage() {
             </div>
 
             <div className="admin-page__detail-card admin-page__reservation-detail">
-                <div className="admin-page__info-row">
-                    <span>예매번호</span>
-                    <strong>{reserveId}</strong>
-                    <span />
-                </div>
-                <div className="admin-page__info-row">
-                    <span>공연명</span>
-                    <strong>AESPA CONCERT</strong>
-                    <span />
-                </div>
-                <div className="admin-page__info-row">
-                    <span>공연날짜 및 시간</span>
-                    <strong>2026.06.13(토)</strong>
-                    <strong>18:00</strong>
-                </div>
-                <div className="admin-page__info-row">
-                    <span>좌석번호</span>
-                    <strong>1층 A구역 E열 1번</strong>
-                    <span />
-                </div>
-                <div className="admin-page__info-row">
-                    <span>예매자</span>
-                    <strong>홍길동</strong>
-                    <span />
-                </div>
-                <div className="admin-page__info-row">
-                    <span>아이디</span>
-                    <strong>Honggildong@gmail.com</strong>
-                    <span />
-                </div>
-                <div className="admin-page__info-row">
-                    <span>예매일시</span>
-                    <strong>26.06.10</strong>
-                    <span />
-                </div>
-                <div className="admin-page__info-row">
-                    <span>결제금액</span>
-                    <strong>170,000원</strong>
-                    <span />
-                </div>
+                <section className="admin-page__reservation-summary">
+                    <InfoItem label="예매번호" value={reservationNumber} />
+                    <InfoItem label="공연명" value={bookingDetail.concertTitle} strong />
+                    <InfoItem label="공연장" value={bookingDetail.venueName} />
+                    <InfoItem label="공연날짜 및 시간" value={bookingDetail.viewingDateTime} />
+                    <InfoItem label="좌석번호" value={seatText || "-"} />
+                    <InfoItem label="아이디" value={bookingDetail.userId} />
+                    <InfoItem label="예매일시" value={bookingDetail.reservationDate} />
+                    <InfoItem label="결제금액" value={totalPrice} />
+                    <InfoItem label="상태" value={bookingDetail.status} strong />
+                </section>
 
-                <div className="admin-page__field" style={{marginTop: "28px"}}>
-                    <label>
-                        <input type="checkbox" /> 예매취소
+                <section className="admin-page__reservation-cancel-section">
+                    <label className="admin-page__reservation-cancel-check">
+                        <input
+                            type="checkbox"
+                            checked={isCancelChecked}
+                            onChange={(event) => handleCancelCheckChange(event.target.checked)}
+                        /> 예매취소
                     </label>
-                    <textarea placeholder="취소 사유를 입력하세요." />
+                    <textarea
+                        value={cancelReason}
+                        placeholder="취소 사유를 입력하세요."
+                        disabled={!isCancelChecked}
+                        onChange={(event) => setCancelReason(event.target.value)}
+                    />
+                </section>
+
+                <div className="admin-page__reservation-guide">
+                    체크박스를 선택하고 취소 사유를 입력하면 예매취소 버튼이 활성화됩니다.
                 </div>
 
                 <div className="admin-page__bottom-actions">
-                    <button type="button" className="admin-page__button admin-page__button--pink">
+                    <button
+                        type="button"
+                        className={canCancelReservation
+                            ? "admin-page__button admin-page__button--pink"
+                            : "admin-page__button admin-page__button--pink admin-page__button--disabled"}
+                        aria-disabled={!canCancelReservation}
+                        onClick={handleReservationCancelClick}
+                    >
                         예매취소
                     </button>
                     <button type="button" className="admin-page__button" onClick={() => navigate("/admin/reserve")}>
@@ -73,6 +94,23 @@ function AdminReservationDetailPage() {
                 </div>
             </div>
         </section>
+    );
+}
+
+interface InfoItemProps {
+    label: string;
+    value: string;
+    strong?: boolean;
+}
+
+function InfoItem({label, value, strong = false}: InfoItemProps) {
+    return (
+        <div className="admin-page__reservation-info-item">
+            <span>{label}</span>
+            <strong className={strong ? "admin-page__reservation-info-value--strong" : undefined}>
+                {value || "-"}
+            </strong>
+        </div>
     );
 }
 

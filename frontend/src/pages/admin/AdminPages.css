@@ -88,10 +88,49 @@
     align-items: end;
 }
 
+.admin-page__search-card--reservations {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(150px, 1fr) 16px minmax(150px, 1fr) 72px;
+    align-items: end;
+}
+
 .admin-page__search-card--concerts .admin-page__field input,
-.admin-page__search-card--concerts .admin-page__field select {
+.admin-page__search-card--concerts .admin-page__field select,
+.admin-page__search-card--reservations .admin-page__field input {
     width: 100%;
     min-width: 0;
+}
+
+.admin-page__search-card--reservations .react-datepicker-wrapper,
+.admin-page__search-card--reservations .react-datepicker__input-container {
+    width: 100%;
+    min-width: 0;
+}
+
+.admin-page__search-card--reservations .admin-page__datepicker-control {
+    gap: 6px;
+}
+
+.admin-page__search-card--reservations .admin-page__calendar-button {
+    flex: 0 0 28px;
+}
+
+.admin-page__search-card--reservations .admin-page__field label {
+    text-align: left;
+}
+
+.admin-page__date-separator {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #344054;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.admin-page__field--date-end {
+    justify-content: flex-end;
 }
 
 .admin-page__field {
@@ -156,8 +195,29 @@
     cursor: pointer;
 }
 
+.admin-page__button:disabled {
+    background: #d0d5dd;
+    color: #667085;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.admin-page__button--disabled {
+    background: #d0d5dd;
+    color: #ffffff;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
 .admin-page__button--pink {
     background: linear-gradient(90deg, #e86fa7 0%, #8f52ff 100%);
+}
+
+.admin-page__button.admin-page__button--disabled {
+    background: #d0d5dd;
+    color: #ffffff;
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 .admin-page__button--muted {
@@ -418,7 +478,85 @@
 }
 
 .admin-page__reservation-detail {
-    max-width: 720px;
+    max-width: 940px;
+}
+
+.admin-page__reservation-summary {
+    padding: 24px 28px;
+    border: 1px solid #e4e7ec;
+    border-radius: 12px;
+    background: #ffffff;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 36px;
+}
+
+.admin-page__reservation-info-item {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 18px;
+    align-items: center;
+    color: #344054;
+    font-size: 13px;
+}
+
+.admin-page__reservation-info-item span {
+    color: #667085;
+    font-weight: 800;
+}
+
+.admin-page__reservation-info-item strong {
+    color: #101828;
+    font-weight: 700;
+    word-break: keep-all;
+}
+
+.admin-page__reservation-info-value--strong {
+    font-weight: 900;
+}
+
+.admin-page__reservation-cancel-section {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 14px 18px;
+    align-items: start;
+}
+
+.admin-page__reservation-cancel-check {
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.admin-page__reservation-cancel-section textarea {
+    width: 100%;
+    min-height: 86px;
+    padding: 12px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #101828;
+    font-size: 13px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.admin-page__reservation-cancel-section textarea:disabled {
+    background: #f2f4f7;
+    color: #98a2b3;
+    cursor: not-allowed;
+}
+
+.admin-page__reservation-guide {
+    margin: 10px 0 0 138px;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .admin-page__info-row {

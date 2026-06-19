@@ -178,7 +178,11 @@ function AdminConcertListPage() {
                 </div>
 
                 <div className="admin-page__table-toolbar">
-                    <button type="button" className="admin-page__button admin-page__button--add">
+                    <button
+                        type="button"
+                        className="admin-page__button admin-page__button--add"
+                        onClick={() => navigate("/admin/concertadd")}
+                    >
                         공연추가
                     </button>
                 </div>

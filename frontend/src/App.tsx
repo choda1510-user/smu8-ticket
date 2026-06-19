@@ -18,6 +18,7 @@ import BookingWaitingPage from "@/pages/BookingWaitingPage.tsx";
 import BookingSelectPage from "@/pages/BookingSelectPage.tsx";
 import BookingPayDetailPage from "@/pages/BookingPayDetailPage.tsx";
 import BookingPaymentPage from "@/pages/BookingPaymentPage.tsx";
+import BookingSuccessPage from "@/pages/BookingSuccessPage.tsx";
 /*
 * 리액트 라우터가 이곳에 있어야 함
 */
@@ -48,6 +49,7 @@ function App() {
         <Route path={"/booking/select/:concertId"} element={<BookingSelectPage />} />
         <Route path={"/booking/paydetail/:concertId"} element={<BookingPayDetailPage />} />
         <Route path={"/booking/payment/:concertId"} element={<BookingPaymentPage />} />
+        <Route path={"/booking/success/:concertId"} element={<BookingSuccessPage />} />
         <Route path={"/login"} element={<LoginPage />} />
         <Route path={"/signup"} element={<SignUpPage />} />
       </Routes>

@@ -1,7 +1,7 @@
 {
   "concertId": 1,
   "waitingCount": 120,
-  "waitingTime": "예상 입장까지 약 3분",
+  "waitingTime": "예상 입장까지 약 10초",
   "waitingInformation": "잠시만 기다려주세요. 순서가 되면 좌석 선택 및 결제 화면으로 이동합니다.",
   "nextRedirectPath": "/booking/select/1"
 }

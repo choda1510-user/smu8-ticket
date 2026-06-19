@@ -49,6 +49,8 @@ function BookingPaymentPage() {
     const [remainingSeconds, setRemainingSeconds] = useState(
         initialPayment.reservationLimitMinutes * 60
     );
+    const [ordererPhoneNumbers, setOrdererPhoneNumbers] = useState(["010", "", ""]);
+    const [ordererEmail, setOrdererEmail] = useState("");
     const [receiptPhoneNumbers, setReceiptPhoneNumbers] = useState(["010", "", ""]);
     const [selectedBankId, setSelectedBankId] = useState("");
     const hasHandledExpirationRef = useRef(false);
@@ -60,7 +62,6 @@ function BookingPaymentPage() {
         paymentMethod.methodId === payment.selectedPaymentMethodId
     ));
     const selectedSeatText = payment.selectedSeats.map((seat) => seat.seatNumber).join(", ");
-    const phoneNumbers = splitPhoneNumber(payment.orderer.phoneNumber);
     const formattedRemainingTime = formatRemainingTime(remainingSeconds);
 
     useEffect(() => {
@@ -87,16 +88,33 @@ function BookingPaymentPage() {
         navigate(`/concerts/${payment.concertId}`, {replace: true});
     }, [navigate, payment.concertId, remainingSeconds]);
 
+    useEffect(() => {
+        if (payment.concertId === 0) {
+            return;
+        }
+
+        setOrdererPhoneNumbers(splitPhoneNumber(payment.orderer.phoneNumber));
+        setOrdererEmail(payment.orderer.email);
+    }, [payment.concertId, payment.orderer.email, payment.orderer.phoneNumber]);
+
     const handlePreviousClick = () => {
         navigate(`/booking/paydetail/${payment.concertId}`);
     };
 
     const handleNextClick = () => {
-        navigate("/mypage/reserve");
+        navigate(`/booking/success/${payment.concertId}`);
     };
 
     const handleReceiptPhoneChange = (index: number, value: string) => {
         setReceiptPhoneNumbers((prevPhoneNumbers) => (
+            prevPhoneNumbers.map((phoneNumber, phoneNumberIndex) => (
+                phoneNumberIndex === index ? value : phoneNumber
+            ))
+        ));
+    };
+
+    const handleOrdererPhoneChange = (index: number, value: string) => {
+        setOrdererPhoneNumbers((prevPhoneNumbers) => (
             prevPhoneNumbers.map((phoneNumber, phoneNumberIndex) => (
                 phoneNumberIndex === index ? value : phoneNumber
             ))
@@ -130,19 +148,33 @@ function BookingPaymentPage() {
                             <section style={styles.orderInfoBox}>
                                 <h3 style={styles.boxTitle}>주문자 정보</h3>
                                 <div style={styles.orderRow}>
-                                    <span>이름</span>
-                                    <strong>{payment.orderer.name}</strong>
-                                    <span>연락처*</span>
-                                    {phoneNumbers.map((phoneNumber, index) => (
-                                        <input
-                                            key={index}
-                                            value={phoneNumber}
-                                            readOnly
-                                            style={styles.shortInput}
-                                        />
-                                    ))}
-                                    <span>이메일</span>
-                                    <input value={payment.orderer.email} readOnly style={styles.emailInput} />
+                                    <span style={styles.orderLabel}>이름</span>
+                                    <strong style={styles.orderValue}>{payment.orderer.name}</strong>
+
+                                    <span style={styles.orderLabel}>연락처*</span>
+                                    <div style={styles.orderPhoneGroup}>
+                                        {ordererPhoneNumbers.map((phoneNumber, index) => (
+                                            <input
+                                                key={index}
+                                                type="tel"
+                                                value={phoneNumber}
+                                                style={styles.shortInput}
+                                                onChange={(event) => {
+                                                    handleOrdererPhoneChange(index, event.target.value);
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    <span style={styles.orderLabel}>이메일</span>
+                                    <input
+                                        type="email"
+                                        value={ordererEmail}
+                                        style={styles.emailInput}
+                                        onChange={(event) => {
+                                            setOrdererEmail(event.target.value);
+                                        }}
+                                    />
                                 </div>
                                 <p style={styles.orderGuide}>
                                     입력하신 정보는 공연장에서 예매확인을 위해 사용될 수 있습니다.
@@ -157,7 +189,6 @@ function BookingPaymentPage() {
                             <section style={styles.bankTransferBox}>
                                 <div style={styles.bankHeader}>
                                     <strong>{selectedPaymentMethod?.label ?? "무통장입금"}</strong>
-                                    <span>무통</span>
                                 </div>
                                 <div style={styles.bankBody}>
                                     <label style={styles.bankRow}>
@@ -273,7 +304,7 @@ function BookingPaymentPage() {
 function splitPhoneNumber(phoneNumber: string) {
     const phoneNumbers = phoneNumber.split("-");
 
-    return [phoneNumbers[0] ?? "", phoneNumbers[1] ?? "", phoneNumbers[2] ?? ""];
+    return [phoneNumbers[0] || "010", phoneNumbers[1] ?? "", phoneNumbers[2] ?? ""];
 }
 
 function formatRemainingTime(totalSeconds: number) {
@@ -361,17 +392,20 @@ const styles: Record<string, CSSProperties> = {
         margin: "0 0 18px",
         fontSize: "22px",
         fontWeight: 700,
+        textAlign: "left",
     },
     receiveTitle: {
         margin: "0 0 18px",
         fontSize: "22px",
         fontWeight: 700,
+        textAlign: "left",
     },
     receiveDescription: {
         minHeight: "18px",
         margin: "0 0 20px",
         fontSize: "14px",
         fontWeight: 600,
+        textAlign: "left",
     },
     orderInfoBox: {
         marginBottom: "20px",
@@ -382,27 +416,47 @@ const styles: Record<string, CSSProperties> = {
     boxTitle: {
         margin: "0 0 14px",
         fontSize: "15px",
+        textAlign: "left",
     },
     orderRow: {
-        display: "flex",
+        display: "grid",
+        gridTemplateColumns: "64px minmax(120px, 1fr)",
         alignItems: "center",
-        gap: "10px",
-        flexWrap: "wrap",
+        gap: "10px 12px",
         fontSize: "13px",
     },
+    orderLabel: {
+        color: "#333",
+        fontWeight: 700,
+        textAlign: "left",
+    },
+    orderValue: {
+        color: "#222",
+        textAlign: "left",
+    },
+    orderPhoneGroup: {
+        display: "grid",
+        gridTemplateColumns: "58px 68px 68px",
+        gap: "6px",
+        justifyContent: "start",
+    },
     shortInput: {
-        width: "52px",
+        width: "100%",
         height: "22px",
         border: "none",
         backgroundColor: "#f7f7f7",
-        textAlign: "center",
+        padding: "0 7px",
+        textAlign: "left",
+        boxSizing: "border-box",
     },
     emailInput: {
-        width: "150px",
+        width: "220px",
         height: "22px",
         border: "none",
         backgroundColor: "#fff",
         padding: "0 8px",
+        textAlign: "left",
+        boxSizing: "border-box",
     },
     orderGuide: {
         margin: "28px 0 6px",
@@ -433,8 +487,9 @@ const styles: Record<string, CSSProperties> = {
     },
     bankRow: {
         display: "grid",
-        gridTemplateColumns: "62px 1fr",
+        gridTemplateColumns: "62px max-content",
         alignItems: "center",
+        columnGap: "12px",
         minHeight: "34px",
         fontSize: "13px",
     },
@@ -453,15 +508,18 @@ const styles: Record<string, CSSProperties> = {
     },
     phoneRow: {
         display: "grid",
-        gridTemplateColumns: "repeat(3, 1fr)",
-        gap: "8px",
+        gridTemplateColumns: "58px 72px 72px",
+        justifyContent: "start",
+        gap: "6px",
         marginTop: "6px",
     },
     phoneInput: {
         height: "30px",
         border: "1px solid #d8d8e4",
         backgroundColor: "#fff",
+        padding: "0 8px",
         boxSizing: "border-box",
+        textAlign: "left",
     },
     sidePanel: {
         borderLeft: "1px solid #ececf2",

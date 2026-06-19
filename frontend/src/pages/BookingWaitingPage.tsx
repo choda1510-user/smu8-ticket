@@ -32,6 +32,14 @@ function BookingWaitingPage() {
             return;
         }
 
+        setRemainingSeconds(totalSeconds);
+    }, [bookingWaiting.concertId, totalSeconds]);
+
+    useEffect(() => {
+        if (bookingWaiting.concertId === 0) {
+            return;
+        }
+
         if (remainingSeconds <= 0) {
             navigate(bookingWaiting.nextRedirectPath || `/booking/select/${bookingWaiting.concertId}`, {
                 replace: true,
@@ -85,7 +93,7 @@ function parseWaitingSeconds(waitingTime: string) {
     const seconds = matchedSecond ? Number(matchedSecond[1]) : 0;
     const totalSeconds = minutes * 60 + seconds;
 
-    return totalSeconds > 0 ? totalSeconds : 180;
+    return totalSeconds > 0 ? totalSeconds : 5;
 }
 
 const styles: Record<string, CSSProperties> = {

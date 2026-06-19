@@ -1,0 +1,1149 @@
+.admin-page {
+    min-height: 620px;
+    padding: 34px 38px 44px;
+    border: 1px solid #e4e7ec;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 18px 44px rgba(16, 24, 40, 0.06);
+    color: #101828;
+    font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    box-sizing: border-box;
+}
+
+.admin-page__header {
+    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.admin-page__eyebrow {
+    color: #667085;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.admin-page__breadcrumb {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #667085;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-page__breadcrumb button {
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #667085;
+    font: inherit;
+    cursor: pointer;
+}
+
+.admin-page__breadcrumb button:hover {
+    color: #8f52ff;
+}
+
+.admin-page__breadcrumb strong {
+    color: #101828;
+}
+
+.admin-page__title {
+    margin: 6px 0 0;
+    color: #101828;
+    font-family: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    font-style: normal;
+    letter-spacing: 0;
+    line-height: 1.3;
+}
+
+.admin-page__panel {
+    padding: 28px 30px;
+    border: 1px solid #e4e7ec;
+    border-radius: 14px;
+    background: #fcfcfd;
+    box-sizing: border-box;
+}
+
+.admin-page__search-card {
+    margin-bottom: 26px;
+    padding: 20px;
+    border: 1px solid #e4e7ec;
+    border-radius: 14px;
+    background: #ffffff;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    box-sizing: border-box;
+}
+
+.admin-page__search-card--concerts {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) 72px;
+    align-items: end;
+}
+
+.admin-page__search-card--concerts .admin-page__field input,
+.admin-page__search-card--concerts .admin-page__field select {
+    width: 100%;
+    min-width: 0;
+}
+
+.admin-page__field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.admin-page__field label,
+.admin-page__readonly-label {
+    color: #344054;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.admin-page__field input,
+.admin-page__field select,
+.admin-page__field textarea,
+.admin-page__readonly-box {
+    min-width: 150px;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #101828;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.admin-page__field input::placeholder {
+    color: #98a2b3;
+}
+
+.admin-page__select--placeholder {
+    color: #98a2b3;
+}
+
+.admin-page__field textarea {
+    width: 100%;
+    height: 74px;
+    padding: 12px;
+    resize: none;
+}
+
+.admin-page__readonly-box {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+}
+
+.admin-page__button {
+    height: 38px;
+    min-width: 72px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 8px;
+    background: #8f52ff;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-page__button--pink {
+    background: linear-gradient(90deg, #e86fa7 0%, #8f52ff 100%);
+}
+
+.admin-page__button--muted {
+    background: #98a2b3;
+}
+
+.admin-page__button--light {
+    border: 1px solid #d0d5dd;
+    background: #ffffff;
+    color: #344054;
+}
+
+.admin-page__button--compact {
+    width: 76px;
+    min-width: 76px;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    justify-self: start;
+}
+
+.admin-page__button--search {
+    min-width: 74px;
+    border: 1px solid #7c3aed;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #7c3aed 0%, #db5fa8 100%);
+    color: #ffffff;
+    box-shadow: 0 10px 22px rgba(124, 58, 237, 0.24);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.admin-page__search-card--concerts .admin-page__button--search {
+    width: 72px;
+    height: 38px;
+    padding: 0 14px;
+}
+
+.admin-page__button--add {
+    min-width: 92px;
+    border: 1px solid #e6d7ff;
+    background: #ffffff;
+    color: #7c3aed;
+    box-shadow: 0 8px 18px rgba(16, 24, 40, 0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-page__button--search:hover,
+.admin-page__button--add:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(124, 58, 237, 0.18);
+}
+
+.admin-page__button--search:active,
+.admin-page__button--add:active {
+    transform: translateY(0);
+}
+
+.admin-page__table-toolbar {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.admin-page__table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    font-size: 13px;
+}
+
+.admin-page__table th {
+    height: 40px;
+    background: #f2f4f7;
+    color: #344054;
+    font-weight: 800;
+    text-align: center;
+}
+
+.admin-page__table td {
+    height: 48px;
+    border-bottom: 1px solid #eaecf0;
+    color: #344054;
+    text-align: center;
+}
+
+.admin-page__link-button {
+    border: none;
+    background: transparent;
+    color: #1d2939;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font: inherit;
+    cursor: pointer;
+}
+
+.admin-page__pagination {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.admin-page__pagination button {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #e4e7ec;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #667085;
+    cursor: pointer;
+}
+
+.admin-page__pagination button.active {
+    background: #fff1f8;
+    color: #d44495;
+    font-weight: 800;
+}
+
+.admin-page__pagination button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.admin-page__detail-card {
+    padding: 34px;
+    border: 1px solid #e4e7ec;
+    border-radius: 14px;
+    background: #ffffff;
+}
+
+.admin-page__detail-actions {
+    margin-bottom: 26px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.admin-page__form-grid {
+    display: grid;
+    grid-template-columns: 132px minmax(180px, 340px) auto;
+    align-items: center;
+    gap: 18px 20px;
+}
+
+.admin-page__form-grid label {
+    color: #344054;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-page__form-grid input {
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #101828;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.admin-page__form-grid input:read-only {
+    background: #f9fafb;
+    color: #667085;
+    cursor: default;
+}
+
+.admin-page__info-grid {
+    display: grid;
+    grid-template-columns: 140px minmax(220px, 420px);
+    gap: 12px 14px;
+    max-width: 600px;
+    align-items: center;
+}
+
+.admin-page__info-grid label {
+    padding: 11px 14px;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #475467;
+    font-size: 13px;
+    font-weight: 800;
+    box-sizing: border-box;
+}
+
+.admin-page__info-grid p {
+    margin: 0;
+    min-height: 42px;
+    padding: 11px 14px;
+    border: 1px solid #e4e7ec;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #101828;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.45;
+    box-sizing: border-box;
+}
+
+.admin-page__input-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-page__form-grid .admin-page__input--error,
+.admin-page__seat-type-form .admin-page__input--error {
+    border-color: #f04438;
+    background: #fffafa;
+}
+
+.admin-page__error-text,
+.admin-page__success-text {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.admin-page__error-text {
+    color: #d92d20;
+}
+
+.admin-page__success-text {
+    color: #039855;
+}
+
+.admin-page__bottom-actions {
+    margin-top: 42px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.admin-page__seat-map {
+    width: 360px;
+    min-height: 150px;
+    padding: 18px;
+    border: 1px solid #d0d5dd;
+    border-radius: 12px;
+    background: #ffffff;
+    display: grid;
+    grid-template-columns: repeat(8, 24px);
+    gap: 8px;
+    box-sizing: border-box;
+}
+
+.admin-page__seat-map span {
+    width: 24px;
+    height: 24px;
+    border: 1px solid #d0d5dd;
+    border-radius: 4px;
+    background: #f9fafb;
+}
+
+.admin-page__reservation-detail {
+    max-width: 720px;
+}
+
+.admin-page__info-row {
+    display: grid;
+    grid-template-columns: 150px 1fr 1fr;
+    gap: 18px;
+    min-height: 42px;
+    align-items: center;
+    color: #344054;
+    font-size: 13px;
+}
+
+.admin-page__info-row strong {
+    color: #101828;
+}
+
+.admin-page__modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    padding: 24px;
+    background: rgba(16, 24, 40, 0.42);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.admin-page__modal {
+    width: min(420px, 100%);
+    padding: 24px;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 24px 60px rgba(16, 24, 40, 0.22);
+    box-sizing: border-box;
+}
+
+.admin-page__modal--wide {
+    width: min(760px, 100%);
+}
+
+.admin-page__modal h2 {
+    margin: 0 0 18px;
+    color: #101828;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.admin-page__modal input {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    color: #101828;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.admin-page__modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.admin-page__concert-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.admin-page__concert-section {
+    padding: 24px;
+    border: 1px solid #e4e7ec;
+    border-radius: 14px;
+    background: #ffffff;
+}
+
+.admin-page__concert-section h2 {
+    margin: 0 0 18px;
+    color: #101828;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.admin-page__concert-section--period {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+}
+
+.admin-page__concert-grid {
+    display: grid;
+    grid-template-columns: 140px minmax(220px, 1fr);
+    gap: 14px 18px;
+    align-items: center;
+}
+
+.admin-page__concert-grid label {
+    color: #344054;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.admin-page__concert-grid input,
+.admin-page__concert-grid textarea,
+.admin-page__schedule-form input,
+.admin-page__seat-type-form input {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #101828;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.admin-page__concert-grid input:read-only {
+    background: #f9fafb;
+    color: #667085;
+}
+
+.admin-page__concert-grid--textarea {
+    align-items: start;
+}
+
+.admin-page__concert-grid textarea,
+.admin-page__description-editor textarea {
+    height: 110px;
+    padding: 12px;
+    resize: vertical;
+}
+
+.admin-page__schedule-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) 52px;
+    gap: 10px;
+    align-items: end;
+}
+
+.admin-page__schedule-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #344054;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.admin-page__schedule-field--wide {
+    grid-column: 1 / 3;
+}
+
+.admin-page__schedule-add-button {
+    grid-column: 3 / 4;
+}
+
+.admin-page__schedule-field span {
+    flex: 0 0 64px;
+    white-space: nowrap;
+}
+
+.admin-page__schedule-field input {
+    width: 100%;
+    min-width: 0;
+    flex: 1;
+}
+
+.admin-page__datepicker-control {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    width: 100%;
+}
+
+.admin-page__calendar-button {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #667085;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.admin-page__schedule-form .admin-page__button--search {
+    min-width: 52px;
+    width: 52px;
+    height: 34px;
+    padding: 0;
+    font-size: 12px;
+}
+
+.admin-page__calendar-button:hover {
+    border-color: #8f52ff;
+    background: #f8f5ff;
+}
+
+.admin-page__schedule-field .react-datepicker-wrapper,
+.admin-page__schedule-field .react-datepicker__input-container {
+    width: 100%;
+    min-width: 0;
+    flex: 1;
+}
+
+.admin-page__schedule-field .react-datepicker__input-container input {
+    width: 100%;
+    flex: none;
+}
+
+.admin-datepicker-popper {
+    z-index: 60;
+}
+
+.admin-datepicker {
+    border: 1px solid #e4e7ec;
+    border-radius: 12px;
+    box-shadow: 0 18px 42px rgba(16, 24, 40, 0.14);
+    color: #101828;
+    font-family: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+    overflow: hidden;
+}
+
+.admin-datepicker .react-datepicker__header {
+    border-bottom: 1px solid #eaecf0;
+    background: #f8fafc;
+    padding: 10px 0 8px;
+}
+
+.admin-datepicker .react-datepicker__current-month {
+    color: #101828;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.admin-datepicker .react-datepicker__navigation {
+    top: 8px;
+}
+
+.admin-datepicker .react-datepicker__day-name,
+.admin-datepicker .react-datepicker__day {
+    width: 28px;
+    height: 28px;
+    margin: 1px;
+    border-radius: 7px;
+    font-size: 12px;
+    line-height: 28px;
+}
+
+.admin-datepicker .react-datepicker__day-name {
+    color: #667085;
+    font-weight: 800;
+}
+
+.admin-datepicker .react-datepicker__day--weekend {
+    color: #2f80ed;
+}
+
+.admin-datepicker .react-datepicker__week .react-datepicker__day:first-child,
+.admin-datepicker .react-datepicker__day-name:first-child {
+    color: #e5484d;
+}
+
+.admin-datepicker .react-datepicker__day--outside-month {
+    color: #c5cad3;
+}
+
+.admin-datepicker .react-datepicker__day--selected,
+.admin-datepicker .react-datepicker__day--keyboard-selected {
+    background: #7c3aed;
+    color: #ffffff;
+    font-weight: 800;
+}
+
+.admin-datepicker .react-datepicker__time-container {
+    width: 76px;
+    border-left: 1px solid #eaecf0;
+}
+
+.admin-datepicker .react-datepicker-time__header {
+    color: #101828;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.admin-datepicker .react-datepicker__time-box {
+    width: 76px;
+}
+
+.admin-datepicker .react-datepicker__time-list-item {
+    height: 26px;
+    padding: 5px 8px;
+    color: #344054;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.admin-datepicker .react-datepicker__time-list-item--selected {
+    background: #7c3aed !important;
+    color: #ffffff;
+}
+
+.admin-page__period-layout {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 26px;
+    align-items: start;
+}
+
+.admin-page__period-heading {
+    padding-top: 4px;
+}
+
+.admin-page__period-heading h2 {
+    margin: 0;
+    color: #101828;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.admin-page__period-heading p {
+    margin: 8px 0 0;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.admin-page__period-content {
+    padding: 18px;
+    border: 1px solid #e4e7ec;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 10px 26px rgba(16, 24, 40, 0.04);
+}
+
+.admin-page__schedule-list {
+    min-height: 92px;
+    margin-top: 14px;
+    padding: 14px;
+    border: 1px solid #e4e7ec;
+    border-radius: 10px;
+    background: #fcfcfd;
+    box-sizing: border-box;
+}
+
+.admin-page__schedule-list p {
+    margin: 0;
+    color: #98a2b3;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-page__schedule-item {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr auto;
+    gap: 12px;
+    align-items: center;
+    min-height: 38px;
+    color: #344054;
+    font-size: 13px;
+}
+
+.admin-page__inline-control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+}
+
+.admin-page__image-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.admin-page__image-inputs label,
+.admin-page__file-chip {
+    min-height: 74px;
+    padding: 12px;
+    border: 1px dashed #c7d7fe;
+    border-radius: 10px;
+    background: #f8faff;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.admin-page__image-inputs input,
+.admin-page__file-chip input {
+    display: none;
+}
+
+.admin-page__image-inputs span,
+.admin-page__description-editor span {
+    display: block;
+    margin-top: 8px;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.admin-page__description-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.admin-page__file-chip {
+    min-height: auto;
+    width: fit-content;
+}
+
+.admin-page__seat-policy {
+    display: grid;
+    grid-template-columns: minmax(260px, 360px) 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.admin-page__seat-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.admin-page__seat-counts {
+    display: flex;
+    gap: 10px;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.admin-page__seat-counts span {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #f2f4f7;
+}
+
+.admin-page__seat-type-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.admin-page__seat-type-form button {
+    width: 100%;
+}
+
+.admin-page__seat-type-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.admin-page__seat-type-actions button {
+    width: 100%;
+}
+
+.admin-page__seat-type-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-page__seat-type-list button {
+    min-height: 34px;
+    padding: 8px 10px;
+    border: 1px solid #e4e7ec;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #344054;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 10px auto;
+    gap: 2px 7px;
+    align-items: center;
+    text-align: left;
+}
+
+.admin-page__seat-type-list button.active {
+    border-color: #8f52ff;
+    box-shadow: 0 0 0 3px rgba(143, 82, 255, 0.12);
+}
+
+.admin-page__seat-type-list span {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 6px;
+    border-radius: 50%;
+    vertical-align: middle;
+    grid-row: 1 / 4;
+}
+
+.admin-page__seat-type-list small,
+.admin-page__seat-type-list strong,
+.admin-page__seat-type-list em {
+    display: block;
+    font-style: normal;
+    line-height: 1.25;
+}
+
+.admin-page__seat-type-list small {
+    color: #98a2b3;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.admin-page__seat-type-list strong {
+    color: #101828;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.admin-page__seat-type-list em {
+    color: #475467;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.admin-page__aisle-color {
+    border: 1px solid #d0d5dd;
+    background: #ffffff;
+}
+
+.admin-page__seat-map-editor {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    padding: 58px 48px 48px 18px;
+    border: 1px solid #d0d5dd;
+    border-radius: 14px;
+    background: #fcfcfd;
+    overflow: auto;
+    box-sizing: border-box;
+}
+
+.admin-page__seat-mode-bar {
+    position: absolute;
+    top: 14px;
+    left: 18px;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.admin-page__seat-mode-bar button {
+    height: 30px;
+    padding: 0 12px;
+    border: 1px solid #e6d7ff;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #7c3aed;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.admin-page__seat-mode-bar button.active {
+    border-color: #f04438;
+    background: #fff1f0;
+    color: #d92d20;
+}
+
+.admin-page__seat-mode-bar span {
+    color: #667085;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.admin-page__seat-stage {
+    margin-bottom: 12px;
+    padding: 8px 0;
+    border-radius: 8px;
+    background: #101828;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.admin-page__seat-grid {
+    display: grid;
+    gap: 8px;
+}
+
+.admin-page__seat-grid-wrap {
+    display: grid;
+    grid-template-columns: 18px auto;
+    gap: 8px;
+    align-items: start;
+}
+
+.admin-page__seat-column-handles {
+    margin-left: 26px;
+    margin-bottom: 8px;
+    display: grid;
+    gap: 8px;
+}
+
+.admin-page__seat-row-handles {
+    display: grid;
+    gap: 8px;
+}
+
+.admin-page__seat-column-handles button,
+.admin-page__seat-row-handles button {
+    border: 2px solid #cfd5e3;
+    border-radius: 3px;
+    background: #ffffff;
+    color: #d92d20;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    cursor: grab;
+}
+
+.admin-page__seat-column-handles button {
+    width: 28px;
+    height: 14px;
+}
+
+.admin-page__seat-row-handles button {
+    width: 14px;
+    height: 28px;
+}
+
+.admin-page__seat-mode-bar button.active ~ span,
+.admin-page__seat-column-handles button:hover,
+.admin-page__seat-row-handles button:hover {
+    border-color: #2f80ed;
+}
+
+.admin-page__seat-column-handles button.drop-target,
+.admin-page__seat-row-handles button.drop-target {
+    border-color: #2f80ed;
+    background: #eff8ff;
+    box-shadow: 0 0 0 3px rgba(47, 128, 237, 0.16);
+}
+
+.admin-page__seat-mode-bar button.active ~ span,
+.admin-page__seat-map-editor:has(.admin-page__seat-mode-bar button.active) .admin-page__seat-column-handles button,
+.admin-page__seat-map-editor:has(.admin-page__seat-mode-bar button.active) .admin-page__seat-row-handles button {
+    border-color: #f97066;
+    background: #fffafa;
+    cursor: pointer;
+}
+
+.admin-page__seat-cell {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #d0d5dd;
+    border-radius: 5px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.admin-page__seat-cell:hover {
+    border-color: #8f52ff;
+}
+
+.admin-page__seat-cell.row-drop-target,
+.admin-page__seat-cell.col-drop-target {
+    border-color: #2f80ed;
+    background-image: linear-gradient(rgba(47, 128, 237, 0.2), rgba(47, 128, 237, 0.2));
+    box-shadow: inset 0 0 0 2px rgba(47, 128, 237, 0.2);
+}
+
+.admin-page__seat-add {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border: 1px solid #c7d7fe;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #7c3aed;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-page__seat-add--right {
+    top: 50%;
+    right: 12px;
+}
+
+.admin-page__seat-add--bottom {
+    left: 50%;
+    bottom: 12px;
+}
+
+@media (max-width: 1100px) {
+    .admin-page__search-card--concerts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-page__seat-policy,
+    .admin-page__schedule-form {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-page__period-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-page__schedule-field {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-page__schedule-field span,
+    .admin-page__schedule-field input {
+        width: 100%;
+        flex: none;
+    }
+}

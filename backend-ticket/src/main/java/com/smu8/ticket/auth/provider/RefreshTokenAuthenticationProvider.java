@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -33,7 +34,12 @@ public class RefreshTokenAuthenticationProvider implements AuthenticationProvide
             throw new RefreshTokenAuthenticationException("Refresh token is empty.");
         }
 
-        Jwt jwt = jwtDecoder.decode(refreshTokenValue);
+        Jwt jwt = null;
+        try {
+            jwt = jwtDecoder.decode(refreshTokenValue);
+        } catch (JwtException e) {
+            throw new RefreshTokenAuthenticationException("Refresh token is invalid.", e);
+        }
 
         AccountDetailResult accountDetailResult = accountAuthenticationService.getById(jwt.getSubject());
 

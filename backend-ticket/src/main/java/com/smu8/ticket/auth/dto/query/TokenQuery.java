@@ -7,7 +7,7 @@ import java.util.Collection;
 
 @Builder
 public record TokenQuery(
-        String userId,
-        Collection<? extends GrantedAuthority> authorities
+        String jti,
+        String sub
 ) {
 }

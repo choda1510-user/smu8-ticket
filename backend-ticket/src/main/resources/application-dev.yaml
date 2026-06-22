@@ -10,6 +10,11 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  data:
+    redis:
+      host: redis-ticket
+      port: 6379
+
   devtools:
     restart:
       enabled: true

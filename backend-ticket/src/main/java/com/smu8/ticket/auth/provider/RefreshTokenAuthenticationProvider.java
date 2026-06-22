@@ -2,7 +2,9 @@ package com.smu8.ticket.auth.provider;
 
 import com.smu8.ticket.account.dto.result.AccountDetailResult;
 import com.smu8.ticket.account.service.AccountAuthenticationService;
+import com.smu8.ticket.auth.dto.query.TokenQuery;
 import com.smu8.ticket.auth.exception.RefreshTokenAuthenticationException;
+import com.smu8.ticket.auth.service.TokenService;
 import com.smu8.ticket.authentication.Authority;
 import com.smu8.ticket.authentication.RefreshTokenAuthenticationToken;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class RefreshTokenAuthenticationProvider implements AuthenticationProvide
 
     private final JwtDecoder jwtDecoder;
     private final AccountAuthenticationService accountAuthenticationService;
+    private final TokenService tokenService;
 
     @Override
     public Authentication authenticate(Authentication authentication)
@@ -39,6 +42,10 @@ public class RefreshTokenAuthenticationProvider implements AuthenticationProvide
             jwt = jwtDecoder.decode(refreshTokenValue);
         } catch (JwtException e) {
             throw new RefreshTokenAuthenticationException("Refresh token is invalid.", e);
+        }
+
+        if (!tokenService.checkRefreshToken(TokenQuery.builder().jti(jwt.getId()).sub(jwt.getSubject()).build())) {
+            throw new RefreshTokenAuthenticationException("Refresh token is expired.");
         }
 
         AccountDetailResult accountDetailResult = accountAuthenticationService.getById(jwt.getSubject());

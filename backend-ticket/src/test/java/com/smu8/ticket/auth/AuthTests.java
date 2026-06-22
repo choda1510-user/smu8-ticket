@@ -72,6 +72,8 @@ public class AuthTests {
         Jwt rjwt = jwtDecoder.decode(result.andReturn().getResponse().getCookie(RefreshTokenCookieAuthenticationFilter.REFRESH_TOKEN_COOKIE_NAME).getValue());
         Assertions.assertEquals(ajwt.getSubject(), id);
         Assertions.assertEquals(rjwt.getSubject(), id);
+        Assertions.assertEquals(ajwt.getClaimAsString("role"), "user");
+        Assertions.assertEquals(rjwt.getClaimAsString("role"), "user");
     }
     @Test
     @DisplayName("로그인 실패")
@@ -114,6 +116,7 @@ public class AuthTests {
         result.andExpect(status().isOk());
         Jwt ajwt = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), Jwt.class);
         Assertions.assertEquals(ajwt.getSubject(), id);
+        Assertions.assertEquals(ajwt.getClaimAsString("role"), "user");
     }
     @Test
     @DisplayName("토큰 재발급 실패")
@@ -162,6 +165,7 @@ public class AuthTests {
         result.andExpect(status().isOk());
         Jwt ajwt = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), Jwt.class);
         Assertions.assertEquals(ajwt.getSubject(), id);
+        Assertions.assertEquals(ajwt.getClaimAsString("role"), "admin");
         Assertions.assertTrue(ajwt.getClaimAsStringList("authorities").contains(Authority.ADMIN.toString()));
     }
     @Test

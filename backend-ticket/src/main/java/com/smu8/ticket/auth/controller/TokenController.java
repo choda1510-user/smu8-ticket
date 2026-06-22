@@ -31,11 +31,13 @@ public class TokenController {
     public ResponseEntity<Jwt> token(Authentication authentication, HttpServletResponse response) {
         refreshTokenUtils.setRefreshTokenCookie(response, tokenService.getToken(TokenQuery.builder()
                 .userId(authentication.getName())
+                .role(role(authentication))
                 .authorities(List.of(new SimpleGrantedAuthority(Authority.REFRESH_TOKEN.toString())))
                 .build()).jwt());
         return ResponseEntity
                 .ok(tokenService.getToken(TokenQuery.builder()
                         .userId(authentication.getName())
+                        .role(role(authentication))
                         .authorities(accessTokenAuthorities(authentication))
                         .build()).jwt());
     }
@@ -45,6 +47,7 @@ public class TokenController {
         return ResponseEntity
                 .ok(tokenService.getToken(TokenQuery.builder()
                         .userId(authentication.getName())
+                        .role(role(authentication))
                         .authorities(accessTokenAuthorities(authentication))
                         .build()).jwt());
     }
@@ -54,6 +57,12 @@ public class TokenController {
         refreshTokenUtils.deleteRefreshTokenCookie(response);
         // 레디스에 리프레시 토큰과 엑세스 토큰을 블랙리스트로 등록해야 함
         return ResponseEntity.noContent().build();
+    }
+
+    private String role(Authentication authentication) {
+        boolean admin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> Authority.ADMIN.toString().equals(authority.getAuthority()));
+        return admin ? "admin" : "user";
     }
 
     private List<GrantedAuthority> accessTokenAuthorities(Authentication authentication) {

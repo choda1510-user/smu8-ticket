@@ -16,7 +16,7 @@ public class TokenServiceImpl implements TokenService {
     public TokenResult getToken(TokenQuery query) {
         Instant expiresAt = Instant.now().plusSeconds(60 * 60);
         return TokenResult.builder()
-                .jwt(jwtGenerator.generate(query.userId(),expiresAt, query.authorities()))
+                .jwt(jwtGenerator.generate(query.userId(), query.role(), expiresAt, query.authorities()))
                 .build();
     }
 }

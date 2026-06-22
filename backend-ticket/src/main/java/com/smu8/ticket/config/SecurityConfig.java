@@ -1,10 +1,10 @@
 package com.smu8.ticket.config;
 
 import com.smu8.ticket.account.service.AccountAuthenticationService;
-import com.smu8.ticket.account.service.AccountService;
 import com.smu8.ticket.account.service.AccountServiceImpl;
 import com.smu8.ticket.auth.filter.RefreshTokenCookieAuthenticationFilter;
 import com.smu8.ticket.auth.provider.RefreshTokenAuthenticationProvider;
+import com.smu8.ticket.auth.service.TokenService;
 import com.smu8.ticket.authentication.AccountAuthenticationConvertor;
 import com.smu8.ticket.authentication.AccountAuthenticationProvider;
 import com.smu8.ticket.authentication.Authority;
@@ -83,7 +83,8 @@ public class SecurityConfig {
     @Order(1)
     @Bean
     public SecurityFilterChain basicFilterChain(
-            HttpSecurity http
+            HttpSecurity http,
+            AuthenticationEntryPoint noChallengeAuthenticationEntryPoint
     ) throws Exception {
         return http
                 .securityMatcher("/api/token")
@@ -96,7 +97,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults())
+                .httpBasic((basic) -> basic.authenticationEntryPoint(noChallengeAuthenticationEntryPoint))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .build();
     }
@@ -136,6 +137,8 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.POST, "/api/admin/venues").hasAuthority(Authority.ADMIN.toString())
                             .requestMatchers(HttpMethod.POST, "/api/account").permitAll()
                             .requestMatchers(HttpMethod.POST, "/api/account/admin").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/account/check-username").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/account/check-nickname").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/test").permitAll()
                             .anyRequest().authenticated();
                 })
@@ -167,6 +170,11 @@ public class SecurityConfig {
         ep.setRealmName("Normal Realm");
         return ep;
     }
+
+    @Bean
+    public AuthenticationEntryPoint noChallengeAuthenticationEntryPoint() {
+        return (request, response, authException) -> response.sendError(401);
+    }
     @Bean
     public BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter(AuthenticationManager authenticationManager) {
         return new BearerTokenAuthenticationFilter(authenticationManager);
@@ -182,9 +190,9 @@ public class SecurityConfig {
         };
     }
     @Bean
-    public JwtAuthenticationProvider jwtAuthenticationProvider(JwtDecoder jwtDecoder, AccountAuthenticationService accountService) {
+    public JwtAuthenticationProvider jwtAuthenticationProvider(JwtDecoder jwtDecoder, AccountAuthenticationService accountService, TokenService tokenService) {
         JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtDecoder);
-        provider.setJwtAuthenticationConverter(new AccountAuthenticationConvertor(accountService));
+        provider.setJwtAuthenticationConverter(new AccountAuthenticationConvertor(accountService, tokenService));
         return provider;
     }
     @Bean
@@ -196,8 +204,8 @@ public class SecurityConfig {
         return new ProviderManager(jwtAuthenticationProvider, accountAuthenticationProvider, refreshTokenAuthenticationProvider);
     }
     @Bean
-    public RefreshTokenAuthenticationProvider refreshTokenAuthenticationProvider(JwtDecoder jwtDecoder, AccountAuthenticationService accountAuthenticationService) {
-        return new RefreshTokenAuthenticationProvider(jwtDecoder, accountAuthenticationService);
+    public RefreshTokenAuthenticationProvider refreshTokenAuthenticationProvider(JwtDecoder jwtDecoder, AccountAuthenticationService accountAuthenticationService, TokenService tokenService) {
+        return new RefreshTokenAuthenticationProvider(jwtDecoder, accountAuthenticationService, tokenService);
     }
     @Bean
     public AccountAuthenticationProvider accountAuthenticationProvider(AccountAuthenticationService accountService, PasswordEncoder passwordEncoder) {

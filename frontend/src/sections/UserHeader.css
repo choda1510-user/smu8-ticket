@@ -30,7 +30,8 @@
     gap: 16px;
 }
 
-.user-header-auth a {
+.user-header-auth a,
+.user-header-auth-button {
     color: #555555;
     font-size: 13px;
     font-weight: 500;
@@ -38,7 +39,16 @@
     transition: 0.2s ease;
 }
 
-.user-header-auth a:hover {
+.user-header-auth-button {
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.user-header-auth a:hover,
+.user-header-auth-button:hover {
     color: #ff4fa3;
 }
 

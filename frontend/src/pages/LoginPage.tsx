@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { useState } from "react";
 import type { SyntheticEvent } from "react";
 import { useNavigate } from "react-router";
+import useLogin from "@/hooks/useLogin.tsx";
 
 /*
  * 로그인 페이지
@@ -15,11 +16,13 @@ import { useNavigate } from "react-router";
 
 function LoginPage() {
     const navigate = useNavigate();
+    const { login, isLoading } = useLogin();
 
     const [loginId, setLoginId] = useState("");
     const [password, setPassword] = useState("");
+    const [loginErrorMessage, setLoginErrorMessage] = useState("");
 
-    const handleLoginSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
+    const handleLoginSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         const trimmedLoginId = loginId.trim();
@@ -35,20 +38,18 @@ function LoginPage() {
             return;
         }
 
-        /*
-         * 추후 로그인 API 연결 예정
-         *
-         * 예시 흐름:
-         * 1. POST /login
-         * 2. 아이디 또는 비밀번호가 일치하지 않으면:
-         *    alert("아이디 또는 비밀번호가 일치하지 않습니다.");
-         * 3. 로그인 성공 시:
-         *    alert("로그인되었습니다.");
-         *    navigate("/");
-         */
+        try {
+            setLoginErrorMessage("");
+            await login({
+                loginId: trimmedLoginId,
+                password: trimmedPassword,
+            });
 
-        alert("로그인되었습니다.");
-        navigate("/");
+            alert("로그인되었습니다.");
+            navigate("/");
+        } catch {
+            setLoginErrorMessage("아이디(로그인 전화번호, 로그인 전용 아이디) 또는 비밀번호가 잘못 되었습니다. 아이디와 비밀번호를 정확히 입력해 주세요.");
+        }
     };
 
     const handleLogoClick = () => {
@@ -63,7 +64,8 @@ function LoginPage() {
         <section style={styles.page}>
             <div style={styles.loginBox}>
                 <button type="button" style={styles.logoButton} onClick={handleLogoClick}>
-                    SM
+                    <span style={styles.logoMark}>SM</span>
+                    <span style={styles.logoText}>TICKET</span>
                 </button>
 
                 <form style={styles.loginForm} onSubmit={handleLoginSubmit}>
@@ -76,7 +78,10 @@ function LoginPage() {
                             id="login-id"
                             type="text"
                             value={loginId}
-                            onChange={(event) => setLoginId(event.target.value)}
+                            onChange={(event) => {
+                                setLoginId(event.target.value);
+                                setLoginErrorMessage("");
+                            }}
                             style={styles.input}
                         />
                     </div>
@@ -90,13 +95,25 @@ function LoginPage() {
                             id="login-password"
                             type="password"
                             value={password}
-                            onChange={(event) => setPassword(event.target.value)}
+                            onChange={(event) => {
+                                setPassword(event.target.value);
+                                setLoginErrorMessage("");
+                            }}
                             style={styles.input}
                         />
                     </div>
 
-                    <button type="submit" style={styles.loginButton}>
-                        로그인
+                    <p
+                        style={{
+                            ...styles.loginErrorText,
+                            visibility: loginErrorMessage ? "visible" : "hidden",
+                        }}
+                    >
+                        {loginErrorMessage || "아이디 또는 비밀번호가 잘못 되었습니다."}
+                    </p>
+
+                    <button type="submit" style={styles.loginButton} disabled={isLoading}>
+                        {isLoading ? "로그인 중..." : "로그인"}
                     </button>
 
                     <button
@@ -138,15 +155,36 @@ const styles: Record<string, CSSProperties> = {
     },
 
     logoButton: {
-        width: "54px",
-        height: "54px",
         marginBottom: "52px",
         border: "none",
         backgroundColor: "transparent",
-        color: "#222",
-        fontSize: "28px",
-        fontWeight: 500,
         cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "9px",
+        padding: 0,
+    },
+
+    logoMark: {
+        width: "54px",
+        height: "54px",
+        borderRadius: "18px",
+        background: "linear-gradient(135deg, #ff4fa3 0%, #9b5cff 100%)",
+        color: "#ffffff",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "21px",
+        fontWeight: 900,
+        letterSpacing: "-1px",
+        boxShadow: "0 8px 20px rgba(255, 79, 163, 0.32)",
+    },
+
+    logoText: {
+        color: "#111111",
+        fontSize: "19px",
+        fontWeight: 900,
+        letterSpacing: "-0.8px",
     },
 
     loginForm: {
@@ -184,13 +222,23 @@ const styles: Record<string, CSSProperties> = {
     loginButton: {
         width: "150px",
         height: "36px",
-        marginTop: "38px",
+        marginTop: "12px",
         border: "1px solid #f0a8c8",
         borderRadius: "4px",
         backgroundColor: "#fff",
         color: "#222",
         fontSize: "13px",
         cursor: "pointer",
+    },
+
+    loginErrorText: {
+        width: "100%",
+        minHeight: "48px",
+        margin: "0",
+        color: "#d7447d",
+        fontSize: "11px",
+        lineHeight: "16px",
+        wordBreak: "keep-all",
     },
 
     signUpButton: {

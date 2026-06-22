@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Builder
 public record AccountDetailResponse(
         String id,
+        String username,
         String nickname,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -15,6 +16,7 @@ public record AccountDetailResponse(
     public static AccountDetailResponse from(AccountDetailResult accountDetailResult) {
         return AccountDetailResponse.builder()
                 .id(accountDetailResult.id())
+                .username(accountDetailResult.username())
                 .nickname(accountDetailResult.nickname())
                 .createdAt(accountDetailResult.createdAt())
                 .updatedAt(accountDetailResult.updatedAt())

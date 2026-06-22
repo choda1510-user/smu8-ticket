@@ -1,11 +1,14 @@
 package com.smu8.ticket.auth.controller;
 
+import com.smu8.ticket.auth.dto.command.CreateTokenCommand;
+import com.smu8.ticket.auth.dto.command.RegisterTokenCommand;
 import com.smu8.ticket.auth.dto.query.TokenQuery;
 import com.smu8.ticket.auth.service.TokenService;
 import com.smu8.ticket.authentication.Authority;
 import com.smu8.ticket.utils.RefreshTokenUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +32,13 @@ public class TokenController {
     @Operation(summary = "token", security= @SecurityRequirement(name = "Authorization"))
     @GetMapping("/api/token")
     public ResponseEntity<Jwt> token(Authentication authentication, HttpServletResponse response) {
-        refreshTokenUtils.setRefreshTokenCookie(response, tokenService.getToken(TokenQuery.builder()
+        refreshTokenUtils.setRefreshTokenCookie(response, tokenService.createToken(CreateTokenCommand.builder()
                 .userId(authentication.getName())
                 .role(role(authentication))
                 .authorities(List.of(new SimpleGrantedAuthority(Authority.REFRESH_TOKEN.toString())))
                 .build()).jwt());
         return ResponseEntity
-                .ok(tokenService.getToken(TokenQuery.builder()
+                .ok(tokenService.createToken(CreateTokenCommand.builder()
                         .userId(authentication.getName())
                         .role(role(authentication))
                         .authorities(accessTokenAuthorities(authentication))
@@ -45,7 +48,7 @@ public class TokenController {
     @GetMapping("/api/refresh")
     public ResponseEntity<Jwt> refresh(Authentication authentication) {
         return ResponseEntity
-                .ok(tokenService.getToken(TokenQuery.builder()
+                .ok(tokenService.createToken(CreateTokenCommand.builder()
                         .userId(authentication.getName())
                         .role(role(authentication))
                         .authorities(accessTokenAuthorities(authentication))
@@ -53,9 +56,13 @@ public class TokenController {
     }
     @Operation(summary = "logout", security= @SecurityRequirement(name = "Authorization"))
     @PostMapping("/api/logout")
-    public ResponseEntity<Void> logout(Authentication authentication, HttpServletResponse response) {
+    public ResponseEntity<Void> logout(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
         refreshTokenUtils.deleteRefreshTokenCookie(response);
-        // 레디스에 리프레시 토큰과 엑세스 토큰을 블랙리스트로 등록해야 함
+        // 레디스에 엑세스 토큰을 블랙리스트로 등록해야 함
+        tokenService.setBlacklistToken(RegisterTokenCommand.builder()
+                        .accessToken(refreshTokenUtils.getAccessTokenHeader(request))
+                        .refreshToken(refreshTokenUtils.getRefreshTokenCookie(request))
+                .build());
         return ResponseEntity.noContent().build();
     }
 

@@ -45,6 +45,15 @@ services:
       test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$root']
       timeout: 20s
       retries: 10
+  redis-ticket:
+    build:
+      context: ./redis-ticket
+      dockerfile: Dockerfile.dev
+    container_name: redis-ticket
+    ports:
+      - "6379:6379"
+    networks:
+      - smu8-ticket-network
 volumes:
   frontend_node_modules:
   backend_gradle_cache:

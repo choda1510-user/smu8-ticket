@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
-import {useFetchJson} from "@/hooks/useFetchJson";
+import {getAccount} from "@/apis/accountApi.ts";
+import useLogin from "@/hooks/useLogin.tsx";
 import type {MyInfoForm} from "@/types/member";
 
 const initialMyInfo: MyInfoForm = {
@@ -9,18 +10,61 @@ const initialMyInfo: MyInfoForm = {
     newPasswordConfirm: "",
 };
 
-const myInfoUrl = new URL("../data/myInfo.json", import.meta.url).href;
-
 export function useMyInfoPage() {
-    const {data: myInfo} = useFetchJson<MyInfoForm>(myInfoUrl, initialMyInfo);
+    const {accessToken, user, isLoggedIn} = useLogin();
     const [form, setForm] = useState<MyInfoForm>(initialMyInfo);
+    const [originalNickname, setOriginalNickname] = useState("");
 
     useEffect(() => {
-        setForm(myInfo);
-    }, [myInfo]);
+        if (!isLoggedIn || !user) {
+            setForm(initialMyInfo);
+            setOriginalNickname("");
+            return;
+        }
+
+        setForm({
+            userId: user.loginId,
+            nickname: user.nickname,
+            newPassword: "",
+            newPasswordConfirm: "",
+        });
+        setOriginalNickname(user.nickname);
+    }, [isLoggedIn, user]);
+
+    useEffect(() => {
+        if (!accessToken) {
+            return;
+        }
+
+        let isMounted = true;
+
+        getAccount(accessToken)
+            .then((account) => {
+                if (!account || !isMounted) {
+                    return;
+                }
+
+                setForm((prev) => ({
+                    ...prev,
+                    userId: account.username,
+                    nickname: account.nickname,
+                }));
+                setOriginalNickname(account.nickname);
+            })
+            .catch(() => {
+                // Login context already has the basic account information.
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [accessToken]);
 
     return {
+        accessToken,
         form,
         setForm,
+        originalNickname,
+        setOriginalNickname,
     };
 }

@@ -52,6 +52,9 @@ public class RefreshTokenAuthenticationProvider implements AuthenticationProvide
 
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         grantedAuthorities.add(new SimpleGrantedAuthority(Authority.REFRESH_TOKEN.toString()));
+        if (accountDetailResult.admin()) {
+            grantedAuthorities.add(new SimpleGrantedAuthority(Authority.ADMIN.toString()));
+        }
 
         return new RefreshTokenAuthenticationToken(
                 accountDetailResult,

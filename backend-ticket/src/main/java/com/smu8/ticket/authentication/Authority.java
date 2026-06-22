@@ -4,4 +4,5 @@ public enum Authority {
     BASIC_METHOD,
     ACCESS_TOKEN,
     REFRESH_TOKEN,
+    ADMIN,
 }

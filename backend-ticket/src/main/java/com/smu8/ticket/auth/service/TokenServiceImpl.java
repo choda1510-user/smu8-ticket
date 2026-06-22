@@ -8,7 +8,6 @@ import com.smu8.ticket.auth.dto.result.TokenResult;
 import com.smu8.ticket.authentication.Authority;
 import com.smu8.ticket.utils.JwtGenerator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,7 +28,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public TokenResult createToken(CreateTokenCommand command) {
         Instant expiresAt = Instant.now().plusSeconds(accessTokenExpireSeconds);
-        Jwt jwt = jwtGenerator.generate(command.userId(),expiresAt, command.authorities());
+        Jwt jwt = jwtGenerator.generate(command.userId(), command.role(), expiresAt, command.authorities());
         if (command.authorities().contains(new SimpleGrantedAuthority(Authority.REFRESH_TOKEN.toString()))) {
             ValueOperations<String, String> ops = redisTemplate.opsForValue();
             ops.set(REFRESH_TOKEN_PREFIX + jwt.getSubject(), jwt.getId(), Duration.ofSeconds(refreshTokenExpireSeconds));

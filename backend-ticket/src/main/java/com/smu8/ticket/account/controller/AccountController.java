@@ -39,8 +39,9 @@ public class AccountController {
             @RequestBody AdminAccountRequest adminAccountRequest
     ) {
         AccountDetailResult accountDetailResult = accountService
-                .updateAdmin(AdminAccountCommand
-                        .from(adminAccountRequest));
+                .updateAdmin(AdminAccountCommand.builder()
+                        .username(adminAccountRequest.username())
+                        .build());
         return ResponseEntity
                 .ok(AdminAccountResponse
                         .from(accountDetailResult));

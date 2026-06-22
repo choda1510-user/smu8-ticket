@@ -1,4 +1,5 @@
-import {Link, NavLink} from "react-router";
+import {Link, NavLink, useNavigate} from "react-router";
+import useLogin from "@/hooks/useLogin.tsx";
 import "./AdminHeader.css";
 
 type AdminMenuItem = {
@@ -37,6 +38,20 @@ const adminMenuItems: AdminMenuItem[] = [
 ];
 
 function AdminHeader() {
+    const navigate = useNavigate();
+    const {logout} = useLogin();
+
+    const handleLogoutClick = async () => {
+        const confirmed = confirm("로그아웃 하시겠습니까?");
+
+        if (!confirmed) {
+            return;
+        }
+
+        await logout();
+        navigate("/");
+    };
+
     return (
         <header className="admin-header">
             <div className="admin-header__inner">
@@ -82,7 +97,7 @@ function AdminHeader() {
                     </div>
                 </div>
 
-                <button type="button" className="admin-header__logout">
+                <button type="button" className="admin-header__logout" onClick={handleLogoutClick}>
                     로그아웃
                 </button>
             </div>

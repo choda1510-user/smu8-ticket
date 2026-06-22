@@ -85,7 +85,6 @@ function AdminReservationListPage() {
         <section className="admin-page">
             <div className="admin-page__header">
                 <div>
-                    <span className="admin-page__eyebrow">예매 관리</span>
                     <h1 className="admin-page__title">예매 현황 관리</h1>
                 </div>
             </div>

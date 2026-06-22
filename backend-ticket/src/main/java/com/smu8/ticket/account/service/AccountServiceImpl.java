@@ -26,6 +26,17 @@ public class AccountServiceImpl implements AccountService, AccountAuthentication
                         .save(request
                                 .byId(UUID.randomUUID().toString(), passwordEncoder)));
     }
+
+    @Override
+    public boolean isUsernameAvailable(String username) {
+        return !accountRepository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean isNicknameAvailable(String nickname) {
+        return !accountRepository.existsByNickname(nickname);
+    }
+
     @Override
     public AccountDetailResult getByUsername(String username){
         Account account = accountRepository.findByUsername(username).orElseThrow();
@@ -35,6 +46,28 @@ public class AccountServiceImpl implements AccountService, AccountAuthentication
     public AccountDetailResult getById(String id) {
         Account account = accountRepository.findById(id).orElseThrow();
         return AccountDetailResult.from(account);
+    }
+
+    @Override
+    public AccountDetailResult updateAccount(String id, String nickname, String password) {
+        Account account = accountRepository.findById(id).orElseThrow();
+        String trimmedNickname = nickname == null ? "" : nickname.trim();
+        String trimmedPassword = password == null ? "" : password.trim();
+
+        if (!trimmedNickname.isEmpty() && !trimmedNickname.equals(account.getNickname())) {
+            accountRepository.findByNickname(trimmedNickname)
+                    .filter(foundAccount -> !foundAccount.getId().equals(account.getId()))
+                    .ifPresent(foundAccount -> {
+                        throw new IllegalArgumentException("Nickname already exists.");
+                    });
+            account.setNickname(trimmedNickname);
+        }
+
+        if (!trimmedPassword.isEmpty()) {
+            account.setPassword(passwordEncoder.encode(trimmedPassword));
+        }
+
+        return AccountDetailResult.from(accountRepository.save(account));
     }
 
     @Override

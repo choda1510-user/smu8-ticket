@@ -1,6 +1,7 @@
 import type { CSSProperties, FormEvent, ReactNode } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import {checkLoginId, checkNickname, signUp} from "@/apis/accountApi.ts";
 
 /*
  * 회원가입 페이지
@@ -19,6 +20,8 @@ type SignUpForm = {
     passwordConfirm: string;
 };
 
+type CheckStatus = "success" | "error" | null;
+
 const initialSignUpForm: SignUpForm = {
     loginId: "",
     nickname: "",
@@ -33,9 +36,14 @@ function SignUpPage() {
 
     const [checkedLoginId, setCheckedLoginId] = useState("");
     const [isLoginIdChecked, setIsLoginIdChecked] = useState(false);
+    const [loginIdCheckStatus, setLoginIdCheckStatus] = useState<CheckStatus>(null);
+    const [loginIdCheckMessage, setLoginIdCheckMessage] = useState("");
 
     const [checkedNickname, setCheckedNickname] = useState("");
     const [isNicknameChecked, setIsNicknameChecked] = useState(false);
+    const [nicknameCheckStatus, setNicknameCheckStatus] = useState<CheckStatus>(null);
+    const [nicknameCheckMessage, setNicknameCheckMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (field: keyof SignUpForm, value: string) => {
         setForm((prev) => ({
@@ -46,15 +54,19 @@ function SignUpPage() {
         if (field === "loginId") {
             setCheckedLoginId("");
             setIsLoginIdChecked(false);
+            setLoginIdCheckStatus(null);
+            setLoginIdCheckMessage("");
         }
 
         if (field === "nickname") {
             setCheckedNickname("");
             setIsNicknameChecked(false);
+            setNicknameCheckStatus(null);
+            setNicknameCheckMessage("");
         }
     };
 
-    const handleLoginIdCheckClick = () => {
+    const handleLoginIdCheckClick = async () => {
         const trimmedLoginId = form.loginId.trim();
 
         if (!trimmedLoginId) {
@@ -62,17 +74,30 @@ function SignUpPage() {
             return;
         }
 
-        /*
-         * 추후 아이디 중복확인 API 연결 예정
-         * GET /members/check-login-id?loginId=...
-         */
+        try {
+            const isAvailable = await checkLoginId(trimmedLoginId);
 
-        setCheckedLoginId(trimmedLoginId);
-        setIsLoginIdChecked(true);
-        alert("사용 가능한 아이디입니다.");
+            if (isAvailable) {
+                setCheckedLoginId(trimmedLoginId);
+                setIsLoginIdChecked(true);
+                setLoginIdCheckStatus("success");
+                setLoginIdCheckMessage("사용 가능한 아이디입니다.");
+                return;
+            }
+
+            setCheckedLoginId("");
+            setIsLoginIdChecked(false);
+            setLoginIdCheckStatus("error");
+            setLoginIdCheckMessage("이미 사용 중인 아이디입니다.");
+        } catch {
+            setCheckedLoginId("");
+            setIsLoginIdChecked(false);
+            setLoginIdCheckStatus("error");
+            setLoginIdCheckMessage("아이디 중복확인에 실패했습니다.");
+        }
     };
 
-    const handleNicknameCheckClick = () => {
+    const handleNicknameCheckClick = async () => {
         const trimmedNickname = form.nickname.trim();
 
         if (!trimmedNickname) {
@@ -80,14 +105,27 @@ function SignUpPage() {
             return;
         }
 
-        /*
-         * 추후 닉네임 중복확인 API 연결 예정
-         * GET /members/check-nickname?nickname=...
-         */
+        try {
+            const isAvailable = await checkNickname(trimmedNickname);
 
-        setCheckedNickname(trimmedNickname);
-        setIsNicknameChecked(true);
-        alert("사용 가능한 닉네임입니다.");
+            if (isAvailable) {
+                setCheckedNickname(trimmedNickname);
+                setIsNicknameChecked(true);
+                setNicknameCheckStatus("success");
+                setNicknameCheckMessage("사용 가능한 닉네임입니다.");
+                return;
+            }
+
+            setCheckedNickname("");
+            setIsNicknameChecked(false);
+            setNicknameCheckStatus("error");
+            setNicknameCheckMessage("이미 사용 중인 닉네임입니다.");
+        } catch {
+            setCheckedNickname("");
+            setIsNicknameChecked(false);
+            setNicknameCheckStatus("error");
+            setNicknameCheckMessage("닉네임 중복확인에 실패했습니다.");
+        }
     };
 
     const handleLoginClick = () => {
@@ -98,8 +136,12 @@ function SignUpPage() {
         navigate("/");
     };
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+
+        if (isSubmitting) {
+            return;
+        }
 
         const trimmedLoginId = form.loginId.trim();
         const trimmedNickname = form.nickname.trim();
@@ -141,13 +183,21 @@ function SignUpPage() {
             return;
         }
 
-        /*
-         * 추후 회원가입 API 연결 예정
-         * POST /signup
-         */
+        try {
+            setIsSubmitting(true);
+            await signUp({
+                loginId: trimmedLoginId,
+                nickname: trimmedNickname,
+                password: trimmedPassword,
+            });
 
-        alert("회원가입이 완료되었습니다.");
-        navigate("/login");
+            alert("회원가입이 완료되었습니다.");
+            navigate("/login");
+        } catch {
+            alert("회원가입에 실패했습니다. 입력한 정보를 다시 확인해주세요.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const isPasswordConfirmEmpty = form.passwordConfirm.trim() === "";
@@ -166,52 +216,66 @@ function SignUpPage() {
 
                 <form style={styles.formBox} onSubmit={handleSubmit}>
                     <FormRow label="아이디">
-                        <div style={styles.inlineArea}>
-                            <input
-                                type="text"
-                                value={form.loginId}
-                                onChange={(event) =>
-                                    handleChange("loginId", event.target.value)
-                                }
-                                style={styles.input}
-                            />
+                        <div style={styles.checkArea}>
+                            <div style={styles.inlineArea}>
+                                <input
+                                    type="text"
+                                    value={form.loginId}
+                                    onChange={(event) =>
+                                        handleChange("loginId", event.target.value)
+                                    }
+                                    style={styles.input}
+                                />
 
-                            <button
-                                type="button"
-                                style={styles.checkButton}
-                                onClick={handleLoginIdCheckClick}
+                                <button
+                                    type="button"
+                                    style={styles.checkButton}
+                                    onClick={handleLoginIdCheckClick}
+                                >
+                                    중복확인
+                                </button>
+                            </div>
+
+                            <span
+                                style={{
+                                    ...(loginIdCheckStatus === "error" ? styles.checkErrorText : styles.checkCompleteText),
+                                    visibility: loginIdCheckMessage ? "visible" : "hidden",
+                                }}
                             >
-                                중복확인
-                            </button>
-
-                            {isLoginIdChecked && (
-                                <span style={styles.checkCompleteText}>확인됨!</span>
-                            )}
+                                {loginIdCheckMessage || "사용 가능한 아이디입니다."}
+                            </span>
                         </div>
                     </FormRow>
 
                     <FormRow label="닉네임">
-                        <div style={styles.inlineArea}>
-                            <input
-                                type="text"
-                                value={form.nickname}
-                                onChange={(event) =>
-                                    handleChange("nickname", event.target.value)
-                                }
-                                style={styles.input}
-                            />
+                        <div style={styles.checkArea}>
+                            <div style={styles.inlineArea}>
+                                <input
+                                    type="text"
+                                    value={form.nickname}
+                                    onChange={(event) =>
+                                        handleChange("nickname", event.target.value)
+                                    }
+                                    style={styles.input}
+                                />
 
-                            <button
-                                type="button"
-                                style={styles.checkButton}
-                                onClick={handleNicknameCheckClick}
+                                <button
+                                    type="button"
+                                    style={styles.checkButton}
+                                    onClick={handleNicknameCheckClick}
+                                >
+                                    중복확인
+                                </button>
+                            </div>
+
+                            <span
+                                style={{
+                                    ...(nicknameCheckStatus === "error" ? styles.checkErrorText : styles.checkCompleteText),
+                                    visibility: nicknameCheckMessage ? "visible" : "hidden",
+                                }}
                             >
-                                중복확인
-                            </button>
-
-                            {isNicknameChecked && (
-                                <span style={styles.checkCompleteText}>확인됨!</span>
-                            )}
+                                {nicknameCheckMessage || "사용 가능한 닉네임입니다."}
+                            </span>
                         </div>
                     </FormRow>
 
@@ -248,8 +312,8 @@ function SignUpPage() {
                     </FormRow>
 
                     <div style={styles.buttonArea}>
-                        <button type="submit" style={styles.signUpButton}>
-                            가입하기
+                        <button type="submit" style={styles.signUpButton} disabled={isSubmitting}>
+                            {isSubmitting ? "가입 중..." : "가입하기"}
                         </button>
                     </div>
 
@@ -335,7 +399,7 @@ const styles: Record<string, CSSProperties> = {
         minHeight: "42px",
         display: "grid",
         gridTemplateColumns: "110px 1fr",
-        alignItems: "center",
+        alignItems: "start",
         marginBottom: "14px",
         boxSizing: "border-box",
     },
@@ -344,11 +408,12 @@ const styles: Record<string, CSSProperties> = {
         color: "#222",
         fontSize: "13px",
         fontWeight: 700,
+        paddingTop: "7px",
     },
 
     inputArea: {
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         minHeight: "30px",
     },
 
@@ -370,6 +435,13 @@ const styles: Record<string, CSSProperties> = {
         gap: "8px",
     },
 
+    checkArea: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        gap: "5px",
+    },
+
     checkButton: {
         width: "64px",
         height: "28px",
@@ -384,6 +456,15 @@ const styles: Record<string, CSSProperties> = {
     checkCompleteText: {
         color: "#222",
         fontSize: "11px",
+        lineHeight: "14px",
+        minHeight: "14px",
+    },
+
+    checkErrorText: {
+        color: "#e55757",
+        fontSize: "11px",
+        lineHeight: "14px",
+        minHeight: "14px",
     },
 
     passwordErrorText: {

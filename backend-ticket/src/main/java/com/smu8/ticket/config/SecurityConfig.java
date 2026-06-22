@@ -83,7 +83,8 @@ public class SecurityConfig {
     @Order(1)
     @Bean
     public SecurityFilterChain basicFilterChain(
-            HttpSecurity http
+            HttpSecurity http,
+            AuthenticationEntryPoint noChallengeAuthenticationEntryPoint
     ) throws Exception {
         return http
                 .securityMatcher("/api/token")
@@ -96,7 +97,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults())
+                .httpBasic((basic) -> basic.authenticationEntryPoint(noChallengeAuthenticationEntryPoint))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .build();
     }
@@ -135,6 +136,8 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.POST, "/api/logout").hasAuthority(Authority.ACCESS_TOKEN.toString())
                             .requestMatchers(HttpMethod.POST, "/api/account").permitAll()
                             .requestMatchers(HttpMethod.POST, "/api/account/admin").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/account/check-username").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/account/check-nickname").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/test").permitAll()
                             .anyRequest().authenticated();
                 })
@@ -165,6 +168,11 @@ public class SecurityConfig {
         BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
         ep.setRealmName("Normal Realm");
         return ep;
+    }
+
+    @Bean
+    public AuthenticationEntryPoint noChallengeAuthenticationEntryPoint() {
+        return (request, response, authException) -> response.sendError(401);
     }
     @Bean
     public BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter(AuthenticationManager authenticationManager) {

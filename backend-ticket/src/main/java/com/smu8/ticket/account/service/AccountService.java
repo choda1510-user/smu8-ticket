@@ -7,5 +7,9 @@ import com.smu8.ticket.account.dto.result.AccountDetailResult;
 public interface AccountService {
     AccountDetailResult createAccount(CreateAccountCommand request);
     AccountDetailResult updateAdmin(AdminAccountCommand command);
+    boolean isUsernameAvailable(String username);
+    boolean isNicknameAvailable(String nickname);
+    AccountDetailResult getById(String id);
+    AccountDetailResult updateAccount(String id, String nickname, String password);
 
 }

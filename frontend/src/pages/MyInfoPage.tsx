@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import {useMyInfoPage} from "@/hooks/useMyInfoPage";
 import type {MyInfoForm} from "@/types/member";
+import {checkNickname, updateAccount} from "@/apis/accountApi.ts";
 
 /*
  * 내정보 페이지
@@ -15,9 +16,12 @@ import type {MyInfoForm} from "@/types/member";
 function MyInfoPage() {
     const navigate = useNavigate();
 
-    const {form, setForm} = useMyInfoPage();
+    const {accessToken, form, setForm, originalNickname, setOriginalNickname} = useMyInfoPage();
     const [checkedNickname, setCheckedNickname] = useState("");
     const [isNicknameChecked, setIsNicknameChecked] = useState(false);
+    const [nicknameCheckMessage, setNicknameCheckMessage] = useState("");
+    const [isNicknameCheckError, setIsNicknameCheckError] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (field: keyof MyInfoForm, value: string) => {
         setForm((prev) => ({
@@ -28,10 +32,12 @@ function MyInfoPage() {
         if (field === "nickname") {
             setIsNicknameChecked(false);
             setCheckedNickname("");
+            setNicknameCheckMessage("");
+            setIsNicknameCheckError(false);
         }
     };
 
-    const handleNicknameCheckClick = () => {
+    const handleNicknameCheckClick = async () => {
         const trimmedNickname = form.nickname.trim();
 
         if (!trimmedNickname) {
@@ -39,64 +45,113 @@ function MyInfoPage() {
             return;
         }
 
-        /*
-         * 추후 닉네임 중복확인 API 연결 예정
-         * GET /members/check-nickname?nickname=...
-         *
-         * 중복이면:
-         * alert("이미 사용 중인 닉네임입니다.");
-         *
-         * 사용 가능하면:
-         * setIsNicknameChecked(true);
-         */
+        if (trimmedNickname === originalNickname) {
+            setCheckedNickname("");
+            setIsNicknameChecked(false);
+            setNicknameCheckMessage("현재 사용 중인 닉네임입니다.");
+            setIsNicknameCheckError(false);
+            return;
+        }
 
-        setCheckedNickname(trimmedNickname);
-        setIsNicknameChecked(true);
-        alert("사용 가능한 닉네임입니다.");
+        try {
+            const isAvailable = await checkNickname(trimmedNickname);
+
+            if (isAvailable) {
+                setCheckedNickname(trimmedNickname);
+                setIsNicknameChecked(true);
+                setNicknameCheckMessage("사용 가능한 닉네임입니다.");
+                setIsNicknameCheckError(false);
+                return;
+            }
+
+            setCheckedNickname("");
+            setIsNicknameChecked(false);
+            setNicknameCheckMessage("이미 사용 중인 닉네임입니다.");
+            setIsNicknameCheckError(true);
+        } catch {
+            setCheckedNickname("");
+            setIsNicknameChecked(false);
+            setNicknameCheckMessage("닉네임 중복확인에 실패했습니다.");
+            setIsNicknameCheckError(true);
+        }
     };
 
     const handlePreviousClick = () => {
         navigate(-1);
     };
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+
+        if (isSubmitting) {
+            return;
+        }
 
         const trimmedNickname = form.nickname.trim();
         const trimmedPassword = form.newPassword.trim();
         const trimmedPasswordConfirm = form.newPasswordConfirm.trim();
+        const isNicknameChanged = trimmedNickname !== originalNickname;
+        const isPasswordChanged = trimmedPassword !== "" || trimmedPasswordConfirm !== "";
 
         if (!trimmedNickname) {
             alert("닉네임을 입력해주세요.");
             return;
         }
 
-        if (!isNicknameChecked || checkedNickname !== trimmedNickname) {
+        if (isNicknameChanged && (!isNicknameChecked || checkedNickname !== trimmedNickname)) {
             alert("닉네임 중복확인을 해주세요.");
             return;
         }
 
-        if (!trimmedPassword) {
+        if (!isNicknameChanged && !isPasswordChanged) {
+            alert("변경할 정보를 입력해주세요.");
+            return;
+        }
+
+        if (isPasswordChanged && !trimmedPassword) {
             alert("변경할 비밀번호를 입력해주세요.");
             return;
         }
 
-        if (!trimmedPasswordConfirm) {
+        if (isPasswordChanged && !trimmedPasswordConfirm) {
             alert("비밀번호 확인을 입력해주세요.");
             return;
         }
 
-        if (trimmedPassword !== trimmedPasswordConfirm) {
+        if (isPasswordChanged && trimmedPassword !== trimmedPasswordConfirm) {
             alert("비밀번호가 일치하지 않습니다.");
             return;
         }
 
-        /*
-         * 추후 내정보 수정 API 연결 예정
-         * PATCH /mypage
-         */
+        if (!accessToken) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
 
-        alert("회원 정보가 수정되었습니다.");
+        try {
+            setIsSubmitting(true);
+            const updatedAccount = await updateAccount(accessToken, {
+                nickname: trimmedNickname,
+                password: trimmedPassword,
+            });
+
+            setForm({
+                userId: updatedAccount.username,
+                nickname: updatedAccount.nickname,
+                newPassword: "",
+                newPasswordConfirm: "",
+            });
+            setOriginalNickname(updatedAccount.nickname);
+            setCheckedNickname("");
+            setIsNicknameChecked(false);
+            setNicknameCheckMessage("");
+            setIsNicknameCheckError(false);
+            alert("회원 정보가 수정되었습니다.");
+        } catch {
+            alert("회원 정보 수정에 실패했습니다.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleWithdrawClick = () => {
@@ -129,25 +184,32 @@ function MyInfoPage() {
                 </InfoRow>
 
                 <InfoRow label="닉네임">
-                    <div style={styles.nicknameArea}>
-                        <input
-                            type="text"
-                            value={form.nickname}
-                            onChange={(event) => handleChange("nickname", event.target.value)}
-                            style={styles.input}
-                        />
+                    <div style={styles.checkArea}>
+                        <div style={styles.inlineControlArea}>
+                            <input
+                                type="text"
+                                value={form.nickname}
+                                onChange={(event) => handleChange("nickname", event.target.value)}
+                                style={styles.input}
+                            />
 
-                        <button
-                            type="button"
-                            style={styles.checkButton}
-                            onClick={handleNicknameCheckClick}
+                            <button
+                                type="button"
+                                style={styles.checkButton}
+                                onClick={handleNicknameCheckClick}
+                            >
+                                중복확인
+                            </button>
+                        </div>
+
+                        <span
+                            style={{
+                                ...(isNicknameCheckError ? styles.checkErrorText : styles.checkCompleteText),
+                                visibility: nicknameCheckMessage ? "visible" : "hidden",
+                            }}
                         >
-                            중복확인
-                        </button>
-
-                        {isNicknameChecked && (
-                            <span style={styles.checkCompleteText}>확인됨!</span>
-                        )}
+                            {nicknameCheckMessage || "사용 가능한 닉네임입니다."}
+                        </span>
                     </div>
                 </InfoRow>
 
@@ -163,7 +225,7 @@ function MyInfoPage() {
                 </InfoRow>
 
                 <InfoRow label="비밀번호 변경확인">
-                    <div style={styles.passwordConfirmArea}>
+                    <div style={styles.inlineControlArea}>
                         <input
                             type="password"
                             value={form.newPasswordConfirm}
@@ -192,8 +254,8 @@ function MyInfoPage() {
                         이전
                     </button>
 
-                    <button type="submit" style={styles.saveButton}>
-                        저장
+                    <button type="submit" style={styles.saveButton} disabled={isSubmitting}>
+                        {isSubmitting ? "저장 중..." : "저장"}
                     </button>
                 </div>
 
@@ -227,108 +289,132 @@ function InfoRow({ label, children }: InfoRowProps) {
 
 const styles: Record<string, CSSProperties> = {
     page: {
-        width: "430px",
+        width: "520px",
         margin: "0 auto",
         color: "#222",
         boxSizing: "border-box",
     },
 
     pageTitle: {
-        margin: "0 0 42px",
-        paddingBottom: "14px",
+        margin: "0 0 34px",
+        paddingBottom: "16px",
         borderBottom: "1px solid #e2ddea",
         textAlign: "center",
-        fontSize: "15px",
+        fontSize: "17px",
         fontWeight: 700,
     },
 
     formBox: {
         width: "100%",
+        padding: "8px 8px 0",
+        boxSizing: "border-box",
     },
 
     infoRow: {
-        minHeight: "42px",
+        minHeight: "52px",
         display: "grid",
-        gridTemplateColumns: "120px 1fr",
-        alignItems: "center",
-        marginBottom: "14px",
+        gridTemplateColumns: "156px 1fr",
+        alignItems: "start",
+        marginBottom: "16px",
         boxSizing: "border-box",
     },
 
     label: {
         color: "#222",
-        fontSize: "12px",
+        fontSize: "13px",
+        fontWeight: 700,
         textAlign: "right",
-        paddingRight: "28px",
+        paddingTop: "8px",
+        paddingRight: "24px",
         boxSizing: "border-box",
+        whiteSpace: "nowrap",
     },
 
     inputArea: {
         display: "flex",
-        alignItems: "center",
-        minHeight: "28px",
+        alignItems: "flex-start",
+        minHeight: "32px",
     },
 
     idText: {
         color: "#222",
-        fontSize: "12px",
+        minHeight: "30px",
+        display: "inline-flex",
+        alignItems: "center",
+        fontSize: "13px",
+        fontWeight: 500,
     },
 
     input: {
-        width: "170px",
-        height: "26px",
-        border: "1px solid #aaa",
+        width: "230px",
+        height: "32px",
+        border: "1px solid #d8d2e4",
+        borderRadius: "4px",
         backgroundColor: "#fff",
-        padding: "0 8px",
+        padding: "0 10px",
         color: "#222",
-        fontSize: "12px",
+        fontSize: "13px",
         outline: "none",
         boxSizing: "border-box",
     },
 
-    nicknameArea: {
+    inlineControlArea: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "10px",
+    },
+
+    checkArea: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        gap: "5px",
     },
 
     checkButton: {
-        width: "58px",
-        height: "26px",
+        width: "78px",
+        height: "32px",
         border: "none",
         borderRadius: "4px",
         backgroundColor: "#9a63ff",
         color: "#fff",
-        fontSize: "11px",
+        fontSize: "12px",
+        fontWeight: 700,
         cursor: "pointer",
+        whiteSpace: "nowrap",
     },
 
     checkCompleteText: {
         color: "#222",
         fontSize: "11px",
+        lineHeight: "14px",
+        minHeight: "14px",
     },
 
-    passwordConfirmArea: {
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
+    checkErrorText: {
+        color: "#e55757",
+        fontSize: "11px",
+        lineHeight: "14px",
+        minHeight: "14px",
     },
 
     passwordErrorText: {
         color: "#e55757",
-        fontSize: "11px",
+        fontSize: "12px",
+        fontWeight: 700,
     },
 
     passwordSuccessText: {
         color: "#222",
-        fontSize: "11px",
+        fontSize: "12px",
+        fontWeight: 700,
     },
 
     buttonArea: {
-        marginTop: "70px",
+        marginTop: "54px",
         display: "flex",
         justifyContent: "center",
-        gap: "70px",
+        gap: "64px",
     },
 
     previousButton: {
@@ -336,7 +422,8 @@ const styles: Record<string, CSSProperties> = {
         border: "none",
         backgroundColor: "transparent",
         color: "#d46b6b",
-        fontSize: "13px",
+        fontSize: "14px",
+        fontWeight: 700,
         cursor: "pointer",
     },
 
@@ -345,7 +432,8 @@ const styles: Record<string, CSSProperties> = {
         border: "none",
         backgroundColor: "transparent",
         color: "#d46b6b",
-        fontSize: "13px",
+        fontSize: "14px",
+        fontWeight: 700,
         cursor: "pointer",
     },
 

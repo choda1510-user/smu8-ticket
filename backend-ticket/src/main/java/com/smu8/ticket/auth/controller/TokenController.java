@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class TokenController {
         return ResponseEntity
                 .ok(tokenService.getToken(TokenQuery.builder()
                         .userId(authentication.getName())
-                        .authorities(List.of(new SimpleGrantedAuthority(Authority.ACCESS_TOKEN.toString())))
+                        .authorities(accessTokenAuthorities(authentication))
                         .build()).jwt());
     }
     // 엑세스 토큰을 다시 받는 api
@@ -43,7 +45,7 @@ public class TokenController {
         return ResponseEntity
                 .ok(tokenService.getToken(TokenQuery.builder()
                         .userId(authentication.getName())
-                        .authorities(List.of(new SimpleGrantedAuthority(Authority.ACCESS_TOKEN.toString())))
+                        .authorities(accessTokenAuthorities(authentication))
                         .build()).jwt());
     }
     @Operation(summary = "logout", security= @SecurityRequirement(name = "Authorization"))
@@ -52,5 +54,16 @@ public class TokenController {
         refreshTokenUtils.deleteRefreshTokenCookie(response);
         // 레디스에 리프레시 토큰과 엑세스 토큰을 블랙리스트로 등록해야 함
         return ResponseEntity.noContent().build();
+    }
+
+    private List<GrantedAuthority> accessTokenAuthorities(Authentication authentication) {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(Authority.ACCESS_TOKEN.toString()));
+        boolean admin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> Authority.ADMIN.toString().equals(authority.getAuthority()));
+        if (admin) {
+            authorities.add(new SimpleGrantedAuthority(Authority.ADMIN.toString()));
+        }
+        return authorities;
     }
 }

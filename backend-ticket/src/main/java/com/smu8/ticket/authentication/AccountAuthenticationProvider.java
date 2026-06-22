@@ -42,6 +42,9 @@ public class AccountAuthenticationProvider implements AuthenticationProvider {
 
                 Set<GrantedAuthority> authorities = new HashSet<>();
                 authorities.add(new SimpleGrantedAuthority(Authority.BASIC_METHOD.toString()));
+                if (account.admin()) {
+                    authorities.add(new SimpleGrantedAuthority(Authority.ADMIN.toString()));
+                }
 
                 return new AccountAuthentication(
                         account,

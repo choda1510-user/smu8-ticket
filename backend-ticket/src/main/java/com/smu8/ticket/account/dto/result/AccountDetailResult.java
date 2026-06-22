@@ -11,6 +11,7 @@ public record AccountDetailResult(
         String nickname,
         String username,
         String password,
+        boolean admin,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -20,6 +21,7 @@ public record AccountDetailResult(
                 .nickname(account.getNickname())
                 .username(account.getUsername())
                 .password(account.getPassword())
+                .admin(account.isAdmin())
                 .createdAt(account.getCreatedAt())
                 .updatedAt(account.getUpdatedAt())
                 .build();

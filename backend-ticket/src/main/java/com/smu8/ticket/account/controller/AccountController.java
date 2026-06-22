@@ -1,8 +1,11 @@
 package com.smu8.ticket.account.controller;
 
+import com.smu8.ticket.account.dto.command.AdminAccountCommand;
 import com.smu8.ticket.account.dto.command.CreateAccountCommand;
 import com.smu8.ticket.account.dto.result.AccountDetailResult;
+import com.smu8.ticket.account.http.request.AdminAccountRequest;
 import com.smu8.ticket.account.http.request.CreateAccountRequest;
+import com.smu8.ticket.account.http.response.AdminAccountResponse;
 import com.smu8.ticket.account.http.response.AccountDetailResponse;
 import com.smu8.ticket.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,18 @@ public class AccountController {
         return ResponseEntity
                 .created(URI.create(accountDetailResult.id()))
                 .body(AccountDetailResponse
+                        .from(accountDetailResult));
+    }
+
+    @PostMapping("/api/account/admin")
+    public ResponseEntity<AdminAccountResponse> updateAdmin(
+            @RequestBody AdminAccountRequest adminAccountRequest
+    ) {
+        AccountDetailResult accountDetailResult = accountService
+                .updateAdmin(AdminAccountCommand
+                        .from(adminAccountRequest));
+        return ResponseEntity
+                .ok(AdminAccountResponse
                         .from(accountDetailResult));
     }
 }

@@ -27,6 +27,8 @@ public class Account {
     private String password;
     @Column(unique = true)
     private String nickname;
+    @Column(nullable = false)
+    private boolean admin;
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate

@@ -10,6 +10,8 @@ import com.smu8.ticket.account.http.request.UpdateAccountRequest;
 import com.smu8.ticket.account.http.response.AccountDetailResponse;
 import com.smu8.ticket.account.http.response.AvailabilityResponse;
 import com.smu8.ticket.account.service.AccountService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +30,10 @@ import java.net.URI;
 public class AccountController {
     private final AccountService accountService;
 
+    @Operation(summary = "아이디 중복 확인", description = "회원가입에 사용할 로그인 아이디의 사용 가능 여부를 확인합니다.")
     @GetMapping("/api/account/check-username")
     public ResponseEntity<AvailabilityResponse> checkUsername(
+            @Parameter(description = "중복 확인할 로그인 아이디", example = "testuser")
             @RequestParam String username
     ) {
         String trimmedUsername = username.trim();
@@ -45,8 +49,10 @@ public class AccountController {
         ));
     }
 
+    @Operation(summary = "닉네임 중복 확인", description = "회원가입에 사용할 닉네임의 사용 가능 여부를 확인합니다.")
     @GetMapping("/api/account/check-nickname")
     public ResponseEntity<AvailabilityResponse> checkNickname(
+            @Parameter(description = "중복 확인할 닉네임", example = "홍길동")
             @RequestParam String nickname
     ) {
         String trimmedNickname = nickname.trim();
@@ -62,16 +68,20 @@ public class AccountController {
         ));
     }
 
+    @Operation(summary = "내 정보 조회", description = "현재 로그인한 회원의 정보를 조회합니다.")
     @GetMapping("/api/account/me")
-    public ResponseEntity<AccountDetailResponse> me(Authentication authentication) {
+    public ResponseEntity<AccountDetailResponse> me(
+            @Parameter(hidden = true) Authentication authentication
+    ) {
         AccountDetailResult accountDetailResult = accountService.getById(authentication.getName());
 
         return ResponseEntity.ok(AccountDetailResponse.from(accountDetailResult));
     }
 
+    @Operation(summary = "내 정보 수정", description = "현재 로그인한 회원의 닉네임 또는 비밀번호를 수정합니다.")
     @PatchMapping("/api/account/me")
     public ResponseEntity<AccountDetailResponse> updateMe(
-            Authentication authentication,
+            @Parameter(hidden = true) Authentication authentication,
             @RequestBody UpdateAccountRequest updateAccountRequest
     ) {
         AccountDetailResult accountDetailResult = accountService.updateAccount(
@@ -83,6 +93,7 @@ public class AccountController {
         return ResponseEntity.ok(AccountDetailResponse.from(accountDetailResult));
     }
 
+    @Operation(summary = "회원가입", description = "아이디, 비밀번호, 닉네임을 입력해 회원 계정을 생성합니다.")
     @PostMapping("/api/account")
     public ResponseEntity<AccountDetailResponse> signUp(
             @RequestBody CreateAccountRequest createAccountRequest
@@ -96,6 +107,7 @@ public class AccountController {
                         .from(accountDetailResult));
     }
 
+    @Operation(summary = "관리자 권한 부여", description = "지정한 회원 계정을 관리자 계정으로 변경합니다.")
     @PostMapping("/api/account/admin")
     public ResponseEntity<AdminAccountResponse> updateAdmin(
             @RequestBody AdminAccountRequest adminAccountRequest

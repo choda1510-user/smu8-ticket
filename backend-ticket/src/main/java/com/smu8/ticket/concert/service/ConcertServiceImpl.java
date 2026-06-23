@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
+@Service("userConcertServiceImpl")
 @RequiredArgsConstructor
 public class ConcertServiceImpl implements ConcertService {
     private final ConcertRepository concertRepository;
@@ -21,7 +21,7 @@ public class ConcertServiceImpl implements ConcertService {
     @Transactional(readOnly = true)
     public PageResult<ConcertDetailResult> getConcerts() {
         return PageResult.from(concertRepository
-                .findAllByOrderByStartTimeDesc(PageRequest.of(0, 10))
+                .findAllByOrderByStartAtDesc(PageRequest.of(0, 10))
                 .map(ConcertDetailResult::from));
     }
 

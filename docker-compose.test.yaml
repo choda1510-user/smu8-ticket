@@ -23,7 +23,7 @@ services:
   database:
     build:
       context: ./database
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.test
     container_name: database
     ports:
       - "3306:3306"

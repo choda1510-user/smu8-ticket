@@ -1,7 +1,7 @@
-FROM eclipse-temurin:21-jre-alpine
+FROM alpine/java:21-jdk AS build
 
-WORKDIR /app
-COPY . /app
+WORKDIR /backend
+COPY . /backend
 
 RUN chmod +x ./gradlew
 
@@ -9,5 +9,7 @@ RUN ./gradlew clean
 RUN ./gradlew classes
 RUN ./gradlew bootJar
 
-WORKDIR /app/build/libs
+FROM eclipse-temurin:21-jre-alpine AS deploy
+WORKDIR /app
+COPY --from=build /backend/build/libs/smu8ticket-backend.jar /app
 CMD ["java", "-jar", "smu8ticket-backend.jar"]

@@ -1,13 +1,13 @@
 package com.smu8.ticket.concert.admin.controller;
 
-import com.smu8.ticket.concert.dto.command.CreateConcertCommand;
-import com.smu8.ticket.concert.dto.command.UpdateConcertCommand;
-import com.smu8.ticket.concert.dto.result.ConcertDetailResult;
-import com.smu8.ticket.concert.http.request.CreateConcertRequest;
-import com.smu8.ticket.concert.http.request.UpdateConcertRequest;
-import com.smu8.ticket.concert.http.response.ConcertDetailResponse;
-import com.smu8.ticket.concert.http.response.ConcertListResponse;
-import com.smu8.ticket.concert.service.ConcertService;
+import com.smu8.ticket.concert.admin.dto.command.CreateConcertCommand;
+import com.smu8.ticket.concert.admin.dto.command.UpdateConcertCommand;
+import com.smu8.ticket.concert.admin.dto.result.ConcertDetailResult;
+import com.smu8.ticket.concert.admin.http.request.CreateConcertRequest;
+import com.smu8.ticket.concert.admin.http.request.UpdateConcertRequest;
+import com.smu8.ticket.concert.admin.http.response.ConcertDetailResponse;
+import com.smu8.ticket.concert.admin.http.response.ConcertListResponse;
+import com.smu8.ticket.concert.admin.service.ConcertService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;

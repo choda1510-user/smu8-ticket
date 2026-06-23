@@ -1,4 +1,4 @@
-package com.smu8.ticket.concert.dto.result;
+package com.smu8.ticket.concert.admin.dto.result;
 
 import com.smu8.ticket.concert.entity.Concert;
 import lombok.Builder;

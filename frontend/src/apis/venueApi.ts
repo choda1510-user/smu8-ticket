@@ -85,10 +85,10 @@ export function filterVenuesByKeyword(venues: BackendVenue[], keyword: string) {
 
     return venues.filter((venue) => {
         return (
-            venue.name.toLowerCase().includes(normalizedKeyword) ||
-            venue.roadAddress.toLowerCase().includes(normalizedKeyword) ||
-            venue.jibunAddress.toLowerCase().includes(normalizedKeyword) ||
-            venue.buildingName.toLowerCase().includes(normalizedKeyword)
+            (venue.name ?? "").toLowerCase().includes(normalizedKeyword) ||
+            (venue.roadAddress ?? "").toLowerCase().includes(normalizedKeyword) ||
+            (venue.jibunAddress ?? "").toLowerCase().includes(normalizedKeyword) ||
+            (venue.buildingName ?? "").toLowerCase().includes(normalizedKeyword)
         );
     });
 }

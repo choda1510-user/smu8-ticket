@@ -21,7 +21,7 @@ public class ConcertServiceImpl implements ConcertService {
     @Transactional(readOnly = true)
     public PageResult<ConcertDetailResult> getConcerts() {
         return PageResult.from(concertRepository
-                .findAllByOrderByStartTimeDesc(PageRequest.of(0, 10))
+                .findAllByOrderByStartAtDesc(PageRequest.of(0, 10))
                 .map(ConcertDetailResult::from));
     }
 

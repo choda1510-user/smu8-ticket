@@ -157,9 +157,9 @@ export function filterConcertsByKeyword(concerts: BackendConcert[], keyword: str
 
     return concerts.filter((concert) => {
         return (
-            concert.title.toLowerCase().includes(normalizedKeyword) ||
-            concert.description.toLowerCase().includes(normalizedKeyword) ||
-            concert.venueName.toLowerCase().includes(normalizedKeyword)
+            (concert.title ?? "").toLowerCase().includes(normalizedKeyword) ||
+            (concert.description ?? "").toLowerCase().includes(normalizedKeyword) ||
+            (concert.venueName ?? "").toLowerCase().includes(normalizedKeyword)
         );
     });
 }
@@ -195,7 +195,7 @@ export async function getConcert(id: number): Promise<BackendConcert> {
 
 export async function getConcertList(): Promise<BackendConcert[]> {
     const response = await fetchJson<BackendConcertListResponse>(`${API_BASE_URL}/api/concerts`);
-    return response.concerts;
+    return response.concerts ?? response.contents ?? [];
 }
 
 export async function getConcertItems(): Promise<ConcertItem[]> {
@@ -214,7 +214,7 @@ export async function getAdminConcertList(): Promise<BackendConcert[]> {
         headers: createJsonHeaders(),
     });
 
-    return response.concerts;
+    return response.concerts ?? response.contents ?? [];
 }
 
 export async function addConcert(request: AdminConcertRequest): Promise<BackendConcert> {

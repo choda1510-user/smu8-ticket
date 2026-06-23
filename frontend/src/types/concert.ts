@@ -73,7 +73,8 @@ export type BackendConcert = {
 };
 
 export type BackendConcertListResponse = {
-    concerts: BackendConcert[];
+    concerts?: BackendConcert[];
+    contents?: BackendConcert[];
 };
 
 export type AdminConcertRequest = {

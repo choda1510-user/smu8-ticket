@@ -1,8 +1,10 @@
 package com.smu8.ticket.venue.entity;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,31 +18,33 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Venue {
     @Id
-    private String id;
-
-    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;
-
-    @Column(nullable = false)
-    private String address;
-
-    @Column(nullable = false)
     private Integer capacity;
-
-    @Column
     private String description;
-
+    @Embedded
+    private Address address;
     @CreatedDate
     private LocalDateTime createdAt;
-
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public void setAddress(String roadAddress) {
+        this.address = Address.builder()
+                .roadAddress(roadAddress)
+                .build();
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 }

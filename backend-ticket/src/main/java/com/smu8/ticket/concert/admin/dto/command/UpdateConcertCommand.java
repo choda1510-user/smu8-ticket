@@ -1,7 +1,7 @@
-package com.smu8.ticket.concert.dto.command;
+package com.smu8.ticket.concert.admin.dto.command;
 
 import com.smu8.ticket.concert.entity.Concert;
-import com.smu8.ticket.concert.http.request.UpdateConcertRequest;
+import com.smu8.ticket.concert.admin.http.request.UpdateConcertRequest;
 import com.smu8.ticket.venue.entity.Venue;
 import lombok.Builder;
 
@@ -9,14 +9,14 @@ import java.time.LocalDateTime;
 
 @Builder
 public record UpdateConcertCommand(
-        String id,
+        Long id,
         String title,
         String description,
         LocalDateTime startAt,
         LocalDateTime endAt,
-        String venueId
+        Long venueId
 ) {
-    public static UpdateConcertCommand from(String id, UpdateConcertRequest request) {
+    public static UpdateConcertCommand from(Long id, UpdateConcertRequest request) {
         return UpdateConcertCommand.builder()
                 .id(id)
                 .title(request.title())

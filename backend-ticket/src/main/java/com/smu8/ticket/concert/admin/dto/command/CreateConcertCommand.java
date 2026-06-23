@@ -1,7 +1,7 @@
-package com.smu8.ticket.concert.dto.command;
+package com.smu8.ticket.concert.admin.dto.command;
 
 import com.smu8.ticket.concert.entity.Concert;
-import com.smu8.ticket.concert.http.request.CreateConcertRequest;
+import com.smu8.ticket.concert.admin.http.request.CreateConcertRequest;
 import com.smu8.ticket.venue.entity.Venue;
 import lombok.Builder;
 
@@ -13,7 +13,7 @@ public record CreateConcertCommand(
         String description,
         LocalDateTime startAt,
         LocalDateTime endAt,
-        String venueId
+        Long venueId
 ) {
     public static CreateConcertCommand from(CreateConcertRequest request) {
         return CreateConcertCommand.builder()
@@ -25,9 +25,8 @@ public record CreateConcertCommand(
                 .build();
     }
 
-    public Concert byId(String id, Venue venue) {
+    public Concert toEntity(Venue venue) {
         return Concert.builder()
-                .id(id)
                 .title(title)
                 .description(description)
                 .startAt(startAt)

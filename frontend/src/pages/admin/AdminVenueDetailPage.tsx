@@ -1,53 +1,53 @@
+import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router";
+import {getAdminVenue, getVenueAddress, removeVenue} from "@/apis/venueApi";
+import type {BackendVenue} from "@/types/venue";
 import "./AdminPages.css";
-
-const venueDetails = [
-    {
-        code: "986532",
-        name: "KSPO DOME",
-        address: "서울특별시 송파구 올림픽로 424",
-        registeredConcert: "AESPA 콘서트",
-    },
-    {
-        code: "986533",
-        name: "고척스카이돔",
-        address: "서울특별시 구로구 경인로 430",
-        registeredConcert: "",
-    },
-    {
-        code: "986534",
-        name: "세종문화회관",
-        address: "서울특별시 종로구 세종대로 175",
-        registeredConcert: "뮤지컬 갈라",
-    },
-    {
-        code: "986535",
-        name: "롯데콘서트홀",
-        address: "서울특별시 송파구 올림픽로 300",
-        registeredConcert: "",
-    },
-    {
-        code: "986536",
-        name: "블루스퀘어",
-        address: "서울특별시 용산구 이태원로 294",
-        registeredConcert: "",
-    },
-];
 
 function AdminVenueDetailPage() {
     const navigate = useNavigate();
-    const {venueId = "986532"} = useParams();
-    const venue = venueDetails.find((item) => item.code === venueId) ?? venueDetails[0];
-    const registeredConcertText = venue.registeredConcert || "없음";
+    const {venueId = ""} = useParams();
+    const venueNumericId = Number(venueId);
+    const [venue, setVenue] = useState<BackendVenue | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
-    const handleDeleteClick = () => {
-        if (venue.registeredConcert) {
-            alert("등록된 공연을 삭제해 주세요");
+    useEffect(() => {
+        if (!venueNumericId) {
+            setErrorMessage("공연장 코드를 확인할 수 없습니다.");
             return;
         }
 
-        alert("공연장이 삭제되었습니다.");
-        navigate("/admin/venues");
+        async function loadVenue() {
+            try {
+                setIsLoading(true);
+                setErrorMessage("");
+                setVenue(await getAdminVenue(venueNumericId));
+            } catch {
+                setErrorMessage("공연장 정보를 불러오지 못했습니다.");
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        void loadVenue();
+    }, [venueNumericId]);
+
+    const handleDeleteClick = async () => {
+        if (!venueNumericId || !confirm("공연장을 삭제하시겠습니까?")) {
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            await removeVenue(venueNumericId);
+            alert("공연장이 삭제되었습니다.");
+            navigate("/admin/venues");
+        } catch {
+            alert("공연장 삭제에 실패했습니다. 이 공연장에 연결된 공연이 있는지 확인해주세요.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -65,27 +65,35 @@ function AdminVenueDetailPage() {
 
             <div className="admin-page__detail-card">
                 <div className="admin-page__detail-actions">
-                    <button type="button" className="admin-page__button" onClick={() => navigate(`/admin/venues/${venueId}/update`)}>
+                    <button type="button" className="admin-page__button" onClick={() => navigate(`/admin/venues/${venueId}/update`)} disabled={!venue || isLoading}>
                         변경
                     </button>
-                    <button type="button" className="admin-page__button admin-page__button--muted" onClick={handleDeleteClick}>
+                    <button type="button" className="admin-page__button admin-page__button--muted" onClick={handleDeleteClick} disabled={!venue || isLoading}>
                         삭제
                     </button>
                 </div>
 
-                <div className="admin-page__info-grid">
-                    <label>공연장 이름</label>
-                    <p>{venue.name}</p>
+                {errorMessage && <p className="admin-page__error-text">{errorMessage}</p>}
 
-                    <label>공연장코드</label>
-                    <p>{venue.code}</p>
+                {isLoading && !venue ? (
+                    <div className="admin-page__empty">불러오는 중입니다.</div>
+                ) : venue ? (
+                    <div className="admin-page__info-grid">
+                        <label>공연장 이름</label>
+                        <p>{venue.name}</p>
 
-                    <label>주소</label>
-                    <p>{venue.address}</p>
+                        <label>공연장코드</label>
+                        <p>{venue.id}</p>
 
-                    <label>현재 등록되어있는 공연</label>
-                    <p>{registeredConcertText}</p>
-                </div>
+                        <label>주소</label>
+                        <p>{getVenueAddress(venue)}</p>
+
+                        <label>건물명</label>
+                        <p>{venue.buildingName || "-"}</p>
+                    </div>
+                ) : (
+                    <div className="admin-page__empty">공연장 정보가 없습니다.</div>
+                )}
 
                 <div className="admin-page__bottom-actions">
                     <button type="button" className="admin-page__button admin-page__button--pink" onClick={() => navigate("/admin/venues")}>

@@ -1,19 +1,13 @@
 package com.smu8.ticket.concert.service;
 
-import com.smu8.ticket.concert.dto.command.CreateConcertCommand;
-import com.smu8.ticket.concert.dto.command.UpdateConcertCommand;
+import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import com.smu8.ticket.concert.dto.result.ConcertDetailResult;
+import com.smu8.ticket.dto.result.PageResult;
 
 import java.util.List;
 
 public interface ConcertService {
-    ConcertDetailResult createConcert(CreateConcertCommand command);
+    PageResult<ConcertDetailResult> getConcerts();
 
-    List<ConcertDetailResult> getConcerts();
-
-    ConcertDetailResult getConcert(String id);
-
-    ConcertDetailResult updateConcert(UpdateConcertCommand command);
-
-    void deleteConcert(String id);
+    ConcertDetailResult getConcert(ConcertDetailQuery query);
 }

@@ -15,7 +15,7 @@ function GlobalConcertSearchPage() {
     const concerts = concertResults.data;
     const venues = venueResults.data;
 
-    const keyword = searchParams.get("q") ?? "";
+    const keyword = searchParams.get("keyword") ?? searchParams.get("q") ?? "";
 
     const handleConcertClick = (concertId: number) => {
         navigate(`/concerts/${concertId}`);
@@ -26,11 +26,11 @@ function GlobalConcertSearchPage() {
     };
 
     const handleMoreConcertClick = () => {
-        navigate(`/search/concerts?q=${encodeURIComponent(keyword)}`);
+        navigate(`/search/concerts?keyword=${encodeURIComponent(keyword)}&page=1`);
     };
 
     const handleMoreVenueClick = () => {
-        navigate(`/search/venues?q=${encodeURIComponent(keyword)}`);
+        navigate(`/search/venues?keyword=${encodeURIComponent(keyword)}&page=1`);
     };
 
     return (

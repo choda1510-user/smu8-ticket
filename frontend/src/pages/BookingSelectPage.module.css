@@ -1,0 +1,229 @@
+.page {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #fff;
+    color: #222;
+    box-sizing: border-box;
+    padding: 54px 40px;
+}
+
+.frame {
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    border: 14px solid #f7f4fa;
+    background-color: #fff;
+    padding: 44px;
+    box-sizing: border-box;
+}
+
+.bookingBox {
+    width: 100%;
+    border: 1px solid #222;
+    background-color: #fff;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.stepBar {
+    height: 68px;
+    display: grid;
+    grid-template-columns: 1fr 42px 1fr 42px 1fr;
+    align-items: center;
+    border-bottom: 1px solid #dedee6;
+    background-color: #fff;
+}
+
+.stepItem {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.activeStepItem {
+    color: #ff5aa5;
+}
+
+.stepDivider {
+    color: #555;
+    font-size: 34px;
+    text-align: center;
+}
+
+.contentArea {
+    display: grid;
+    grid-template-columns: 1fr 270px;
+    min-height: 520px;
+    background-color: #f8f8fb;
+}
+
+.seatArea {
+    padding: 36px 28px;
+    box-sizing: border-box;
+}
+
+.concertInfoRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+}
+
+.concertTitle {
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.dateSelect {
+    height: 26px;
+    border: 1px solid #777;
+    background-color: #fff;
+    color: #222;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.remainingTime {
+    margin-left: auto;
+    color: #ff3333;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.stageArea {
+    height: 56px;
+    border-bottom: 1px solid #9c9ca8;
+    background-color: #f1f1f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9a9aa5;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.seatGrid {
+    display: grid;
+    gap: 18px 18px;
+    justify-content: center;
+    padding: 46px 14px 52px;
+    background-color: #f1f1f4;
+    box-sizing: border-box;
+}
+
+.seatButton {
+    width: 48px;
+    height: 36px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.currentSelectedSeat {
+    outline: 3px solid #ff5aa5;
+    outline-offset: 3px;
+}
+
+.unavailableSeat {
+    border: 1px solid #cfcfd8;
+    background-color: #e5e5ec;
+    cursor: not-allowed;
+}
+
+.sidePanel {
+    border-left: 1px solid #ececf2;
+    background-color: #fff;
+    padding: 28px 22px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.logoBox {
+    height: 74px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    color: #222;
+}
+
+.miniMap {
+    display: grid;
+    gap: 7px;
+    justify-content: center;
+    margin: 0 6px;
+    padding: 22px 8px;
+    background-color: #fafafa;
+    box-sizing: border-box;
+}
+
+.miniSeat {
+    width: 14px;
+    height: 10px;
+    border-radius: 3px;
+    display: block;
+}
+
+.unavailableMiniSeat {
+    border: 1px solid #cfcfd8;
+    background-color: #e5e5ec;
+}
+
+.sideTitle {
+    margin: 28px 0 12px;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.gradeBox {
+    min-height: 128px;
+    margin: 0 6px;
+    border: 1px solid #aaa;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    color: #777;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+.gradeRow {
+    display: grid;
+    grid-template-columns: 10px 38px 74px 32px;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.gradeMark {
+    width: 9px;
+    height: 9px;
+}
+
+.gradePrice {
+    color: #777;
+    font-weight: 700;
+}
+
+.availableCount {
+    color: #aaa;
+    text-decoration: underline;
+}
+
+.completeButton {
+    width: calc(100% - 12px);
+    height: 44px;
+    margin: 22px 6px 0;
+    border: none;
+    background-color: #ffacae;
+    color: #5f3131;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+}

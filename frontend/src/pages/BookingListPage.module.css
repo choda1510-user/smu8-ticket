@@ -1,0 +1,168 @@
+.page {
+    width: 620px;
+    margin: 0 auto;
+    color: #222;
+    box-sizing: border-box;
+}
+
+.pageTitle {
+    margin: 0 0 18px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.contentBox {
+    width: 100%;
+    border: 1px solid #d9d9e3;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+.sectionTitle {
+    margin: 0;
+    height: 34px;
+    padding: 0 26px;
+    border-bottom: 1px solid #e2e2e2;
+    background-color: #eeeeee;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    box-sizing: border-box;
+}
+
+.emptyBox {
+    height: 390px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 13px;
+}
+
+.bookingList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bookingItem {
+    min-height: 142px;
+    display: flex;
+    align-items: center;
+    padding: 16px 26px;
+    border-bottom: 1px solid #eeeeee;
+    box-sizing: border-box;
+}
+
+.posterButton {
+    width: 84px;
+    height: 108px;
+    margin-right: 28px;
+    border: 1px solid #d6d6df;
+    border-radius: 8px;
+    background-color: #ececf3;
+    color: #777;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.posterImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bookingInfoArea {
+    flex: 1;
+}
+
+.concertTitleButton {
+    display: inline-block;
+    margin-bottom: 13px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: #222;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.infoGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 22px;
+    row-gap: 10px;
+}
+
+.infoItem {
+    min-height: 17px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.infoLabel {
+    width: 58px;
+    flex-shrink: 0;
+    color: #555;
+    font-size: 12px;
+}
+
+.infoValue {
+    color: #222;
+    font-size: 12px;
+}
+
+.venueButton {
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: #222;
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.statusArea {
+    width: 86px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.statusText {
+    color: #222;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.detailButton {
+    width: 72px;
+    height: 27px;
+    border: 1px solid #d6d6df;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #222;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.paginationArea {
+    width: 100%;
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+}

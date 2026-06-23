@@ -1,9 +1,10 @@
-import type { CSSProperties, FormEvent, ReactNode } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import {useMyInfoPage} from "@/hooks/useMyInfoPage";
 import type {MyInfoForm} from "@/types/member";
 import {checkNickname, updateAccount} from "@/apis/accountApi.ts";
+import styles from "./MyInfoPage.module.css";
 
 /*
  * 내정보 페이지
@@ -175,27 +176,27 @@ function MyInfoPage() {
         form.newPassword.trim() === form.newPasswordConfirm.trim();
 
     return (
-        <section style={styles.page}>
-            <h1 style={styles.pageTitle}>내정보</h1>
+        <section className={styles.page}>
+            <h1 className={styles.pageTitle}>내정보</h1>
 
-            <form style={styles.formBox} onSubmit={handleSubmit}>
+            <form className={styles.formBox} onSubmit={handleSubmit}>
                 <InfoRow label="아이디">
-                    <span style={styles.idText}>{form.userId}</span>
+                    <span className={styles.idText}>{form.userId}</span>
                 </InfoRow>
 
                 <InfoRow label="닉네임">
-                    <div style={styles.checkArea}>
-                        <div style={styles.inlineControlArea}>
+                    <div className={styles.checkArea}>
+                        <div className={styles.inlineControlArea}>
                             <input
                                 type="text"
                                 value={form.nickname}
                                 onChange={(event) => handleChange("nickname", event.target.value)}
-                                style={styles.input}
+                                className={styles.input}
                             />
 
                             <button
                                 type="button"
-                                style={styles.checkButton}
+                                className={styles.checkButton}
                                 onClick={handleNicknameCheckClick}
                             >
                                 중복확인
@@ -203,10 +204,10 @@ function MyInfoPage() {
                         </div>
 
                         <span
-                            style={{
-                                ...(isNicknameCheckError ? styles.checkErrorText : styles.checkCompleteText),
-                                visibility: nicknameCheckMessage ? "visible" : "hidden",
-                            }}
+                            className={
+                                isNicknameCheckError ? styles.checkErrorText : styles.checkCompleteText}
+                               style={{visibility: nicknameCheckMessage ? "visible" : "hidden"}}
+
                         >
                             {nicknameCheckMessage || "사용 가능한 닉네임입니다."}
                         </span>
@@ -220,49 +221,49 @@ function MyInfoPage() {
                         onChange={(event) =>
                             handleChange("newPassword", event.target.value)
                         }
-                        style={styles.input}
+                        className={styles.input}
                     />
                 </InfoRow>
 
                 <InfoRow label="비밀번호 변경확인">
-                    <div style={styles.inlineControlArea}>
+                    <div className={styles.inlineControlArea}>
                         <input
                             type="password"
                             value={form.newPasswordConfirm}
                             onChange={(event) =>
                                 handleChange("newPasswordConfirm", event.target.value)
                             }
-                            style={styles.input}
+                            className={styles.input}
                         />
 
                         {!isPasswordConfirmEmpty && isPasswordMatched && (
-                            <span style={styles.passwordSuccessText}>일치</span>
+                            <span className={styles.passwordSuccessText}>일치</span>
                         )}
 
                         {!isPasswordConfirmEmpty && !isPasswordMatched && (
-                            <span style={styles.passwordErrorText}>불일치</span>
+                            <span className={styles.passwordErrorText}>불일치</span>
                         )}
                     </div>
                 </InfoRow>
 
-                <div style={styles.buttonArea}>
+                <div className={styles.buttonArea}>
                     <button
                         type="button"
-                        style={styles.previousButton}
+                        className={styles.previousButton}
                         onClick={handlePreviousClick}
                     >
                         이전
                     </button>
 
-                    <button type="submit" style={styles.saveButton} disabled={isSubmitting}>
+                    <button type="submit" className={styles.saveButton} disabled={isSubmitting}>
                         {isSubmitting ? "저장 중..." : "저장"}
                     </button>
                 </div>
 
-                <div style={styles.withdrawArea}>
+                <div className={styles.withdrawArea}>
                     <button
                         type="button"
-                        style={styles.withdrawButton}
+                        className={styles.withdrawButton}
                         onClick={handleWithdrawClick}
                     >
                         회원탈퇴
@@ -280,179 +281,13 @@ type InfoRowProps = {
 
 function InfoRow({ label, children }: InfoRowProps) {
     return (
-        <div style={styles.infoRow}>
-            <label style={styles.label}>{label}</label>
-            <div style={styles.inputArea}>{children}</div>
+        <div className={styles.infoRow}>
+            <label className={styles.label}>{label}</label>
+            <div className={styles.inputArea}>{children}</div>
         </div>
     );
 }
 
-const styles: Record<string, CSSProperties> = {
-    page: {
-        width: "520px",
-        margin: "0 auto",
-        color: "#222",
-        boxSizing: "border-box",
-    },
 
-    pageTitle: {
-        margin: "0 0 34px",
-        paddingBottom: "16px",
-        borderBottom: "1px solid #e2ddea",
-        textAlign: "center",
-        fontSize: "17px",
-        fontWeight: 700,
-    },
-
-    formBox: {
-        width: "100%",
-        padding: "8px 8px 0",
-        boxSizing: "border-box",
-    },
-
-    infoRow: {
-        minHeight: "52px",
-        display: "grid",
-        gridTemplateColumns: "156px 1fr",
-        alignItems: "start",
-        marginBottom: "16px",
-        boxSizing: "border-box",
-    },
-
-    label: {
-        color: "#222",
-        fontSize: "13px",
-        fontWeight: 700,
-        textAlign: "right",
-        paddingTop: "8px",
-        paddingRight: "24px",
-        boxSizing: "border-box",
-        whiteSpace: "nowrap",
-    },
-
-    inputArea: {
-        display: "flex",
-        alignItems: "flex-start",
-        minHeight: "32px",
-    },
-
-    idText: {
-        color: "#222",
-        minHeight: "30px",
-        display: "inline-flex",
-        alignItems: "center",
-        fontSize: "13px",
-        fontWeight: 500,
-    },
-
-    input: {
-        width: "230px",
-        height: "32px",
-        border: "1px solid #d8d2e4",
-        borderRadius: "4px",
-        backgroundColor: "#fff",
-        padding: "0 10px",
-        color: "#222",
-        fontSize: "13px",
-        outline: "none",
-        boxSizing: "border-box",
-    },
-
-    inlineControlArea: {
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-    },
-
-    checkArea: {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        gap: "5px",
-    },
-
-    checkButton: {
-        width: "78px",
-        height: "32px",
-        border: "none",
-        borderRadius: "4px",
-        backgroundColor: "#9a63ff",
-        color: "#fff",
-        fontSize: "12px",
-        fontWeight: 700,
-        cursor: "pointer",
-        whiteSpace: "nowrap",
-    },
-
-    checkCompleteText: {
-        color: "#222",
-        fontSize: "11px",
-        lineHeight: "14px",
-        minHeight: "14px",
-    },
-
-    checkErrorText: {
-        color: "#e55757",
-        fontSize: "11px",
-        lineHeight: "14px",
-        minHeight: "14px",
-    },
-
-    passwordErrorText: {
-        color: "#e55757",
-        fontSize: "12px",
-        fontWeight: 700,
-    },
-
-    passwordSuccessText: {
-        color: "#222",
-        fontSize: "12px",
-        fontWeight: 700,
-    },
-
-    buttonArea: {
-        marginTop: "54px",
-        display: "flex",
-        justifyContent: "center",
-        gap: "64px",
-    },
-
-    previousButton: {
-        padding: 0,
-        border: "none",
-        backgroundColor: "transparent",
-        color: "#d46b6b",
-        fontSize: "14px",
-        fontWeight: 700,
-        cursor: "pointer",
-    },
-
-    saveButton: {
-        padding: 0,
-        border: "none",
-        backgroundColor: "transparent",
-        color: "#d46b6b",
-        fontSize: "14px",
-        fontWeight: 700,
-        cursor: "pointer",
-    },
-
-    withdrawArea: {
-        marginTop: "34px",
-        display: "flex",
-        justifyContent: "center",
-    },
-
-    withdrawButton: {
-        padding: 0,
-        border: "none",
-        backgroundColor: "transparent",
-        color: "#777",
-        fontSize: "12px",
-        textDecoration: "underline",
-        textUnderlineOffset: "3px",
-        cursor: "pointer",
-    },
-};
 
 export default MyInfoPage;

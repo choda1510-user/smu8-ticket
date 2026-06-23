@@ -1,0 +1,200 @@
+.page {
+    width: 720px;
+    margin: 0 auto;
+    color: #222;
+    box-sizing: border-box;
+    padding-bottom: 80px;
+}
+
+.pageTitle {
+    margin: 0 0 18px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.bannerSection {
+    width: 100%;
+    height: 210px;
+    border: 1px solid #d9d9e3;
+    border-radius: 4px;
+    background-color: #fff;
+    display: grid;
+    grid-template-columns: 48px 1fr 48px;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.bannerArrowButton {
+    width: 48px;
+    height: 100%;
+    border: none;
+    background-color: transparent;
+    color: #b8b8c8;
+    font-size: 34px;
+    cursor: pointer;
+}
+
+.bannerBox {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 18px;
+    font-weight: 500;
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    cursor: pointer;
+}
+
+.hiddenBannerBox {
+    opacity: 0;
+    transform: translateX(10px);
+}
+
+.bannerImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bannerIndicatorArea {
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 34px;
+}
+
+.bannerIndicator {
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: #d9d9e3;
+    cursor: pointer;
+}
+
+.activeBannerIndicator {
+    background-color: #9a63ff;
+}
+
+.concertSection {
+    width: 100%;
+    margin-bottom: 58px;
+}
+
+.sectionHeader {
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+}
+
+.sectionTitle {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.moreButton {
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: #222;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.cardList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    column-gap: 28px;
+}
+
+.cardItem {
+    min-width: 0;
+}
+
+.concertCard {
+    width: 100%;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.posterBox {
+    width: 100%;
+    height: 240px;
+    border: 1px solid #d6d6df;
+    border-radius: 6px;
+    background-color: #ececf3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 13px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.posterImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cardInfo {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cardTitle {
+    color: #222;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.cardPeriodLabel {
+    color: #999;
+    font-size: 11px;
+}
+
+.cardPeriod {
+    color: #777;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.cardBadge {
+    margin-top: 2px;
+    color: #ff4f9a;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.emptyBox {
+    height: 240px;
+    border: 1px solid #d9d9e3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 13px;
+}

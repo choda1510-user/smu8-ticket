@@ -1,7 +1,8 @@
-import type { CSSProperties, FormEvent, ReactNode } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import {checkLoginId, checkNickname, signUp} from "@/apis/accountApi.ts";
+import styles from "./SignUpPage.module.css"
 
 /*
  * 회원가입 페이지
@@ -206,30 +207,30 @@ function SignUpPage() {
         form.password.trim() === form.passwordConfirm.trim();
 
     return (
-        <section style={styles.page}>
-            <div style={styles.signUpBox}>
-                <button type="button" style={styles.logoButton} onClick={handleLogoClick}>
+        <section className={styles.page}>
+            <div className={styles.signUpBox}>
+                <button type="button" className={styles.logoButton} onClick={handleLogoClick}>
                     SM
                 </button>
 
-                <h1 style={styles.pageTitle}>회원가입</h1>
+                <h1 className={styles.pageTitle}>회원가입</h1>
 
-                <form style={styles.formBox} onSubmit={handleSubmit}>
+                <form className={styles.formBox} onSubmit={handleSubmit}>
                     <FormRow label="아이디">
-                        <div style={styles.checkArea}>
-                            <div style={styles.inlineArea}>
+                        <div className={styles.checkArea}>
+                            <div className={styles.inlineArea}>
                                 <input
                                     type="text"
                                     value={form.loginId}
                                     onChange={(event) =>
                                         handleChange("loginId", event.target.value)
                                     }
-                                    style={styles.input}
+                                    className={styles.input}
                                 />
 
                                 <button
                                     type="button"
-                                    style={styles.checkButton}
+                                    className={styles.checkButton}
                                     onClick={handleLoginIdCheckClick}
                                 >
                                     중복확인
@@ -237,9 +238,8 @@ function SignUpPage() {
                             </div>
 
                             <span
-                                style={{
-                                    ...(loginIdCheckStatus === "error" ? styles.checkErrorText : styles.checkCompleteText),
-                                    visibility: loginIdCheckMessage ? "visible" : "hidden",
+                                className={loginIdCheckStatus === "error" ? styles.checkErrorText : styles.checkCompleteText}
+                                    style={{visibility: loginIdCheckMessage ? "visible" : "hidden",
                                 }}
                             >
                                 {loginIdCheckMessage || "사용 가능한 아이디입니다."}
@@ -248,20 +248,20 @@ function SignUpPage() {
                     </FormRow>
 
                     <FormRow label="닉네임">
-                        <div style={styles.checkArea}>
-                            <div style={styles.inlineArea}>
+                        <div className={styles.checkArea}>
+                            <div className={styles.inlineArea}>
                                 <input
                                     type="text"
                                     value={form.nickname}
                                     onChange={(event) =>
                                         handleChange("nickname", event.target.value)
                                     }
-                                    style={styles.input}
+                                    className={styles.input}
                                 />
 
                                 <button
                                     type="button"
-                                    style={styles.checkButton}
+                                    className={styles.checkButton}
                                     onClick={handleNicknameCheckClick}
                                 >
                                     중복확인
@@ -269,8 +269,9 @@ function SignUpPage() {
                             </div>
 
                             <span
-                                style={{
-                                    ...(nicknameCheckStatus === "error" ? styles.checkErrorText : styles.checkCompleteText),
+                                className={
+                                    nicknameCheckStatus === "error" ? styles.checkErrorText : styles.checkCompleteText}
+                                    style={{
                                     visibility: nicknameCheckMessage ? "visible" : "hidden",
                                 }}
                             >
@@ -286,43 +287,43 @@ function SignUpPage() {
                             onChange={(event) =>
                                 handleChange("password", event.target.value)
                             }
-                            style={styles.input}
+                            className={styles.input}
                         />
                     </FormRow>
 
                     <FormRow label="비밀번호 확인">
-                        <div style={styles.inlineArea}>
+                        <div className={styles.inlineArea}>
                             <input
                                 type="password"
                                 value={form.passwordConfirm}
                                 onChange={(event) =>
                                     handleChange("passwordConfirm", event.target.value)
                                 }
-                                style={styles.input}
+                                className={styles.input}
                             />
 
                             {!isPasswordConfirmEmpty && isPasswordMatched && (
-                                <span style={styles.passwordSuccessText}>일치</span>
+                                <span className={styles.passwordSuccessText}>일치</span>
                             )}
 
                             {!isPasswordConfirmEmpty && !isPasswordMatched && (
-                                <span style={styles.passwordErrorText}>불일치</span>
+                                <span className={styles.passwordErrorText}>불일치</span>
                             )}
                         </div>
                     </FormRow>
 
-                    <div style={styles.buttonArea}>
-                        <button type="submit" style={styles.signUpButton} disabled={isSubmitting}>
+                    <div className={styles.buttonArea}>
+                        <button type="submit" className={styles.signUpButton} disabled={isSubmitting}>
                             {isSubmitting ? "가입 중..." : "가입하기"}
                         </button>
                     </div>
 
-                    <div style={styles.loginGuideArea}>
-                        <span style={styles.loginGuideText}>이미 계정이 있으신가요?</span>
+                    <div className={styles.loginGuideArea}>
+                        <span className={styles.loginGuideText}>이미 계정이 있으신가요?</span>
 
                         <button
                             type="button"
-                            style={styles.loginButton}
+                            className={styles.loginButton}
                             onClick={handleLoginClick}
                         >
                             로그인
@@ -341,180 +342,12 @@ type FormRowProps = {
 
 function FormRow({ label, children }: FormRowProps) {
     return (
-        <div style={styles.formRow}>
-            <label style={styles.label}>{label}</label>
-            <div style={styles.inputArea}>{children}</div>
+        <div className={styles.formRow}>
+            <label className={styles.label}>{label}</label>
+            <div className={styles.inputArea}>{children}</div>
         </div>
     );
 }
 
-const styles: Record<string, CSSProperties> = {
-    page: {
-        width: "720px",
-        minHeight: "620px",
-        margin: "0 auto",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        color: "#222",
-        boxSizing: "border-box",
-    },
-
-    signUpBox: {
-        width: "500px",
-        minHeight: "500px",
-        border: "1px solid #d9d9e3",
-        borderRadius: "4px",
-        backgroundColor: "#fff",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "42px 0 38px",
-        boxSizing: "border-box",
-    },
-
-    logoButton: {
-        width: "54px",
-        height: "54px",
-        marginBottom: "20px",
-        border: "none",
-        backgroundColor: "transparent",
-        color: "#222",
-        fontSize: "28px",
-        fontWeight: 500,
-        cursor: "pointer",
-    },
-
-    pageTitle: {
-        margin: "0 0 38px",
-        fontSize: "18px",
-        fontWeight: 700,
-    },
-
-    formBox: {
-        width: "390px",
-    },
-
-    formRow: {
-        minHeight: "42px",
-        display: "grid",
-        gridTemplateColumns: "110px 1fr",
-        alignItems: "start",
-        marginBottom: "14px",
-        boxSizing: "border-box",
-    },
-
-    label: {
-        color: "#222",
-        fontSize: "13px",
-        fontWeight: 700,
-        paddingTop: "7px",
-    },
-
-    inputArea: {
-        display: "flex",
-        alignItems: "flex-start",
-        minHeight: "30px",
-    },
-
-    input: {
-        width: "180px",
-        height: "28px",
-        border: "1px solid #aaa",
-        backgroundColor: "#fff",
-        padding: "0 8px",
-        color: "#222",
-        fontSize: "12px",
-        outline: "none",
-        boxSizing: "border-box",
-    },
-
-    inlineArea: {
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-    },
-
-    checkArea: {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        gap: "5px",
-    },
-
-    checkButton: {
-        width: "64px",
-        height: "28px",
-        border: "none",
-        borderRadius: "4px",
-        backgroundColor: "#9a63ff",
-        color: "#fff",
-        fontSize: "11px",
-        cursor: "pointer",
-    },
-
-    checkCompleteText: {
-        color: "#222",
-        fontSize: "11px",
-        lineHeight: "14px",
-        minHeight: "14px",
-    },
-
-    checkErrorText: {
-        color: "#e55757",
-        fontSize: "11px",
-        lineHeight: "14px",
-        minHeight: "14px",
-    },
-
-    passwordErrorText: {
-        color: "#e55757",
-        fontSize: "11px",
-    },
-
-    passwordSuccessText: {
-        color: "#222",
-        fontSize: "11px",
-    },
-
-    buttonArea: {
-        marginTop: "52px",
-        display: "flex",
-        justifyContent: "center",
-    },
-
-    signUpButton: {
-        padding: 0,
-        border: "none",
-        backgroundColor: "transparent",
-        color: "#d46b6b",
-        fontSize: "13px",
-        cursor: "pointer",
-    },
-
-    loginGuideArea: {
-        marginTop: "28px",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: "8px",
-    },
-
-    loginGuideText: {
-        color: "#777",
-        fontSize: "12px",
-    },
-
-    loginButton: {
-        padding: 0,
-        border: "none",
-        backgroundColor: "transparent",
-        color: "#222",
-        fontSize: "12px",
-        textDecoration: "underline",
-        textUnderlineOffset: "3px",
-        cursor: "pointer",
-    },
-};
 
 export default SignUpPage;

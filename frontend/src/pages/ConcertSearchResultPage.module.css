@@ -1,0 +1,123 @@
+.page {
+    width: 720px;
+    margin: 0 auto;
+    color: #222;
+    box-sizing: border-box;
+}
+
+.resultCountArea {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #777;
+    box-sizing: border-box;
+}
+
+.resultCountText {
+    color: #222;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.concertList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.concertItem {
+    min-height: 160px;
+    display: grid;
+    grid-template-columns: 110px 1.5fr 1fr 1fr 70px;
+    align-items: center;
+    column-gap: 28px;
+    border-bottom: 1px solid #777;
+    box-sizing: border-box;
+}
+
+.posterButton {
+    width: 82px;
+    height: 122px;
+    border: 1px solid #777;
+    background-color: #fff;
+    color: #555;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.posterImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.concertTitleButton {
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: #222;
+    font-size: 17px;
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.periodArea {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.periodText {
+    color: #222;
+    font-size: 13px;
+    line-height: 1.35;
+    white-space: pre-line;
+}
+
+.venueArea {
+    display: flex;
+    justify-content: center;
+}
+
+.venueButton {
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: #ff4f7f;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.badgeArea {
+    display: flex;
+    justify-content: center;
+}
+
+.badge {
+    color: #222;
+    font-size: 12px;
+}
+
+.emptyBox {
+    min-height: 220px;
+    border-bottom: 1px solid #777;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 14px;
+}
+
+.paginationArea {
+    width: 100%;
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+}

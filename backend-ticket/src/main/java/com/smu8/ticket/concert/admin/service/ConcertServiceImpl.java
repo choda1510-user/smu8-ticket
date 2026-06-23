@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
+@Service("adminConcertServiceImpl")
 @RequiredArgsConstructor
 public class ConcertServiceImpl implements ConcertService {
     private final ConcertRepository concertRepository;

@@ -2,7 +2,7 @@ package com.smu8.ticket.concert.admin;
 
 import com.smu8.ticket.authentication.Authority;
 import com.smu8.ticket.concert.entity.Concert;
-import com.smu8.ticket.concert.admin.repository.ConcertRepository;
+import com.smu8.ticket.concert.repository.ConcertRepository;
 import com.smu8.ticket.venue.entity.Address;
 import com.smu8.ticket.venue.entity.Venue;
 import com.smu8.ticket.venue.repository.VenueRepository;

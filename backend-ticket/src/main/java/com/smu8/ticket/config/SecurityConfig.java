@@ -140,6 +140,7 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/api/account/check-username").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/account/check-nickname").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/concerts/**").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/venues/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/test").permitAll()
                             .anyRequest().authenticated();
                 })

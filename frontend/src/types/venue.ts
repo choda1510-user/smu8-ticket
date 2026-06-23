@@ -16,3 +16,28 @@ export type VenueResult = {
 
 export type VenueSearchResultResponse = ListResponse<VenueSearchResult>;
 export type VenueResultResponse = ListResponse<VenueResult>;
+
+export type BackendVenue = {
+    id: number;
+    name: string;
+    zoneNo: string;
+    roadAddress: string;
+    jibunAddress: string;
+    detailAddress: string;
+    buildingName: string;
+    createdAt?: string;
+    updatedAt?: string;
+};
+
+export type BackendVenueListResponse = {
+    venues: BackendVenue[];
+};
+
+export type AdminVenueRequest = {
+    name: string;
+    zoneNo: string;
+    roadAddress: string;
+    jibunAddress: string;
+    detailAddress: string;
+    buildingName: string;
+};

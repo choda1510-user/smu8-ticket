@@ -43,4 +43,8 @@ public class Venue {
                 .roadAddress(roadAddress)
                 .build();
     }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 }

@@ -2,6 +2,8 @@ import {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router";
 import DatePicker from "react-datepicker";
 import {format} from "date-fns";
+import {addConcert} from "@/apis/concertApi";
+import {getAdminVenueList, getVenueAddress} from "@/apis/venueApi";
 import "react-datepicker/dist/react-datepicker.css";
 import "./AdminPages.css";
 
@@ -24,13 +26,6 @@ type SeatType = {
     price: string;
     color: string;
 };
-
-const venueOptions: VenueOption[] = [
-    {code: "986532", name: "KSPO DOME", address: "서울특별시 송파구 올림픽로 424"},
-    {code: "986533", name: "고척스카이돔", address: "서울특별시 구로구 경인로 430"},
-    {code: "986534", name: "세종문화회관", address: "서울특별시 종로구 세종대로 175"},
-    {code: "986535", name: "롯데콘서트홀", address: "서울특별시 송파구 올림픽로 300"},
-];
 
 const colorPalette = ["#8f52ff", "#e86fa7", "#2f80ed", "#12b76a", "#f79009", "#6172f3", "#ef4444"];
 const initialSeatGrid = Array.from({length: 6}, () => Array.from({length: 8}, () => ""));
@@ -57,7 +52,10 @@ function AdminConcertCreatePage() {
     const [openedCalendar, setOpenedCalendar] = useState<"concert" | "reservationStart" | "reservationEnd" | null>(null);
     const [schedules, setSchedules] = useState<ConcertSchedule[]>([]);
     const [venue, setVenue] = useState<VenueOption | null>(null);
+    const [venueOptions, setVenueOptions] = useState<VenueOption[]>([]);
+    const [venueCodeInput, setVenueCodeInput] = useState("");
     const [isVenueModalOpen, setIsVenueModalOpen] = useState(false);
+    const [venueLoadError, setVenueLoadError] = useState("");
     const [cardPosterName, setCardPosterName] = useState("");
     const [screenPosterName, setScreenPosterName] = useState("");
     const [notice, setNotice] = useState("");
@@ -113,6 +111,24 @@ function AdminConcertCreatePage() {
         window.addEventListener("keydown", handleKeyDown);
 
         return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
+
+    useEffect(() => {
+        async function loadVenues() {
+            try {
+                setVenueLoadError("");
+                const venues = await getAdminVenueList();
+                setVenueOptions(venues.map((item) => ({
+                    code: String(item.id),
+                    name: item.name,
+                    address: getVenueAddress(item),
+                })));
+            } catch {
+                setVenueLoadError("공연장 목록을 불러오지 못했습니다.");
+            }
+        }
+
+        void loadVenues();
     }, []);
 
     const handleScheduleAddClick = () => {
@@ -301,9 +317,34 @@ function AdminConcertCreatePage() {
         return seatTypes.find((type) => type.id === seatTypeId)?.color;
     };
 
-    const handleRegisterClick = () => {
-        alert("공연 등록 화면 설계 초안입니다. DB 연결 후 실제 저장 API와 연결하면 됩니다.");
-        navigate("/admin/concerts");
+    const handleRegisterClick = async () => {
+        const firstSchedule = schedules[0];
+        const parsedVenueId = Number(venueCodeInput || venue?.code);
+        const runningMinutes = Number(duration.replace(/[^0-9]/g, ""));
+
+        if (!title.trim() || !description.trim() || !firstSchedule || !parsedVenueId) {
+            alert("공연명, 작품설명, 공연일시, 공연장을 모두 입력해주세요.");
+            return;
+        }
+
+        const startDate = firstSchedule.concertDateTime;
+        const endDate = new Date(startDate);
+        endDate.setMinutes(endDate.getMinutes() + (runningMinutes || 120));
+
+        try {
+            await addConcert({
+                title: title.trim(),
+                description: description.trim(),
+                startAt: format(startDate, "yyyy-MM-dd'T'HH:mm:ss"),
+                endAt: format(endDate, "yyyy-MM-dd'T'HH:mm:ss"),
+                venueId: parsedVenueId,
+            });
+
+            alert("공연이 등록되었습니다.");
+            navigate("/admin/concerts");
+        } catch {
+            alert("공연 등록에 실패했습니다. 공연장 코드가 DB의 공연장 id와 맞는지 확인해주세요.");
+        }
     };
 
     return (
@@ -446,6 +487,13 @@ function AdminConcertCreatePage() {
                             <input readOnly value={venue ? `${venue.name} (${venue.code})` : ""} />
                             <button type="button" className="admin-page__button admin-page__button--compact" onClick={() => setIsVenueModalOpen(true)}>찾기</button>
                         </div>
+
+                        <label>공연장 코드</label>
+                        <input
+                            value={venueCodeInput}
+                            onChange={(event) => setVenueCodeInput(event.target.value.replace(/[^0-9]/g, ""))}
+                            placeholder="DB에 저장된 공연장 id"
+                        />
 
                         <label>공연 포스터</label>
                         <div className="admin-page__image-inputs">
@@ -658,6 +706,16 @@ function AdminConcertCreatePage() {
                             </tr>
                             </thead>
                             <tbody>
+                            {venueLoadError && (
+                                <tr>
+                                    <td colSpan={3}>{venueLoadError}</td>
+                                </tr>
+                            )}
+                            {!venueLoadError && venueOptions.length === 0 && (
+                                <tr>
+                                    <td colSpan={3}>등록된 공연장이 없습니다.</td>
+                                </tr>
+                            )}
                             {venueOptions.map((option) => (
                                 <tr key={option.code}>
                                     <td>{option.code}</td>
@@ -667,6 +725,7 @@ function AdminConcertCreatePage() {
                                             className="admin-page__link-button"
                                             onClick={() => {
                                                 setVenue(option);
+                                                setVenueCodeInput(option.code);
                                                 setIsVenueModalOpen(false);
                                             }}
                                         >

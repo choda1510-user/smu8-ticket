@@ -1,0 +1,76 @@
+package com.smu8.ticket.venue.admin.controller;
+
+import com.smu8.ticket.venue.admin.dto.command.CreateVenueCommand;
+import com.smu8.ticket.venue.admin.dto.command.UpdateVenueCommand;
+import com.smu8.ticket.venue.admin.dto.result.VenueDetailResult;
+import com.smu8.ticket.venue.admin.http.request.CreateVenueRequest;
+import com.smu8.ticket.venue.admin.http.request.UpdateVenueRequest;
+import com.smu8.ticket.venue.admin.http.response.VenueDetailResponse;
+import com.smu8.ticket.venue.admin.http.response.VenueListResponse;
+import com.smu8.ticket.venue.admin.service.VenueService;
+import com.smu8.ticket.venue.dto.query.VenueDetailQuery;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
+
+@RestController
+@RequiredArgsConstructor
+public class AdminVenueController {
+    private final VenueService venueService;
+
+    @PostMapping("/api/admin/venues")
+    public ResponseEntity<VenueDetailResponse> createVenue(
+            @RequestBody CreateVenueRequest request
+    ) {
+        VenueDetailResult result = venueService.createVenue(CreateVenueCommand.builder()
+                .name(request.name())
+                .zoneNo(request.zoneNo())
+                .roadAddress(request.roadAddress())
+                .jibunAddress(request.jibunAddress())
+                .detailAddress(request.detailAddress())
+                .buildingName(request.buildingName())
+                .build());
+
+        return ResponseEntity
+                .created(URI.create("/api/admin/venues/" + result.id()))
+                .body(VenueDetailResponse.from(result));
+    }
+
+    @GetMapping("/api/admin/venues")
+    public ResponseEntity<VenueListResponse> getVenues() {
+        return ResponseEntity.ok(VenueListResponse.from(venueService.getVenues()));
+    }
+
+    @GetMapping("/api/admin/venues/{id}")
+    public ResponseEntity<VenueDetailResponse> getVenue(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(VenueDetailResponse.from(venueService.getVenue(VenueDetailQuery.builder()
+                .id(id)
+                .build())));
+    }
+
+    @PatchMapping("/api/admin/venues/{id}")
+    public ResponseEntity<VenueDetailResponse> updateVenue(
+            @PathVariable Long id,
+            @RequestBody UpdateVenueRequest request
+    ) {
+        return ResponseEntity.ok(VenueDetailResponse.from(venueService.updateVenue(UpdateVenueCommand.from(id, request))));
+    }
+
+    @DeleteMapping("/api/admin/venues/{id}")
+    public ResponseEntity<Void> deleteVenue(
+            @PathVariable Long id
+    ) {
+        venueService.deleteVenue(id);
+        return ResponseEntity.noContent().build();
+    }
+}

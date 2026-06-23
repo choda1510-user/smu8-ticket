@@ -22,6 +22,20 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/static/{*path}").addResourceLocations("classpath:/static/");
         registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/static/swagger-ui/");
     }
+    @Profile("local")
+    @Bean
+    public WebMvcConfigurer corsLocalConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(@NonNull CorsRegistry registry) {
+                registry.addMapping("/api/**")
+                        .allowedOrigins("http://localhost:5173", "http://localhost:80", "http://localhost", "http://192.168.0.6:80", "http://192.168.0.6")
+                        .allowedHeaders("Content-Type", "Authorization")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
+                        .allowCredentials(true);
+            }
+        };
+    }
     @Profile("dev")
     @Bean
     public WebMvcConfigurer corsDevConfigurer() {

@@ -11,9 +11,9 @@ public interface ConcertService {
 
     List<ConcertDetailResult> getConcerts();
 
-    ConcertDetailResult getConcert(String id);
+    ConcertDetailResult getConcert(Long id);
 
     ConcertDetailResult updateConcert(UpdateConcertCommand command);
 
-    void deleteConcert(String id);
+    void deleteConcert(Long id);
 }

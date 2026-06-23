@@ -7,12 +7,12 @@ import java.time.LocalDateTime;
 
 @Builder
 public record ConcertDetailResponse(
-        String id,
+        Long id,
         String title,
         String description,
         LocalDateTime startAt,
         LocalDateTime endAt,
-        String venueId,
+        Long venueId,
         String venueName,
         LocalDateTime createdAt,
         LocalDateTime updatedAt

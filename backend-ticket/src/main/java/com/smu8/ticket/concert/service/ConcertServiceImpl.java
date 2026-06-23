@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +22,7 @@ public class ConcertServiceImpl implements ConcertService {
     @Override
     public ConcertDetailResult createConcert(CreateConcertCommand command) {
         Venue venue = getVenueById(command.venueId());
-        Concert concert = command.byId(UUID.randomUUID().toString(), venue);
+        Concert concert = command.toEntity(venue);
         return ConcertDetailResult.from(concertRepository.save(concert));
     }
 
@@ -37,7 +36,7 @@ public class ConcertServiceImpl implements ConcertService {
 
     @Override
     @Transactional(readOnly = true)
-    public ConcertDetailResult getConcert(String id) {
+    public ConcertDetailResult getConcert(Long id) {
         return ConcertDetailResult.from(getById(id));
     }
 
@@ -51,15 +50,15 @@ public class ConcertServiceImpl implements ConcertService {
     }
 
     @Override
-    public void deleteConcert(String id) {
+    public void deleteConcert(Long id) {
         concertRepository.delete(getById(id));
     }
 
-    private Concert getById(String id) {
+    private Concert getById(Long id) {
         return concertRepository.findById(id).orElseThrow();
     }
 
-    private Venue getVenueById(String venueId) {
+    private Venue getVenueById(Long venueId) {
         return venueRepository.findById(venueId).orElseThrow();
     }
 }

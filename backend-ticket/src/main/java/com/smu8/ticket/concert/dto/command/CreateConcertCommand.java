@@ -13,7 +13,7 @@ public record CreateConcertCommand(
         String description,
         LocalDateTime startAt,
         LocalDateTime endAt,
-        String venueId
+        Long venueId
 ) {
     public static CreateConcertCommand from(CreateConcertRequest request) {
         return CreateConcertCommand.builder()
@@ -25,9 +25,8 @@ public record CreateConcertCommand(
                 .build();
     }
 
-    public Concert byId(String id, Venue venue) {
+    public Concert toEntity(Venue venue) {
         return Concert.builder()
-                .id(id)
                 .title(title)
                 .description(description)
                 .startAt(startAt)

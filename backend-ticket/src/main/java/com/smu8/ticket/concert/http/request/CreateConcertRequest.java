@@ -7,6 +7,6 @@ public record CreateConcertRequest(
         String description,
         LocalDateTime startAt,
         LocalDateTime endAt,
-        String venueId
+        Long venueId
 ) {
 }

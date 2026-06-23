@@ -1,5 +1,6 @@
 package com.smu8.ticket.concert.service;
 
+import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import com.smu8.ticket.concert.dto.result.ConcertDetailResult;
 import com.smu8.ticket.concert.entity.Concert;
 import com.smu8.ticket.concert.repository.UserConcertRepository;
@@ -24,8 +25,8 @@ public class ConcertServiceImpl implements ConcertService {
 
     @Override
     @Transactional(readOnly = true)
-    public ConcertDetailResult getConcert(Long id) {
-        return ConcertDetailResult.from(getById(id));
+    public ConcertDetailResult getConcert(ConcertDetailQuery query) {
+        return ConcertDetailResult.from(getById(query.id()));
     }
 
     private Concert getById(Long id) {

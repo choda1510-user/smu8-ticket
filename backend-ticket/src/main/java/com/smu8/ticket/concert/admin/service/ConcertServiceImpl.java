@@ -4,6 +4,7 @@ import com.smu8.ticket.concert.admin.dto.command.CreateConcertCommand;
 import com.smu8.ticket.concert.admin.dto.command.UpdateConcertCommand;
 import com.smu8.ticket.concert.admin.dto.result.ConcertDetailResult;
 import com.smu8.ticket.concert.admin.repository.ConcertRepository;
+import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import com.smu8.ticket.concert.entity.Concert;
 import com.smu8.ticket.venue.entity.Venue;
 import com.smu8.ticket.venue.repository.VenueRepository;
@@ -38,8 +39,8 @@ public class ConcertServiceImpl implements ConcertService {
 
     @Override
     @Transactional(readOnly = true)
-    public ConcertDetailResult getConcert(Long id) {
-        return ConcertDetailResult.from(getById(id));
+    public ConcertDetailResult getConcert(ConcertDetailQuery query) {
+        return ConcertDetailResult.from(getById(query.id()));
     }
 
 

@@ -8,6 +8,7 @@ import com.smu8.ticket.concert.admin.http.request.UpdateConcertRequest;
 import com.smu8.ticket.concert.admin.http.response.ConcertDetailResponse;
 import com.smu8.ticket.concert.admin.http.response.ConcertListResponse;
 import com.smu8.ticket.concert.admin.service.ConcertService;
+import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,7 +45,7 @@ public class AdminConcertController {
     public ResponseEntity<ConcertDetailResponse> getConcert(
             @PathVariable Long id
     ) {
-        return ResponseEntity.ok(ConcertDetailResponse.from(concertService.getConcert(id)));
+        return ResponseEntity.ok(ConcertDetailResponse.from(concertService.getConcert(ConcertDetailQuery.builder().id(id).build())));
     }
 
     @PatchMapping("/api/admin/concerts/{id}")

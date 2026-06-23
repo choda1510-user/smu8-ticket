@@ -1,5 +1,6 @@
 package com.smu8.ticket.concert.controller;
 
+import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import com.smu8.ticket.concert.http.response.ConcertDetailResponse;
 import com.smu8.ticket.concert.http.response.ConcertListResponse;
 import com.smu8.ticket.concert.service.ConcertService;
@@ -23,6 +24,8 @@ public class ConcertController {
     public ResponseEntity<ConcertDetailResponse> getConcert(
             @PathVariable Long id
     ) {
-        return ResponseEntity.ok(ConcertDetailResponse.from(concertService.getConcert(id)));
+        return ResponseEntity.ok(ConcertDetailResponse.from(concertService.getConcert(ConcertDetailQuery.builder()
+                .id(id)
+                .build())));
     }
 }

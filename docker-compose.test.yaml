@@ -18,6 +18,8 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
     networks:
       - smu8-ticket-network
   database:

@@ -3,7 +3,7 @@ package com.smu8.ticket.concert.service;
 import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import com.smu8.ticket.concert.dto.result.ConcertDetailResult;
 import com.smu8.ticket.concert.entity.Concert;
-import com.smu8.ticket.concert.repository.UserConcertRepository;
+import com.smu8.ticket.concert.repository.ConcertRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ConcertServiceImpl implements ConcertService {
-    private final UserConcertRepository concertRepository;
+    private final ConcertRepository concertRepository;
 
     @Override
     @Transactional(readOnly = true)

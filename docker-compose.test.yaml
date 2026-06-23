@@ -19,7 +19,7 @@ services:
       database:
         condition: service_healthy
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_PROFILES_ACTIVE=test
     networks:
       - smu8-ticket-network
   database:

@@ -7,7 +7,7 @@ FROM node:24 AS build
 WORKDIR /frontend
 COPY --from=install /frontend /frontend
 COPY . .
-RUN npm run build
+RUN npm run build --mode test
 
 FROM nginx:alpine
 RUN sed -i'' -re "/location \/ \{/a\try_files \$uri \$uri/ /index.html;" /etc/nginx/conf.d/default.conf

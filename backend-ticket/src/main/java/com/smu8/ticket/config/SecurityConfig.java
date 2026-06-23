@@ -139,6 +139,7 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.POST, "/api/account/admin").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/account/check-username").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/account/check-nickname").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/concerts/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/test").permitAll()
                             .anyRequest().authenticated();
                 })

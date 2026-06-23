@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class Concert {
     @Id
-    private String id;
+    private Long id;
 
     @Column(nullable = false)
     private String title;

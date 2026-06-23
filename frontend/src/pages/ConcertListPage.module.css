@@ -1,0 +1,176 @@
+.page {
+    width: 720px;
+    margin: 0 auto;
+    color: #222;
+    box-sizing: border-box;
+}
+
+.categoryBox {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.tabMenu {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    border-bottom: 1px solid #e0e0e0;
+    box-sizing: border-box;
+}
+
+.tabButton {
+    padding: 0 4px;
+    height: 44px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background-color: transparent;
+    color: #777;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.activeTabButton {
+    color: #222;
+    border-bottom: 2px solid #222;
+    font-weight: 600;
+}
+
+.categoryTitle {
+    margin: 24px 0 18px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.section {
+    width: 100%;
+    margin-bottom: 34px;
+}
+
+.sectionHeader {
+    height: 34px;
+    border-bottom: 1px solid #777;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.sectionTitle {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.moreButton {
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: #222;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.concertList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.concertItem {
+    min-height: 158px;
+    display: grid;
+    grid-template-columns: 110px 1.5fr 1fr 1fr 70px;
+    align-items: center;
+    column-gap: 28px;
+    border-bottom: 1px solid #777;
+    box-sizing: border-box;
+}
+
+.posterButton {
+    width: 80px;
+    height: 120px;
+    border: 1px solid #777;
+    background-color: #fff;
+    color: #555;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.posterImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.concertTitleButton {
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: #222;
+    font-size: 17px;
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.periodArea {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.smallLabel {
+    color: #222;
+    font-size: 11px;
+}
+
+.periodText {
+    color: #222;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.venueArea {
+    display: flex;
+    justify-content: center;
+}
+
+.venueName {
+    color: #222;
+    font-size: 14px;
+}
+
+.badgeArea {
+    display: flex;
+    justify-content: center;
+}
+
+.badge {
+    color: #222;
+    font-size: 12px;
+}
+
+.emptyBox {
+    min-height: 150px;
+    border-bottom: 1px solid #777;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 14px;
+}
+
+.paginationArea {
+    width: 100%;
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+}

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +25,14 @@ public class ConcertServiceImpl implements ConcertService {
 
     @Override
     @Transactional(readOnly = true)
-    public ConcertDetailResult getConcert(Long id) {
+    public ConcertDetailResult getConcert(String id) {
         return ConcertDetailResult.from(getById(id));
     }
 
     private Concert getById(Long id) {
         return concertRepository.findById(id).orElseThrow();
+    }
+    private Venue getVenueById(String venueId) {
+        return venueRepository.findById(venueId).orElseThrow();
     }
 }

@@ -134,7 +134,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> {
                     authorize
                             .requestMatchers(HttpMethod.POST, "/api/logout").hasAuthority(Authority.ACCESS_TOKEN.toString())
-                            .requestMatchers(HttpMethod.POST, "/api/admin/venues").hasAuthority(Authority.ADMIN.toString())
+                            .requestMatchers("/api/admin/**").hasAuthority(Authority.ADMIN.toString())
                             .requestMatchers(HttpMethod.POST, "/api/account").permitAll()
                             .requestMatchers(HttpMethod.POST, "/api/account/admin").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/account/check-username").permitAll()

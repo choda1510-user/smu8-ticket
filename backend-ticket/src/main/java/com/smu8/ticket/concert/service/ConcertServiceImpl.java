@@ -4,6 +4,7 @@ import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import com.smu8.ticket.concert.dto.result.ConcertDetailResult;
 import com.smu8.ticket.concert.entity.Concert;
 import com.smu8.ticket.concert.repository.ConcertRepository;
+import com.smu8.ticket.dto.result.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +18,7 @@ public class ConcertServiceImpl implements ConcertService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ConcertDetailResult> getConcerts() {
+    public PageResult<ConcertDetailResult> getConcerts() {
         return concertRepository.findAll().stream()
                 .map(ConcertDetailResult::from)
                 .toList();

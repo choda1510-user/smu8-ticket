@@ -7,6 +7,7 @@ import com.smu8.ticket.auth.service.TokenService;
 import com.smu8.ticket.authentication.Authority;
 import com.smu8.ticket.utils.RefreshTokenUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,9 +30,15 @@ public class TokenController {
     private final TokenService tokenService;
     private final RefreshTokenUtils refreshTokenUtils;
     // 리프레시 토큰은 http-only 쿠키에
-    @Operation(summary = "token", security= @SecurityRequirement(name = "Authorization"))
+    @Operation(
+            summary = "토큰 발급",
+            description = "인증된 사용자에게 액세스 토큰을 발급하고 리프레시 토큰을 HttpOnly 쿠키로 저장합니다.",
+            security = @SecurityRequirement(name = "Authorization"))
     @GetMapping("/api/token")
-    public ResponseEntity<Jwt> token(Authentication authentication, HttpServletResponse response) {
+    public ResponseEntity<Jwt> token(
+            @Parameter(hidden = true) Authentication authentication,
+            @Parameter(hidden = true) HttpServletResponse response
+    ) {
         refreshTokenUtils.setRefreshTokenCookie(response, tokenService.createToken(CreateTokenCommand.builder()
                 .userId(authentication.getName())
                 .role(role(authentication))
@@ -45,8 +52,11 @@ public class TokenController {
                         .build()).jwt());
     }
     // 엑세스 토큰을 다시 받는 api
+    @Operation(summary = "토큰 재발급", description = "리프레시 토큰 인증으로 새로운 액세스 토큰을 발급합니다.")
     @GetMapping("/api/refresh")
-    public ResponseEntity<Jwt> refresh(Authentication authentication) {
+    public ResponseEntity<Jwt> refresh(
+            @Parameter(hidden = true) Authentication authentication
+    ) {
         return ResponseEntity
                 .ok(tokenService.createToken(CreateTokenCommand.builder()
                         .userId(authentication.getName())
@@ -54,9 +64,16 @@ public class TokenController {
                         .authorities(accessTokenAuthorities(authentication))
                         .build()).jwt());
     }
-    @Operation(summary = "logout", security= @SecurityRequirement(name = "Authorization"))
+    @Operation(
+            summary = "로그아웃",
+            description = "현재 사용자의 액세스 토큰을 블랙리스트에 등록하고 리프레시 토큰 쿠키를 삭제합니다.",
+            security = @SecurityRequirement(name = "Authorization"))
     @PostMapping("/api/logout")
-    public ResponseEntity<Void> logout(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<Void> logout(
+            @Parameter(hidden = true) Authentication authentication,
+            @Parameter(hidden = true) HttpServletRequest request,
+            @Parameter(hidden = true) HttpServletResponse response
+    ) {
         refreshTokenUtils.deleteRefreshTokenCookie(response);
         // 레디스에 엑세스 토큰을 블랙리스트로 등록해야 함
         tokenService.setBlacklistToken(RegisterTokenCommand.builder()

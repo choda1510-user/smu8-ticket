@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
+@Service("userConcertServiceImpl")
 @RequiredArgsConstructor
 public class ConcertServiceImpl implements ConcertService {
     private final UserConcertRepository concertRepository;

@@ -5,6 +5,7 @@ import com.smu8.ticket.venue.dto.result.VenueDetailResult;
 import com.smu8.ticket.venue.http.request.CreateVenueRequest;
 import com.smu8.ticket.venue.http.response.VenueDetailResponse;
 import com.smu8.ticket.venue.service.VenueService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import java.net.URI;
 public class VenueController {
     private final VenueService venueService;
 
+    @Operation(summary = "공연장 등록", description = "관리자가 새로운 공연장을 등록합니다.")
     @PostMapping("/api/admin/venues")
     public ResponseEntity<VenueDetailResponse> createVenue(
             @RequestBody CreateVenueRequest createVenueRequest

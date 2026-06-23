@@ -1,6 +1,6 @@
-package com.smu8.ticket.concert.http.response;
+package com.smu8.ticket.concert.admin.http.response;
 
-import com.smu8.ticket.concert.dto.result.ConcertDetailResult;
+import com.smu8.ticket.concert.admin.dto.result.ConcertDetailResult;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

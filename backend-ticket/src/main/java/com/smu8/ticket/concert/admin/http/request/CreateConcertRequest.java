@@ -1,8 +1,8 @@
-package com.smu8.ticket.concert.http.request;
+package com.smu8.ticket.concert.admin.http.request;
 
 import java.time.LocalDateTime;
 
-public record UpdateConcertRequest(
+public record CreateConcertRequest(
         String title,
         String description,
         LocalDateTime startAt,

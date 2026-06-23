@@ -1,31 +1,27 @@
 package com.smu8.ticket.venue.dto.command;
 
-import com.smu8.ticket.venue.entity.Venue;
 import com.smu8.ticket.venue.http.request.UpdateVenueRequest;
 import lombok.Builder;
 
 @Builder
 public record UpdateVenueCommand(
-        String id,
+        Long id,
         String name,
-        String address,
-        Integer capacity,
-        String description
+        String zoneNo,
+        String roadAddress,
+        String jibunAddress,
+        String detailAddress,
+        String buildingName
 ) {
-    public static UpdateVenueCommand from(String id, UpdateVenueRequest request) {
+    public static UpdateVenueCommand from(Long id, UpdateVenueRequest request) {
         return UpdateVenueCommand.builder()
                 .id(id)
                 .name(request.name())
-                .address(request.address())
-                .capacity(request.capacity())
-                .description(request.description())
+                .zoneNo(request.zoneNo())
+                .roadAddress(request.roadAddress())
+                .jibunAddress(request.jibunAddress())
+                .detailAddress(request.detailAddress())
+                .buildingName(request.buildingName())
                 .build();
-    }
-
-    public void update(Venue venue) {
-        venue.setName(name);
-        venue.setAddress(address);
-        venue.setCapacity(capacity);
-        venue.setDescription(description);
     }
 }

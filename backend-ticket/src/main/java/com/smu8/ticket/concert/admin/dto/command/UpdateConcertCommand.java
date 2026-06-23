@@ -1,7 +1,7 @@
-package com.smu8.ticket.concert.dto.command;
+package com.smu8.ticket.concert.admin.dto.command;
 
 import com.smu8.ticket.concert.entity.Concert;
-import com.smu8.ticket.concert.http.request.UpdateConcertRequest;
+import com.smu8.ticket.concert.admin.http.request.UpdateConcertRequest;
 import com.smu8.ticket.venue.entity.Venue;
 import lombok.Builder;
 

@@ -4,6 +4,7 @@ import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import com.smu8.ticket.concert.http.response.ConcertDetailResponse;
 import com.smu8.ticket.concert.http.response.ConcertListResponse;
 import com.smu8.ticket.concert.service.ConcertService;
+import com.smu8.ticket.http.response.PageInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +17,8 @@ public class ConcertController {
     private final ConcertService concertService;
 
     @GetMapping("/api/concerts")
-    public ResponseEntity<ConcertListResponse> getConcerts() {
-        return ResponseEntity.ok(ConcertListResponse.from(concertService.getConcerts()));
+    public ResponseEntity<PageInfoResponse<ConcertDetailResponse>> getConcerts() {
+        return ResponseEntity.ok(PageInfoResponse.from(concertService.getConcerts(), ConcertDetailResponse::from));
     }
 
     @GetMapping("/api/concerts/{id}")

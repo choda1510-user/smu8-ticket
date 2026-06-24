@@ -34,11 +34,14 @@ public class AdminReservationServiceImpl implements AdminReservationService {
 
     @Override
     @Transactional
-    public DminReservationDetailResult cancelReservation(CancelReservationCommand command){
+    public AdminReservationDetailResult cancelReservation(CancelReservationCommand command){
             Reservation reservation = getById(command.reservationId());
             reservation.cancel(command.reason());
             return AdminReservationDetailresult.from(reservation);
 
     }
 
+    private Reservation getById(Long id){
+        return reservationRepository.findById(id).orElseThrow();
+    }
 }

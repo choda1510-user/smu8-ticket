@@ -1,14 +1,23 @@
 package com.smu8.ticket.reservation.entity;
 
+import com.smu8.ticket.account.entity.Account;
+import com.smu8.ticket.concert.entity.PerformanceSchedule;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "reservation")
 public class Reservation {
 
@@ -20,11 +29,13 @@ public class Reservation {
     @Column(name = "reservation_no", nullable = false, unique = true, length = 50)
     private String reservationNo;
 
-    @Column(name = "member_id", nullable = false)
-    private String memberId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", referencedColumnName = "user_id")
+    private Account account;
 
-    @Column(name = "round_id", nullable = false)
-    private Long roundId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "round_id", referencedColumnName = "round_id", nullable = false)
+    private PerformanceSchedule performanceSchedule;
 
     @Column(name = "reservation_status", nullable = false, length = 30)
     private String reservationStatus;
@@ -35,8 +46,9 @@ public class Reservation {
     @Column(name = "total_amount", nullable = false)
     private Integer totalAmount;
 
+    @CreatedDate
     @Column(name = "reserved_at", nullable = false)
-    private LocalDateTime reservedAt;
+    private LocalDateTime createdAt;
 
     public void cancel(String reason) {
         this.reservationStatus = "CANCELED";

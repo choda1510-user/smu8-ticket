@@ -2,10 +2,11 @@ import type {ListResponse, PageRequest, PageResponse} from "@/types/api";
 
 export type ReservationStatus = "BEFORE_OPEN" | "OPEN" | "CLOSED"; // 예매 오픈 전, 예매 가능, 예매 종료 상태
 
-export type ConcertSchedule = {
+export type ConcertSchedule = { //상세페이지 내에 회차정보
     id: number; // 공연 회차 고유 ID
-    date: string; // 공연 날짜
-    time: string; // 공연 시간
+    date: string; // 공연 날짜 (예: "2026-06-24")
+    time: string; // 공연 시간 (예: "19:30")
+    reservationEndAt: string; // 예매 종료일시
 };
 
 export type ConcertDetail = {
@@ -22,11 +23,8 @@ export type ConcertDetail = {
     startAt?: string; // 백엔드에서 내려주는 공연 시작일시
     endAt?: string; // 백엔드에서 내려주는 공연 종료일시
     reservationStartAt?: string; // 예매 오픈 시작일시
-    reservationEndAt?: string; // 예매 종료일시
     reservationStatus?: ReservationStatus; // 예매 버튼과 타이머 표시를 판단할 예매 상태
 };
-
-export type ConcertDetail2 = ConcertDetail; // 기존 코드 호환용 상세 타입 별칭
 
 export type ConcertItem = {
     concertId: number; // 화면에서 사용하는 공연 ID
@@ -77,26 +75,20 @@ export type ConcertResponse = {
     id: number; // 공연 고유 ID
     title: string; // 공연 제목
     description: string; // 공연 설명
-    startAt: string; // 공연 시작일시
-    endAt: string; // 공연 종료일시
+    notice?: string; // 공연 공지사항
+    runningTime: string; // 공연 러닝타임
+    startAt: string; // 공연 시작일 : 첫번째 회차 날짜 (백엔드 sessions - date 기준 계산)
+    endAt: string; // 공연 종료일 : 마지막 회차 날짜 (백엔드 sessions - date 기준 계산)
     reservationStartAt: string; // 예매 오픈 시작일시, 프론트에서 오픈 1시간 전 타이머 계산 기준으로 사용
-    reservationEndAt: string; // 예매 종료일시
     reservationStatus: ReservationStatus; // 예매 버튼 활성화와 타이머 표시를 판단할 예매 상태
     venueId: number; // 공연장 고유 ID
     venueName: string; // 공연장 이름
+    schedules: ConcertSchedule[]; // 공연 회차 목록
     createdAt?: string; // 공연 데이터 생성일시
     updatedAt?: string; // 공연 데이터 수정일시
 };
 
 export type ConcertPageResponse = PageResponse<ConcertResponse>; // 사용자 공연 목록 조회 API의 페이지 응답 타입
-export type ConcertDetailResponse = ConcertResponse; // 사용자 공연 상세 조회 API의 응답 타입
-
-export type BackendConcert = ConcertResponse; // 기존 API 코드 호환용 백엔드 공연 타입 별칭
-
-export type BackendConcertListResponse = Partial<ConcertPageResponse> & {
-    concerts?: BackendConcert[]; // 기존 관리자 목록 응답에서 사용하던 공연 목록
-    contents?: BackendConcert[]; // 현재 사용자 페이지 응답에서 사용하는 공연 목록
-};
 
 export type {
     AdminConcertCreateRequest,

@@ -33,9 +33,9 @@ public class Seat {
     @JoinColumn(name = "seat_grade_id", nullable = false)
     private SeatGrade seatGrade;
 
-    @Column(name = "row_name", nullable = false, length = 20)
-    private String rowName;
+    @Column(name = "row_index", nullable = false, length = 20)
+    private Integer rowIndex;
 
-    @Column(name = "seat_no", nullable = false)
-    private Integer seatNo;
+    @Column(name = "column_index", nullable = false)
+    private Integer columnIndex;
 }

@@ -21,7 +21,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "seatgrade")
+@Table(name = "seat_grade")
 public class SeatGrade {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

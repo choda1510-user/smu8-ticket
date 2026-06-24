@@ -34,11 +34,16 @@ public class PerformanceSchedule {
     @JoinColumn(name = "performance_id", nullable = false)
     private Concert concert;
 
+    // 공연이 시작하는 날짜
     @Column(name = "show_start_at", nullable = false)
     private LocalDateTime showStartAt;
 
+    // 예매가 시작하는 날짜
     @Column(name = "reservation_start_at", nullable = false)
     private LocalDateTime reservationStartAt;
+    // 예매가 끝나는 날짜
+    @Column(name = "reservation_end_at", nullable = false)
+    private LocalDateTime reservationEndAt;
 
     @Column(name = "seat_column_count", nullable = false)
     private Integer seatColumnCount;

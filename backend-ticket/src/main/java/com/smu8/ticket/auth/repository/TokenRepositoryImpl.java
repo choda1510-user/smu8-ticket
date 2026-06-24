@@ -1,6 +1,7 @@
 package com.smu8.ticket.auth.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -22,7 +23,7 @@ public class TokenRepositoryImpl implements TokenRepository {
             String REFRESH_TOKEN_PREFIX,
             @Value("${token.access-token.prefix}")
             String ACCESS_TOKEN_PREFIX,
-            @Autowired
+            @Qualifier("redisTicketTemplate")
             RedisTemplate<String, String> redisTicketTemplate,
             @Value("${token.access-token.expire}")
             long accessTokenExpireSeconds,

@@ -4,6 +4,7 @@ import com.smu8.ticket.file.config.StorageProperties;
 import com.smu8.ticket.file.exception.StorageException;
 import com.smu8.ticket.file.exception.StorageFileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
+@Profile("!dev")
 @Service
 public class FileSystemStorageService implements StorageService {
     private final Path rootLocation;

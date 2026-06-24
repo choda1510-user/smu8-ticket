@@ -26,30 +26,29 @@ CREATE TABLE `venue` (
 CREATE TABLE `concert` (
     `performance_id` bigint PRIMARY KEY AUTO_INCREMENT COMMENT '한글명: 공연_ID / 공연 식별자',
     `performance_code` varchar(30) UNIQUE NOT NULL COMMENT '한글명: 공연코드 / 관리자 공연 상세의 공연 코드',
-    `created_by_member_id` varchar(36) NOT NULL COMMENT '한글명: 등록관리자_ID / 공연을 등록한 관리자 회원',
-    `updated_by_member_id` varchar(36) COMMENT '한글명: 수정관리자_ID / 공연을 마지막 수정한 관리자 회원',
     `venue_id` bigint NOT NULL COMMENT '한글명: 공연장_ID / 공연이 열리는 공연장',
     `title` varchar(200) NOT NULL COMMENT '한글명: 공연명 / 공연명 또는 아티스트명이 포함된 공연 제목',
     `performance_status` varchar(30) NOT NULL COMMENT '한글명: 공연상태 / 예매임박, 예매중, 판매종료 등',
     `running_time` varchar(50) COMMENT '한글명: 관람회차_관람시간 / 공연 상세의 관람시간',
-    `age_rating` varchar(50) COMMENT '한글명: 관람등급 / 공연 상세의 관람등급',
     `description` text COMMENT '한글명: 작품설명 / 공연 상세 설명',
-    `notice` text COMMENT '한글명: 공지사항 / 공연 상세 공지사항',
-    `price_notice` text COMMENT '한글명: 가격정보 / 공연 상세 가격 정보',
-    `card_poster_id` bigint COMMENT '한글명: 공연포스터_카드형',
-    `screen_poster_id` bigint COMMENT '한글명: 공연포스터_스크린형'
+    `card_poster_url` varchar(256) COMMENT '한글명: 공연포스터_카드형',
+    `screen_poster_url` varchar(256) COMMENT '한글명: 공연포스터_스크린형',
+    `description_poster_url` varchar(256) COMMENT '한글명: 공연포스터_작품설명하단',
+    `created_at` datetime(6) COMMENT '한글명: 생성 날짜',
+    `updated_at` datetime(6) COMMENT '한글명: 마지막 수정 날짜'
 );
 
-CREATE TABLE `performanceschedule` (
+CREATE TABLE `performance_schedule` (
     `round_id` bigint PRIMARY KEY AUTO_INCREMENT COMMENT '한글명: 공연회차_ID / 공연회차 식별자',
     `performance_id` bigint UNIQUE NOT NULL COMMENT '한글명: 공연_ID / 연결 공연',
     `show_start_at` datetime NOT NULL COMMENT '한글명: 공연날짜 / 공연 날짜와 시간',
     `reservation_start_at` datetime NOT NULL COMMENT '한글명: 예매시작일시',
+    `reservation_end_at` datetime not null  COMMENT  '한글명 :예매종료일시',
     `seat_column_count` integer NOT NULL COMMENT '한글명: 열크기_좌석번호',
     `seat_row_count` integer NOT NULL COMMENT '한글명: 행크기_열번호'
 );
 
-CREATE TABLE `seatgrade` (
+CREATE TABLE `seat_grade` (
     `seat_grade_id` bigint PRIMARY KEY AUTO_INCREMENT COMMENT '한글명: 좌석등급_ID / 좌석등급 식별자',
     `performance_id` bigint NOT NULL COMMENT '한글명: 공연_ID / 연결 공연',
     `grade_name` varchar(50) NOT NULL COMMENT '한글명: 등급명 / 전석, R석, S석 등',
@@ -76,13 +75,13 @@ CREATE TABLE `reservation` (
     `reserved_at` datetime NOT NULL COMMENT '한글명: 예매일시 / 예매 일시'
 );
 
-CREATE TABLE `reservationseat` (
+CREATE TABLE `reservation_seat` (
     `reservation_seat_id` bigint PRIMARY KEY AUTO_INCREMENT COMMENT '한글명: 예매좌석_ID / 예매좌석 식별자',
     `reservation_id` bigint NOT NULL COMMENT '한글명: 예매_ID / 연결 예매',
     `round_seat_id` bigint UNIQUE NOT NULL COMMENT '한글명: 회차별좌석_ID / 예매된 실제 좌석'
 );
 
-CREATE TABLE `cancelreservation` (
+CREATE TABLE `cancel_reservation` (
     `cancellation_id` bigint PRIMARY KEY AUTO_INCREMENT COMMENT '한글명: 취소_ID / 취소 식별자',
     `reservation_id` bigint NOT NULL COMMENT '한글명: 예매_ID / 취소 대상 예매',
     `cancel_reason` text NOT NULL COMMENT '한글명: 취소사유 / 취소 사유',
@@ -97,46 +96,41 @@ ALTER TABLE `venue` COMMENT = '영문 테이블명: venues / 공연 등록, 공�
 
 ALTER TABLE `concert` COMMENT = '영문 테이블명: performances / 관리자가 직접 등록한 공연. 공연 날짜와 시간은 공연회차에서 관리.';
 
-ALTER TABLE `performanceschedule` COMMENT = '영문 테이블명: performance_rounds / 공연의 실제 날짜와 시간.';
+ALTER TABLE `performance_schedule` COMMENT = '영문 테이블명: performance_rounds / 공연의 실제 날짜와 시간.';
 
-ALTER TABLE `seatgrade` COMMENT = '영문 테이블명: seat_grades / 공연별 좌석 등급과 가격.';
+ALTER TABLE `seat_grade` COMMENT = '영문 테이블명: seat_grades / 공연별 좌석 등급과 가격.';
 
 ALTER TABLE `seat` COMMENT = '영문 테이블명: seat_templates / 공연 기준 좌석 배치 원본.';
 
 ALTER TABLE `reservation` COMMENT = '영문 테이블명: reservations / 예매 주문의 기본 정보.';
 
-ALTER TABLE `reservationseat` COMMENT = '영문 테이블명: reservation_seats / 예매와 회차별좌석의 N:N 성격을 해소.';
+ALTER TABLE `reservation_seat` COMMENT = '영문 테이블명: reservation_seats / 예매와 회차별좌석의 N:N 성격을 해소.';
 
-ALTER TABLE `cancelreservation` COMMENT = '영문 테이블명: cancellations / 예매 취소 정보.';
-
--- 회원_공연_등록관리자 --
-ALTER TABLE `concert` ADD CONSTRAINT `fk_concert_created_by_account` FOREIGN KEY (`created_by_member_id`) REFERENCES `account` (`user_id`);
--- 회원_공연_수정관리자 --
-ALTER TABLE `concert` ADD CONSTRAINT `fk_concert_updated_by_account` FOREIGN KEY (`updated_by_member_id`) REFERENCES `account` (`user_id`);
+ALTER TABLE `cancel_reservation` COMMENT = '영문 테이블명: cancellations / 예매 취소 정보.';
 -- 공연장_공연 --
 ALTER TABLE `concert` ADD CONSTRAINT `fk_concert_venue` FOREIGN KEY (`venue_id`) REFERENCES `venue` (`venue_id`);
 
 -- 공연_공연회차 --
-ALTER TABLE `performanceschedule` ADD CONSTRAINT `fk_performance_schedule_concert` FOREIGN KEY (`performance_id`) REFERENCES `concert` (`performance_id`);
+ALTER TABLE `performance_schedule` ADD CONSTRAINT `fk_performance_schedule_concert` FOREIGN KEY (`performance_id`) REFERENCES `concert` (`performance_id`);
 
 -- 공연_좌석등급 --
-ALTER TABLE `seatgrade` ADD CONSTRAINT `fk_seat_grade_concert` FOREIGN KEY (`performance_id`) REFERENCES `concert` (`performance_id`);
+ALTER TABLE `seat_grade` ADD CONSTRAINT `fk_seat_grade_concert` FOREIGN KEY (`performance_id`) REFERENCES `concert` (`performance_id`);
 
 -- 회원_예매 --
 ALTER TABLE `reservation` ADD CONSTRAINT `fk_reservation_account` FOREIGN KEY (`member_id`) REFERENCES `account` (`user_id`);
 
 -- 공연회차_예매 --
-ALTER TABLE `reservation` ADD CONSTRAINT `fk_reservation_performance_schedule` FOREIGN KEY (`round_id`) REFERENCES `performanceschedule` (`round_id`);
+ALTER TABLE `reservation` ADD CONSTRAINT `fk_reservation_performance_schedule` FOREIGN KEY (`round_id`) REFERENCES `performance_schedule` (`round_id`);
 
 -- 예매_예매좌석 --
-ALTER TABLE `reservationseat` ADD CONSTRAINT `fk_reservation_seat_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservation` (`reservation_id`);
+ALTER TABLE `reservation_seat` ADD CONSTRAINT `fk_reservation_seat_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservation` (`reservation_id`);
 
 -- 예매_취소 --
-ALTER TABLE `cancelreservation` ADD CONSTRAINT `fk_cancel_reservation_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservation` (`reservation_id`);
+ALTER TABLE `cancel_reservation` ADD CONSTRAINT `fk_cancel_reservation_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservation` (`reservation_id`);
 
 -- 공연회차_좌석 --
-ALTER TABLE `seat` ADD CONSTRAINT `fk_seat_performance_schedule` FOREIGN KEY (`round_id`) REFERENCES `performanceschedule` (`round_id`);
+ALTER TABLE `seat` ADD CONSTRAINT `fk_seat_performance_schedule` FOREIGN KEY (`round_id`) REFERENCES `performance_schedule` (`round_id`);
 
 -- 좌석등급_좌석 --
-ALTER TABLE `seat` ADD CONSTRAINT `fk_seat_seat_grade` FOREIGN KEY (`seat_grade_id`) REFERENCES `seatgrade` (`seat_grade_id`);
+ALTER TABLE `seat` ADD CONSTRAINT `fk_seat_seat_grade` FOREIGN KEY (`seat_grade_id`) REFERENCES `seat_grade` (`seat_grade_id`);
 

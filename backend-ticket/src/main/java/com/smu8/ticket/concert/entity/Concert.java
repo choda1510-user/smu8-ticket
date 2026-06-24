@@ -30,28 +30,30 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class Concert {
     @Id
+    @Column(name = "performance_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Column(unique = true, nullable = false)
+    private String performanceCode;
     @Column(nullable = false)
     private String title;
-
+    @Column
+    private String performanceStatus;
     @Column
     private String description;
-
-    @Column(nullable = false)
-    private LocalDateTime startAt;
-
-    @Column(nullable = false)
-    private LocalDateTime endAt;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
-
+    @Column
+    private String runningTime;
+    @Column
+    private String cardPosterUrl;
+    @Column
+    private String screenPosterUrl;
+    @Column
+    private String descriptionPosterUrl;
     @CreatedDate
     private LocalDateTime createdAt;
-
     @LastModifiedDate
     private LocalDateTime updatedAt;
 }

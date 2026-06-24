@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 public record AdminReservationDetailResponse(
         Long id,
-        Long accountId,
+        String accountId,
         String accountName,
         Long concertId,
         String concertTitle,
@@ -30,7 +30,6 @@ public record AdminReservationDetailResponse(
                 .totalPrice(result.totalPrice())
                 .cancelReason(result.cancelReason())
                 .reservedAt(result.reservedAt())
-                .canceledAt(result.canceledAt())
-                .build();
+                                .build();
     }
 }

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 public record AdminReservationListResult(
         Long id,
-        Long accountId,
+        String accountId,
         String accountName,
         Long concertId,
         String concertTitle,
@@ -20,15 +20,13 @@ public record AdminReservationListResult(
 ) {
     public static AdminReservationListResult from(Reservation reservation) {
         return AdminReservationListResult.builder()
-                .id(reservation.getId())
-                .accountId(reservation.getAccount().getId())
-                .accountName(reservation.getAccount().getName())
-                .concertId(reservation.getConcert().getId())
-                .concertTitle(reservation.getConcert().getTitle())
-                .reservationStatus(reservation.getStatus().name())
-                .seatCount(reservation.getReservationSeats().size())
-                .totalPrice(reservation.getTotalPrice())
-                .createdAt(reservation.getCreatedAt())
+                .id(reservation.getReservationId())
+                .accountId(reservation.getMemberId())
+                .concertId(reservation.getRoundId())
+                .reservationStatus(reservation.getReservationStatus())
+                .seatCount(reservation.getTotalQuantity())
+                .totalPrice(BigDecimal.valueOf(reservation.getTotalAmount()))
+                .createdAt(reservation.getReservedAt())
                 .build();
     }
 }

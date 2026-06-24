@@ -21,14 +21,14 @@ public class AdminReservationServiceImpl implements AdminReservationService {
     @Transactional(readOnly = true)
     public List<AdminReservationListResult> getReservations(){
         return reservationRepository.findAll().stream()
-                .map(AdminReservationLIstResult::from)
+                .map(AdminReservationListResult::from)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public AdminReservationDetailResult getReservation(Long reservationId){
-        reservation reservation = getById(reservationId);
+        Reservation reservation = getById(reservationId);
         return AdminReservationDetailResult.from(reservation);
     }
 
@@ -37,7 +37,7 @@ public class AdminReservationServiceImpl implements AdminReservationService {
     public AdminReservationDetailResult cancelReservation(CancelReservationCommand command){
             Reservation reservation = getById(command.reservationId());
             reservation.cancel(command.reason());
-            return AdminReservationDetailresult.from(reservation);
+            return AdminReservationDetailResult.from(reservation);
 
     }
 

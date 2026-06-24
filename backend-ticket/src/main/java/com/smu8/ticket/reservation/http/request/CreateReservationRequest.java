@@ -1,4 +1,10 @@
 package com.smu8.ticket.reservation.http.request;
 
-public class CreateReservationRequest {
+import java.util.List;
+
+public record CreateReservationRequest (
+            Long memberId,
+            Long scheduleId,
+            List<Long> seatIds
+){
 }

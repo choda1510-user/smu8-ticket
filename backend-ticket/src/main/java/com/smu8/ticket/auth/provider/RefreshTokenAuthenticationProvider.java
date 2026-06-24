@@ -44,7 +44,7 @@ public class RefreshTokenAuthenticationProvider implements AuthenticationProvide
             throw new RefreshTokenAuthenticationException("Refresh token is invalid.", e);
         }
 
-        if (!tokenService.checkRefreshToken(TokenQuery.builder().jti(jwt.getId()).sub(jwt.getSubject()).build())) {
+        if (!tokenService.checkRefreshToken(TokenQuery.builder().jti(jwt.getId()).sub(jwt.getSubject()).jwt(jwt).build())) {
             throw new RefreshTokenAuthenticationException("Refresh token is expired.");
         }
 

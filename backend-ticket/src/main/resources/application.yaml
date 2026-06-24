@@ -3,3 +3,11 @@ spring:
     name: ticket
   profiles:
     active: dev
+
+token:
+  access-token:
+    prefix: "access-token:"
+    expire: 3600
+  refresh-token:
+    prefix: "refresh-token:"
+    expire: 7200

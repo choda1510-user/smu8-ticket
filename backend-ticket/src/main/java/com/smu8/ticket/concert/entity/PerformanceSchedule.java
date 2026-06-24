@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "performanceschedule")
+@Table(name = "performance_schedule")
 public class PerformanceSchedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

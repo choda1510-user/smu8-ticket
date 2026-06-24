@@ -51,6 +51,8 @@ public class Concert {
     @Column
     private String runningTime;
     @Column
+    private String notice;
+    @Column
     private String cardPosterUrl;
     @Column
     private String screenPosterUrl;

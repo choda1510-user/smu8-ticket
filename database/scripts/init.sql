@@ -37,6 +37,7 @@ CREATE TABLE `concert` (
     `performance_status` varchar(30) NOT NULL COMMENT '한글명: 공연상태 / 예매임박, 예매중, 판매종료 등',
     `running_time` varchar(50) COMMENT '한글명: 관람회차_관람시간 / 공연 상세의 관람시간',
     `description` text COMMENT '한글명: 작품설명 / 공연 상세 설명',
+    `notice` text COMMENT '한글명: 공지사항 / 공연 상세 공지사항',
     `card_poster_url` varchar(256) COMMENT '한글명: 공연포스터_카드형',
     `screen_poster_url` varchar(256) COMMENT '한글명: 공연포스터_스크린형',
     `description_poster_url` varchar(256) COMMENT '한글명: 공연포스터_작품설명하단',

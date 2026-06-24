@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "RESERVATION")
+@Table(name = "reservation")
 public class Reservation {
 
     @Id
@@ -21,7 +21,7 @@ public class Reservation {
     private String reservationNo;
 
     @Column(name = "member_id", nullable = false)
-    private Long memberId;
+    private String memberId;
 
     @Column(name = "round_id", nullable = false)
     private Long roundId;
@@ -37,4 +37,8 @@ public class Reservation {
 
     @Column(name = "reserved_at", nullable = false)
     private LocalDateTime reservedAt;
+
+    public void cancel(String reason) {
+        this.reservationStatus = "CANCELED";
+    }
 }

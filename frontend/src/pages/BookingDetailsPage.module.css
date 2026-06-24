@@ -1,0 +1,198 @@
+.page {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-top: 18px;
+    box-sizing: border-box;
+    color: #222;
+}
+
+.inner {
+    width: 620px;
+}
+
+.pageTitle {
+    margin: 0 0 18px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.card {
+    width: 100%;
+    border: 1px solid #d9d9e3;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+.summarySection {
+    display: flex;
+    gap: 32px;
+    padding: 28px 28px 22px;
+    border-bottom: 1px solid #e5e5e5;
+    box-sizing: border-box;
+}
+
+.posterArea {
+    width: 135px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.posterBox {
+    width: 120px;
+    height: 150px;
+    border: 1px solid #d6d6df;
+    border-radius: 10px;
+    background-color: #ececf3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.posterTitle {
+    margin-top: 12px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: #777;
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.infoArea {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.infoGrid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 26px;
+    row-gap: 16px;
+}
+
+.infoItem {
+    display: flex;
+    align-items: center;
+    min-height: 18px;
+    white-space: nowrap;
+}
+
+.infoLabel {
+    width: 58px;
+    flex-shrink: 0;
+    color: #555;
+    font-size: 12px;
+}
+
+.infoValue {
+    color: #222;
+    font-size: 12px;
+}
+
+.linkText {
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: #222;
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.purchaseSection {
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.sectionTitle {
+    margin: 0;
+    padding: 8px 32px;
+    background-color: #eeeeee;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.purchaseRow {
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 32px;
+    box-sizing: border-box;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.purchaseLabel {
+    color: #555;
+    font-size: 12px;
+}
+
+.purchaseValue {
+    color: #222;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.priceBox {
+    min-width: 54px;
+    height: 22px;
+    padding: 0 5px;
+    border: 1px solid #a8a8a8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    background-color: #fff;
+    color: #222;
+    font-size: 12px;
+}
+
+.seatSection {
+    padding-bottom: 34px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.tableHead {
+    height: 32px;
+    text-align: center;
+    font-weight: 400;
+    color: #555;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.tableCell {
+    height: 32px;
+    text-align: center;
+    color: #222;
+}
+
+.buttonArea {
+    display: flex;
+    justify-content: center;
+    margin-top: 22px;
+}
+
+.backButton {
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: #cf7373;
+    font-size: 13px;
+    cursor: pointer;
+}

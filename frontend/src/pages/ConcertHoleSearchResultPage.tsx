@@ -1,5 +1,5 @@
-import type { CSSProperties } from "react";
-import { useNavigate } from "react-router";
+import styles from "./ConcertHoleSearchResultPage.module.css"
+import {useNavigate} from "react-router";
 import BottomPaginationBar from "@/sections/BottomPaginationBar";
 import {useConcertHoleSearchResultPage} from "@/hooks/useConcertHoleSearchResultPage";
 
@@ -22,46 +22,62 @@ function ConcertHoleSearchResultPage() {
     };
 
     return (
-        <section style={styles.page}>
-            <div style={styles.inner}>
-                <div style={styles.resultCountArea}>
-          <span style={styles.resultCountText}>
+        <section className
+                     ={styles.page}>
+            <div className
+                     ={styles.inner}>
+                <div className
+                         ={styles.resultCountArea}>
+          <span className
+                    ={styles.resultCountText}>
             검색결과 {venues.length}건
           </span>
                 </div>
 
                 {venues.length === 0 ? (
-                    <div style={styles.emptyBox}>검색된 공연장이 없습니다.</div>
+                    <div className
+                             ={styles.emptyBox}>검색된 공연장이 없습니다.</div>
                 ) : (
                     <>
-                        <ul style={styles.venueList}>
+                        <ul className
+                                ={styles.venueList}>
                             {venues.map((venue) => (
-                                <li key={venue.venueId} style={styles.venueItem}>
+                                <li key={venue.venueId} className
+                                    ={styles.venueItem}>
                                     <button
                                         type="button"
-                                        style={styles.venueButton}
+                                        className
+                                            ={styles.venueButton}
                                         onClick={() => handleVenueClick(venue.venueId)}
                                     >
-                                        <div style={styles.logoArea}>
-                                            <div style={styles.logoBox}>
+                                        <div className
+                                                 ={styles.logoArea}>
+                                            <div className
+                                                     ={styles.logoBox}>
                                                 {venue.logoUrl ? (
                                                     <img
                                                         src={venue.logoUrl}
                                                         alt="공연장 로고"
-                                                        style={styles.logoImage}
+                                                        className
+                                                            ={styles.logoImage}
                                                     />
                                                 ) : (
-                                                    <span style={styles.logoText}>공연장 로고</span>
+                                                    <span className
+                                                              ={styles.logoText}>공연장 로고</span>
                                                 )}
                                             </div>
                                         </div>
 
-                                        <div style={styles.venueInfoArea}>
-                                            <strong style={styles.venueName}>{venue.venueName}</strong>
+                                        <div className
+                                                 ={styles.venueInfoArea}>
+                                            <strong className
+                                                        ={styles.venueName}>{venue.venueName}</strong>
 
-                                            <p style={styles.availableConcertText}>
+                                            <p className
+                                                   ={styles.availableConcertText}>
                                                 <span>예매가능 공연</span>
-                                                <strong style={styles.countNumber}>
+                                                <strong className
+                                                            ={styles.countNumber}>
                                                     {venue.availableConcertCount}
                                                 </strong>
                                                 <span>개</span>
@@ -72,8 +88,9 @@ function ConcertHoleSearchResultPage() {
                             ))}
                         </ul>
 
-                        <div style={styles.paginationArea}>
-                            <BottomPaginationBar />
+                        <div className
+                                 ={styles.paginationArea}>
+                            <BottomPaginationBar/>
                         </div>
                     </>
                 )}
@@ -81,136 +98,5 @@ function ConcertHoleSearchResultPage() {
         </section>
     );
 }
-
-const styles: Record<string, CSSProperties> = {
-    page: {
-        width: "100%",
-        display: "flex",
-        justifyContent: "center",
-        paddingTop: "18px",
-        paddingBottom: "60px",
-        boxSizing: "border-box",
-        color: "#222",
-    },
-
-    inner: {
-        width: "720px",
-    },
-
-    resultCountArea: {
-        height: "42px",
-        display: "flex",
-        alignItems: "center",
-        borderBottom: "1px solid #777",
-        boxSizing: "border-box",
-    },
-
-    resultCountText: {
-        fontSize: "16px",
-        fontWeight: 500,
-        color: "#222",
-    },
-
-    emptyBox: {
-        height: "260px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        borderBottom: "1px solid #777",
-        color: "#777",
-        fontSize: "14px",
-    },
-
-    venueList: {
-        margin: 0,
-        padding: 0,
-        listStyle: "none",
-    },
-
-    venueItem: {
-        borderBottom: "1px solid #777",
-    },
-
-    venueButton: {
-        width: "100%",
-        minHeight: "150px",
-        padding: "28px 16px",
-        border: "none",
-        backgroundColor: "#fff",
-        display: "flex",
-        alignItems: "center",
-        textAlign: "left",
-        cursor: "pointer",
-        boxSizing: "border-box",
-    },
-
-    logoArea: {
-        width: "140px",
-        flexShrink: 0,
-        display: "flex",
-        justifyContent: "center",
-    },
-
-    logoBox: {
-        width: "92px",
-        height: "64px",
-        borderBottom: "1px solid #eeeeee",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "#999",
-        fontSize: "11px",
-        overflow: "hidden",
-    },
-
-    logoImage: {
-        maxWidth: "100%",
-        maxHeight: "100%",
-        objectFit: "contain",
-    },
-
-    logoText: {
-        fontSize: "11px",
-        color: "#999",
-    },
-
-    venueInfoArea: {
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px",
-    },
-
-    venueName: {
-        color: "#222",
-        fontSize: "18px",
-        fontWeight: 500,
-        textDecoration: "underline",
-        textUnderlineOffset: "3px",
-    },
-
-    availableConcertText: {
-        margin: 0,
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        color: "#222",
-        fontSize: "17px",
-        fontWeight: 400,
-    },
-
-    countNumber: {
-        color: "#ff4f9a",
-        fontSize: "18px",
-        fontWeight: 600,
-    },
-
-    paginationArea: {
-        width: "100%",
-        marginTop: "18px",
-        display: "flex",
-        justifyContent: "center",
-    },
-};
 
 export default ConcertHoleSearchResultPage;

@@ -1,18 +1,22 @@
 spring:
+  config:
+    activate:
+      on-profile: dev
+
   datasource:
-    url: jdbc:mysql://database:3306/smu8ticket
+    url: jdbc:mysql://192.168.0.6:3306/smu8ticket
     username: admin
     password: admin
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
 
   data:
     redis:
-      host: redis-ticket
+      host: 192.168.0.6
       port: 6379
 
   devtools:

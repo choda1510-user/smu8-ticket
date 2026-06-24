@@ -1,0 +1,26 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:mysql://database:3306/smu8ticket
+    username: admin
+    password: admin
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  data:
+    redis:
+      host: redis-ticket
+      port: 6379
+
+logging:
+  level:
+    com.smu8.ticket: Debug
+server:
+  port: 8080

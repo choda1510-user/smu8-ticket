@@ -15,9 +15,12 @@ spring:
     show-sql: true
 
   data:
-    redis:
+    redis-ticket:
       host: 192.168.0.6
       port: 6379
+    redis-file:
+      host: 192.168.0.6
+      port: 6380
 
   devtools:
     restart:

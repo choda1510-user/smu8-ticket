@@ -23,6 +23,7 @@ services:
     volumes:
       - ./backend-ticket:/backend
       - backend_gradle_cache:/root/.gradle
+      - backend_file_dir:/app/upload-dir
     environment:
       - SPRING_PROFILES_ACTIVE=local
     depends_on:
@@ -58,6 +59,7 @@ volumes:
   frontend_node_modules:
   backend_gradle_cache:
   mysql_database:
+  backend_file_dir:
 networks:
   smu8-ticket-network:
     driver: bridge

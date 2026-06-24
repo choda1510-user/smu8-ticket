@@ -38,18 +38,20 @@ CREATE TABLE `concert` (
     `price_notice` text COMMENT '한글명: 가격정보 / 공연 상세 가격 정보',
     `card_poster_id` bigint COMMENT '한글명: 공연포스터_카드형',
     `screen_poster_id` bigint COMMENT '한글명: 공연포스터_스크린형'
+
 );
 
-CREATE TABLE `performanceschedule` (
+CREATE TABLE `performance_schedule` (
     `round_id` bigint PRIMARY KEY AUTO_INCREMENT COMMENT '한글명: 공연회차_ID / 공연회차 식별자',
     `performance_id` bigint UNIQUE NOT NULL COMMENT '한글명: 공연_ID / 연결 공연',
     `show_start_at` datetime NOT NULL COMMENT '한글명: 공연날짜 / 공연 날짜와 시간',
     `reservation_start_at` datetime NOT NULL COMMENT '한글명: 예매시작일시',
+    `reservation_end_at` datetime not null  COMMENT  '한글명 :예매종료일시',
     `seat_column_count` integer NOT NULL COMMENT '한글명: 열크기_좌석번호',
     `seat_row_count` integer NOT NULL COMMENT '한글명: 행크기_열번호'
 );
 
-CREATE TABLE `seatgrade` (
+CREATE TABLE `seat_grade` (
     `seat_grade_id` bigint PRIMARY KEY AUTO_INCREMENT COMMENT '한글명: 좌석등급_ID / 좌석등급 식별자',
     `performance_id` bigint NOT NULL COMMENT '한글명: 공연_ID / 연결 공연',
     `grade_name` varchar(50) NOT NULL COMMENT '한글명: 등급명 / 전석, R석, S석 등',

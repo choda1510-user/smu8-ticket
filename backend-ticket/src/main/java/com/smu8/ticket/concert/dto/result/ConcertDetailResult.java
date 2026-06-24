@@ -1,6 +1,7 @@
 package com.smu8.ticket.concert.dto.result;
 
 import com.smu8.ticket.concert.entity.Concert;
+import com.smu8.ticket.venue.entity.Venue;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -8,26 +9,39 @@ import java.time.LocalDateTime;
 @Builder
 public record ConcertDetailResult(
         Long id,
+        String performanceCode,
         String title,
+        String PerformanceStatus,
         String description,
+        Venue venue,
+        String runningTime,
+        String cardPosterUrl,
+        String screenPosterUrl,
+        String descriptionPosterUrl,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
+
+
         LocalDateTime startAt,
         LocalDateTime endAt,
         Long venueId,
-        String venueName,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        String venueName
 ) {
     public static ConcertDetailResult from(Concert concert) {
         return ConcertDetailResult.builder()
                 .id(concert.getId())
                 .title(concert.getTitle())
+                .PerformanceStatus(concert.getPerformanceStatus())
                 .description(concert.getDescription())
-                .startAt(concert.getStartAt())
-                .endAt(concert.getEndAt())
-                .venueId(concert.getVenue().getId())
-                .venueName(concert.getVenue().getName())
+                .venue(concert.getVenue())
+                .runningTime(concert.getRunningTime())
+                .cardPosterUrl(concert.getCardPosterUrl())
+                .screenPosterUrl(concert.getScreenPosterUrl())
+                .descriptionPosterUrl(concert.getDescriptionPosterUrl())
                 .createdAt(concert.getCreatedAt())
                 .updatedAt(concert.getUpdatedAt())
+                .venueId(concert.getVenue().getId())
+                .venueName(concert.getVenue().getName())
                 .build();
     }
 }

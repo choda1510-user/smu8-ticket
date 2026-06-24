@@ -169,7 +169,6 @@ export function toConcertDetail(concert: BackendConcert): ConcertDetail {
         id: concert.id,
         venueId: concert.venueId,
         concertTitle: concert.title,
-        artistName: "",
         concertPeriod: formatPeriod(concert.startAt, concert.endAt),
         runningTime: "",
         venueName: concert.venueName,

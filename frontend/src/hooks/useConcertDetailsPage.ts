@@ -7,7 +7,6 @@ const initialConcertDetail: ConcertDetail = {
     id: 0,
     venueId: 0,
     concertTitle: "",
-    artistName: "",
     concertPeriod: "",
     runningTime: "",
     venueName: "",

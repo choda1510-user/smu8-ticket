@@ -180,13 +180,8 @@ function GlobalConcertSearchPage() {
                                                     ={styles.posterButton}
                                                 onClick={() => handleVenueClick(venue.id)}
                                             >
-                                                {venue.logoUrl ? (
-                                                    <img src={venue.logoUrl} alt="공연장 로고" className
-                                                        ={styles.venueImage}/>
-                                                ) : (
-                                                    <span style
-                                                              ={{fontSize: "11px", color: "#777"}}>공연장 로고</span>
-                                                )}
+                                                <span style
+                                                          ={{fontSize: "11px", color: "#777"}}>공연장</span>
 
                                             </button>
 

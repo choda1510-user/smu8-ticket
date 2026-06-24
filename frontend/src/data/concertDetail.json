@@ -1,0 +1,22 @@
+ {
+  "id": 1,
+  "venueId": 1,
+  "concertTitle": "스프링 클래식 콘서트",
+  "artistName": "상명 심포니",
+  "concertPeriod": "2026.07.01 - 2026.07.30",
+  "runningTime": "120분",
+  "venueName": "상명아트센터",
+  "reservationPeriod": "2026.06.18 - 2026.07.30",
+  "schedules": [
+    {
+      "id": 1,
+      "date": "2026.07.01",
+      "time": "15:00"
+    },
+    {
+      "id": 2,
+      "date": "2026.07.02",
+      "time": "19:30"
+    }
+  ]
+}

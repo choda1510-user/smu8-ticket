@@ -1,0 +1,22 @@
+{
+  "concertId": 1,
+  "venueId": 1,
+  "concertTitle": "스프링 클래식 콘서트",
+  "reservationNumber": "R202606180001",
+  "venueName": "상명아트센터",
+  "reservationDate": "2026.06.18 10:00",
+  "userId": "smu8@gmail.com",
+  "viewingDateTime": "2026.07.18 19:30",
+  "cancelDeadline": "2026.07.17 17:00",
+  "ticketCount": "2매",
+  "status": "예매완료",
+  "seats": [
+    {
+      "id": 1,
+      "seatGrade": "S석",
+      "seatNumber": "1구역 A열 1번",
+      "price": "51,000원",
+      "cancelStatus": "취소불가"
+    }
+  ]
+}

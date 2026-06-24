@@ -1,0 +1,246 @@
+{
+  "data": [
+    {
+      "concertId": 1,
+      "venueId": 1,
+      "title": "검색 공연 1",
+      "period": "2026.07.01",
+      "venueName": "상명아트센터",
+      "badgeText": "D-1"
+    },
+    {
+      "concertId": 2,
+      "venueId": 2,
+      "title": "검색 공연 2",
+      "period": "2026.07.02",
+      "venueName": "블루스퀘어",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 3,
+      "venueId": 3,
+      "title": "검색 공연 3",
+      "period": "2026.07.03",
+      "venueName": "예술의전당",
+      "badgeText": "D-3"
+    },
+    {
+      "concertId": 4,
+      "venueId": 4,
+      "title": "검색 공연 4",
+      "period": "2026.07.04",
+      "venueName": "세종문화회관",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 5,
+      "venueId": 5,
+      "title": "검색 공연 5",
+      "period": "2026.07.05",
+      "venueName": "올림픽공원",
+      "badgeText": "D-5"
+    },
+    {
+      "concertId": 6,
+      "venueId": 1,
+      "title": "검색 공연 6",
+      "period": "2026.07.06",
+      "venueName": "상명아트센터",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 7,
+      "venueId": 2,
+      "title": "검색 공연 7",
+      "period": "2026.07.07",
+      "venueName": "블루스퀘어",
+      "badgeText": "D-7"
+    },
+    {
+      "concertId": 8,
+      "venueId": 3,
+      "title": "검색 공연 8",
+      "period": "2026.07.08",
+      "venueName": "예술의전당",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 9,
+      "venueId": 4,
+      "title": "검색 공연 9",
+      "period": "2026.07.09",
+      "venueName": "세종문화회관",
+      "badgeText": "D-9"
+    },
+    {
+      "concertId": 10,
+      "venueId": 5,
+      "title": "검색 공연 10",
+      "period": "2026.07.10",
+      "venueName": "올림픽공원",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 11,
+      "venueId": 1,
+      "title": "검색 공연 11",
+      "period": "2026.07.11",
+      "venueName": "상명아트센터",
+      "badgeText": "D-11"
+    },
+    {
+      "concertId": 12,
+      "venueId": 2,
+      "title": "검색 공연 12",
+      "period": "2026.07.12",
+      "venueName": "블루스퀘어",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 13,
+      "venueId": 3,
+      "title": "검색 공연 13",
+      "period": "2026.07.13",
+      "venueName": "예술의전당",
+      "badgeText": "D-13"
+    },
+    {
+      "concertId": 14,
+      "venueId": 4,
+      "title": "검색 공연 14",
+      "period": "2026.07.14",
+      "venueName": "세종문화회관",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 15,
+      "venueId": 5,
+      "title": "검색 공연 15",
+      "period": "2026.07.15",
+      "venueName": "올림픽공원",
+      "badgeText": "D-15"
+    },
+    {
+      "concertId": 16,
+      "venueId": 1,
+      "title": "검색 공연 16",
+      "period": "2026.07.16",
+      "venueName": "상명아트센터",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 17,
+      "venueId": 2,
+      "title": "검색 공연 17",
+      "period": "2026.07.17",
+      "venueName": "블루스퀘어",
+      "badgeText": "D-17"
+    },
+    {
+      "concertId": 18,
+      "venueId": 3,
+      "title": "검색 공연 18",
+      "period": "2026.07.18",
+      "venueName": "예술의전당",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 19,
+      "venueId": 4,
+      "title": "검색 공연 19",
+      "period": "2026.07.19",
+      "venueName": "세종문화회관",
+      "badgeText": "D-19"
+    },
+    {
+      "concertId": 20,
+      "venueId": 5,
+      "title": "검색 공연 20",
+      "period": "2026.07.20",
+      "venueName": "올림픽공원",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 21,
+      "venueId": 1,
+      "title": "검색 공연 21",
+      "period": "2026.07.21",
+      "venueName": "상명아트센터",
+      "badgeText": "D-21"
+    },
+    {
+      "concertId": 22,
+      "venueId": 2,
+      "title": "검색 공연 22",
+      "period": "2026.07.22",
+      "venueName": "블루스퀘어",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 23,
+      "venueId": 3,
+      "title": "검색 공연 23",
+      "period": "2026.07.23",
+      "venueName": "예술의전당",
+      "badgeText": "D-23"
+    },
+    {
+      "concertId": 24,
+      "venueId": 4,
+      "title": "검색 공연 24",
+      "period": "2026.07.24",
+      "venueName": "세종문화회관",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 25,
+      "venueId": 5,
+      "title": "검색 공연 25",
+      "period": "2026.07.25",
+      "venueName": "올림픽공원",
+      "badgeText": "D-25"
+    },
+    {
+      "concertId": 26,
+      "venueId": 1,
+      "title": "검색 공연 26",
+      "period": "2026.07.26",
+      "venueName": "상명아트센터",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 27,
+      "venueId": 2,
+      "title": "검색 공연 27",
+      "period": "2026.07.27",
+      "venueName": "블루스퀘어",
+      "badgeText": "D-27"
+    },
+    {
+      "concertId": 28,
+      "venueId": 3,
+      "title": "검색 공연 28",
+      "period": "2026.07.28",
+      "venueName": "예술의전당",
+      "badgeText": "OPEN"
+    },
+    {
+      "concertId": 29,
+      "venueId": 4,
+      "title": "검색 공연 29",
+      "period": "2026.07.29",
+      "venueName": "세종문화회관",
+      "badgeText": "D-29"
+    },
+    {
+      "concertId": 30,
+      "venueId": 5,
+      "title": "검색 공연 30",
+      "period": "2026.07.30",
+      "venueName": "올림픽공원",
+      "badgeText": "OPEN"
+    }
+  ],
+  "page": 1,
+  "totalPage": 3
+}

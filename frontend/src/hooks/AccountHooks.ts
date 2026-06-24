@@ -4,17 +4,19 @@
 * 백엔드 url은 항상 .env 파일에서 가져오기
 * 백엔드 구현 전까지는 목업 데이터로 대체
 */
-function useAccount(id: string|null|undefined) {
+export function useAccount(id: string | null | undefined): object | null {
+    return {
+        id: id,
+        nickname: "nickname"
+    };
 }
-function login() {
+export function login() {
 }
-function logout() {
+export function logout() {
 }
-function signUp() {
+export function signUp() {
 }
-function update() {
+export function update() {
 }
-function withdraw() {
-}
-function delete() {
+export function withdraw() {
 }

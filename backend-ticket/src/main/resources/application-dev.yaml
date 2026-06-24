@@ -1,14 +1,23 @@
 spring:
+  config:
+    activate:
+      on-profile: dev
+
   datasource:
-    url: jdbc:mysql://database:3306/smu8ticket
+    url: jdbc:mysql://192.168.0.6:3306/smu8ticket
     username: admin
     password: admin
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
+
+  data:
+    redis:
+      host: 192.168.0.6
+      port: 6379
 
   devtools:
     restart:
@@ -16,5 +25,11 @@ spring:
       poll-interval: 2s
       quiet-period: 1s
 
+logging:
+  level:
+    org.springframework:
+      web: Debug
+      security: Debug
+    com.smu8.ticket: Trace
 server:
   port: 8080

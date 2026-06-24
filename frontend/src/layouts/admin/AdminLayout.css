@@ -1,0 +1,11 @@
+.admin-layout {
+    min-height: 100vh;
+    background: #f6f7fb;
+}
+
+.admin-layout__main {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 28px 0 56px;
+    box-sizing: border-box;
+}

@@ -1,0 +1,212 @@
+[
+  {
+    "concertId": 1,
+    "title": "홈 오픈 공연 1",
+    "reservationPeriod": "2026.06.18 - 2026.07.01",
+    "reservationEndDate": "2026-07-01",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 2,
+    "title": "홈 오픈 공연 2",
+    "reservationPeriod": "2026.06.18 - 2026.07.02",
+    "reservationEndDate": "2026-07-02",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 3,
+    "title": "홈 오픈 공연 3",
+    "reservationPeriod": "2026.06.18 - 2026.07.03",
+    "reservationEndDate": "2026-07-03",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 4,
+    "title": "홈 오픈 공연 4",
+    "reservationPeriod": "2026.06.18 - 2026.07.04",
+    "reservationEndDate": "2026-07-04",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 5,
+    "title": "홈 오픈 공연 5",
+    "reservationPeriod": "2026.06.18 - 2026.07.05",
+    "reservationEndDate": "2026-07-05",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 6,
+    "title": "홈 오픈 공연 6",
+    "reservationPeriod": "2026.06.18 - 2026.07.06",
+    "reservationEndDate": "2026-07-06",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 7,
+    "title": "홈 오픈 공연 7",
+    "reservationPeriod": "2026.06.18 - 2026.07.07",
+    "reservationEndDate": "2026-07-07",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 8,
+    "title": "홈 오픈 공연 8",
+    "reservationPeriod": "2026.06.18 - 2026.07.08",
+    "reservationEndDate": "2026-07-08",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 9,
+    "title": "홈 오픈 공연 9",
+    "reservationPeriod": "2026.06.18 - 2026.07.09",
+    "reservationEndDate": "2026-07-09",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 10,
+    "title": "홈 오픈 공연 10",
+    "reservationPeriod": "2026.06.18 - 2026.07.10",
+    "reservationEndDate": "2026-07-10",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 11,
+    "title": "홈 오픈 공연 11",
+    "reservationPeriod": "2026.06.18 - 2026.07.11",
+    "reservationEndDate": "2026-07-11",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 12,
+    "title": "홈 오픈 공연 12",
+    "reservationPeriod": "2026.06.18 - 2026.07.12",
+    "reservationEndDate": "2026-07-12",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 13,
+    "title": "홈 오픈 공연 13",
+    "reservationPeriod": "2026.06.18 - 2026.07.13",
+    "reservationEndDate": "2026-07-13",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 14,
+    "title": "홈 오픈 공연 14",
+    "reservationPeriod": "2026.06.18 - 2026.07.14",
+    "reservationEndDate": "2026-07-14",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 15,
+    "title": "홈 오픈 공연 15",
+    "reservationPeriod": "2026.06.18 - 2026.07.15",
+    "reservationEndDate": "2026-07-15",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 16,
+    "title": "홈 오픈 공연 16",
+    "reservationPeriod": "2026.06.18 - 2026.07.16",
+    "reservationEndDate": "2026-07-16",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 17,
+    "title": "홈 오픈 공연 17",
+    "reservationPeriod": "2026.06.18 - 2026.07.17",
+    "reservationEndDate": "2026-07-17",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 18,
+    "title": "홈 오픈 공연 18",
+    "reservationPeriod": "2026.06.18 - 2026.07.18",
+    "reservationEndDate": "2026-07-18",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 19,
+    "title": "홈 오픈 공연 19",
+    "reservationPeriod": "2026.06.18 - 2026.07.19",
+    "reservationEndDate": "2026-07-19",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 20,
+    "title": "홈 오픈 공연 20",
+    "reservationPeriod": "2026.06.18 - 2026.07.20",
+    "reservationEndDate": "2026-07-20",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 21,
+    "title": "홈 오픈 공연 21",
+    "reservationPeriod": "2026.06.18 - 2026.07.21",
+    "reservationEndDate": "2026-07-21",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 22,
+    "title": "홈 오픈 공연 22",
+    "reservationPeriod": "2026.06.18 - 2026.07.22",
+    "reservationEndDate": "2026-07-22",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 23,
+    "title": "홈 오픈 공연 23",
+    "reservationPeriod": "2026.06.18 - 2026.07.23",
+    "reservationEndDate": "2026-07-23",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 24,
+    "title": "홈 오픈 공연 24",
+    "reservationPeriod": "2026.06.18 - 2026.07.24",
+    "reservationEndDate": "2026-07-24",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 25,
+    "title": "홈 오픈 공연 25",
+    "reservationPeriod": "2026.06.18 - 2026.07.25",
+    "reservationEndDate": "2026-07-25",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 26,
+    "title": "홈 오픈 공연 26",
+    "reservationPeriod": "2026.06.18 - 2026.07.26",
+    "reservationEndDate": "2026-07-26",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 27,
+    "title": "홈 오픈 공연 27",
+    "reservationPeriod": "2026.06.18 - 2026.07.27",
+    "reservationEndDate": "2026-07-27",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 28,
+    "title": "홈 오픈 공연 28",
+    "reservationPeriod": "2026.06.18 - 2026.07.28",
+    "reservationEndDate": "2026-07-28",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 29,
+    "title": "홈 오픈 공연 29",
+    "reservationPeriod": "2026.06.18 - 2026.07.29",
+    "reservationEndDate": "2026-07-29",
+    "badgeText": "OPEN"
+  },
+  {
+    "concertId": 30,
+    "title": "홈 오픈 공연 30",
+    "reservationPeriod": "2026.06.18 - 2026.07.30",
+    "reservationEndDate": "2026-07-30",
+    "badgeText": "OPEN"
+  }
+]

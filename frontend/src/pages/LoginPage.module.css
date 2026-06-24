@@ -1,0 +1,120 @@
+.page {
+    width: 720px;
+    min-height: 560px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #222;
+    box-sizing: border-box;
+}
+
+.loginBox {
+    width: 420px;
+    min-height: 420px;
+    border: 1px solid #d9d9e3;
+    border-radius: 4px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 70px;
+    box-sizing: border-box;
+}
+
+.logoButton {
+    margin-bottom: 52px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0;
+}
+
+.logoMark {
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #ff4fa3 0%, #9b5cff 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    box-shadow: 0 8px 20px rgba(255, 79, 163, 0.32);
+}
+
+.logoText {
+    color: #111111;
+    font-size: 19px;
+    font-weight: 900;
+    letter-spacing: -0.8px;
+}
+
+.loginForm {
+    width: 270px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.inputRow {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 76px 1fr;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.label {
+    color: #222;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.input {
+    width: 100%;
+    height: 28px;
+    border: 1px solid #d8d2e4;
+    border-radius: 2px;
+    padding: 0 8px;
+    font-size: 13px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.loginButton {
+    width: 150px;
+    height: 36px;
+    margin-top: 12px;
+    border: 1px solid #f0a8c8;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #222;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.loginErrorText {
+    width: 100%;
+    min-height: 48px;
+    margin: 0;
+    color: #d7447d;
+    font-size: 11px;
+    line-height: 16px;
+    word-break: keep-all;
+}
+
+.signUpButton {
+    margin-top: 24px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: #222;
+    font-size: 13px;
+    cursor: pointer;
+}

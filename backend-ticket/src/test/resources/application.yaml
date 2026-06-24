@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: backend
+  datasource:
+    url: jdbc:h2:mem:smu8ticket
+    driver-class-name: org.h2.Driver
+    username: admin
+    password: admin
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        show_sql: true
+        globally_quoted_identifiers: true
+        format_sql: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+logging:
+  level:
+    org.springframework:
+      web: Trace
+      security: Trace
+    com.smu8.ticket: Trace

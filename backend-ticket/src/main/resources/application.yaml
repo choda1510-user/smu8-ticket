@@ -3,6 +3,10 @@ spring:
     name: ticket
   profiles:
     active: dev
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 token:
   access-token:

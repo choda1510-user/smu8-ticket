@@ -1,28 +1,35 @@
 package com.smu8.ticket.reservation.admin.service;
 
-import com.smu8.ticket.reservation.admin.dto.command.CancelReservationCommand;
+import com.smu8.ticket.dto.result.PageResult;
+import com.smu8.ticket.reservation.admin.dto.command.CreateCancelReservationCommand;
+import com.smu8.ticket.reservation.admin.dto.query.AdminReservationQuery;
 import com.smu8.ticket.reservation.admin.dto.result.AdminReservationDetailResult;
-import com.smu8.ticket.reservation.admin.dto.result.AdminReservationListResult;
+import com.smu8.ticket.reservation.admin.dto.result.AdminReservationItemResult;
+import com.smu8.ticket.reservation.entity.CancelReservation;
 import com.smu8.ticket.reservation.entity.Reservation;
+import com.smu8.ticket.reservation.repository.CancelReservationRepository;
 import com.smu8.ticket.reservation.repository.ReservationRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class AdminReservationServiceImpl implements AdminReservationService {
 
     private final ReservationRepository reservationRepository;
+    private final CancelReservationRepository cancelReservationRepository;
 
     @Override
     @Transactional(readOnly = true)
-    public List<AdminReservationListResult> getReservations(){
-        return reservationRepository.findAll().stream()
-                .map(AdminReservationListResult::from)
-                .toList();
+    public PageResult<AdminReservationItemResult> getReservations(AdminReservationQuery query){
+        return PageResult.from(reservationRepository
+                .findAll(
+                        PageRequest.of(
+                                query.pageQuery().page(),
+                                query.pageQuery().size()))
+                .map(AdminReservationItemResult::from));
     }
 
     @Override
@@ -34,9 +41,16 @@ public class AdminReservationServiceImpl implements AdminReservationService {
 
     @Override
     @Transactional
-    public AdminReservationDetailResult cancelReservation(CancelReservationCommand command){
+    public AdminReservationDetailResult cancelReservation(CreateCancelReservationCommand command){
             Reservation reservation = getById(command.reservationId());
-            reservation.cancel(command.reason());
+            reservation.cancel("CANCELED");
+            cancelReservationRepository.save(CancelReservation.builder()
+                    .reservation(reservation)
+                    .cancelReason(command.reason())
+                    .cancelAmount(0)
+                    .cancelStatus("CANCELED")
+                    .build());
+            
             return AdminReservationDetailResult.from(reservation);
 
     }

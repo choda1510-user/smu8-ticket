@@ -7,9 +7,7 @@ import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import com.smu8.ticket.concert.dto.query.ConcertPageQuery;
 import com.smu8.ticket.dto.result.PageResult;
 
-import java.util.List;
-
-public interface ConcertService {
+public interface AdminConcertService {
     ConcertDetailResult createConcert(CreateConcertCommand command);
 
     PageResult<ConcertDetailResult> getConcerts(ConcertPageQuery query);

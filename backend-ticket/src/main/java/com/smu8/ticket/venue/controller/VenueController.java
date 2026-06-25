@@ -1,10 +1,9 @@
 package com.smu8.ticket.venue.controller;
 
-import com.smu8.ticket.http.response.PageInfoResponse;
+import com.smu8.ticket.http.response.PageResponse;
 import com.smu8.ticket.venue.dto.query.VenueDetailQuery;
 import com.smu8.ticket.venue.dto.query.VenuePageQuery;
 import com.smu8.ticket.venue.http.response.VenueItemResponse;
-import com.smu8.ticket.venue.http.response.VenueListResponse;
 import com.smu8.ticket.venue.service.VenueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,7 @@ public class VenueController {
     private final VenueService venueService;
 
     @GetMapping("/api/venues")
-    public ResponseEntity<PageInfoResponse<VenueItemResponse>> getVenues(
+    public ResponseEntity<PageResponse<VenueItemResponse>> getVenues(
             @RequestParam(name = "venueNames", required = false)
             String venueNames,
             @RequestParam(name = "page", defaultValue = "0", required = false)
@@ -28,7 +27,7 @@ public class VenueController {
             Integer size
     ) {
         return ResponseEntity
-                .ok(PageInfoResponse.from(venueService.getVenues(VenuePageQuery.builder()
+                .ok(PageResponse.from(venueService.getVenues(VenuePageQuery.builder()
                         .page(page)
                         .size(size)
                         .build()), VenueItemResponse::from));

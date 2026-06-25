@@ -6,11 +6,11 @@ import com.smu8.ticket.concert.dto.result.ConcertDetailResult;
 import com.smu8.ticket.concert.admin.http.request.CreateConcertRequest;
 import com.smu8.ticket.concert.admin.http.request.UpdateConcertRequest;
 import com.smu8.ticket.concert.admin.http.response.AdminConcertDetailResponse;
-import com.smu8.ticket.concert.admin.service.ConcertService;
+import com.smu8.ticket.concert.admin.service.AdminConcertService;
 import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import com.smu8.ticket.concert.dto.query.ConcertPageQuery;
 import com.smu8.ticket.concert.http.response.ConcertItemResponse;
-import com.smu8.ticket.http.response.PageInfoResponse;
+import com.smu8.ticket.http.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import java.net.URI;
 @RestController
 @RequiredArgsConstructor
 public class AdminConcertController {
-    private final ConcertService concertService;
+    private final AdminConcertService adminConcertService;
 
     @Operation(summary = "관리자 공연 등록", description = "관리자가 새로운 공연을 등록합니다.")
     @PostMapping("/api/admin/concerts")
@@ -37,7 +37,12 @@ public class AdminConcertController {
             @RequestPart(value = "request")
             CreateConcertRequest createConcertRequest
     ) {
-        ConcertDetailResult result = concertService.createConcert(CreateConcertCommand.from(createConcertRequest));
+        ConcertDetailResult result = adminConcertService
+                .createConcert(CreateConcertCommand.from(
+                        createConcertRequest,
+                        cardPoster,
+                        bannerPoster,
+                        descriptionPoster));
         return ResponseEntity
                 .created(URI.create("/api/admin/concerts/" + result.id()))
                 .body(AdminConcertDetailResponse.from(result));
@@ -45,7 +50,7 @@ public class AdminConcertController {
 
     @Operation(summary = "관리자 공연 목록 조회", description = "관리자가 등록된 공연 목록을 조회합니다.")
     @GetMapping("/api/admin/concerts")
-    public ResponseEntity<PageInfoResponse<ConcertItemResponse>> getConcerts(
+    public ResponseEntity<PageResponse<ConcertItemResponse>> getConcerts(
             @RequestParam(name = "concertNames", required = false) String concertNames,
             @RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
             @RequestParam(name = "size", defaultValue = "4", required = false) Integer size,
@@ -53,7 +58,7 @@ public class AdminConcertController {
             @RequestParam(name = "venueCode", required = false) String venueCode,
             @RequestParam(name = "venueNames", required = false) String venueNames
     ) {
-        return ResponseEntity.ok(PageInfoResponse.from(concertService.getConcerts(ConcertPageQuery.builder().build()), ConcertItemResponse::from));
+        return ResponseEntity.ok(PageResponse.from(adminConcertService.getConcerts(ConcertPageQuery.builder().build()), ConcertItemResponse::from));
     }
 
     @Operation(summary = "관리자 공연 상세 조회", description = "관리자가 공연 고유 ID로 공연 상세 정보를 조회합니다.")
@@ -62,7 +67,7 @@ public class AdminConcertController {
             @Parameter(description = "조회할 공연 고유 ID", example = "1")
             @PathVariable Long id
     ) {
-        return ResponseEntity.ok(AdminConcertDetailResponse.from(concertService.getConcert(ConcertDetailQuery.builder().id(id).build())));
+        return ResponseEntity.ok(AdminConcertDetailResponse.from(adminConcertService.getConcert(ConcertDetailQuery.builder().id(id).build())));
     }
 
     @Operation(summary = "관리자 공연 수정", description = "관리자가 공연 정보를 수정합니다.")
@@ -79,7 +84,7 @@ public class AdminConcertController {
             @RequestPart(value = "request")
             UpdateConcertRequest updateConcertRequest
     ) {
-        ConcertDetailResult result = concertService.updateConcert(UpdateConcertCommand.from(id, updateConcertRequest));
+        ConcertDetailResult result = adminConcertService.updateConcert(UpdateConcertCommand.from(id, updateConcertRequest));
         return ResponseEntity.ok(AdminConcertDetailResponse.from(result));
     }
 
@@ -89,7 +94,7 @@ public class AdminConcertController {
             @Parameter(description = "삭제할 공연 고유 ID", example = "1")
             @PathVariable Long id
     ) {
-        concertService.deleteConcert(id);
+        adminConcertService.deleteConcert(id);
         return ResponseEntity.noContent().build();
     }
 }

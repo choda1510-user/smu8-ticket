@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.function.Function;
 
 @Builder
-public record PageInfoResponse<T>(
+public record PageResponse<T>(
         int currentPage,
         int pageSize,
         long totalElements,
@@ -16,8 +16,8 @@ public record PageInfoResponse<T>(
         boolean hasPrevious,
         List<T> contents
 ) {
-    public static <T, R> PageInfoResponse<R> from(PageResult<T> result, Function<T, R> mapper) {
-        return PageInfoResponse.<R>builder()
+    public static <T, R> PageResponse<R> from(PageResult<T> result, Function<T, R> mapper) {
+        return PageResponse.<R>builder()
                 .currentPage(result.currentPage())
                 .pageSize(result.pageSize())
                 .totalElements(result.totalElements())

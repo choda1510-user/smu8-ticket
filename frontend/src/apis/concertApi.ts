@@ -1,15 +1,18 @@
 import type {
-    AdminConcertRequest,
-   // BackendConcert,
-    ConcertResponse,
-    ConcertPageResponse,
-   // BackendConcertListResponse,
-   // ConcertDetail,
+    ConcertDetail,
+    ConcertDetailResponse,
     ConcertItem,
-    ConcertResult,
-    ConcertSearchResult,
-} from "@/types/concert";
-import type {VenueResult, VenueSearchResponse} from "@/types/venue";
+    ConcertItemPageResponse,
+    ConcertItemResponse,
+} from "@/types/concertF";
+import type {
+    AdminConcertCreateRequest,
+    AdminConcertUpdateRequest,
+    AdminConcertDetailResponse,
+    AdminConcertItemPageResponse,
+} from "@/types/adminConcert.ts";
+
+import type {VenueSearch, VenueSearchResponse} from "@/types/venue";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 const LOGIN_STORAGE_KEY = "smu8-ticket-login";
@@ -93,20 +96,26 @@ function formatPeriod(startAt: string, endAt: string) {
     return `${startText} ~ ${endText}`;
 }
 
-function toConcertItem(concert: ConcertResponse): ConcertItem {
+function toConcertItem(concert: ConcertItemResponse): ConcertItem {
     return {
-        concertId: concert.id,
+        concertId: concert.concertId,
         title: concert.title,
-        period: formatPeriod(concert.startAt, concert.endAt),
+        period: formatPeriodBySchedules(concert.dates),
         venueName: concert.venueName,
-        badgeText: concert.reservationStatus === "OPEN" ? "예매중"
-            : concert.reservationStatus === "BEFORE_OPEN" ? "오픈예정"
-                : "예매종료",
+        badgeText: getBadgeText(concert.reservationStartAt)
     };
 }
 
-export function toConcertSearchResult(concert: ConcertResponse): ConcertSearchResult {
+export function toConcertSearchResult(concert: ConcertDetailResponse): ConcertDetail {
     return {
+        id = concert.id,
+        venueId: concert.venueId,
+        posterUrl: concert.posterUrl,
+        runningTime : concert.runningTime.trim()
+        venueName : concert.venueName,
+        reservationPeriod : concert.reservationPeriod,
+        schedules : concert.schedules.map(toConcertSchedule),
+
         ...toConcertItem(concert),
         venueId: concert.venueId,
     };

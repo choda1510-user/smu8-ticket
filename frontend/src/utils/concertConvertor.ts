@@ -1,5 +1,5 @@
 import type { ConcertDetail, ConcertDetailResponse, ConcertItem, ConcertItemResponse, ConcertSchedule, ConcertScheduleResponse } from "@/types/concert";
-import { compareDateAsc, compareDateDesc, splitDatetime, stringToDate } from "./dateUtil";
+import { compareDateAsc, compareDateDesc, splitDatetime, stringToDate, getDDayText } from "./dateUtil";
 
 export function convertConcertSchedule(response: ConcertScheduleResponse): ConcertSchedule {
     const datetime = stringToDate(response.date);
@@ -46,10 +46,10 @@ export function convertConcertDetail(response: ConcertDetailResponse): ConcertDe
 }
 
 export function datesToPeriod(dates: string[]): string {
-    return "";
+    return "2026.06.24 ~ 2026.06.30";
 }
 export function badgeTextFrom(response: ConcertItemResponse): string {
-    return "";
+    return getDDayText(response.reservationStartAt);
 }
 export function convertConcertItem(response: ConcertItemResponse): ConcertItem {
     return {

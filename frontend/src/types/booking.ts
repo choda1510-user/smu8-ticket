@@ -1,5 +1,9 @@
 import type {PageResponse} from "@/types/api";
 
+// 예매 요청 타입
+// 프론트에서 백엔드로 보낼 때 사용
+
+
 export type BookingSeat = {
     id: number;
     seatGrade: string;

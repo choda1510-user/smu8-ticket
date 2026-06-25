@@ -21,3 +21,34 @@ export function compareDateDesc(a: Date, b: Date): number {
 export function splitDatetime(date: Date): [string, string] {
     return ["", ""];
 }
+
+//예매 오픈일자에 맞춘 디데이반환
+export function getDDayText(targetDateString: string): string {
+  const today = new Date();
+  const targetDate = stringToDate(targetDateString);
+
+  const todayDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+  );
+
+  const targetOnlyDate = new Date(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      targetDate.getDate(),
+  );
+
+  const diffTime = targetOnlyDate.getTime() - todayDate.getTime();
+  const diffDate = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDate > 0) {
+    return `D-${diffDate}`;
+  }
+
+  if (diffDate === 0) {
+    return "D-DAY";
+  }
+
+  return "예매중";
+}

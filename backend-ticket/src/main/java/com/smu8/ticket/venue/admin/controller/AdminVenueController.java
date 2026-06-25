@@ -46,20 +46,6 @@ public class AdminVenueController {
                 .body(VenueDetailResponse.from(result));
     }
 
-    @GetMapping("/api/admin/venues")
-    public ResponseEntity<VenueListResponse> getVenues() {
-        return ResponseEntity.ok(VenueListResponse.from(venueService.getVenues()));
-    }
-
-    @GetMapping("/api/admin/venues/{id}")
-    public ResponseEntity<VenueDetailResponse> getVenue(
-            @PathVariable Long id
-    ) {
-        return ResponseEntity.ok(VenueDetailResponse.from(venueService.getVenue(VenueDetailQuery.builder()
-                .id(id)
-                .build())));
-    }
-
     @PatchMapping("/api/admin/venues/{id}")
     public ResponseEntity<VenueDetailResponse> updateVenue(
             @PathVariable Long id,

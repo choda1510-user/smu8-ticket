@@ -1,5 +1,6 @@
 package com.smu8.ticket.venue.controller;
 
+import com.smu8.ticket.dto.query.PageQuery;
 import com.smu8.ticket.http.response.PageResponse;
 import com.smu8.ticket.venue.dto.query.VenueDetailQuery;
 import com.smu8.ticket.venue.dto.query.VenuePageQuery;
@@ -28,8 +29,10 @@ public class VenueController {
     ) {
         return ResponseEntity
                 .ok(PageResponse.from(venueService.getVenues(VenuePageQuery.builder()
-                        .page(page)
-                        .size(size)
+                        .pageQuery(PageQuery.builder()
+                                .page(page)
+                                .size(size)
+                                .build())
                         .build()), VenueItemResponse::from));
     }
 

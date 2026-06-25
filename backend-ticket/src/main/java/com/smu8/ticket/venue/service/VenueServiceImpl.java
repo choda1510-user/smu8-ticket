@@ -17,7 +17,12 @@ public class VenueServiceImpl implements VenueService {
 
     @Override
     public PageResult<VenueDetailResult> getVenues(VenuePageQuery query) {
-        return PageResult.from(venueRepository.findAll(PageRequest.of(query.page(), query.size())).map(VenueDetailResult::from));
+        return PageResult.from(venueRepository
+                .findAll(
+                        PageRequest.of(
+                                query.pageQuery().page(),
+                                query.pageQuery().size()))
+                .map(VenueDetailResult::from));
     }
 
     @Override

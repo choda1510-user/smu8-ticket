@@ -5,6 +5,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record UpdateVenueRequest(
         @Schema(description = "수정할 공연장 이름", example = "서울아트센터")
         String name,
+        @Schema(description = "공연장 설명", example = "설명")
+        String description,
+        @Schema(description = "공연장 최대 수용 인원", example = "1000")
+        Integer capacity,
         @Schema(description = "수정할 우편번호", example = "06234")
         String zoneNo,
         @Schema(description = "수정할 도로명 주소", example = "서울특별시 강남구 테헤란로 123")

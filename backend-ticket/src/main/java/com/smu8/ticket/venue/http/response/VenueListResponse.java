@@ -9,12 +9,12 @@ import java.util.List;
 @Builder
 public record VenueListResponse(
         @Schema(description = "공연장 목록")
-        List<VenueDetailResponse> venues
+        List<VenueItemResponse> venues
 ) {
     public static VenueListResponse from(List<VenueDetailResult> results) {
         return VenueListResponse.builder()
                 .venues(results.stream()
-                        .map(VenueDetailResponse::from)
+                        .map(VenueItemResponse::from)
                         .toList())
                 .build();
     }

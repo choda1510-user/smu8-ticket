@@ -1,13 +1,14 @@
 package com.smu8.ticket.venue.service;
 
+import com.smu8.ticket.dto.result.PageResult;
 import com.smu8.ticket.venue.dto.query.VenueDetailQuery;
+import com.smu8.ticket.venue.dto.query.VenuePageQuery;
 import com.smu8.ticket.venue.dto.result.VenueDetailResult;
 import com.smu8.ticket.venue.entity.Venue;
 import com.smu8.ticket.venue.repository.VenueRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -15,11 +16,8 @@ public class VenueServiceImpl implements VenueService {
     private final VenueRepository venueRepository;
 
     @Override
-    public List<VenueDetailResult> getVenues() {
-        return venueRepository.findAll()
-                .stream()
-                .map(VenueDetailResult::from)
-                .toList();
+    public PageResult<VenueDetailResult> getVenues(VenuePageQuery query) {
+        return PageResult.from(venueRepository.findAll(PageRequest.of(query.page(), query.size())).map(VenueDetailResult::from));
     }
 
     @Override

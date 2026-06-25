@@ -20,9 +20,12 @@ public class VenueController {
 
     @GetMapping("/api/venues")
     public ResponseEntity<PageInfoResponse<VenueItemResponse>> getVenues(
-            @RequestParam(name = "venueNames") String venueNames,
-            @RequestParam(name = "page", defaultValue = "0") Integer page,
-            @RequestParam(name = "size", defaultValue = "4") Integer size
+            @RequestParam(name = "venueNames", required = false)
+            String venueNames,
+            @RequestParam(name = "page", defaultValue = "0", required = false)
+            Integer page,
+            @RequestParam(name = "size", defaultValue = "4", required = false)
+            Integer size
     ) {
         return ResponseEntity
                 .ok(PageInfoResponse.from(venueService.getVenues(VenuePageQuery.builder()

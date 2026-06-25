@@ -4,7 +4,7 @@ import type {
     BackendVenue,
     BackendVenueListResponse,
     VenueResult,
-    VenueSearchResult,
+    VenueSearchResponse,
 } from "@/types/venue";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
@@ -61,7 +61,7 @@ export function getVenueAddress(venue: BackendVenue) {
     return venue.address || [venue.roadAddress, venue.detailAddress].filter(Boolean).join(" ");
 }
 
-export function toVenueSearchResult(venue: BackendVenue): VenueSearchResult {
+export function toVenueSearchResult(venue: BackendVenue): VenueSearchResponse {
     return {
         venueId: venue.id,
         venueName: venue.venue_name || venue.name || "",

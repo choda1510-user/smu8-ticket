@@ -1,4 +1,4 @@
-import type {ListResponse} from "@/types/api";
+import type {PageResponse} from "@/types/api";
 
 export type BookingSeat = {
     id: number;
@@ -27,8 +27,6 @@ export type BookingDetail = {
     seats: BookingSeat[];
 };
 
-export type BookingDetail2 = BookingDetail;
-
 export type BookingItem = {
     reserveId: number;
     concertId: number;
@@ -44,7 +42,7 @@ export type BookingItem = {
     status: string;
 };
 
-export type BookingListResponse = ListResponse<BookingItem>;
+export type BookingPageResponse = PageResponse<BookingItem>;
 
 export type BookingWaiting = {
     concertId: number;

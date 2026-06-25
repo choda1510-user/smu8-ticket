@@ -7,14 +7,14 @@ import {
 } from "@/apis/concertApi";
 import {filterVenuesByKeyword, getVenueList, toVenueResult} from "@/apis/venueApi";
 import type {ConcertResultResponse} from "@/types/concert";
-import type {VenueResultResponse} from "@/types/venue";
+import type {VenueSearch} from "@/types/venue";
 
 const initialConcertResults: ConcertResultResponse = {
     data: [],
     page: 1,
     totalPage: 1,
 };
-const initialVenueResults: VenueResultResponse = {
+const initialVenueResults: VenueSearch = {
     data: [],
     page: 1,
     totalPage: 1,
@@ -28,7 +28,7 @@ export function useGlobalConcertSearchPage() {
     const [searchParams] = useSearchParams();
     const keyword = getKeyword(searchParams);
     const [concertResults, setConcertResults] = useState<ConcertResultResponse>(initialConcertResults);
-    const [venueResults, setVenueResults] = useState<VenueResultResponse>(initialVenueResults);
+    const [venueResults, setVenueResults] = useState<VenueSearch>(initialVenueResults);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 

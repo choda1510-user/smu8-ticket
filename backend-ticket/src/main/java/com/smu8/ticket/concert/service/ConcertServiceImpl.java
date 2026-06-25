@@ -10,9 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-@Service("userConcertServiceImpl")
+@Service
 @RequiredArgsConstructor
 public class ConcertServiceImpl implements ConcertService {
     private final ConcertRepository concertRepository;

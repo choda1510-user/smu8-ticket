@@ -54,17 +54,8 @@ function ConcertHoleSearchResultPage() {
                                                  ={styles.logoArea}>
                                             <div className
                                                      ={styles.logoBox}>
-                                                {venue.logoUrl ? (
-                                                    <img
-                                                        src={venue.logoUrl}
-                                                        alt="공연장 로고"
-                                                        className
-                                                            ={styles.logoImage}
-                                                    />
-                                                ) : (
-                                                    <span className
-                                                              ={styles.logoText}>공연장 로고</span>
-                                                )}
+                                                <span className
+                                                          ={styles.logoText}>공연장</span>
                                             </div>
                                         </div>
 

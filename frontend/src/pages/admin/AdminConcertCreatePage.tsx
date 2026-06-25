@@ -16,6 +16,7 @@ type ConcertSchedule = {
 
 type VenueOption = {
     code: string;
+    venueCode: string;
     name: string;
     address: string;
 };
@@ -120,7 +121,8 @@ function AdminConcertCreatePage() {
                 const venues = await getAdminVenueList();
                 setVenueOptions(venues.map((item) => ({
                     code: String(item.id),
-                    name: item.name,
+                    venueCode: item.venue_code || String(item.id),
+                    name: item.venue_name || item.name || "",
                     address: getVenueAddress(item),
                 })));
             } catch {
@@ -484,7 +486,7 @@ function AdminConcertCreatePage() {
                     <div className="admin-page__concert-grid">
                         <label>공연장</label>
                         <div className="admin-page__inline-control">
-                            <input readOnly value={venue ? `${venue.name} (${venue.code})` : ""} />
+                            <input readOnly value={venue ? `${venue.name} (${venue.venueCode})` : ""} />
                             <button type="button" className="admin-page__button admin-page__button--compact" onClick={() => setIsVenueModalOpen(true)}>찾기</button>
                         </div>
 

@@ -80,16 +80,20 @@ function AdminVenueDetailPage() {
                 ) : venue ? (
                     <div className="admin-page__info-grid">
                         <label>공연장 이름</label>
-                        <p>{venue.name}</p>
+                        <p>{venue.venue_name || venue.name}</p>
 
                         <label>공연장코드</label>
-                        <p>{venue.id}</p>
+                        <p>{venue.venue_code || venue.id}</p>
 
                         <label>주소</label>
                         <p>{getVenueAddress(venue)}</p>
 
-                        <label>건물명</label>
-                        <p>{venue.buildingName || "-"}</p>
+                        <label>현재 등록된 공연</label>
+                        <p>
+                            {venue.current_concerts && venue.current_concerts.length > 0
+                                ? venue.current_concerts.map((concert) => concert.title).join(", ")
+                                : "-"}
+                        </p>
                     </div>
                 ) : (
                     <div className="admin-page__empty">공연장 정보가 없습니다.</div>

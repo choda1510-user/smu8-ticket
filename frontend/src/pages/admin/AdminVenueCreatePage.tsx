@@ -9,14 +9,15 @@ type VenueCreateErrors = {
     address?: string;
 };
 
+function createVenueCode() {
+    return String(Math.floor(100000 + Math.random() * 900000));
+}
+
 function AdminVenueCreatePage() {
     const navigate = useNavigate();
+    const [venueCode] = useState(() => createVenueCode());
     const [venueName, setVenueName] = useState("");
-    const [zoneNo, setZoneNo] = useState("");
     const [address, setAddress] = useState("");
-    const [jibunAddress, setJibunAddress] = useState("");
-    const [detailAddress, setDetailAddress] = useState("");
-    const [buildingName, setBuildingName] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<VenueCreateErrors>({});
 
@@ -30,10 +31,7 @@ function AdminVenueCreatePage() {
             const data = await openDaumPostcode();
             const roadAddress = data.roadAddress || data.address;
 
-            setZoneNo(data.zonecode);
             setAddress(roadAddress);
-            setJibunAddress(data.jibunAddress);
-            setBuildingName((currentBuildingName) => currentBuildingName || data.buildingName);
             setErrors((currentErrors) => ({...currentErrors, address: undefined}));
         } catch {
             alert("주소찾기를 불러오지 못했습니다.");
@@ -60,12 +58,9 @@ function AdminVenueCreatePage() {
         try {
             setIsSubmitting(true);
             await addVenue({
-                name: venueName.trim(),
-                zoneNo,
-                roadAddress: address.trim(),
-                jibunAddress,
-                detailAddress: detailAddress.trim(),
-                buildingName: buildingName.trim(),
+                venue_code: venueCode,
+                venue_name: venueName.trim(),
+                address: address.trim(),
             });
 
             alert("공연장이 등록되었습니다.");
@@ -98,6 +93,10 @@ function AdminVenueCreatePage() {
                     </div>
                     <span />
 
+                    <label>공연장코드</label>
+                    <input readOnly value={venueCode} />
+                    <span />
+
                     <label>주소</label>
                     <div className="admin-page__input-stack">
                         <input
@@ -111,14 +110,6 @@ function AdminVenueCreatePage() {
                     <button type="button" className="admin-page__button admin-page__button--compact" onClick={handleAddressSearchClick}>
                         조회
                     </button>
-
-                    <label>상세주소</label>
-                    <input value={detailAddress} onChange={(event) => setDetailAddress(event.target.value)} />
-                    <span />
-
-                    <label>건물명</label>
-                    <input value={buildingName} onChange={(event) => setBuildingName(event.target.value)} />
-                    <span />
                 </div>
 
                 <div className="admin-page__bottom-actions">

@@ -1,23 +1,25 @@
 import {useEffect, useState} from "react";
 import {useParams} from "react-router";
-import {getConcert, toConcertDetail} from "@/apis/concertApi";
-import type {ConcertDetail} from "@/types/concert";
+import {getConcert} from "@/apis/concertApi";
+import type {ConcertResponse} from "@/types/concert";
 
-const initialConcertDetail: ConcertDetail = {
+const initialConcertDetail: ConcertResponse = {
     id: 0,
     venueId: 0,
-    concertTitle: "",
-    artistName: "",
-    concertPeriod: "",
+    title: "",
+    description:"",
     runningTime: "",
     venueName: "",
-    reservationPeriod: "",
+    startAt: "",
+    endAt: "",
+    reservationStartAt: "",
+    reservationStatus: "BEFORE_OPEN",
     schedules: [],
 };
 
 export function useConcertDetailsPage() {
     const {concertId} = useParams();
-    const [concertDetail, setConcertDetail] = useState<ConcertDetail>(initialConcertDetail);
+    const [concertDetail, setConcertDetail] = useState<ConcertResponse>(initialConcertDetail);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
@@ -38,7 +40,7 @@ export function useConcertDetailsPage() {
                 const concert = await getConcert(id);
 
                 if (isMounted) {
-                    setConcertDetail(toConcertDetail(concert));
+                    setConcertDetail(concert);
                 }
             } catch (caughtError) {
                 if (isMounted) {

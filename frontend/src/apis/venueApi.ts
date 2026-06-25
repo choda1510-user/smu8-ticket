@@ -1,5 +1,6 @@
 import type {
-    AdminVenueRequest,
+    AdminVenueCreateRequest,
+    AdminVenueUpdateRequest,
     BackendVenue,
     BackendVenueListResponse,
     VenueResult,
@@ -57,13 +58,13 @@ async function fetchEmpty(url: string, options?: RequestInit): Promise<void> {
 }
 
 export function getVenueAddress(venue: BackendVenue) {
-    return [venue.roadAddress, venue.detailAddress].filter(Boolean).join(" ");
+    return venue.address || [venue.roadAddress, venue.detailAddress].filter(Boolean).join(" ");
 }
 
 export function toVenueSearchResult(venue: BackendVenue): VenueSearchResult {
     return {
         venueId: venue.id,
-        venueName: venue.name,
+        venueName: venue.venue_name || venue.name || "",
         availableConcertCount: 0,
     };
 }
@@ -71,7 +72,7 @@ export function toVenueSearchResult(venue: BackendVenue): VenueSearchResult {
 export function toVenueResult(venue: BackendVenue): VenueResult {
     return {
         id: venue.id,
-        venueName: venue.name,
+        venueName: venue.venue_name || venue.name || "",
         availableConcertCount: 0,
     };
 }
@@ -84,11 +85,13 @@ export function filterVenuesByKeyword(venues: BackendVenue[], keyword: string) {
     }
 
     return venues.filter((venue) => {
+        const venueName = venue.venue_name || venue.name || "";
+        const venueAddress = getVenueAddress(venue);
+
         return (
-            venue.name.toLowerCase().includes(normalizedKeyword) ||
-            venue.roadAddress.toLowerCase().includes(normalizedKeyword) ||
-            venue.jibunAddress.toLowerCase().includes(normalizedKeyword) ||
-            venue.buildingName.toLowerCase().includes(normalizedKeyword)
+            venueName.toLowerCase().includes(normalizedKeyword) ||
+            venueAddress.toLowerCase().includes(normalizedKeyword) ||
+            (venue.venue_code ?? "").toLowerCase().includes(normalizedKeyword)
         );
     });
 }
@@ -99,7 +102,7 @@ export async function getVenue(id: number): Promise<BackendVenue> {
 
 export async function getVenueList(): Promise<BackendVenue[]> {
     const response = await fetchJson<BackendVenueListResponse>(`${API_BASE_URL}/api/venues`);
-    return response.venues;
+    return response.venues ?? response.contents ?? [];
 }
 
 export async function getAdminVenue(id: number): Promise<BackendVenue> {
@@ -113,10 +116,10 @@ export async function getAdminVenueList(): Promise<BackendVenue[]> {
         headers: createJsonHeaders(),
     });
 
-    return response.venues;
+    return response.venues ?? response.contents ?? [];
 }
 
-export async function addVenue(request: AdminVenueRequest): Promise<BackendVenue> {
+export async function addVenue(request: AdminVenueCreateRequest): Promise<BackendVenue> {
     const accessToken = getAccessToken();
 
     if (!accessToken) {
@@ -130,7 +133,7 @@ export async function addVenue(request: AdminVenueRequest): Promise<BackendVenue
     });
 }
 
-export async function updateVenue(id: number, request: AdminVenueRequest): Promise<BackendVenue> {
+export async function updateVenue(id: number, request: AdminVenueUpdateRequest): Promise<BackendVenue> {
     return fetchJson<BackendVenue>(`${API_BASE_URL}/api/admin/venues/${id}`, {
         method: "PATCH",
         headers: createJsonHeaders(),

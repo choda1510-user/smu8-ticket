@@ -106,7 +106,7 @@ function ConcertDetailsPage() {
                              ={styles.infoArea}>
                         <h2 className
                                 ={styles.concertTitle}>
-                            {concertDetail.concertTitle} / {concertDetail.artistName}
+                            {concertDetail.concertTitle}
                         </h2>
 
                         <div className

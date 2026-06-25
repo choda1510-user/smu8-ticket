@@ -38,8 +38,10 @@ function AdminVenueListPage() {
         const nameKeyword = venueNameKeyword.trim().toLowerCase();
 
         return venues.filter((venue) => {
-            const matchesCode = codeKeyword ? String(venue.id).includes(codeKeyword) : true;
-            const matchesName = nameKeyword ? venue.name.toLowerCase().includes(nameKeyword) : true;
+            const venueCode = venue.venue_code || String(venue.id);
+            const venueName = venue.venue_name || venue.name || "";
+            const matchesCode = codeKeyword ? venueCode.includes(codeKeyword) : true;
+            const matchesName = nameKeyword ? venueName.toLowerCase().includes(nameKeyword) : true;
 
             return matchesCode && matchesName;
         });
@@ -105,29 +107,27 @@ function AdminVenueListPage() {
                         <th>공연장코드</th>
                         <th>공연장</th>
                         <th>주소</th>
-                        <th>건물명</th>
                     </tr>
                     </thead>
                     <tbody>
                     {isLoading ? (
                         <tr>
-                            <td colSpan={4}>불러오는 중입니다.</td>
+                            <td colSpan={3}>불러오는 중입니다.</td>
                         </tr>
                     ) : pagedVenues.length === 0 ? (
                         <tr>
-                            <td colSpan={4}>조회된 공연장이 없습니다.</td>
+                            <td colSpan={3}>조회된 공연장이 없습니다.</td>
                         </tr>
                     ) : (
                         pagedVenues.map((venue) => (
                             <tr key={venue.id}>
-                                <td>{venue.id}</td>
+                                <td>{venue.venue_code || venue.id}</td>
                                 <td>
                                     <button type="button" className="admin-page__link-button" onClick={() => navigate(`/admin/venues/${venue.id}`)}>
-                                        {venue.name}
+                                        {venue.venue_name || venue.name}
                                     </button>
                                 </td>
                                 <td>{getVenueAddress(venue)}</td>
-                                <td>{venue.buildingName || "-"}</td>
                             </tr>
                         ))
                     )}

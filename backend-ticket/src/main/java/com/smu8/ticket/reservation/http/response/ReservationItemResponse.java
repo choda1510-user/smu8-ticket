@@ -1,13 +1,14 @@
 package com.smu8.ticket.reservation.http.response;
 
 import com.smu8.ticket.concert.http.response.ConcertScheduleResponse;
+import com.smu8.ticket.reservation.dto.result.ReservationItemResult;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
-public record ReservationDetailResponse(
+public record ReservationItemResponse(
         Long reservationId,
         ConcertScheduleResponse reservedSchedule,
         String reservationNo,
@@ -20,7 +21,9 @@ public record ReservationDetailResponse(
         String cardPosterUrl,
         List<ConcertScheduleResponse> concertSchedules,
         Long venueId,
-        String venueName,
-        List<ReservationSeatResponse> seats
+        String venueName
 ) {
+    public static ReservationItemResponse from(ReservationItemResult result) {
+        return null;
+    }
 }

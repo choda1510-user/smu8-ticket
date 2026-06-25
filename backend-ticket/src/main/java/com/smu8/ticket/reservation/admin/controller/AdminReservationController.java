@@ -1,9 +1,12 @@
 package com.smu8.ticket.reservation.admin.controller;
 
-import com.smu8.ticket.reservation.admin.dto.command.CancelReservationCommand;
-import com.smu8.ticket.reservation.admin.http.request.CancelReservationRequest;
+import com.smu8.ticket.dto.query.PageQuery;
+import com.smu8.ticket.http.response.PageResponse;
+import com.smu8.ticket.reservation.admin.dto.command.CreateCancelReservationCommand;
+import com.smu8.ticket.reservation.admin.dto.query.AdminReservationQuery;
+import com.smu8.ticket.reservation.admin.http.request.AdminCreateCancelReservationRequest;
 import com.smu8.ticket.reservation.admin.http.response.AdminReservationDetailResponse;
-import com.smu8.ticket.reservation.admin.http.response.AdminReservationListResponse;
+import com.smu8.ticket.reservation.admin.http.response.AdminReservationItemResponse;
 import com.smu8.ticket.reservation.admin.service.AdminReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,15 +14,29 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-
 public class AdminReservationController {
 
     private final AdminReservationService adminReservationService;
 
     @GetMapping("/api/admin/reservations")
-    public ResponseEntity<AdminReservationListResponse>getReservations(){
+    public ResponseEntity<PageResponse<AdminReservationItemResponse>>getReservations(
+            @RequestParam(name = "page", defaultValue = "0", required = false)
+            Integer page,
+            @RequestParam(name = "size", defaultValue = "4",  required = false)
+            Integer size,
+            @RequestParam(name = "accountId", required = false)
+            String accountId
+    ){
         return ResponseEntity.ok(
-                AdminReservationListResponse.from(adminReservationService.getReservations())
+                PageResponse.from(
+                        adminReservationService
+                                .getReservations(AdminReservationQuery.builder()
+                                        .pageQuery(PageQuery.builder()
+                                                .page(page)
+                                                .size(size)
+                                                .build())
+                                        .build()),
+                        AdminReservationItemResponse::from)
         );
     }
 
@@ -29,15 +46,15 @@ public class AdminReservationController {
                 AdminReservationDetailResponse.from(adminReservationService.getReservation(id))
         );
     }
-    @PatchMapping("/api/admin/reservations/{id}/cancel")
+    @PostMapping("/api/admin/reservations/{id}/cancel")
     public ResponseEntity<AdminReservationDetailResponse> cancelReservation(
             @PathVariable Long id,
-            @RequestBody CancelReservationRequest request
+            @RequestBody AdminCreateCancelReservationRequest request
     ){
         return ResponseEntity.ok(
                 AdminReservationDetailResponse.from(
                         adminReservationService.cancelReservation(
-                                CancelReservationCommand.from(id,request)
+                                CreateCancelReservationCommand.from(id,request)
                         )
                 )
         );

@@ -1,17 +1,16 @@
 package com.smu8.ticket.reservation.admin.service;
 
-import com.smu8.ticket.reservation.admin.dto.command.CancelReservationCommand;
+import com.smu8.ticket.dto.result.PageResult;
+import com.smu8.ticket.reservation.admin.dto.command.CreateCancelReservationCommand;
+import com.smu8.ticket.reservation.admin.dto.query.AdminReservationQuery;
 import com.smu8.ticket.reservation.admin.dto.result.AdminReservationDetailResult;
-import com.smu8.ticket.reservation.admin.dto.result.AdminReservationListResult;
-import com.smu8.ticket.reservation.entity.CancelReservation;
-
-import java.util.List;
+import com.smu8.ticket.reservation.admin.dto.result.AdminReservationItemResult;
 
 public interface AdminReservationService {
 
-    List<AdminReservationListResult> getReservations();
+    PageResult<AdminReservationItemResult> getReservations(AdminReservationQuery query);
 
     AdminReservationDetailResult getReservation(Long reservationId);
 
-    AdminReservationDetailResult cancelReservation(CancelReservationCommand command);
+    AdminReservationDetailResult cancelReservation(CreateCancelReservationCommand command);
 }

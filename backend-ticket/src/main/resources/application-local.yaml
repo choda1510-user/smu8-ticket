@@ -15,7 +15,7 @@ spring:
     show-sql: true
 
   data:
-    redis:
+    redis-ticket:
       host: redis-ticket
       port: 6379
 

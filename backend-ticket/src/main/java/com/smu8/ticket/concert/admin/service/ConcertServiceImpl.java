@@ -2,10 +2,12 @@ package com.smu8.ticket.concert.admin.service;
 
 import com.smu8.ticket.concert.admin.dto.command.CreateConcertCommand;
 import com.smu8.ticket.concert.admin.dto.command.UpdateConcertCommand;
-import com.smu8.ticket.concert.admin.dto.result.ConcertDetailResult;
+import com.smu8.ticket.concert.dto.result.ConcertDetailResult;
 import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
+import com.smu8.ticket.concert.dto.query.ConcertPageQuery;
 import com.smu8.ticket.concert.entity.Concert;
 import com.smu8.ticket.concert.repository.ConcertRepository;
+import com.smu8.ticket.dto.result.PageResult;
 import com.smu8.ticket.venue.entity.Venue;
 import com.smu8.ticket.venue.repository.VenueRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +33,11 @@ public class ConcertServiceImpl implements ConcertService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ConcertDetailResult> getConcerts() {
-        return concertRepository.findAll().stream()
-                .map(ConcertDetailResult::from)
-                .toList();
+    public PageResult<ConcertDetailResult> getConcerts(ConcertPageQuery query) {
+//        return concertRepository.findAll().stream()
+//                .map(ConcertDetailResult::from)
+//                .toList();
+        return null;
     }
 
     @Override

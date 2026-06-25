@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,7 +31,7 @@ public class Reservation {
     private String reservationNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", referencedColumnName = "user_id")
+    @JoinColumn(name = "member_id", referencedColumnName = "user_id", nullable = false)
     private Account account;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,6 +50,12 @@ public class Reservation {
     @CreatedDate
     @Column(name = "reserved_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "reservation")
+    private List<ReservationSeat> reservationSeats;
+
+    @OneToMany(mappedBy = "reservation")
+    private List<CancelReservation> cancelReservations;
 
     public void cancel(String reason) {
         this.reservationStatus = "CANCELED";

@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +22,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -28,6 +31,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 @EntityListeners(AuditingEntityListener.class)
+@Table(name = "concert")
 public class Concert {
     @Id
     @Column(name = "performance_id")
@@ -47,6 +51,8 @@ public class Concert {
     @Column
     private String runningTime;
     @Column
+    private String notice;
+    @Column
     private String cardPosterUrl;
     @Column
     private String screenPosterUrl;
@@ -56,4 +62,10 @@ public class Concert {
     private LocalDateTime createdAt;
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "concert")
+    private List<PerformanceSchedule> performanceSchedules;
+
+    @OneToMany(mappedBy = "concert")
+    private List<SeatGrade> seatGrades;
 }

@@ -8,7 +8,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import com.smu8.ticket.reservation.entity.Reservation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -50,4 +53,10 @@ public class PerformanceSchedule {
 
     @Column(name = "seat_row_count", nullable = false)
     private Integer seatRowCount;
+
+    @OneToMany(mappedBy = "performanceSchedule")
+    private List<Seat> seats;
+
+    @OneToMany(mappedBy = "performanceSchedule")
+    private List<Reservation> reservations;
 }

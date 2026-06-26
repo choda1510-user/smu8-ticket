@@ -32,39 +32,24 @@ public record CreateConcertCommand(
         List<CreateSeatGradeCommand> seatGrades = request.seatGrades() == null
                 ? List.of()
                 : request.seatGrades().stream()
-                .map(seatGrade -> new CreateSeatGradeCommand(
-                        seatGrade.gradeName(),
-                        seatGrade.price(),
-                        seatGrade.color()
-                ))
-                .toList();
-
-        List<CreateSeatCommand> seats = request.seats() == null
-                ? List.of()
-                : request.seats().stream()
-                .map(seat -> new CreateSeatCommand(
-                        seat.seatGradeName(),
-                        seat.row(),
-                        seat.col()
-                ))
+                .map(CreateSeatGradeCommand::from)
                 .toList();
 
         List<CreatePerformanceScheduleCommand> schedules = request.schedules() == null
                 ? List.of()
                 : request.schedules().stream()
-                .map(schedule -> CreatePerformanceScheduleCommand.builder()
-                        .date(schedule.date())
-                        .reservationEndAt(schedule.reservationEndAt())
-                        .seats(seats)
-                        .rowMax(request.rowMax())
-                        .colMax(request.colMax())
-                        .build())
+                .map(schedule -> CreatePerformanceScheduleCommand.from(
+                        schedule,
+                        request.seats(),
+                        request.rowMax(),
+                        request.colMax()
+                ))
                 .toList();
 
         return CreateConcertCommand.builder()
                 .title(request.title())
                 .description(request.description())
-                .startReservationAt(request.startAt())
+                .startReservationAt(request.reservationStartAt())
                 .venueId(request.venueId())
                 .seatGrades(seatGrades)
                 .schedules(schedules)

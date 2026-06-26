@@ -1,5 +1,5 @@
 import type { ConcertDetail, ConcertDetailResponse, ConcertItem, ConcertItemResponse, ConcertSchedule, ConcertScheduleResponse } from "@/types/concert";
-import { compareDateAsc, compareDateDesc, splitDatetime, stringToDate, getDDayText } from "./dateUtil";
+import { compareDateAsc, compareDateDesc, splitDatetime, stringToDate, getDDayText, datesToPeriod } from "./dateUtil";
 
 export function convertConcertSchedule(response: ConcertScheduleResponse): ConcertSchedule {
     const datetime = stringToDate(response.date);
@@ -32,11 +32,11 @@ export function convertConcertDetail(response: ConcertDetailResponse): ConcertDe
         id: response.id,
         venueId: response.venueId,
         posterUrl: response.posterUrl,
-        concertTitle: response.concertTitle,
-        concertPeriod: response.concertPeriod,
+        concertTitle: response.title,
+        concertPeriod: datesToPeriod(response.schedules.map(schedule => schedule.date)),
         runningTime: response.runningTime,
         venueName: response.venueName,
-        reservationPeriod: response.reservationPeriod,
+        reservationPeriod: datesToPeriod([... response.schedules.map(schedule => schedule.reservationEndAt), response.reservationStartAt]),
         schedules: response.schedules.map(convertConcertSchedule),
         description: response.description,
         startAt: startAt,
@@ -45,9 +45,6 @@ export function convertConcertDetail(response: ConcertDetailResponse): ConcertDe
     }
 }
 
-export function datesToPeriod(dates: string[]): string {
-    return "2026.06.24 ~ 2026.06.30";
-}
 export function badgeTextFrom(response: ConcertItemResponse): string {
     return getDDayText(response.reservationStartAt);
 }
@@ -57,6 +54,7 @@ export function convertConcertItem(response: ConcertItemResponse): ConcertItem {
         posterUrl: response.cardPosterUrl,
         title: response.title,
         period: datesToPeriod(response.dates.map((date) => date.date)),
+        venueId: response.venueId,
         venueName: response.venueName,
         badgeText: badgeTextFrom(response)
     }

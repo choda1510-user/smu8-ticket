@@ -8,8 +8,8 @@ import java.util.function.Function;
 
 @Builder
 public record PageResponse<T>(
-        int currentPage,
-        int pageSize,
+        int page,
+        int size,
         long totalElements,
         int totalPages,
         boolean hasNext,
@@ -18,8 +18,8 @@ public record PageResponse<T>(
 ) {
     public static <T, R> PageResponse<R> from(PageResult<T> result, Function<T, R> mapper) {
         return PageResponse.<R>builder()
-                .currentPage(result.currentPage())
-                .pageSize(result.pageSize())
+                .page(result.currentPage())
+                .size(result.pageSize())
                 .totalElements(result.totalElements())
                 .totalPages(result.totalPages())
                 .hasNext(result.hasNext())

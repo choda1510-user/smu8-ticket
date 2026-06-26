@@ -15,7 +15,7 @@ public record ConcertDetailResponse(
         String title,
         @Schema(description = "공연 설명", example = "대표 아티스트들이 함께하는 라이브 콘서트입니다.")
         String description,
-        @Schema(description = "공연 카드 포스터 주소")
+        @Schema(description = "공연 카드 포스터 이미지 주소")
         String posterUrl,
         @Schema(description = "공연 회차 목록")
         List<ConcertScheduleResponse> schedules,
@@ -25,6 +25,12 @@ public record ConcertDetailResponse(
         Long venueId,
         @Schema(description = "공연장 이름", example = "서울아트센터")
         String venueName,
+        @Schema(description = "예매 오픈 시작일시")
+        LocalDateTime reservationStartAt,
+        @Schema(description = "좌석 행 개수")
+        Integer rowMax,
+        @Schema(description = "좌석 열 개수")
+        Integer colMax,
         @Schema(description = "생성일시", example = "2026-06-22T10:30:00")
         LocalDateTime createdAt,
         @Schema(description = "수정일시", example = "2026-06-22T10:30:00")

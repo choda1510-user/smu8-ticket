@@ -1,5 +1,5 @@
 import type { PageRequest, PageResponse, PageResult } from "@/types/api";
-import type { ReservationStatus } from "@/types/concert";
+import type { ReservationStatus, SeatGradeResponse, SeatResponse } from "@/types/concert";
 
 // 관리자 공연 목록 검색 요청 타입
 export type AdminConcertListPageRequest = PageRequest & {
@@ -87,59 +87,33 @@ export type AdminConcertUpdateRequest = AdminConcertDetailsRequest & {
 export type AdminConcertRequest = AdminConcertCreateRequest;
 
 // 백엔드에서 받아오는 공연 회차 응답 타입
-export type AdminConcertSessionResponse = {
+export type AdminConcertScheduleResponse = {
     id: number; // 회차 고유 ID
-    concertId: number; // 공연 고유 ID
-    date: string; // 공연 날짜
-    time: string; // 공연 시간
+    concertId: number; // 공연 고유 Id
+    date: string // 공연 날짜
     reservationEndAt: string; // 예매 마감일시
-};
-
-// 백엔드에서 받아오는 공연 이미지 응답 타입
-export type AdminConcertImageResponse = {
-    card_poster_url?: string; // 카드형 메인 포스터 이미지 주소
-    screen_poster_url?: string; // 스크린형 포스터 이미지 주소
-    description_image_url?: string; // 작품 설명 이미지 주소
-};
-
-// 백엔드에서 받아오는 좌석 타입 응답 타입
-export type AdminConcertSeatTypeResponse = {
-    seat_type_id: string; // 좌석 타입 ID
-    seat_type_name: string; // 좌석 타입 이름
-    price: number; // 좌석 가격
-};
-
-// 백엔드에서 받아오는 좌석 배치 응답 타입
-export type AdminConcertSeatResponse = {
-    row_index: number; // 좌석 행 위치
-    column_index: number; // 좌석 열 위치
-    seat_type_id: string; // 좌석 타입 ID
-};
-
-// 백엔드에서 받아오는 좌석/가격 정책 응답 타입
-export type AdminConcertSeatPolicyResponse = {
-    row_count: number; // 전체 좌석 행 개수
-    column_count: number; // 전체 좌석 열 개수
-    seat_types: AdminConcertSeatTypeResponse[]; // 좌석 타입 목록
-    seats: AdminConcertSeatResponse[]; // 좌석 배치 목록
 };
 
 // 백엔드에서 받아오는 관리자 공연 응답 타입
 export type AdminConcertResponse = {
     id: number; // 공연 고유 ID
-    concert_code: string; // 공연 코드
-    title: string; // 공연명
-    runningTime: string; // 공연 시간
+    concertCode: string; // 공연 코드
+    title: string; // 공연 제목
+    description: string; // 공연 설명
+    cardPosterUrl: string; // 카드형 메인 포스터 이미지 주소
+    bannerPosterUrl: string; // 스크린형 포스터 이미지 주소
+    descriptionPosterUrl: string; // 작품 설명 이미지 주소
+    runningTime: string; // 공연 러닝타임
+    schedules: AdminConcertScheduleResponse[]; // 회차 목록
+    seatGrades: SeatGradeResponse[]; // 좌석 등급 목록
+    seats: SeatResponse[]; // 좌석 목록
     reservationStartAt?: string; // 예매 시작일시
     reservationStatus: ReservationStatus; // 예매 상태
     venueId: number; // 공연장 고유 ID
     venueName: string; // 공연장 이름
-    venue_code?: string; // 공연장 코드
     notice?: string; // 공지사항
-    description: string; // 작품 설명
-    sessions: AdminConcertSessionResponse[]; // 회차 목록
-    images?: AdminConcertImageResponse; // 이미지 정보
-    seat_policy?: AdminConcertSeatPolicyResponse; // 좌석/가격 정책
+    rowMax: number, // 좌석 행 개수
+    colMax: number, // 좌석 열 개수
     createdAt?: string; // 생성일시
     updatedAt?: string; // 수정일시
 };

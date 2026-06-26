@@ -7,15 +7,26 @@ export type AdminVenueDetailRequest = {
 }
 //관리자 공연장 생성 요청 타입
 export type AdminVenueCreateRequest = {
-    venue_code: string; // 등록 요청 body에 담아 보낼 난수 공연장 코드
-    venue_name: string; // 등록 요청 body에 담아 보낼 공연장 이름
-    address: string; // 등록 요청 body에 담아 보낼 카카오 주소 조회 API 선택 주소
+    name: string; // 공연장 이름
+    description?: string; // 공연장 설명
+    capacity?: number; // 공연장 최대 수용 인원
+    zoneNo: string; // 우편번호
+    roadAddress: string; // 도로명 주소
+    jibunAddress?: string; // 지번 주소
+    detailAddress?: string; // 상세 주소
+    buildingName?: string; // 건물명
 };
 
 //관리자 공연장 수정 요청 타입
-export type AdminVenueUpdateRequest = AdminVenueDetailRequest & {
-    venue_name: string; // 수정 요청 body에 담아 보낼 공연장 이름
-    address: string; // 수정 요청 body에 담아 보낼 공연장 주소
+export type AdminVenueUpdateRequest = {
+    name?: string; // 공연장 이름
+    description?: string; // 공연장 설명
+    capacity?: number; // 공연장 최대 수용 인원
+    zoneNo?: string; // 우편번호
+    roadAddress?: string; // 도로명 주소
+    jibunAddress?: string; // 지번 주소
+    detailAddress?: string; // 상세 주소
+    buildingName?: string; // 건물명
 };
 
 export type AdminVenueRequest = AdminVenueCreateRequest; // 기존 등록 코드 호환용 관리자 공연장 요청 타입
@@ -23,13 +34,16 @@ export type AdminVenueRequest = AdminVenueCreateRequest; // 기존 등록 코드
 //관리자 공연장 목록/상세 백엔드 응답 타입
 export type AdminVenueItemResponse = {
     id: number; // 공연장 고유 ID
-    venue_code: string; // 난수로 생성된 공연장 코드
-    venue_name: string; // 공연장 이름
-    zoneNo: string; // 구역번호
-    roadAddress: string; // 도로 주소
+    name: string; // 공연장 이름
+    description?: string; // 공연장 설명
+    capacity?: number; // 공연장 최대 수용 인원
+    zoneNo: string; // 우편번호
+    roadAddress: string; // 도로명 주소
     jibunAddress: string; // 지번 주소
     detailAddress: string; // 세부 주소
     buildingName: string; // 건물 이름
+    createdAt: string; // 생성일시
+    updatedAt: string; // 수정일시
 };
 //관리자 공연장 목록 조회 API의 백엔드 응답 타입
 export type AdminVenuePageResponse = PageResponse<AdminVenueItemResponse>;

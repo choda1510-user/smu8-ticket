@@ -1,67 +1,70 @@
 import type {
     AdminConcertDetails,
     AdminConcertDetailsResponse,
-    AdminConcertImageResponse,
     AdminConcertImageResult,
     AdminConcertItem,
     AdminConcertListPageResponse,
     AdminConcertListPageResult,
-    AdminConcertResponse,
-    AdminConcertSeatPolicyResponse,
     AdminConcertSeatPolicyResult,
-    AdminConcertSeatResponse,
     AdminConcertSeatResult,
-    AdminConcertSeatTypeResponse,
     AdminConcertSeatTypeResult,
-    AdminConcertSessionResponse,
+    AdminConcertScheduleResponse,
     AdminConcertSessionResult,
 } from "@/types/adminConcert.ts";
+import { splitDatetime } from "./dateUtil";
+import type { SeatGradeResponse, SeatResponse } from "@/types/concert";
 
 export const toAdminConcertSessionResult = (
-    response: AdminConcertSessionResponse,
-): AdminConcertSessionResult => ({
-    id: response.id,
-    concertId: response.concertId,
-    date: response.date,
-    time: response.time,
-    reservationEndAt: response.reservationEndAt,
-});
+    response: AdminConcertScheduleResponse,
+): AdminConcertSessionResult => {
+    const [ date, time ] = splitDatetime(new Date(response.date));
+    return {
+        id: response.id,
+        concertId: response.concertId,
+        date: date,
+        time: time,
+        reservationEndAt: response.reservationEndAt,
+    }
+};
 
 export const toAdminConcertImageResult = (
-    response: AdminConcertImageResponse,
+    response: AdminConcertDetailsResponse,
 ): AdminConcertImageResult => ({
-    cardPosterUrl: response.card_poster_url,
-    screenPosterUrl: response.screen_poster_url,
-    descriptionImageUrl: response.description_image_url,
+    cardPosterUrl: response.cardPosterUrl,
+    screenPosterUrl: response.bannerPosterUrl,
+    descriptionImageUrl: response.descriptionPosterUrl,
 });
 
 export const toAdminConcertSeatTypeResult = (
-    response: AdminConcertSeatTypeResponse,
+    response: SeatGradeResponse,
 ): AdminConcertSeatTypeResult => ({
-    seatTypeId: response.seat_type_id,
-    seatTypeName: response.seat_type_name,
+    seatTypeId: response.id.toString(),
+    seatTypeName: response.gradeName,
     price: response.price,
 });
 
 export const toAdminConcertSeatResult = (
-    response: AdminConcertSeatResponse,
+    response: SeatResponse,
 ): AdminConcertSeatResult => ({
-    rowIndex: response.row_index,
-    columnIndex: response.column_index,
-    seatTypeId: response.seat_type_id,
+    rowIndex: response.row,
+    columnIndex: response.col,
+    seatTypeId: response.seatGradeId.toString(),
 });
 
 export const toAdminConcertSeatPolicyResult = (
-    response: AdminConcertSeatPolicyResponse,
-): AdminConcertSeatPolicyResult => ({
-    rowCount: response.row_count,
-    columnCount: response.column_count,
-    seatTypes: response.seat_types.map(toAdminConcertSeatTypeResult),
-    seats: response.seats.map(toAdminConcertSeatResult),
-});
+    response: AdminConcertDetailsResponse,
+): AdminConcertSeatPolicyResult => {
+
+    return {
+        rowCount: response.rowMax,
+        columnCount: response.colMax,
+        seatTypes: response.seatGrades.map(toAdminConcertSeatTypeResult),
+        seats: response.seats.map(toAdminConcertSeatResult),
+    }
+};
 
 const getConcertPeriodText = (
-    sessions: AdminConcertSessionResponse[],
+    sessions: AdminConcertScheduleResponse[],
 ): string => {
     if (sessions.length === 0) {
         return "-";
@@ -75,12 +78,12 @@ const getConcertPeriodText = (
 };
 
 export const toAdminConcertItem = (
-    response: AdminConcertResponse,
+    response: AdminConcertDetailsResponse,
 ): AdminConcertItem => ({
     id: response.id,
-    concertCode: response.concert_code,
+    concertCode: response.concertCode,
     title: response.title,
-    periodText: getConcertPeriodText(response.sessions),
+    periodText: getConcertPeriodText(response.schedules),
     venueName: response.venueName,
     reservationStatus: response.reservationStatus,
     createdAt: response.createdAt,
@@ -91,23 +94,19 @@ export const toAdminConcertDetails = (
     response: AdminConcertDetailsResponse,
 ): AdminConcertDetails => ({
     id: response.id,
-    concertCode: response.concert_code,
+    concertCode: response.concertCode,
     title: response.title,
     runningTime: response.runningTime,
     reservationStartAt: response.reservationStartAt,
     reservationStatus: response.reservationStatus,
     venueId: response.venueId,
     venueName: response.venueName,
-    venueCode: response.venue_code,
+    venueCode: response.venueId.toString(),
     notice: response.notice,
     description: response.description,
-    sessions: response.sessions.map(toAdminConcertSessionResult),
-    images: response.images
-        ? toAdminConcertImageResult(response.images)
-        : undefined,
-    seatPolicy: response.seat_policy
-        ? toAdminConcertSeatPolicyResult(response.seat_policy)
-        : undefined,
+    sessions: response.schedules.map(toAdminConcertSessionResult),
+    images: toAdminConcertImageResult(response),
+    seatPolicy: toAdminConcertSeatPolicyResult(response),
     createdAt: response.createdAt,
     updatedAt: response.updatedAt,
 });

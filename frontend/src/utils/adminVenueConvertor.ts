@@ -9,8 +9,8 @@ export const toAdminVenueItem = (
     response: AdminVenueItemResponse,
 ): AdminVenueItem => ({
     id: response.id,
-    venueCode: response.venue_code,
-    venueName: response.venue_name,
+    venueCode: response.id.toString(),
+    venueName: response.name,
     address: [
         response.roadAddress,
         response.detailAddress,

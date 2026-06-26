@@ -4,6 +4,7 @@ export type ReservationStatus = "BEFORE_OPEN" | "OPEN" | "CLOSED"; // 예매 오
 
 export type ConcertScheduleResponse = {
     id: number; // 공연 회차 고유 ID
+    concertId: number; // 공연 고유 ID
     date: string; // 공연 날짜 및 시간
     reservationEndAt: string; // 예매 종료일시
 }
@@ -17,16 +18,18 @@ export type ConcertSchedule = { //상세페이지 내에 회차정보
 
 export type ConcertDetailResponse = { // 공연 상세페이지 백엔드 응답
     id: number; // 공연 고유 ID
-    venueId: number; // 공연장 고유 ID
-    posterUrl?: string; // 공연 포스터 이미지 주소
-    concertTitle: string; // 화면에 표시할 공연 제목
-    concertPeriod: string; // 화면에 표시할 공연 기간
-    runningTime: string; // 공연 러닝타임
-    venueName: string; // 공연장 이름
-    reservationPeriod: string; // 예매 가능 기간
+    title: string; // 화면에 표시할 공연 제목
+    description: string; // 공연 설명
+    posterUrl: string; // 공연 카드 포스터 이미지 주소
     schedules: ConcertScheduleResponse[]; // 공연 회차 목록
-    description?: string; // 공연 설명
-    reservationStartAt?: string; // 예매 오픈 시작일시
+    runningTime: string; // 공연 러닝타임
+    venueId: number; // 공연장 고유 ID
+    venueName: string; // 공연장 이름
+    reservationStartAt: string; // 예매 오픈 시작일시
+    rowMax: number, // 좌석 행 개수
+    colMax: number, // 좌석 열 개수
+    createdAt: string, // 생성일시
+    updatedAt: string, // 수정일시
 }
 export type ConcertDetail = { // 공연 상세페이지
     id: number; // 공연 고유 ID
@@ -59,6 +62,7 @@ export type ConcertItem = {
     posterUrl?: string; // 공연 포스터 이미지 주소
     title: string; // 공연 제목
     period: string; // 화면에 표시할 공연 기간
+    venueId: number // 공연장 고유 Id
     venueName: string; // 공연장 이름
     badgeText: string; // 화면에 표시할 상태 문구
 };
@@ -92,3 +96,15 @@ export type ConcertPageRequest = PageRequest & {
 export type ConcertDetailRequest = {
     id: number; // 상세 조회 URL에 path variable로 보낼 공연 고유 ID
 };
+export type SeatGradeResponse = {
+    id: number; // 좌석등급 Id
+    gradeName: string; // 좌석등급 이름
+    price: number; // 좌석등급 가격
+    color: string; // 좌석등급 색 (예: #fafafa)
+}
+export type SeatResponse = {
+    id: number; // 좌석 Id
+    seatGradeId: number; // 좌석등급 Id
+    row: number; // 좌석 행 위치
+    col: number; // 좌석 열 위치
+}

@@ -54,6 +54,7 @@ export function convertConcertItem(response: ConcertItemResponse): ConcertItem {
         posterUrl: response.cardPosterUrl,
         title: response.title,
         period: datesToPeriod(response.dates.map((date) => date.date)),
+        venueId: response.venueId,
         venueName: response.venueName,
         badgeText: badgeTextFrom(response)
     }

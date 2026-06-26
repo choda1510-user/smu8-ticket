@@ -61,6 +61,7 @@ export type ConcertItem = {
     posterUrl?: string; // 공연 포스터 이미지 주소
     title: string; // 공연 제목
     period: string; // 화면에 표시할 공연 기간
+    venueId: number // 공연장 고유 Id
     venueName: string; // 공연장 이름
     badgeText: string; // 화면에 표시할 상태 문구
 };

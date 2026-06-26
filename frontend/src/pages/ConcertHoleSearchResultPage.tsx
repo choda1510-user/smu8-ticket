@@ -42,13 +42,13 @@ function ConcertHoleSearchResultPage() {
                         <ul className
                                 ={styles.venueList}>
                             {venues.map((venue) => (
-                                <li key={venue.venueId} className
+                                <li key={venue.id} className
                                     ={styles.venueItem}>
                                     <button
                                         type="button"
                                         className
                                             ={styles.venueButton}
-                                        onClick={() => handleVenueClick(venue.venueId)}
+                                        onClick={() => handleVenueClick(venue.id)}
                                     >
                                         <div className
                                                  ={styles.logoArea}>

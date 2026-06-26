@@ -2,9 +2,10 @@ import type {
     ConcertDetail,
     ConcertDetailResponse,
     ConcertItem,
-    ConcertItemPageResponse,
     ConcertItemResponse,
-} from "@/types/concertF";
+    ConcertItemPageResponse,
+    ConcertItemPageResult
+} from "@/types/concert";
 import type {
     AdminConcertCreateRequest,
     AdminConcertUpdateRequest,
@@ -99,23 +100,27 @@ function formatPeriod(startAt: string, endAt: string) {
 function toConcertItem(concert: ConcertItemResponse): ConcertItem {
     return {
         concertId: concert.concertId,
+        posterUrl: concert.cardPosterUrl,
         title: concert.title,
         period: formatPeriodBySchedules(concert.dates),
+        venueId: concert.venueId,
         venueName: concert.venueName,
-        badgeText: getBadgeText(concert.reservationStartAt)
+        badgeText: getBadgeText(concert.reservationStartAt),
     };
 }
 
 export function toConcertSearchResult(concert: ConcertDetailResponse): ConcertDetail {
     return {
-        id = concert.id,
-        venueId: concert.venueId,
+        id : concert.id,
         posterUrl: concert.posterUrl,
-        runningTime : concert.runningTime.trim()
-        venueName : concert.venueName,
-        reservationPeriod : concert.reservationPeriod,
+        concertTitle: concert.title,
+        concertPeriod:"",
+        runningTime : concert.runningTime.trim(),
+        reservationPeriod : "",
         schedules : concert.schedules.map(toConcertSchedule),
-
+        description: concert.description,
+        startAt:"",
+        endAt: "",
         ...toConcertItem(concert),
         venueId: concert.venueId,
     };
@@ -255,7 +260,7 @@ export async function cancelConcert(id: number): Promise<void> {
 }
 
 // 기존 오타 함수명을 쓰는 코드가 있어도 깨지지 않도록 잠시 유지합니다.
-export const cancleConcert = cancelConcert;
+export const cancConcert = cancelConcert;
 
 export function getConcertListOnBanner() {
     return getConcertItems();

@@ -37,7 +37,7 @@ export function useConcertSearchResultPage() {
 
                 if (isMounted) {
                     setConcertSearchResults({
-                        contents: [],
+                        contents: concerts,
                         page: 1,
                         size: concerts.length,
                         totalElements: concerts.length,

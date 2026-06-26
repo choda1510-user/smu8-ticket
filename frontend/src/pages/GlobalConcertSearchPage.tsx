@@ -80,7 +80,7 @@ function GlobalConcertSearchPage() {
                         <ul className
                                 ={styles.concertList}>
                             {concerts.map((concert) => (
-                                <li key={concert.id} className
+                                <li key={concert.concertId} className
                                     ={styles.concertItem}>
 
                                     <div className
@@ -89,7 +89,7 @@ function GlobalConcertSearchPage() {
                                             type="button"
                                             className
                                                 ={styles.posterButton}
-                                            onClick={() => handleConcertClick(concert.id)}
+                                            onClick={() => handleConcertClick(concert.concertId)}
                                         >
                                             {concert.posterUrl ? (
                                                 <img src={concert.posterUrl} alt="공연 포스터" className
@@ -105,7 +105,7 @@ function GlobalConcertSearchPage() {
                                             type="button"
                                             className
                                                 ={styles.concertTitleButton}
-                                            onClick={() => handleConcertClick(concert.id)}
+                                            onClick={() => handleConcertClick(concert.concertId)}
                                         >
                                             {concert.title}
                                         </button>
@@ -128,7 +128,7 @@ function GlobalConcertSearchPage() {
                                     <div className
                                              ={styles.badgeArea}>
                                         <strong className
-                                                    ={styles.badge}>{concert.status}</strong>
+                                                    ={styles.badge}>{concert.badgeText}</strong>
                                     </div>
                                 </li>
                             ))}

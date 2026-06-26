@@ -29,7 +29,7 @@ export function useConcertListPage() {
 
                 if (isMounted) {
                     setConcertList({
-                        contents: [],
+                        contents: concerts,
                         page: 1,
                         size: concerts.length,
                         totalElements: concerts.length,

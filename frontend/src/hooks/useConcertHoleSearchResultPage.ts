@@ -5,12 +5,12 @@ import type {VenueSearchPageResult} from "@/types/venue";
 
 const initialVenueSearchResults: VenueSearchPageResult = {
     contents: [],
-    page: 1, // 현재 페이지 번호
-    size: 0,// 페이지 하나당 데이터 개수
-    totalElements: 0, // 전체 데이터 개수
-    totalPages: 1, // 전체 페이지 수
-    hasNext: false, // 다음 페이지 존재 여부
-    hasPrevious: false // 이전 페이지 존재 여부
+    page: 1,
+    size: 0,
+    totalElements: 0,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false
 };
 
 function getKeyword(searchParams: URLSearchParams) {
@@ -37,9 +37,13 @@ export function useConcertHoleSearchResultPage() {
 
                 if (isMounted) {
                     setVenueSearchResults({
-                        data: venues,
+                        contents: venues,
                         page: 1,
-                        totalPage: 1,
+                        size: venues.length,
+                        totalElements: venues.length,
+                        totalPages: 1,
+                        hasNext: false,
+                        hasPrevious: false
                     });
                 }
             } catch (caughtError) {

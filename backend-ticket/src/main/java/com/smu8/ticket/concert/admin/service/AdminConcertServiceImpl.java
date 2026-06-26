@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service("adminConcertServiceImpl")
+@Service
 @RequiredArgsConstructor
 public class AdminConcertServiceImpl implements AdminConcertService {
     private final ConcertRepository concertRepository;

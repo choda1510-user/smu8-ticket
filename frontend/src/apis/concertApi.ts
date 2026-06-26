@@ -2,15 +2,17 @@ import type {
     ConcertDetail,
     ConcertDetailResponse,
     ConcertItem,
-    ConcertItemResponse,
     ConcertItemPageResponse,
-    ConcertItemPageResult
+    ConcertItemResponse,
+    ConcertScheduleResponse
+
 } from "@/types/concert";
 import type {
-    AdminConcertCreateRequest,
-    AdminConcertUpdateRequest,
-    AdminConcertDetailResponse,
-    AdminConcertItemPageResponse,
+    AdminConcertCreateResponse,
+    AdminConcertDetailsResponse,
+    AdminConcertListPageResponse,
+    AdminConcertRequest,
+    AdminConcertUpdateResponse,
 } from "@/types/adminConcert.ts";
 
 import type {VenueSearch, VenueItemResponse} from "@/types/venue";
@@ -97,6 +99,39 @@ function formatPeriod(startAt: string, endAt: string) {
     return `${startText} ~ ${endText}`;
 }
 
+
+function toConcertSchedule(schedule: ConcertScheduleResponse) {
+    const date = new Date(schedule.date);
+
+    return {
+        id: schedule.id,
+        date: Number.isNaN(date.getTime()) ? schedule.date : schedule.date.slice(0, 10),
+        time: Number.isNaN(date.getTime()) ? "" : date.toTimeString().slice(0, 5),
+        datetime: date,
+        reservationEndAt: schedule.reservationEndAt,
+    };
+}
+
+function formatPeriodBySchedules(schedules: ConcertItemResponse["dates"]) {
+    const dates = schedules.map((schedule) => schedule.date).filter(Boolean).sort();
+
+    if (dates.length === 0) {
+        return "";
+    }
+
+    return formatPeriod(dates[0], dates[dates.length - 1]);
+}
+
+function getBadgeText(reservationStartAt: string) {
+    const diff = Math.ceil(
+        (new Date(reservationStartAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (diff > 0) return `D-${diff}`;
+    if (diff === 0) return "D-DAY";
+    return "예매중";
+}
+
 function toConcertItem(concert: ConcertItemResponse): ConcertItem {
     return {
         concertId: concert.concertId,
@@ -109,37 +144,37 @@ function toConcertItem(concert: ConcertItemResponse): ConcertItem {
     };
 }
 
-export function toConcertSearchResult(concert: ConcertDetailResponse): ConcertDetail {
-    return {
-        id : concert.id,
-        posterUrl: concert.posterUrl,
-        concertTitle: concert.title,
-        concertPeriod:"",
-        runningTime : concert.runningTime.trim(),
-        reservationPeriod : "",
-        schedules : concert.schedules.map(toConcertSchedule),
-        description: concert.description,
-        startAt:"",
-        endAt: "",
-        ...toConcertItem(concert),
-        venueId: concert.venueId,
-    };
+export function toConcertSearchResult(concert: ConcertItemResponse): ConcertItem {
+    return toConcertItem(concert);
 }
 
-export function toConcertResult(concert: ConcertResponse): ConcertResult {
+export function toConcertDetail(concert: ConcertDetailResponse): ConcertDetail {
+    const schedules = concert.schedules.map(toConcertSchedule);
+    const dates = schedules.map((schedule) => schedule.date).filter(Boolean).sort();
+
     return {
         id: concert.id,
-        title: concert.title,
-        period: formatPeriod(concert.startAt, concert.endAt),
         venueId: concert.venueId,
+        posterUrl: concert.posterUrl,
+        concertTitle: concert.title,
+        concertPeriod: dates.length > 0 ? `${dates[0]} ~ ${dates[dates.length - 1]}` : "",
+        runningTime: concert.runningTime,
         venueName: concert.venueName,
-        status: concert.reservationStatus === "OPEN" ? "예매중"
-            : concert.reservationStatus === "BEFORE_OPEN" ? "오픈예정"
-                : "예매종료",
+        reservationPeriod: "",
+        schedules,
+        description: concert.description,
+        startAt: dates[0] ?? "",
+        endAt: dates[dates.length - 1] ?? "",
+        reservationStartAt: concert.reservationStartAt,
     };
 }
 
-export function toVenueSearchResult(concerts: ConcertResponse[]): VenueItemResponse[] {
+export function toConcertResult(concert: ConcertItemResponse): ConcertItem {
+    return toConcertItem(concert);
+    }
+
+
+export function toVenueSearchResult(concerts: ConcertItemResponse[]): VenueItemResponse[] {
     const venueMap = new Map<number, VenueItemResponse>();
 
     concerts.forEach((concert) => {
@@ -151,8 +186,8 @@ export function toVenueSearchResult(concerts: ConcertResponse[]): VenueItemRespo
         }
 
         venueMap.set(concert.venueId, {
-            venueId: concert.venueId,
-            venueName: concert.venueName,
+            id: concert.venueId,
+            name: concert.venueName,
             availableConcertCount: 1,
         });
     });
@@ -160,15 +195,15 @@ export function toVenueSearchResult(concerts: ConcertResponse[]): VenueItemRespo
     return Array.from(venueMap.values());
 }
 
-export function toVenueResult(concerts: ConcertResponse[]): VenueResult[] {
+export function toVenueResult(concerts: ConcertItemResponse[]): VenueSearch[] {
     return toVenueSearchResult(concerts).map((venue) => ({
-        id: venue.venueId,
-        venueName: venue.venueName,
+        id: venue.id,
+        venueName: venue.name,
         availableConcertCount: venue.availableConcertCount,
     }));
 }
 
-export function filterConcertsByKeyword(concerts: ConcertResponse[], keyword: string) {
+export function filterConcertsByKeyword(concerts: ConcertItemResponse[], keyword: string) {
     const normalizedKeyword = keyword.trim().toLowerCase();
 
     if (!normalizedKeyword) {
@@ -178,7 +213,6 @@ export function filterConcertsByKeyword(concerts: ConcertResponse[], keyword: st
     return concerts.filter((concert) => {
         return (
             (concert.title ?? "").toLowerCase().includes(normalizedKeyword) ||
-            (concert.description ?? "").toLowerCase().includes(normalizedKeyword) ||
             (concert.venueName ?? "").toLowerCase().includes(normalizedKeyword)
         );
     });
@@ -208,12 +242,13 @@ export function filterConcertsByKeyword(concerts: ConcertResponse[], keyword: st
    // };
 // }
 
-export async function getConcert(id: number): Promise<ConcertResponse> {
-    return fetchJson<ConcertResponse>(`${API_BASE_URL}/api/concerts/${id}`);
+export async function getConcert(id: number): Promise<ConcertDetail> {
+    const concert = await fetchJson<ConcertDetailResponse>(`${API_BASE_URL}/api/concerts/${id}`);
+    return toConcertDetail(concert);
 }
 
-export async function getConcertList(): Promise<ConcertResponse[]> {
-    const response = await fetchJson<ConcertPageResponse>(`${API_BASE_URL}/api/concerts`);
+export async function getConcertList(): Promise<ConcertItemResponse[]> {
+    const response = await fetchJson<ConcertItemPageResponse>(`${API_BASE_URL}/api/concerts`);
     return response.contents ?? [];
 }
 
@@ -222,30 +257,30 @@ export async function getConcertItems(): Promise<ConcertItem[]> {
     return concerts.map(toConcertItem);
 }
 
-export async function getAdminConcert(id: number): Promise<ConcertResponse> {
-    return fetchJson<ConcertResponse>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
+export async function getAdminConcert(id: number): Promise<AdminConcertDetailsResponse> {
+    return fetchJson<AdminConcertDetailsResponse>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
         headers: createJsonHeaders(),
     });
 }
 
-export async function getAdminConcertList(): Promise<ConcertResponse[]> {
-    const response = await fetchJson<ConcertPageResponse>(`${API_BASE_URL}/api/admin/concerts`, {
+export async function getAdminConcertList(): Promise<AdminConcertDetailsResponse[]> {
+    const response = await fetchJson<AdminConcertListPageResponse>(`${API_BASE_URL}/api/admin/concerts`, {
         headers: createJsonHeaders(),
     });
 
     return response.contents ?? [];
 }
 
-export async function addConcert(request: AdminConcertRequest): Promise<ConcertResponse> {
-    return fetchJson<ConcertResponse>(`${API_BASE_URL}/api/admin/concerts`, {
+export async function addConcert(request: AdminConcertRequest): Promise<AdminConcertCreateResponse> {
+    return fetchJson<AdminConcertCreateResponse>(`${API_BASE_URL}/api/admin/concerts`, {
         method: "POST",
         headers: createJsonHeaders(),
         body: JSON.stringify(request),
     });
 }
 
-export async function updateConcert(id: number, request: AdminConcertRequest): Promise<ConcertResponse> {
-    return fetchJson<ConcertResponse>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
+export async function updateConcert(id: number, request: AdminConcertRequest): Promise<AdminConcertUpdateResponse> {
+    return fetchJson<AdminConcertCreateResponse>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
         method: "PATCH",
         headers: createJsonHeaders(),
         body: JSON.stringify(request),
@@ -259,8 +294,8 @@ export async function cancelConcert(id: number): Promise<void> {
     });
 }
 
+
 // 기존 오타 함수명을 쓰는 코드가 있어도 깨지지 않도록 잠시 유지합니다.
-export const cancConcert = cancelConcert;
 
 export function getConcertListOnBanner() {
     return getConcertItems();

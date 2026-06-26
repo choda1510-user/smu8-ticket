@@ -1,13 +1,13 @@
+import type {VenueSearch} from "@/types/venue"
 import type {
     AdminVenueCreateRequest,
     AdminVenueUpdateRequest,
-    BackendVenue,
-    BackendVenueListResponse,
-    VenueResult,
-    VenueItemResponse,
-    VenueSearchResponse,
-    VenueSearch
-} from "@/types/venue";
+    AdminVenueItemResponse,
+    AdminVenuePageResponse,
+    AdminVenueDetailResponse,
+    AdminVenueCreateResponse,
+    AdminVenueUpdateResponse,
+} from "@/types/adminVenue";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 const LOGIN_STORAGE_KEY = "smu8-ticket-login";
@@ -59,27 +59,32 @@ async function fetchEmpty(url: string, options?: RequestInit): Promise<void> {
     }
 }
 
-export function getVenueAddress(venue: BackendVenue) {
-    return venue.address || [venue.roadAddress, venue.detailAddress].filter(Boolean).join(" ");
+export function getVenueAddress(venue: AdminVenueItemResponse) {
+    return [
+        venue.roadAddress,
+        venue.jibunAddress,
+        venue.detailAddress,
+        venue.buildingName,
+    ].filter(Boolean).join(" ");
 }
 
-export function toVenueSearchResult(venue: BackendVenue): VenueSearch {
+export function toVenueSearchResult(venue: AdminVenueItemResponse): VenueSearch {
     return {
         id: venue.id,
-        venueName: venue.venue_name || venue.name || "",
+        venueName: venue.name,
         availableConcertCount: 0,
     };
 }
 
-export function toVenueResult(venue: BackendVenue): VenueResult {
+export function toVenueResult(venue: AdminVenueItemResponse): VenueSearch {
     return {
         id: venue.id,
-        venueName: venue.venue_name || venue.name || "",
+        venueName: venue.name,
         availableConcertCount: 0,
     };
 }
 
-export function filterVenuesByKeyword(venues: BackendVenue[], keyword: string) {
+export function filterVenuesByKeyword(venues: AdminVenueItemResponse[], keyword: string) {
     const normalizedKeyword = keyword.trim().toLowerCase();
 
     if (!normalizedKeyword) {
@@ -87,56 +92,55 @@ export function filterVenuesByKeyword(venues: BackendVenue[], keyword: string) {
     }
 
     return venues.filter((venue) => {
-        const venueName = venue.venue_name || venue.name || "";
+        const venueName = venue.name || "";
         const venueAddress = getVenueAddress(venue);
 
         return (
             venueName.toLowerCase().includes(normalizedKeyword) ||
-            venueAddress.toLowerCase().includes(normalizedKeyword) ||
-            (venue.venue_code ?? "").toLowerCase().includes(normalizedKeyword)
+            venueAddress.toLowerCase().includes(normalizedKeyword)
         );
     });
 }
 
-export async function getVenue(id: number): Promise<BackendVenue> {
-    return fetchJson<BackendVenue>(`${API_BASE_URL}/api/venues/${id}`);
+export async function getVenue(id: number): Promise<AdminVenueDetailResponse> {
+    return fetchJson<AdminVenueDetailResponse>(`${API_BASE_URL}/api/venues/${id}`);
 }
 
-export async function getVenueList(): Promise<BackendVenue[]> {
-    const response = await fetchJson<BackendVenueListResponse>(`${API_BASE_URL}/api/venues`);
-    return response.venues ?? response.contents ?? [];
+export async function getVenueList(): Promise<AdminVenueItemResponse[]> {
+    const response = await fetchJson<AdminVenuePageResponse>(`${API_BASE_URL}/api/venues`);
+    return response.contents ?? [];
 }
 
-export async function getAdminVenue(id: number): Promise<BackendVenue> {
-    return fetchJson<BackendVenue>(`${API_BASE_URL}/api/admin/venues/${id}`, {
+export async function getAdminVenue(id: number): Promise<AdminVenueDetailResponse> {
+    return fetchJson<AdminVenueDetailResponse>(`${API_BASE_URL}/api/admin/venues/${id}`, {
         headers: createJsonHeaders(),
     });
 }
 
-export async function getAdminVenueList(): Promise<BackendVenue[]> {
-    const response = await fetchJson<BackendVenueListResponse>(`${API_BASE_URL}/api/admin/venues`, {
+export async function getAdminVenueList(): Promise<AdminVenueItemResponse[]> {
+    const response = await fetchJson<AdminVenuePageResponse>(`${API_BASE_URL}/api/admin/venues`, {
         headers: createJsonHeaders(),
     });
 
-    return response.venues ?? response.contents ?? [];
+    return response.contents ?? [];
 }
 
-export async function addVenue(request: AdminVenueCreateRequest): Promise<BackendVenue> {
+export async function addVenue(request: AdminVenueCreateRequest): Promise<AdminVenueCreateResponse> {
     const accessToken = getAccessToken();
 
     if (!accessToken) {
         throw new Error("관리자 로그인이 필요합니다.");
     }
 
-    return fetchJson<BackendVenue>(`${API_BASE_URL}/api/admin/venues`, {
+    return fetchJson<AdminVenueCreateResponse>(`${API_BASE_URL}/api/admin/venues`, {
         method: "POST",
         headers: createJsonHeaders(),
         body: JSON.stringify(request),
     });
 }
 
-export async function updateVenue(id: number, request: AdminVenueUpdateRequest): Promise<BackendVenue> {
-    return fetchJson<BackendVenue>(`${API_BASE_URL}/api/admin/venues/${id}`, {
+export async function updateVenue(id: number, request: AdminVenueUpdateRequest): Promise<AdminVenueUpdateResponse> {
+    return fetchJson<AdminVenueUpdateResponse>(`${API_BASE_URL}/api/admin/venues/${id}`, {
         method: "PATCH",
         headers: createJsonHeaders(),
         body: JSON.stringify(request),

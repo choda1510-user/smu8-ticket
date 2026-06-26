@@ -1,6 +1,6 @@
 import type {
     BookingDetail,
-    BookingListResponse,
+    BookingPageResponse,
     BookingSuccess,
     BookingWaiting,
     Payment,
@@ -30,8 +30,8 @@ export function getBooking(): Promise<BookingDetail> {
     return fetchBookingMock<BookingDetail>(bookingDetailUrl);
 }
 
-export function getBookingList(): Promise<BookingListResponse> {
-    return fetchBookingMock<BookingListResponse>(bookingListUrl);
+export function getBookingList(): Promise<BookingPageResponse> {
+    return fetchBookingMock<BookingPageResponse>(bookingListUrl);
 }
 
 export function getBookingWaiting(): Promise<BookingWaiting> {

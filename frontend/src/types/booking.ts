@@ -1,4 +1,8 @@
-import type {ListResponse} from "@/types/api";
+import type {PageResponse} from "@/types/api";
+
+// 예매 요청 타입
+// 프론트에서 백엔드로 보낼 때 사용
+
 
 export type BookingSeat = {
     id: number;
@@ -27,8 +31,6 @@ export type BookingDetail = {
     seats: BookingSeat[];
 };
 
-export type BookingDetail2 = BookingDetail;
-
 export type BookingItem = {
     reserveId: number;
     concertId: number;
@@ -44,7 +46,7 @@ export type BookingItem = {
     status: string;
 };
 
-export type BookingListResponse = ListResponse<BookingItem>;
+export type BookingPageResponse = PageResponse<BookingItem>;
 
 export type BookingWaiting = {
     concertId: number;

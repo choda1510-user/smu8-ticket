@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record ConcertDetailResponse(
@@ -14,10 +15,12 @@ public record ConcertDetailResponse(
         String title,
         @Schema(description = "공연 설명", example = "대표 아티스트들이 함께하는 라이브 콘서트입니다.")
         String description,
-        @Schema(description = "공연 시작일시", example = "2026-07-01T19:00:00")
-        LocalDateTime startAt,
-        @Schema(description = "공연 종료일시", example = "2026-07-01T21:30:00")
-        LocalDateTime endAt,
+        @Schema(description = "공연 카드 포스터 주소")
+        String posterUrl,
+        @Schema(description = "공연 회차 목록")
+        List<ConcertScheduleResponse> schedules,
+        @Schema(description = "공연 러닝타임", example = "90분")
+        String runningTime,
         @Schema(description = "공연장 고유 ID", example = "1")
         Long venueId,
         @Schema(description = "공연장 이름", example = "서울아트센터")
@@ -32,8 +35,6 @@ public record ConcertDetailResponse(
                 .id(result.id())
                 .title(result.title())
                 .description(result.description())
-                .startAt(result.startAt())
-                .endAt(result.endAt())
                 .venueId(result.venueId())
                 .venueName(result.venueName())
                 .createdAt(result.createdAt())

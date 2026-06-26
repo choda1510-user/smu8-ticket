@@ -2,7 +2,7 @@ package com.smu8.ticket.venue.admin.service;
 
 import com.smu8.ticket.venue.admin.dto.command.CreateVenueCommand;
 import com.smu8.ticket.venue.admin.dto.command.UpdateVenueCommand;
-import com.smu8.ticket.venue.admin.dto.result.VenueDetailResult;
+import com.smu8.ticket.venue.dto.result.VenueDetailResult;
 import com.smu8.ticket.venue.dto.query.VenueDetailQuery;
 import com.smu8.ticket.venue.entity.Address;
 import com.smu8.ticket.venue.entity.Venue;
@@ -33,14 +33,6 @@ public class VenueServiceImpl implements VenueService {
                 .build();
 
         return VenueDetailResult.from(venueRepository.save(venue));
-    }
-
-    @Override
-    public List<VenueDetailResult> getVenues() {
-        return venueRepository.findAll()
-                .stream()
-                .map(VenueDetailResult::from)
-                .toList();
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.smu8.ticket.concert.dto.result;
 
 import com.smu8.ticket.concert.entity.Concert;
-import com.smu8.ticket.venue.entity.Venue;
+import com.smu8.ticket.venue.dto.result.VenueDetailResult;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -11,9 +11,9 @@ public record ConcertDetailResult(
         Long id,
         String performanceCode,
         String title,
-        String PerformanceStatus,
+        String performanceStatus,
         String description,
-        Venue venue,
+        VenueDetailResult venue,
         String runningTime,
         String cardPosterUrl,
         String screenPosterUrl,
@@ -31,9 +31,9 @@ public record ConcertDetailResult(
         return ConcertDetailResult.builder()
                 .id(concert.getId())
                 .title(concert.getTitle())
-                .PerformanceStatus(concert.getPerformanceStatus())
+                .performanceStatus(concert.getPerformanceStatus())
                 .description(concert.getDescription())
-                .venue(concert.getVenue())
+                .venue(VenueDetailResult.from(concert.getVenue()))
                 .runningTime(concert.getRunningTime())
                 .cardPosterUrl(concert.getCardPosterUrl())
                 .screenPosterUrl(concert.getScreenPosterUrl())

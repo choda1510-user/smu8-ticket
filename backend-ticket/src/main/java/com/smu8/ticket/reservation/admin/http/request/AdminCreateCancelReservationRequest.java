@@ -1,6 +1,6 @@
 package com.smu8.ticket.reservation.admin.http.request;
 
-public record  CancelReservationRequest (
+public record AdminCreateCancelReservationRequest(
         String reason
 ){
 }

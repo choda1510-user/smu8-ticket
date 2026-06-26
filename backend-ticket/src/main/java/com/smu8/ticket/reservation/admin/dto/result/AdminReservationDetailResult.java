@@ -20,15 +20,7 @@ public record AdminReservationDetailResult (
         LocalDateTime reservedAt
 ){
    public static AdminReservationDetailResult from(Reservation reservation){
-       return AdminReservationDetailResult.builder()
-               .id(reservation.getReservationId())
-               .accountId(reservation.getMemberId())
-               .concertId(reservation.getRoundId())
-               .reservationStatus(reservation.getReservationStatus())
-               .totalPrice(BigDecimal.valueOf(reservation.getTotalAmount()))
-               .cancelReason(null)
-               .reservedAt(reservation.getReservedAt())
-               .build();
+       return null;
 
 
    }

@@ -47,9 +47,9 @@
 - 상세 데이터 타입은 `Detail`을 사용합니다.
     - `BookingDetail`
     - `ConcertDetail`
-- API 응답 전체를 표현하는 타입은 `Response`를 붙입니다.
-    - `ListResponse<T>`
-    - `BookingListResponse`
+- HTTP API 응답을 표현하는 타입은 `Response`를 붙입니다.
+    - `BookingResponse`
+- 페이지네이션 응답은 같은 타입으로 통일하고 배열 데이터의 세부 타입은 제네릭으로 정합니다.
 
 ## export 규칙
 

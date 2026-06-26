@@ -1,9 +1,9 @@
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router";
 import {filterVenuesByKeyword, getVenueList, toVenueSearchResult} from "@/apis/venueApi";
-import type {VenueSearchResultResponse} from "@/types/venue";
+import type {VenueSearchPageResponse} from "@/types/venue";
 
-const initialVenueSearchResults: VenueSearchResultResponse = {
+const initialVenueSearchResults: VenueSearchPageResponse = {
     data: [],
     page: 1,
     totalPage: 1,
@@ -16,7 +16,7 @@ function getKeyword(searchParams: URLSearchParams) {
 export function useConcertHoleSearchResultPage() {
     const [searchParams] = useSearchParams();
     const keyword = getKeyword(searchParams);
-    const [venueSearchResults, setVenueSearchResults] = useState<VenueSearchResultResponse>(initialVenueSearchResults);
+    const [venueSearchResults, setVenueSearchResults] = useState<VenueSearchPageResponse>(initialVenueSearchResults);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 

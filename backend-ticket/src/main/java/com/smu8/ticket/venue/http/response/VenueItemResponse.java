@@ -7,11 +7,15 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record VenueDetailResponse(
+public record VenueItemResponse(
         @Schema(description = "공연장 고유 ID", example = "1")
         Long id,
         @Schema(description = "공연장 이름", example = "서울아트센터")
         String name,
+        @Schema(description = "공연장 설명", example = "설명")
+        String description,
+        @Schema(description = "공연장 최대 수용 인원", example = "1000")
+        Integer capacity,
         @Schema(description = "우편번호", example = "06234")
         String zoneNo,
         @Schema(description = "도로명 주소", example = "서울특별시 강남구 테헤란로 123")
@@ -27,8 +31,8 @@ public record VenueDetailResponse(
         @Schema(description = "수정일시", example = "2026-06-22T10:30:00")
         LocalDateTime updatedAt
 ) {
-    public static VenueDetailResponse from(VenueDetailResult result) {
-        return VenueDetailResponse.builder()
+    public static VenueItemResponse from(VenueDetailResult result) {
+        return VenueItemResponse.builder()
                 .id(result.id())
                 .name(result.name())
                 .zoneNo(result.zoneNo())

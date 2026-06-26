@@ -1,4 +1,6 @@
 package com.smu8.ticket.reservation.dto.query;
 
-public class ReservationDetailQuery {
+public record ReservationDetailQuery(
+        Long id
+) {
 }

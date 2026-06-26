@@ -2,9 +2,10 @@ package com.smu8.ticket.reservation.http.request;
 
 import java.util.List;
 
-public record CreateReservationRequest (
+// 좌석 선점 요청
+public record PreemptReservationSeatRequest(
         Long concertId,
         Long scheduleId,
         List<Long> seatIds
-){
+) {
 }

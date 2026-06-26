@@ -4,6 +4,7 @@ import com.smu8.ticket.file.config.StorageProperties;
 import com.smu8.ticket.file.exception.StorageException;
 import com.smu8.ticket.file.exception.StorageFileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -24,12 +25,14 @@ import java.util.stream.Stream;
 @Service
 public class FileSystemStorageService implements StorageService {
     private final Path rootLocation;
+    private final String BASE_URL;
     @Autowired
-    public FileSystemStorageService(StorageProperties properties) {
+    public FileSystemStorageService(StorageProperties properties, @Value("${spring.storage.url}") String BASE_URL) {
         if (properties.getLocation().trim().isEmpty()) {
             throw new StorageException("File upload location cannot be empty");
         }
         this.rootLocation = Paths.get(properties.getLocation());
+        this.BASE_URL = BASE_URL;
     }
 
     @Override
@@ -91,6 +94,10 @@ public class FileSystemStorageService implements StorageService {
         catch (MalformedURLException e) {
             throw new StorageFileNotFoundException("Could not read file: " + filename, e);
         }
+    }
+    @Override
+    public String getUrl(String filename) {
+        return BASE_URL + "/" + filename;
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.smu8.ticket.concert.admin.http.request.CreateConcertRequest;
 import com.smu8.ticket.concert.entity.PerformanceSchedule;
 import com.smu8.ticket.concert.entity.Seat;
 import com.smu8.ticket.concert.entity.SeatGrade;
+import com.smu8.ticket.file.service.StorageService;
 import com.smu8.ticket.venue.entity.Venue;
 import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,16 +60,16 @@ public record CreateConcertCommand(
                 .build();
     }
 
-    public Concert toEntity(Venue venue) {
+    public Concert toEntity(Venue venue, StorageService storageService) {
         Concert concert = Concert.builder()
                 .performanceCode(createPerformanceCode())
                 .title(title)
                 .performanceStatus("READY")
                 .description(description)
                 .venue(venue)
-                .cardPosterUrl(getOriginalFilename(cardPoster))
-                .screenPosterUrl(getOriginalFilename(bannerPoster))
-                .descriptionPosterUrl(getOriginalFilename(descriptionPoster))
+                .cardPosterUrl(storageService.getUrl(getOriginalFilename(cardPoster)))
+                .screenPosterUrl(storageService.getUrl(getOriginalFilename(bannerPoster)))
+                .descriptionPosterUrl(storageService.getUrl(getOriginalFilename(descriptionPoster)))
                 .build();
 
         List<SeatGrade> seatGradeEntities = seatGrades.stream()
@@ -122,7 +123,7 @@ public record CreateConcertCommand(
         if (file == null || file.isEmpty()) {
             return null;
         }
-        return "http://192.168.0.6";
+        return file.getOriginalFilename();
     }
 
     private static SeatGrade findSeatGrade(Map<String, SeatGrade> seatGradeMap, String seatGradeName) {

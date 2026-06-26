@@ -28,7 +28,7 @@ public class AdminConcertServiceImpl implements AdminConcertService {
         storageService.store(command.cardPoster());
         storageService.store(command.bannerPoster());
         storageService.store(command.descriptionPoster());
-        Concert concert = command.toEntity(venue);
+        Concert concert = command.toEntity(venue, storageService);
         return ConcertDetailResult.from(concertRepository.save(concert));
     }
 

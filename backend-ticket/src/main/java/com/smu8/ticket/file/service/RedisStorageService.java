@@ -4,6 +4,7 @@ import com.smu8.ticket.file.exception.StorageException;
 import com.smu8.ticket.file.exception.StorageFileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -24,13 +25,16 @@ public class RedisStorageService implements StorageService {
 
     private static final String FILE_KEY_PREFIX = "storage:image:";
     private static final String FILE_INDEX_KEY = "storage:image:index";
+    private final String BASE_URL;
 
     private final RedisTemplate<String, byte[]> redisFileTemplate;
     @Autowired
     public RedisStorageService(
-            @Qualifier("redisFileTemplate") RedisTemplate<String, byte[]> redisFileTemplate
+            @Qualifier("redisFileTemplate") RedisTemplate<String, byte[]> redisFileTemplate,
+            @Value("${spring.storage.url}") String BASE_URL
     ) {
         this.redisFileTemplate = redisFileTemplate;
+        this.BASE_URL = BASE_URL;
     }
 
     @Override
@@ -100,6 +104,12 @@ public class RedisStorageService implements StorageService {
             }
         };
     }
+
+    @Override
+    public String getUrl(String filename) {
+        return BASE_URL + "/" + filename;
+    }
+
     @Override
     public void delete(String filename) {
         if (!redisFileTemplate.delete(fileKey(filename))) {

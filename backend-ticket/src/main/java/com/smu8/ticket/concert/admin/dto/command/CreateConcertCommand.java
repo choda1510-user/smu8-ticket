@@ -122,7 +122,7 @@ public record CreateConcertCommand(
         if (file == null || file.isEmpty()) {
             return null;
         }
-        return file.getOriginalFilename();
+        return "http://192.168.0.6";
     }
 
     private static SeatGrade findSeatGrade(Map<String, SeatGrade> seatGradeMap, String seatGradeName) {

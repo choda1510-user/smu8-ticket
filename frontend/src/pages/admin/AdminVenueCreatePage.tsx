@@ -9,6 +9,8 @@ type VenueCreateErrors = {
     address?: string;
 };
 
+type VenueAddressPayload = Awaited<ReturnType<typeof openDaumPostcode>>;
+
 function createVenueCode() {
     return String(Math.floor(100000 + Math.random() * 900000));
 }
@@ -18,6 +20,7 @@ function AdminVenueCreatePage() {
     const [venueCode] = useState(() => createVenueCode());
     const [venueName, setVenueName] = useState("");
     const [address, setAddress] = useState("");
+    const [addressPayload, setAddressPayload] = useState<VenueAddressPayload | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<VenueCreateErrors>({});
 
@@ -32,6 +35,7 @@ function AdminVenueCreatePage() {
             const roadAddress = data.roadAddress || data.address;
 
             setAddress(roadAddress);
+            setAddressPayload(data);
             setErrors((currentErrors) => ({...currentErrors, address: undefined}));
         } catch {
             alert("주소찾기를 불러오지 못했습니다.");
@@ -58,9 +62,11 @@ function AdminVenueCreatePage() {
         try {
             setIsSubmitting(true);
             await addVenue({
-                venue_code: venueCode,
-                venue_name: venueName.trim(),
-                address: address.trim(),
+                name: venueName.trim(),
+                zoneNo: addressPayload?.zonecode ?? "",
+                roadAddress: addressPayload?.roadAddress || address.trim(),
+                jibunAddress: addressPayload?.jibunAddress,
+                buildingName: addressPayload?.buildingName,
             });
 
             alert("공연장이 등록되었습니다.");

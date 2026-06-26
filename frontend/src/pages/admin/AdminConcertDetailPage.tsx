@@ -1,15 +1,20 @@
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {cancelConcert, getAdminConcert, updateConcert} from "@/apis/concertApi";
-import type {AdminConcertRequest} from "@/types/concert";
+import type {AdminConcertScheduleResponse, AdminConcertUpdateRequest} from "@/types/adminConcert";
 import "./AdminPages.css";
 
 function toDateTimeLocalValue(value: string) {
     return value ? value.slice(0, 16) : "";
 }
 
-function toRequestDateTime(value: string) {
-    return value.length === 16 ? `${value}:00` : value;
+function getSchedulePeriod(schedules: AdminConcertScheduleResponse[]) {
+    const dates = schedules.map((schedule) => schedule.date).filter(Boolean).sort();
+
+    return {
+        startAt: dates[0] ?? "",
+        endAt: dates[dates.length - 1] ?? "",
+    };
 }
 
 function AdminConcertDetailPage() {
@@ -20,6 +25,8 @@ function AdminConcertDetailPage() {
     const [description, setDescription] = useState("");
     const [startAt, setStartAt] = useState("");
     const [endAt, setEndAt] = useState("");
+    const [runningTime, setRunningTime] = useState("");
+    const [reservationStartAt, setReservationStartAt] = useState<string | undefined>();
     const [venueId, setVenueId] = useState("");
     const [venueName, setVenueName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -37,10 +44,13 @@ function AdminConcertDetailPage() {
                 setErrorMessage("");
 
                 const concert = await getAdminConcert(concertNumericId);
+                const schedulePeriod = getSchedulePeriod(concert.schedules);
                 setTitle(concert.title);
                 setDescription(concert.description);
-                setStartAt(toDateTimeLocalValue(concert.startAt));
-                setEndAt(toDateTimeLocalValue(concert.endAt));
+                setStartAt(toDateTimeLocalValue(schedulePeriod.startAt));
+                setEndAt(toDateTimeLocalValue(schedulePeriod.endAt));
+                setRunningTime(concert.runningTime);
+                setReservationStartAt(concert.reservationStartAt);
                 setVenueId(String(concert.venueId));
                 setVenueName(concert.venueName);
             } catch {
@@ -53,7 +63,7 @@ function AdminConcertDetailPage() {
         void loadConcert();
     }, [concertNumericId]);
 
-    const createRequest = (): AdminConcertRequest | null => {
+    const createRequest = (): AdminConcertUpdateRequest | null => {
         const parsedVenueId = Number(venueId);
 
         if (!title.trim() || !description.trim() || !startAt || !endAt || !parsedVenueId) {
@@ -62,10 +72,11 @@ function AdminConcertDetailPage() {
         }
 
         return {
+            id: concertNumericId,
             title: title.trim(),
             description: description.trim(),
-            startAt: toRequestDateTime(startAt),
-            endAt: toRequestDateTime(endAt),
+            runningTime,
+            reservationStartAt,
             venueId: parsedVenueId,
         };
     };

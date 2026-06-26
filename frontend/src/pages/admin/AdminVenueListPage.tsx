@@ -1,14 +1,14 @@
 import {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router";
 import {getAdminVenueList, getVenueAddress} from "@/apis/venueApi";
-import type {BackendVenue} from "@/types/venue";
+import type {AdminVenueItemResponse} from "@/types/adminVenue";
 import "./AdminPages.css";
 
 const pageSize = 5;
 
 function AdminVenueListPage() {
     const navigate = useNavigate();
-    const [venues, setVenues] = useState<BackendVenue[]>([]);
+    const [venues, setVenues] = useState<AdminVenueItemResponse[]>([]);
     const [venueCodeInput, setVenueCodeInput] = useState("");
     const [venueNameInput, setVenueNameInput] = useState("");
     const [venueCodeKeyword, setVenueCodeKeyword] = useState("");
@@ -38,8 +38,8 @@ function AdminVenueListPage() {
         const nameKeyword = venueNameKeyword.trim().toLowerCase();
 
         return venues.filter((venue) => {
-            const venueCode = venue.venue_code || String(venue.id);
-            const venueName = venue.venue_name || venue.name || "";
+            const venueCode = String(venue.id);
+            const venueName = venue.name || "";
             const matchesCode = codeKeyword ? venueCode.includes(codeKeyword) : true;
             const matchesName = nameKeyword ? venueName.toLowerCase().includes(nameKeyword) : true;
 
@@ -121,10 +121,10 @@ function AdminVenueListPage() {
                     ) : (
                         pagedVenues.map((venue) => (
                             <tr key={venue.id}>
-                                <td>{venue.venue_code || venue.id}</td>
+                                <td>{venue.id}</td>
                                 <td>
                                     <button type="button" className="admin-page__link-button" onClick={() => navigate(`/admin/venues/${venue.id}`)}>
-                                        {venue.venue_name || venue.name}
+                                        {venue.name}
                                     </button>
                                 </td>
                                 <td>{getVenueAddress(venue)}</td>

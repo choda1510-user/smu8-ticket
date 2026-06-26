@@ -12,6 +12,7 @@ import type {
     AdminConcertDetailsResponse,
     AdminConcertListPageResponse,
     AdminConcertRequest,
+    AdminConcertUpdateRequest,
     AdminConcertUpdateResponse,
 } from "@/types/adminConcert.ts";
 
@@ -279,7 +280,7 @@ export async function addConcert(request: AdminConcertRequest): Promise<AdminCon
     });
 }
 
-export async function updateConcert(id: number, request: AdminConcertRequest): Promise<AdminConcertUpdateResponse> {
+export async function updateConcert(id: number, request: AdminConcertUpdateRequest): Promise<AdminConcertUpdateResponse> {
     return fetchJson<AdminConcertCreateResponse>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
         method: "PATCH",
         headers: createJsonHeaders(),

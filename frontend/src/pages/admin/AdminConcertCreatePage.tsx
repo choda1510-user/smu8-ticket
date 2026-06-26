@@ -1,9 +1,11 @@
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useState} from "react";
 import {useNavigate} from "react-router";
 import DatePicker from "react-datepicker";
 import {format} from "date-fns";
 import {addConcert} from "@/apis/concertApi";
 import {getAdminVenueList, getVenueAddress} from "@/apis/venueApi";
+import AdminSeatLayoutEditor from "@/component/AdminSeatLayoutEditor";
+import type {SeatLayout} from "@/types/seatLayout";
 import "react-datepicker/dist/react-datepicker.css";
 import "./AdminPages.css";
 
@@ -21,16 +23,6 @@ type VenueOption = {
     address: string;
 };
 
-type SeatType = {
-    id: string;
-    name: string;
-    price: string;
-    color: string;
-};
-
-const colorPalette = ["#8f52ff", "#e86fa7", "#2f80ed", "#12b76a", "#f79009", "#6172f3", "#ef4444"];
-const initialSeatGrid = Array.from({length: 6}, () => Array.from({length: 8}, () => ""));
-
 function formatDateTime(date: Date) {
     return format(date, "yyyy.MM.dd HH:mm");
 }
@@ -41,6 +33,18 @@ function formatPeriod(start: Date, end: Date) {
     }
 
     return `${formatDateTime(start)} ~ ${formatDateTime(end)}`;
+}
+
+function createInitialSeatLayout(): SeatLayout {
+    const rowCount = 6;
+    const columnCount = 8;
+
+    return {
+        rowCount,
+        columnCount,
+        grid: Array.from({length: rowCount}, () => Array.from({length: columnCount}, () => "")),
+        seatTypes: [],
+    };
 }
 
 function AdminConcertCreatePage() {
@@ -62,57 +66,7 @@ function AdminConcertCreatePage() {
     const [notice, setNotice] = useState("");
     const [description, setDescription] = useState("");
     const [descriptionImageName, setDescriptionImageName] = useState("");
-    const [seatRows, setSeatRows] = useState(initialSeatGrid.length);
-    const [seatCols, setSeatCols] = useState(initialSeatGrid[0].length);
-    const [seatGrid, setSeatGrid] = useState(initialSeatGrid);
-    const [seatTypeName, setSeatTypeName] = useState("");
-    const [seatPrice, setSeatPrice] = useState("");
-    const [seatTypeNameError, setSeatTypeNameError] = useState("");
-    const [seatPriceError, setSeatPriceError] = useState("");
-    const [seatTypes, setSeatTypes] = useState<SeatType[]>([]);
-    const [selectedSeatTypeId, setSelectedSeatTypeId] = useState("");
-    const [isDragging, setIsDragging] = useState(false);
-    const [seatEditMode, setSeatEditMode] = useState<"paint" | "structureDelete">("paint");
-    const [seatUndoStack, setSeatUndoStack] = useState<string[][][]>([]);
-    const [draggedRowIndex, setDraggedRowIndex] = useState<number | null>(null);
-    const [draggedColIndex, setDraggedColIndex] = useState<number | null>(null);
-    const [rowDropTargetIndex, setRowDropTargetIndex] = useState<number | null>(null);
-    const [colDropTargetIndex, setColDropTargetIndex] = useState<number | null>(null);
-
-    const selectedSeatType = seatTypes.find((type) => type.id === selectedSeatTypeId);
-    const canUndoSeatDelete = seatUndoStack.length > 0;
-    const seatTypeCounts = useMemo(() => {
-        return seatTypes.reduce<Record<string, number>>((counts, type) => {
-            counts[type.id] = seatGrid.flat().filter((seat) => seat === type.id).length;
-            return counts;
-        }, {});
-    }, [seatGrid, seatTypes]);
-
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (!event.ctrlKey || event.key.toLowerCase() !== "z") {
-                return;
-            }
-
-            setSeatUndoStack((currentStack) => {
-                const previousGrid = currentStack[currentStack.length - 1];
-
-                if (!previousGrid) {
-                    return currentStack;
-                }
-
-                setSeatGrid(previousGrid);
-                setSeatRows(previousGrid.length);
-                setSeatCols(previousGrid[0]?.length ?? 0);
-
-                return currentStack.slice(0, -1);
-            });
-        };
-
-        window.addEventListener("keydown", handleKeyDown);
-
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, []);
+    const [seatLayout, setSeatLayout] = useState<SeatLayout>(() => createInitialSeatLayout());
 
     useEffect(() => {
         async function loadVenues() {
@@ -121,8 +75,8 @@ function AdminConcertCreatePage() {
                 const venues = await getAdminVenueList();
                 setVenueOptions(venues.map((item) => ({
                     code: String(item.id),
-                    venueCode: item.venue_code || String(item.id),
-                    name: item.venue_name || item.name || "",
+                    venueCode: String(item.id),
+                    name: item.name || "",
                     address: getVenueAddress(item),
                 })));
             } catch {
@@ -153,172 +107,6 @@ function AdminConcertCreatePage() {
         setReservationEnd(null);
     };
 
-    const handleSeatTypeAddClick = () => {
-        if (!seatTypeName.trim() || !seatPrice.trim()) {
-            alert("좌석 타입 이름과 가격을 입력해주세요.");
-            return;
-        }
-
-        const nextType = {
-            id: String(Date.now()),
-            name: seatTypeName.trim(),
-            price: seatPrice.trim(),
-            color: colorPalette[seatTypes.length % colorPalette.length],
-        };
-
-        setSeatTypes((currentTypes) => [...currentTypes, nextType]);
-        setSelectedSeatTypeId(nextType.id);
-        setSeatTypeName("");
-        setSeatPrice("");
-    };
-
-    const handleSeatTypeUpdateClick = () => {
-        if (!selectedSeatType || !seatTypeName.trim() || !seatPrice.trim()) {
-            alert("수정할 좌석 타입을 선택하고 이름과 가격을 입력해주세요.");
-            return;
-        }
-
-        setSeatTypes((currentTypes) =>
-            currentTypes.map((type) =>
-                type.id === selectedSeatType.id
-                    ? {...type, name: seatTypeName.trim(), price: seatPrice.trim()}
-                    : type,
-            ),
-        );
-    };
-
-    const handleSeatTypeDeleteClick = () => {
-        if (!selectedSeatType) {
-            alert("삭제할 좌석 타입을 선택해주세요.");
-            return;
-        }
-
-        if (!confirm("삭제 하시겠습니까?")) {
-            return;
-        }
-
-        setSeatTypes((currentTypes) => currentTypes.filter((type) => type.id !== selectedSeatType.id));
-        setSeatGrid((currentGrid) =>
-            currentGrid.map((row) => row.map((seat) => (seat === selectedSeatType.id ? "" : seat))),
-        );
-        setSelectedSeatTypeId("");
-        setSeatTypeName("");
-        setSeatPrice("");
-    };
-
-    const handleSeatTypeNameChange = (value: string) => {
-        if (/[^a-zA-Z]/.test(value)) {
-            setSeatTypeNameError("영문만 입력 가능");
-        } else {
-            setSeatTypeNameError("");
-        }
-
-        setSeatTypeName(value.replace(/[^a-zA-Z]/g, ""));
-    };
-
-    const handleSeatPriceChange = (value: string) => {
-        if (/[^0-9]/.test(value)) {
-            setSeatPriceError("숫자만 입력 가능합니다.");
-        } else {
-            setSeatPriceError("");
-        }
-
-        setSeatPrice(value.replace(/[^0-9]/g, ""));
-    };
-
-    const applySeat = (rowIndex: number, colIndex: number) => {
-        setSeatGrid((currentGrid) =>
-            currentGrid.map((row, currentRowIndex) =>
-                row.map((seat, currentColIndex) => {
-                    if (currentRowIndex !== rowIndex || currentColIndex !== colIndex) {
-                        return seat;
-                    }
-
-                    return selectedSeatTypeId === "aisle" ? "" : selectedSeatTypeId;
-                }),
-            ),
-        );
-    };
-
-    const handleSeatMouseDown = (rowIndex: number, colIndex: number) => {
-        applySeat(rowIndex, colIndex);
-        setIsDragging(true);
-    };
-
-    const handleSeatMouseEnter = (rowIndex: number, colIndex: number) => {
-        if (!isDragging) {
-            return;
-        }
-
-        applySeat(rowIndex, colIndex);
-    };
-
-    const addSeatColumn = () => {
-        setSeatGrid((currentGrid) => currentGrid.map((row) => [...row, ""]));
-        setSeatCols((currentCols) => currentCols + 1);
-    };
-
-    const addSeatRow = () => {
-        setSeatGrid((currentGrid) => [...currentGrid, Array.from({length: seatCols}, () => "")]);
-        setSeatRows((currentRows) => currentRows + 1);
-    };
-
-    const pushSeatUndo = (grid: string[][]) => {
-        setSeatUndoStack((currentStack) => [...currentStack.slice(-9), grid.map((row) => [...row])]);
-    };
-
-    const deleteSeatRow = (rowIndex: number) => {
-        if (seatRows <= 1) {
-            return;
-        }
-
-        pushSeatUndo(seatGrid);
-        setSeatGrid((currentGrid) => currentGrid.filter((_, currentRowIndex) => currentRowIndex !== rowIndex));
-        setSeatRows((currentRows) => currentRows - 1);
-    };
-
-    const deleteSeatColumn = (colIndex: number) => {
-        if (seatCols <= 1) {
-            return;
-        }
-
-        pushSeatUndo(seatGrid);
-        setSeatGrid((currentGrid) => currentGrid.map((row) => row.filter((_, currentColIndex) => currentColIndex !== colIndex)));
-        setSeatCols((currentCols) => currentCols - 1);
-    };
-
-    const moveSeatRow = (fromIndex: number, toIndex: number) => {
-        if (fromIndex === toIndex) {
-            return;
-        }
-
-        setSeatGrid((currentGrid) => {
-            const nextGrid = currentGrid.map((row) => [...row]);
-            const [movedRow] = nextGrid.splice(fromIndex, 1);
-            nextGrid.splice(toIndex, 0, movedRow);
-            return nextGrid;
-        });
-    };
-
-    const moveSeatColumn = (fromIndex: number, toIndex: number) => {
-        if (fromIndex === toIndex) {
-            return;
-        }
-
-        setSeatGrid((currentGrid) =>
-            currentGrid.map((row) => {
-                const nextRow = [...row];
-                const [movedSeat] = nextRow.splice(fromIndex, 1);
-                nextRow.splice(toIndex, 0, movedSeat);
-                return nextRow;
-            }),
-        );
-    };
-
-    const getSeatColor = (seatTypeId: string) => {
-        return seatTypes.find((type) => type.id === seatTypeId)?.color;
-    };
-
     const handleRegisterClick = async () => {
         const firstSchedule = schedules[0];
         const parsedVenueId = Number(venueCodeInput || venue?.code);
@@ -329,17 +117,45 @@ function AdminConcertCreatePage() {
             return;
         }
 
-        const startDate = firstSchedule.concertDateTime;
-        const endDate = new Date(startDate);
-        endDate.setMinutes(endDate.getMinutes() + (runningMinutes || 120));
+        const apiDateFormat = "yyyy-MM-dd'T'HH:mm:ss";
+        const seatGradeNameById = new Map(
+            seatLayout.seatTypes.map((type) => [type.id, type.name]),
+        );
 
         try {
             await addConcert({
                 title: title.trim(),
                 description: description.trim(),
-                startAt: format(startDate, "yyyy-MM-dd'T'HH:mm:ss"),
-                endAt: format(endDate, "yyyy-MM-dd'T'HH:mm:ss"),
+                runningTime: String(runningMinutes || 120),
+                reservationStartAt: format(firstSchedule.reservationStart, apiDateFormat),
                 venueId: parsedVenueId,
+                notice: notice.trim() || undefined,
+                seatGrades: seatLayout.seatTypes.map((type) => ({
+                    gradeName: type.name,
+                    price: Number(type.price),
+                    color: type.color,
+                })),
+                schedules: schedules.map((schedule) => ({
+                    date: format(schedule.concertDateTime, apiDateFormat),
+                    reservationEndAt: format(schedule.reservationEnd, apiDateFormat),
+                })),
+                seats: seatLayout.grid.flatMap((row, rowIndex) =>
+                    row.flatMap((seatTypeId, colIndex) => {
+                        const seatGradeName = seatGradeNameById.get(seatTypeId);
+
+                        if (!seatGradeName) {
+                            return [];
+                        }
+
+                        return [{
+                            seatGradeName,
+                            row: rowIndex + 1,
+                            col: colIndex + 1,
+                        }];
+                    }),
+                ),
+                rowMax: seatLayout.rowCount,
+                colMax: seatLayout.columnCount,
             });
 
             alert("공연이 등록되었습니다.");
@@ -531,163 +347,10 @@ function AdminConcertCreatePage() {
                     </div>
                 </section>
 
-                <section className="admin-page__concert-section">
-                    <h2>좌석 / 가격 정책</h2>
-                    <div className="admin-page__seat-policy">
-                        <div className="admin-page__seat-controls">
-                            <div className="admin-page__seat-counts">
-                                <span>전체좌석 행: {seatRows}</span>
-                                <span>열: {seatCols}</span>
-                            </div>
-                            <div className="admin-page__seat-type-form">
-                                <div className="admin-page__input-stack">
-                                    <input
-                                        className={seatTypeNameError ? "admin-page__input--error" : undefined}
-                                        value={seatTypeName}
-                                        onChange={(event) => handleSeatTypeNameChange(event.target.value)}
-                                        placeholder="좌석 타입 이름"
-                                    />
-                                    {seatTypeNameError && <p className="admin-page__error-text">{seatTypeNameError}</p>}
-                                </div>
-                                <div className="admin-page__input-stack">
-                                    <input
-                                        className={seatPriceError ? "admin-page__input--error" : undefined}
-                                        value={seatPrice}
-                                        onChange={(event) => handleSeatPriceChange(event.target.value)}
-                                        placeholder="가격"
-                                        inputMode="numeric"
-                                    />
-                                    {seatPriceError && <p className="admin-page__error-text">{seatPriceError}</p>}
-                                </div>
-                                <button type="button" className="admin-page__button admin-page__button--add" onClick={handleSeatTypeAddClick}>새로추가</button>
-                            </div>
-                            <div className="admin-page__seat-type-list">
-                                {seatTypes.map((type) => (
-                                    <button
-                                        key={type.id}
-                                        type="button"
-                                        className={selectedSeatTypeId === type.id ? "active" : undefined}
-                                        onClick={() => {
-                                            setSelectedSeatTypeId(type.id);
-                                            setSeatTypeName(type.name);
-                                            setSeatPrice(type.price);
-                                        }}
-                                    >
-                                        <span style={{background: type.color}} />
-                                        <small>{seatTypeCounts[type.id] ?? 0}석 생성</small>
-                                        <strong>{type.name}</strong>
-                                        <em>{Number(type.price).toLocaleString()}원</em>
-                                    </button>
-                                ))}
-                                <button
-                                    type="button"
-                                    className={selectedSeatTypeId === "aisle" ? "active" : undefined}
-                                    onClick={() => setSelectedSeatTypeId("aisle")}
-                                >
-                                    <span className="admin-page__aisle-color" />
-                                    통로/부분삭제
-                                </button>
-                            </div>
-                            <div className="admin-page__seat-type-actions">
-                                <button type="button" className="admin-page__button admin-page__button--light" onClick={handleSeatTypeUpdateClick}>수정</button>
-                                <button type="button" className="admin-page__button admin-page__button--muted" onClick={handleSeatTypeDeleteClick}>삭제</button>
-                            </div>
-                        </div>
-
-                        <div className="admin-page__seat-map-editor" onMouseLeave={() => setIsDragging(false)} onMouseUp={() => setIsDragging(false)}>
-                            <div className="admin-page__seat-mode-bar">
-                                <button
-                                    type="button"
-                                    className={seatEditMode === "structureDelete" ? "active" : undefined}
-                                    onClick={() => setSeatEditMode((mode) => mode === "paint" ? "structureDelete" : "paint")}
-                                >
-                                    {seatEditMode === "paint" ? "모드변경" : "삭제모드"}
-                                </button>
-                                <span>
-                                    {seatEditMode === "paint" ? "행/열 핸들을 드래그해 위치 변경" : "외곽 핸들을 누르면 행/열 삭제"}
-                                    {canUndoSeatDelete ? " · Ctrl+Z 복구 가능" : ""}
-                                </span>
-                            </div>
-                            <button type="button" className="admin-page__seat-add admin-page__seat-add--right" onClick={addSeatColumn}>+</button>
-                            <div className="admin-page__seat-stage">STAGE</div>
-                            <div className="admin-page__seat-column-handles" style={{gridTemplateColumns: `repeat(${seatCols}, 28px)`}}>
-                                {Array.from({length: seatCols}).map((_, colIndex) => (
-                                    <button
-                                        key={`col-${colIndex}`}
-                                        type="button"
-                                        draggable={seatEditMode === "paint"}
-                                        onClick={() => seatEditMode === "structureDelete" && deleteSeatColumn(colIndex)}
-                                        onDragStart={() => setDraggedColIndex(colIndex)}
-                                        onDragOver={(event) => {
-                                            event.preventDefault();
-                                            setColDropTargetIndex(colIndex);
-                                        }}
-                                        onDragLeave={() => setColDropTargetIndex(null)}
-                                        onDrop={() => {
-                                            if (draggedColIndex !== null) {
-                                                moveSeatColumn(draggedColIndex, colIndex);
-                                                setDraggedColIndex(null);
-                                            }
-                                            setColDropTargetIndex(null);
-                                        }}
-                                        className={colDropTargetIndex === colIndex ? "drop-target" : undefined}
-                                        aria-label={`${colIndex + 1}열 핸들`}
-                                    >
-                                        {seatEditMode === "structureDelete" ? "-" : ""}
-                                    </button>
-                                ))}
-                            </div>
-                            <div className="admin-page__seat-grid-wrap">
-                                <div className="admin-page__seat-row-handles" style={{gridTemplateRows: `repeat(${seatRows}, 28px)`}}>
-                                    {Array.from({length: seatRows}).map((_, rowIndex) => (
-                                        <button
-                                            key={`row-${rowIndex}`}
-                                            type="button"
-                                            draggable={seatEditMode === "paint"}
-                                            onClick={() => seatEditMode === "structureDelete" && deleteSeatRow(rowIndex)}
-                                            onDragStart={() => setDraggedRowIndex(rowIndex)}
-                                            onDragOver={(event) => {
-                                                event.preventDefault();
-                                                setRowDropTargetIndex(rowIndex);
-                                            }}
-                                            onDragLeave={() => setRowDropTargetIndex(null)}
-                                            onDrop={() => {
-                                                if (draggedRowIndex !== null) {
-                                                    moveSeatRow(draggedRowIndex, rowIndex);
-                                                    setDraggedRowIndex(null);
-                                                }
-                                                setRowDropTargetIndex(null);
-                                            }}
-                                            className={rowDropTargetIndex === rowIndex ? "drop-target" : undefined}
-                                            aria-label={`${rowIndex + 1}행 핸들`}
-                                        >
-                                            {seatEditMode === "structureDelete" ? "-" : ""}
-                                        </button>
-                                    ))}
-                                </div>
-                                <div className="admin-page__seat-grid" style={{gridTemplateColumns: `repeat(${seatCols}, 28px)`}}>
-                                {seatGrid.map((row, rowIndex) =>
-                                    row.map((seat, colIndex) => (
-                                        <button
-                                            key={`${rowIndex}-${colIndex}`}
-                                            type="button"
-                                            className={[
-                                                "admin-page__seat-cell",
-                                                rowDropTargetIndex === rowIndex ? "row-drop-target" : "",
-                                                colDropTargetIndex === colIndex ? "col-drop-target" : "",
-                                            ].filter(Boolean).join(" ")}
-                                            style={{background: seat ? getSeatColor(seat) : undefined}}
-                                            onMouseDown={() => handleSeatMouseDown(rowIndex, colIndex)}
-                                            onMouseEnter={() => handleSeatMouseEnter(rowIndex, colIndex)}
-                                        />
-                                    )),
-                                )}
-                                </div>
-                            </div>
-                            <button type="button" className="admin-page__seat-add admin-page__seat-add--bottom" onClick={addSeatRow}>+</button>
-                        </div>
-                    </div>
-                </section>
+                <AdminSeatLayoutEditor
+                    seatLayout={seatLayout}
+                    onSeatLayoutChange={setSeatLayout}
+                />
 
                 <div className="admin-page__bottom-actions">
                     <button type="button" className="admin-page__button admin-page__button--light" onClick={() => navigate("/admin/concerts")}>이전</button>

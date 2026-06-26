@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router";
-import {getAdminVenue, updateVenue} from "@/apis/venueApi";
+import {getAdminVenue, getVenueAddress, updateVenue} from "@/apis/venueApi";
 import {openDaumPostcode} from "@/utils/daumPostcode";
 import "./AdminPages.css";
 
@@ -9,12 +9,20 @@ type VenueEditErrors = {
     address?: string;
 };
 
+type VenueAddressPayload = {
+    zoneNo?: string;
+    roadAddress: string;
+    jibunAddress?: string;
+    buildingName?: string;
+};
+
 function AdminVenueEditPage() {
     const navigate = useNavigate();
     const {venueId = ""} = useParams();
     const venueNumericId = Number(venueId);
     const [venueName, setVenueName] = useState("");
     const [address, setAddress] = useState("");
+    const [addressPayload, setAddressPayload] = useState<VenueAddressPayload | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState<VenueEditErrors>({});
     const [errorMessage, setErrorMessage] = useState("");
@@ -31,8 +39,14 @@ function AdminVenueEditPage() {
                 setErrorMessage("");
 
                 const venue = await getAdminVenue(venueNumericId);
-                setVenueName(venue.venue_name || venue.name || "");
-                setAddress(venue.address || "");
+                setVenueName(venue.name || "");
+                setAddress(getVenueAddress(venue));
+                setAddressPayload({
+                    zoneNo: venue.zoneNo,
+                    roadAddress: venue.roadAddress,
+                    jibunAddress: venue.jibunAddress,
+                    buildingName: venue.buildingName,
+                });
             } catch {
                 setErrorMessage("공연장 정보를 불러오지 못했습니다.");
             } finally {
@@ -49,6 +63,12 @@ function AdminVenueEditPage() {
             const roadAddress = data.roadAddress || data.address;
 
             setAddress(roadAddress);
+            setAddressPayload({
+                zoneNo: data.zonecode,
+                roadAddress,
+                jibunAddress: data.jibunAddress,
+                buildingName: data.buildingName,
+            });
             setErrors((currentErrors) => ({...currentErrors, address: undefined}));
         } catch {
             alert("주소찾기를 불러오지 못했습니다.");
@@ -75,8 +95,11 @@ function AdminVenueEditPage() {
         try {
             setIsLoading(true);
             await updateVenue(venueNumericId, {
-                venue_name: venueName.trim(),
-                address: address.trim(),
+                name: venueName.trim(),
+                zoneNo: addressPayload?.zoneNo,
+                roadAddress: addressPayload?.roadAddress || address.trim(),
+                jibunAddress: addressPayload?.jibunAddress,
+                buildingName: addressPayload?.buildingName,
             });
 
             alert("공연장 정보가 수정되었습니다.");

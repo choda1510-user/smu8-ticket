@@ -1,18 +1,22 @@
 import {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router";
 import {getAdminConcertList} from "@/apis/concertApi";
-import type {BackendConcert} from "@/types/concert";
+import type {AdminConcertDetailsResponse, AdminConcertScheduleResponse} from "@/types/adminConcert";
 import "./AdminPages.css";
 
 const pageSize = 5;
 
-function formatPeriod(startAt: string, endAt: string) {
+function formatPeriod(schedules: AdminConcertScheduleResponse[]) {
+    const dates = schedules.map((schedule) => schedule.date).filter(Boolean).sort();
+    const startAt = dates[0] ?? "";
+    const endAt = dates[dates.length - 1] ?? "";
+
     return `${startAt.replace("T", " ")} ~ ${endAt.replace("T", " ")}`;
 }
 
 function AdminConcertListPage() {
     const navigate = useNavigate();
-    const [concerts, setConcerts] = useState<BackendConcert[]>([]);
+    const [concerts, setConcerts] = useState<AdminConcertDetailsResponse[]>([]);
     const [titleInput, setTitleInput] = useState("");
     const [codeInput, setCodeInput] = useState("");
     const [venueInput, setVenueInput] = useState("");
@@ -169,7 +173,7 @@ function AdminConcertListPage() {
                                         {concert.title}
                                     </button>
                                 </td>
-                                <td>{formatPeriod(concert.startAt, concert.endAt)}</td>
+                                <td>{formatPeriod(concert.schedules)}</td>
                                 <td>{concert.venueId}</td>
                                 <td>{concert.venueName}</td>
                                 <td>등록됨</td>

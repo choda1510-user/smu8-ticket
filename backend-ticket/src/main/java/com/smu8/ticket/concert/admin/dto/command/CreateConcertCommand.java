@@ -5,7 +5,6 @@ import com.smu8.ticket.concert.admin.http.request.CreateConcertRequest;
 import com.smu8.ticket.concert.entity.PerformanceSchedule;
 import com.smu8.ticket.concert.entity.Seat;
 import com.smu8.ticket.concert.entity.SeatGrade;
-import com.smu8.ticket.file.service.StorageService;
 import com.smu8.ticket.venue.entity.Venue;
 import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,16 +59,21 @@ public record CreateConcertCommand(
                 .build();
     }
 
-    public Concert toEntity(Venue venue, StorageService storageService) {
+    public Concert toEntity(
+            Venue venue,
+            String cardPosterUrl,
+            String bannerPosterUrl,
+            String descriptionPosterUrl
+    ) {
         Concert concert = Concert.builder()
                 .performanceCode(createPerformanceCode())
                 .title(title)
                 .performanceStatus("READY")
                 .description(description)
                 .venue(venue)
-                .cardPosterUrl(storageService.getUrl(getOriginalFilename(cardPoster)))
-                .screenPosterUrl(storageService.getUrl(getOriginalFilename(bannerPoster)))
-                .descriptionPosterUrl(storageService.getUrl(getOriginalFilename(descriptionPoster)))
+                .cardPosterUrl(cardPosterUrl)
+                .screenPosterUrl(bannerPosterUrl)
+                .descriptionPosterUrl(descriptionPosterUrl)
                 .build();
 
         List<SeatGrade> seatGradeEntities = seatGrades.stream()
@@ -117,13 +121,6 @@ public record CreateConcertCommand(
 
     private static String createPerformanceCode() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 10);
-    }
-
-    private static String getOriginalFilename(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            return null;
-        }
-        return file.getOriginalFilename();
     }
 
     private static SeatGrade findSeatGrade(Map<String, SeatGrade> seatGradeMap, String seatGradeName) {

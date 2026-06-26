@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Profile("!dev")
@@ -36,13 +37,14 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public void store(MultipartFile file) {
+    public String store(MultipartFile file) {
         try {
-            if (file.isEmpty()) {
+            if (file == null || file.isEmpty()) {
                 throw new StorageException("Failed to store empty file.");
             }
+            String key = UUID.randomUUID().toString();
             Path destinationFile = this.rootLocation.resolve(
-                            Paths.get(file.getOriginalFilename()))
+                            Paths.get(key))
                     .normalize().toAbsolutePath();
             if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
                 // This is a security check
@@ -53,6 +55,7 @@ public class FileSystemStorageService implements StorageService {
                 Files.copy(inputStream, destinationFile,
                         StandardCopyOption.REPLACE_EXISTING);
             }
+            return key;
         }
         catch (IOException e) {
             throw new StorageException("Failed to store file.", e);
@@ -73,43 +76,43 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public Path load(String filename) {
-        return rootLocation.resolve(filename);
+    public Path load(String key) {
+        return rootLocation.resolve(key);
     }
 
     @Override
-    public Resource loadAsResource(String filename) {
+    public Resource loadAsResource(String key) {
         try {
-            Path file = load(filename);
+            Path file = load(key);
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;
             }
             else {
                 throw new StorageFileNotFoundException(
-                        "Could not read file: " + filename);
+                        "Could not read file: " + key);
 
             }
         }
         catch (MalformedURLException e) {
-            throw new StorageFileNotFoundException("Could not read file: " + filename, e);
+            throw new StorageFileNotFoundException("Could not read file: " + key, e);
         }
     }
     @Override
-    public String getUrl(String filename) {
-        return BASE_URL + "/" + filename;
+    public String getUrl(String key) {
+        return BASE_URL + "/" + key;
     }
 
     @Override
-    public void delete(String filename) {
+    public void delete(String key) {
         try {
-            Path file = load(filename);
+            Path file = load(key);
             if (!file.toFile().delete()) {
-                throw new StorageFileNotFoundException("Could not read file: " + filename);
+                throw new StorageFileNotFoundException("Could not read file: " + key);
             }
         }
         catch (UnsupportedOperationException e) {
-            throw new StorageException("Could not execute operation: " + filename, e);
+            throw new StorageException("Could not execute operation: " + key, e);
         }
     }
     @Override

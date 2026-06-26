@@ -118,7 +118,7 @@ export async function getAdminVenue(id: number): Promise<AdminVenueDetailRespons
 }
 
 export async function getAdminVenueList(): Promise<AdminVenueItemResponse[]> {
-    const response = await fetchJson<AdminVenuePageResponse>(`${API_BASE_URL}/api/admin/venues`, {
+    const response = await fetchJson<AdminVenuePageResponse>(`${API_BASE_URL}/api/venues`, {
         headers: createJsonHeaders(),
     });
 

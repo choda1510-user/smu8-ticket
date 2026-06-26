@@ -12,6 +12,7 @@ import com.smu8.ticket.file.service.StorageService;
 import com.smu8.ticket.venue.entity.Venue;
 import com.smu8.ticket.venue.repository.VenueRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +26,15 @@ public class AdminConcertServiceImpl implements AdminConcertService {
     @Override
     public ConcertDetailResult createConcert(CreateConcertCommand command) {
         Venue venue = getVenueById(command.venueId());
-        storageService.store(command.cardPoster());
-        storageService.store(command.bannerPoster());
-        storageService.store(command.descriptionPoster());
-        Concert concert = command.toEntity(venue, storageService);
+        String cardPosterKey = storageService.store(command.cardPoster());
+        String bannerPosterKey = storageService.store(command.bannerPoster());
+        String descriptionPosterKey = storageService.store(command.descriptionPoster());
+        Concert concert = command.toEntity(
+                venue,
+                storageService.getUrl(cardPosterKey),
+                storageService.getUrl(bannerPosterKey),
+                storageService.getUrl(descriptionPosterKey)
+        );
         return ConcertDetailResult.from(concertRepository.save(concert));
     }
 
@@ -39,7 +45,8 @@ public class AdminConcertServiceImpl implements AdminConcertService {
 //        return concertRepository.findAll().stream()
 //                .map(ConcertDetailResult::from)
 //                .toList();
-        return null;
+        return PageResult.from(concertRepository.findAll(PageRequest.of(query.pageQuery().page(), query.pageQuery().size()))
+                .map(ConcertDetailResult::from));
     }
 
     @Override

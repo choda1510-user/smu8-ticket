@@ -10,6 +10,7 @@ import com.smu8.ticket.concert.admin.service.AdminConcertService;
 import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import com.smu8.ticket.concert.dto.query.ConcertPageQuery;
 import com.smu8.ticket.concert.http.response.ConcertItemResponse;
+import com.smu8.ticket.dto.query.PageQuery;
 import com.smu8.ticket.http.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -58,7 +59,7 @@ public class AdminConcertController {
             @RequestParam(name = "venueCode", required = false) String venueCode,
             @RequestParam(name = "venueNames", required = false) String venueNames
     ) {
-        return ResponseEntity.ok(PageResponse.from(adminConcertService.getConcerts(ConcertPageQuery.builder().build()), ConcertItemResponse::from));
+        return ResponseEntity.ok(PageResponse.from(adminConcertService.getConcerts(ConcertPageQuery.builder().pageQuery(PageQuery.builder().page(page).size(size).build()).build()), ConcertItemResponse::from));
     }
 
     @Operation(summary = "관리자 공연 상세 조회", description = "관리자가 공연 고유 ID로 공연 상세 정보를 조회합니다.")

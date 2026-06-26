@@ -17,25 +17,25 @@ import java.util.concurrent.TimeUnit;
 public class FileController {
     private final StorageService storageService;
 
-    @GetMapping("/api/images/{filename:.+}")
-    public ResponseEntity<Resource> getImage(@PathVariable String filename) {
-        Resource resource = storageService.loadAsResource(filename);
-        MediaType mediaType = resolveImageMediaType(filename);
+    @GetMapping("/api/images/{key:.+}")
+    public ResponseEntity<Resource> getImage(@PathVariable String key) {
+        Resource resource = storageService.loadAsResource(key);
+        MediaType mediaType = resolveImageMediaType(key);
         return ResponseEntity.ok()
                 .contentType(mediaType)
                 .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS).cachePublic())
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
                         ContentDisposition.inline()
-                                .filename(filename, StandardCharsets.UTF_8)
+                                .filename(key, StandardCharsets.UTF_8)
                                 .build()
                                 .toString()
                 )
                 .body(resource);
     }
 
-    private MediaType resolveImageMediaType(String filename) {
-        String contentType = URLConnection.guessContentTypeFromName(filename);
+    private MediaType resolveImageMediaType(String key) {
+        String contentType = URLConnection.guessContentTypeFromName(key);
 
         if (contentType == null) {
             return MediaType.APPLICATION_OCTET_STREAM;

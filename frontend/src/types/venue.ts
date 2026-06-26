@@ -4,9 +4,9 @@ import type { PageRequest, PageResponse, PageResult } from "./api";
 
 
 // 사용자 공연장 검색 목록 페이지가 쓸 타입
-export type VenueSearchResponse = {
-    venueId: number; // 화면에서 사용하는 공연장 고유 ID
-    venueName: string; // 공연장 이름
+export type VenueItemResponse = {
+    id: number; // 화면에서 사용하는 공연장 고유 ID
+    name: string; // 공연장 이름
     availableConcertCount: number; // 해당 공연장에서 예매 가능한 공연 개수
 };
 
@@ -16,11 +16,11 @@ export type VenueSearch = {
     availableConcertCount: number; // 해당 공연장에서 예매 가능한 공연 개수
 };
 
-export type VenueSearchPageResponse = PageResponse<VenueSearchResponse>; // 화면용 공연장 검색 결과 응답 타입
+export type VenueItemPageResponse = PageResponse<VenueItemResponse>; // 화면용 공연장 검색 결과 응답 타입
 export type VenueSearchPageResult = PageResult<VenueSearch>; // 화면용 공연장 결과 목록 응답 타입
 
 export type VenuePageRequest = PageRequest & {
-    venue_code?: string; // 공연장 코드로 검색할 때 URL 경로 파라미터로 보낼 값
-    venue_name?: string; // 공연장명으로 검색할 때 URL 쿼리 파라미터로 보낼 값
+    venueCode?: string; // 공연장 코드로 검색할 때 URL 경로 파라미터로 보낼 값
+    venueName?: string; // 공연장명으로 검색할 때 URL 쿼리 파라미터로 보낼 값
 };
 // 여기까지

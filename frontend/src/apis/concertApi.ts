@@ -12,7 +12,7 @@ import type {
     AdminConcertItemPageResponse,
 } from "@/types/adminConcert.ts";
 
-import type {VenueSearch, VenueSearchResponse} from "@/types/venue";
+import type {VenueSearch, VenueItemResponse} from "@/types/venue";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 const LOGIN_STORAGE_KEY = "smu8-ticket-login";
@@ -134,8 +134,8 @@ export function toConcertResult(concert: ConcertResponse): ConcertResult {
     };
 }
 
-export function toVenueSearchResult(concerts: ConcertResponse[]): VenueSearchResponse[] {
-    const venueMap = new Map<number, VenueSearchResponse>();
+export function toVenueSearchResult(concerts: ConcertResponse[]): VenueItemResponse[] {
+    const venueMap = new Map<number, VenueItemResponse>();
 
     concerts.forEach((concert) => {
         const existingVenue = venueMap.get(concert.venueId);

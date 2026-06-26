@@ -95,7 +95,7 @@ export type AdminConcertScheduleResponse = {
 };
 
 // 백엔드에서 받아오는 관리자 공연 응답 타입
-export type AdminConcertResponse = {
+export type AdminConcertDetailsResponse = {
     id: number; // 공연 고유 ID
     concertCode: string; // 공연 코드
     title: string; // 공연 제목
@@ -191,16 +191,12 @@ export type AdminConcertDetails = {
 
 // 관리자 공연 목록 조회 API의 페이지 응답 타입
 export type AdminConcertListPageResponse =
-    PageResponse<AdminConcertResponse>;
+    PageResponse<AdminConcertDetailsResponse>;
 
 // 관리자 공연 목록 화면에서 사용할 페이지 결과 타입
 export type AdminConcertListPageResult =
     PageResult<AdminConcertItem>;
-
-// 관리자 공연 상세 조회 API 응답 타입
-export type AdminConcertDetailsResponse =
-    AdminConcertResponse;
-
+    
 // 관리자 공연 등록 API 응답 타입
 export type AdminConcertCreateResponse = {
     id: number; // 등록된 공연 고유 ID

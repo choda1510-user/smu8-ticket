@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router";
 import DatePicker from "react-datepicker";
 import {format} from "date-fns";
@@ -21,6 +21,20 @@ type VenueOption = {
     venueCode: string;
     name: string;
     address: string;
+};
+
+type PosterField = "cardPoster" | "bannerPoster" | "descriptionPoster";
+
+type PosterFileState = {
+    file: File | null;
+    previewUrl: string;
+};
+
+type PosterFilesState = Record<PosterField, PosterFileState>;
+
+const emptyPosterFile: PosterFileState = {
+    file: null,
+    previewUrl: "",
 };
 
 function formatDateTime(date: Date) {
@@ -47,6 +61,14 @@ function createInitialSeatLayout(): SeatLayout {
     };
 }
 
+function createInitialPosterFiles(): PosterFilesState {
+    return {
+        cardPoster: {...emptyPosterFile},
+        bannerPoster: {...emptyPosterFile},
+        descriptionPoster: {...emptyPosterFile},
+    };
+}
+
 function AdminConcertCreatePage() {
     const navigate = useNavigate();
     const [title, setTitle] = useState("");
@@ -61,12 +83,25 @@ function AdminConcertCreatePage() {
     const [venueCodeInput, setVenueCodeInput] = useState("");
     const [isVenueModalOpen, setIsVenueModalOpen] = useState(false);
     const [venueLoadError, setVenueLoadError] = useState("");
-    const [cardPosterName, setCardPosterName] = useState("");
-    const [screenPosterName, setScreenPosterName] = useState("");
+    const [posterFiles, setPosterFiles] = useState<PosterFilesState>(() => createInitialPosterFiles());
     const [notice, setNotice] = useState("");
     const [description, setDescription] = useState("");
-    const [descriptionImageName, setDescriptionImageName] = useState("");
     const [seatLayout, setSeatLayout] = useState<SeatLayout>(() => createInitialSeatLayout());
+    const posterFilesRef = useRef(posterFiles);
+
+    useEffect(() => {
+        posterFilesRef.current = posterFiles;
+    }, [posterFiles]);
+
+    useEffect(() => {
+        return () => {
+            Object.values(posterFilesRef.current).forEach((posterFile) => {
+                if (posterFile.previewUrl) {
+                    URL.revokeObjectURL(posterFile.previewUrl);
+                }
+            });
+        };
+    }, []);
 
     useEffect(() => {
         async function loadVenues() {
@@ -86,6 +121,68 @@ function AdminConcertCreatePage() {
 
         void loadVenues();
     }, []);
+
+    const handlePosterFileChange = (field: PosterField, file: File | undefined) => {
+        if (!file) {
+            return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+            alert("이미지 파일만 선택할 수 있습니다.");
+            return;
+        }
+
+        setPosterFiles((currentFiles) => {
+            const currentPreviewUrl = currentFiles[field].previewUrl;
+
+            if (currentPreviewUrl) {
+                URL.revokeObjectURL(currentPreviewUrl);
+            }
+
+            return {
+                ...currentFiles,
+                [field]: {
+                    file,
+                    previewUrl: URL.createObjectURL(file),
+                },
+            };
+        });
+    };
+
+    const handlePosterFileRemove = (field: PosterField) => {
+        setPosterFiles((currentFiles) => {
+            const currentPreviewUrl = currentFiles[field].previewUrl;
+
+            if (currentPreviewUrl) {
+                URL.revokeObjectURL(currentPreviewUrl);
+            }
+
+            return {
+                ...currentFiles,
+                [field]: {...emptyPosterFile},
+            };
+        });
+    };
+
+    const renderPosterPreview = (field: PosterField, alt: string) => {
+        const posterFile = posterFiles[field];
+
+        if (!posterFile.file || !posterFile.previewUrl) {
+            return null;
+        }
+
+        return (
+            <div className="admin-page__poster-preview">
+                <img src={posterFile.previewUrl} alt={alt} />
+                <div>
+                    <span>{posterFile.file.name}</span>
+                    <button type="button" onClick={() => handlePosterFileRemove(field)}>
+                        제거
+                    </button>
+                </div>
+            </div>
+        );
+    };
 
     const handleScheduleAddClick = () => {
         if (!concertDateTime || !reservationStart || !reservationEnd) {
@@ -117,46 +214,58 @@ function AdminConcertCreatePage() {
             return;
         }
 
+        if (!posterFiles.cardPoster.file || !posterFiles.bannerPoster.file || !posterFiles.descriptionPoster.file) {
+            alert("카드형, 스크린형, 작품설명 이미지를 모두 선택해주세요.");
+            return;
+        }
+
         const apiDateFormat = "yyyy-MM-dd'T'HH:mm:ss";
         const seatGradeNameById = new Map(
             seatLayout.seatTypes.map((type) => [type.id, type.name]),
         );
 
         try {
-            await addConcert({
-                title: title.trim(),
-                description: description.trim(),
-                runningTime: String(runningMinutes || 120),
-                reservationStartAt: format(firstSchedule.reservationStart, apiDateFormat),
-                venueId: parsedVenueId,
-                notice: notice.trim() || undefined,
-                seatGrades: seatLayout.seatTypes.map((type) => ({
-                    gradeName: type.name,
-                    price: Number(type.price),
-                    color: type.color,
-                })),
-                schedules: schedules.map((schedule) => ({
-                    date: format(schedule.concertDateTime, apiDateFormat),
-                    reservationEndAt: format(schedule.reservationEnd, apiDateFormat),
-                })),
-                seats: seatLayout.grid.flatMap((row, rowIndex) =>
-                    row.flatMap((seatTypeId, colIndex) => {
-                        const seatGradeName = seatGradeNameById.get(seatTypeId);
+            await addConcert(
+                {
+                    title: title.trim(),
+                    description: description.trim(),
+                    runningTime: String(runningMinutes || 120),
+                    reservationStartAt: format(firstSchedule.reservationStart, apiDateFormat),
+                    venueId: parsedVenueId,
+                    notice: notice.trim() || undefined,
+                    seatGrades: seatLayout.seatTypes.map((type) => ({
+                        gradeName: type.name,
+                        price: Number(type.price),
+                        color: type.color,
+                    })),
+                    schedules: schedules.map((schedule) => ({
+                        date: format(schedule.concertDateTime, apiDateFormat),
+                        reservationEndAt: format(schedule.reservationEnd, apiDateFormat),
+                    })),
+                    seats: seatLayout.grid.flatMap((row, rowIndex) =>
+                        row.flatMap((seatTypeId, colIndex) => {
+                            const seatGradeName = seatGradeNameById.get(seatTypeId);
 
-                        if (!seatGradeName) {
-                            return [];
-                        }
+                            if (!seatGradeName) {
+                                return [];
+                            }
 
-                        return [{
-                            seatGradeName,
-                            row: rowIndex + 1,
-                            col: colIndex + 1,
-                        }];
-                    }),
-                ),
-                rowMax: seatLayout.rowCount,
-                colMax: seatLayout.columnCount,
-            });
+                            return [{
+                                seatGradeName,
+                                row: rowIndex + 1,
+                                col: colIndex + 1,
+                            }];
+                        }),
+                    ),
+                    rowMax: seatLayout.rowCount,
+                    colMax: seatLayout.columnCount,
+                },
+                {
+                    cardPoster: posterFiles.cardPoster.file,
+                    bannerPoster: posterFiles.bannerPoster.file,
+                    descriptionPoster: posterFiles.descriptionPoster.file,
+                },
+            );
 
             alert("공연이 등록되었습니다.");
             navigate("/admin/concerts");
@@ -315,16 +424,36 @@ function AdminConcertCreatePage() {
 
                         <label>공연 포스터</label>
                         <div className="admin-page__image-inputs">
-                            <label>
-                                카드형
-                                <input type="file" accept="image/*" onChange={(event) => setCardPosterName(event.target.files?.[0]?.name ?? "")} />
-                                <span>{cardPosterName || "사용자 카드/검색 이미지"}</span>
-                            </label>
-                            <label>
-                                스크린형
-                                <input type="file" accept="image/*" onChange={(event) => setScreenPosterName(event.target.files?.[0]?.name ?? "")} />
-                                <span>{screenPosterName || "메인 배너 이미지"}</span>
-                            </label>
+                            <div className="admin-page__image-picker">
+                                <label>
+                                    카드형
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(event) => {
+                                            handlePosterFileChange("cardPoster", event.target.files?.[0]);
+                                            event.currentTarget.value = "";
+                                        }}
+                                    />
+                                    <span>{posterFiles.cardPoster.file?.name || "사용자 카드/검색 이미지"}</span>
+                                </label>
+                                {renderPosterPreview("cardPoster", "카드형 포스터 미리보기")}
+                            </div>
+                            <div className="admin-page__image-picker">
+                                <label>
+                                    스크린형
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(event) => {
+                                            handlePosterFileChange("bannerPoster", event.target.files?.[0]);
+                                            event.currentTarget.value = "";
+                                        }}
+                                    />
+                                    <span>{posterFiles.bannerPoster.file?.name || "메인 배너 이미지"}</span>
+                                </label>
+                                {renderPosterPreview("bannerPoster", "스크린형 포스터 미리보기")}
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -340,9 +469,17 @@ function AdminConcertCreatePage() {
                             <textarea value={description} onChange={(event) => setDescription(event.target.value)} />
                             <label className="admin-page__file-chip">
                                 이미지 추가
-                                <input type="file" accept="image/*" onChange={(event) => setDescriptionImageName(event.target.files?.[0]?.name ?? "")} />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(event) => {
+                                        handlePosterFileChange("descriptionPoster", event.target.files?.[0]);
+                                        event.currentTarget.value = "";
+                                    }}
+                                />
                             </label>
-                            {descriptionImageName && <span>{descriptionImageName}</span>}
+                            {posterFiles.descriptionPoster.file && <span>{posterFiles.descriptionPoster.file.name}</span>}
+                            {renderPosterPreview("descriptionPoster", "작품설명 이미지 미리보기")}
                         </div>
                     </div>
                 </section>

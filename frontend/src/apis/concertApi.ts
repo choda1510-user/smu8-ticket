@@ -21,6 +21,12 @@ import type {VenueSearch, VenueItemResponse} from "@/types/venue";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 const LOGIN_STORAGE_KEY = "smu8-ticket-login";
 
+type ConcertPosterFiles = {
+    cardPoster: File;
+    bannerPoster: File;
+    descriptionPoster: File;
+};
+
 function getAccessToken() {
     const storedLogin = localStorage.getItem(LOGIN_STORAGE_KEY);
 
@@ -48,6 +54,31 @@ function createJsonHeaders() {
     }
 
     return headers;
+}
+
+function createMultipartHeaders() {
+    const headers: HeadersInit = {};
+    const accessToken = getAccessToken();
+
+    if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    return headers;
+}
+
+function createConcertFormData(request: AdminConcertRequest, files: ConcertPosterFiles) {
+    const formData = new FormData();
+
+    formData.append(
+        "request",
+        new Blob([JSON.stringify(request)], {type: "application/json"}),
+    );
+    formData.append("cardPoster", files.cardPoster);
+    formData.append("bannerPoster", files.bannerPoster);
+    formData.append("descriptionPoster", files.descriptionPoster);
+
+    return formData;
 }
 
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
@@ -272,11 +303,14 @@ export async function getAdminConcertList(): Promise<AdminConcertDetailsResponse
     return response.contents ?? [];
 }
 
-export async function addConcert(request: AdminConcertRequest): Promise<AdminConcertCreateResponse> {
+export async function addConcert(
+    request: AdminConcertRequest,
+    files: ConcertPosterFiles,
+): Promise<AdminConcertCreateResponse> {
     return fetchJson<AdminConcertCreateResponse>(`${API_BASE_URL}/api/admin/concerts`, {
         method: "POST",
-        headers: createJsonHeaders(),
-        body: JSON.stringify(request),
+        headers: createMultipartHeaders(),
+        body: createConcertFormData(request, files),
     });
 }
 

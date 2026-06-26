@@ -4,6 +4,7 @@ export type ReservationStatus = "BEFORE_OPEN" | "OPEN" | "CLOSED"; // 예매 오
 
 export type ConcertScheduleResponse = {
     id: number; // 공연 회차 고유 ID
+    concertId: number; // 공연 고유 ID
     date: string; // 공연 날짜 및 시간
     reservationEndAt: string; // 예매 종료일시
 }

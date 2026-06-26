@@ -5,7 +5,6 @@ import type {
     AdminConcertItem,
     AdminConcertListPageResponse,
     AdminConcertListPageResult,
-    AdminConcertResponse,
     AdminConcertSeatPolicyResult,
     AdminConcertSeatResult,
     AdminConcertSeatTypeResult,
@@ -79,7 +78,7 @@ const getConcertPeriodText = (
 };
 
 export const toAdminConcertItem = (
-    response: AdminConcertResponse,
+    response: AdminConcertDetailsResponse,
 ): AdminConcertItem => ({
     id: response.id,
     concertCode: response.concertCode,

@@ -4,6 +4,7 @@ import type {
     BackendVenue,
     BackendVenueListResponse,
     VenueResult,
+    VenueItemResponse,
     VenueSearchResponse,
     VenueSearch
 } from "@/types/venue";

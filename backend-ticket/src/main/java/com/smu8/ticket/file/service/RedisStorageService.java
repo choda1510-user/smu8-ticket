@@ -100,6 +100,12 @@ public class RedisStorageService implements StorageService {
             }
         };
     }
+    @Override
+    public void delete(String filename) {
+        if (!redisFileTemplate.delete(fileKey(filename))) {
+            throw new StorageException("파일 삭제 실패");
+        };
+    }
 
     @Override
     public void deleteAll() {

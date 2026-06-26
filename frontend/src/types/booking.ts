@@ -1,4 +1,5 @@
 import type {PageResponse} from "@/types/api";
+import type { ConcertScheduleResponse, SeatGradeResponse, SeatResponse } from "./concert";
 
 // 예매 요청 타입
 // 프론트에서 백엔드로 보낼 때 사용
@@ -48,6 +49,85 @@ export type BookingItem = {
 
 export type BookingPageResponse = PageResponse<BookingItem>;
 
+export type BookingItemResponse = {
+    // 예매 고유 Id
+    reservationId: number;
+    // 예매한 공연 회차
+    reservedSchedule: ConcertScheduleResponse;
+    // 예매번호
+    reservationNo: string;
+    // 예매자 고유 Id
+    accountId: string;
+    // 예매 상태
+    reservationStatus: string;
+    // 예매한 좌석 총합 수
+    totalQuantity: number;
+    // 예매 총합 금액
+    totalAmount: number;
+    // 예매 날짜
+    reservedAt: string;
+    // 공연 제목
+    concertTitle: string;
+    // 공연 카드 이미지 주소
+    cardPosterUrl: string;
+    // 예매한 공연 회차 전체 목록
+    concertSchedules: ConcertScheduleResponse[];
+    // 공연장 고유 Id
+    venueId: number;
+    // 공연장 이름
+    venueName: string;
+}
+
+export type BookingDetailResponse = {
+    // 예매 고유 Id
+    reservationId: number;
+    // 예매한 공연 회차
+    reservedSchedule: ConcertScheduleResponse;
+    // 예매번호
+    reservationNo: string;
+    // 예매자 고유 Id
+    accountId: string;
+    // 예매 상태
+    reservationStatus: string;
+    // 예매한 좌석 총합 수
+    totalQuantity: number;
+    // 예매 총합 금액
+    totalAmount: number;
+    // 예매 날짜
+    reservedAt: string;
+    // 공연 제목
+    concertTitle: string;
+    // 공연 카드 이미지 주소
+    cardPosterUrl: string;
+    // 좌석 타입 목록
+    seatGrades: SeatGradeResponse[];
+    // 예매한 공연 회차 전체 목록
+    concertSchedules: ConcertScheduleResponse[];
+    // 공연장 고유 Id
+    venueId: number;
+    // 공연장 이름
+    venueName: string;
+    // 예매한 좌석 목록
+    seats: BookingSeatResponse[];
+}
+export type BookingSeatResponse = {
+    // 예매 좌석 고유 Id
+    id: number;
+    // 좌석
+    seat: SeatResponse;
+    // 좌석 상태
+    status: SeatStatus;
+}
+export type BookingConcertSeatFrameResponse = {
+    // 공연 고유 Id
+    concertId: number;
+    // 선택한 공연 회차
+    selectSchedule: ConcertScheduleResponse;
+    // 좌석 타입 목록
+    seatGrades: SeatGradeResponse[];
+    // 예매 좌석 목록
+    seats: BookingSeatResponse[];
+}
 export type BookingWaiting = {
     concertId: number;
     waitingCount: number;

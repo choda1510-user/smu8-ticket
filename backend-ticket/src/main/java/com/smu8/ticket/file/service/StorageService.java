@@ -12,6 +12,7 @@ public interface StorageService {
     Stream<Path> loadAll();
     Path load(String filename);
     Resource loadAsResource(String filename);
+    String getUrl(String filename);
     void delete(String filename);
     void deleteAll();
 }

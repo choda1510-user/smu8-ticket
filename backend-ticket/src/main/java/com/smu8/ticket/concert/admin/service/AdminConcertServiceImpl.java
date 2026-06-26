@@ -8,6 +8,7 @@ import com.smu8.ticket.concert.dto.query.ConcertPageQuery;
 import com.smu8.ticket.concert.entity.Concert;
 import com.smu8.ticket.concert.repository.ConcertRepository;
 import com.smu8.ticket.dto.result.PageResult;
+import com.smu8.ticket.file.service.StorageService;
 import com.smu8.ticket.venue.entity.Venue;
 import com.smu8.ticket.venue.repository.VenueRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +19,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminConcertServiceImpl implements AdminConcertService {
     private final ConcertRepository concertRepository;
-
+    private final StorageService storageService;
     private final VenueRepository venueRepository;
 
     @Override
     public ConcertDetailResult createConcert(CreateConcertCommand command) {
         Venue venue = getVenueById(command.venueId());
-        Concert concert = command.toEntity(venue);
+        storageService.store(command.cardPoster());
+        storageService.store(command.bannerPoster());
+        storageService.store(command.descriptionPoster());
+        Concert concert = command.toEntity(venue, storageService);
         return ConcertDetailResult.from(concertRepository.save(concert));
     }
 

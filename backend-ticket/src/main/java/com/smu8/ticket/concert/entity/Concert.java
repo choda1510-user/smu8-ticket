@@ -41,16 +41,16 @@ public class Concert {
     private String performanceCode;
     @Column(nullable = false)
     private String title;
-    @Column
+    @Column(nullable = false)
     private String performanceStatus;
-    @Column
-    private String description;
+    @Column (columnDefinition = "text")
+    private String description ;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
     @Column
     private String runningTime;
-    @Column
+    @Column (columnDefinition = "text")
     private String notice;
     @Column
     private String cardPosterUrl;

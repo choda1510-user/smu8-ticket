@@ -61,6 +61,7 @@ export type ConcertItem = {
     period: string; // 화면에 표시할 공연 기간
     venueName: string; // 공연장 이름
     badgeText: string; // 화면에 표시할 상태 문구
+
 };
 
 export type HomeConcertCard = { // 홈 화면 공연 카드 목록

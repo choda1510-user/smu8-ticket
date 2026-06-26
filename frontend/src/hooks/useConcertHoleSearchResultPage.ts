@@ -1,12 +1,16 @@
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router";
 import {filterVenuesByKeyword, getVenueList, toVenueSearchResult} from "@/apis/venueApi";
-import type {VenueSearchPageResponse} from "@/types/venue";
+import type {VenueSearchPageResult} from "@/types/venue";
 
-const initialVenueSearchResults: VenueSearchPageResponse = {
-    data: [],
-    page: 1,
-    totalPage: 1,
+const initialVenueSearchResults: VenueSearchPageResult = {
+    contents: [],
+    page: 1, // 현재 페이지 번호
+    size: 0,// 페이지 하나당 데이터 개수
+    totalElements: 0, // 전체 데이터 개수
+    totalPages: 1, // 전체 페이지 수
+    hasNext: false, // 다음 페이지 존재 여부
+    hasPrevious: false // 이전 페이지 존재 여부
 };
 
 function getKeyword(searchParams: URLSearchParams) {
@@ -16,7 +20,7 @@ function getKeyword(searchParams: URLSearchParams) {
 export function useConcertHoleSearchResultPage() {
     const [searchParams] = useSearchParams();
     const keyword = getKeyword(searchParams);
-    const [venueSearchResults, setVenueSearchResults] = useState<VenueSearchPageResponse>(initialVenueSearchResults);
+    const [venueSearchResults, setVenueSearchResults] = useState<VenueSearchPageResult>(initialVenueSearchResults);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 

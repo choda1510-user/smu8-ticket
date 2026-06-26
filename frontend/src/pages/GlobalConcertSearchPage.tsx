@@ -13,8 +13,8 @@ function GlobalConcertSearchPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const {concertResults, venueResults} = useGlobalConcertSearchPage();
-    const concerts = concertResults.data;
-    const venues = venueResults.data;
+    const concerts = concertResults.contents;
+    const venues = venueResults.contents;
 
     const keyword = searchParams.get("keyword") ?? searchParams.get("q") ?? "";
 

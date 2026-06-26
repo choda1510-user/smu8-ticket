@@ -15,7 +15,7 @@ import {useConcertHoleSearchResultPage} from "@/hooks/useConcertHoleSearchResult
 function ConcertHoleSearchResultPage() {
     const navigate = useNavigate();
     const {venueSearchResults} = useConcertHoleSearchResultPage();
-    const venues = venueSearchResults.data;
+    const venues = venueSearchResults.contents;
 
     const handleVenueClick = (venueId: number) => {
         navigate(`/venues/${venueId}`);

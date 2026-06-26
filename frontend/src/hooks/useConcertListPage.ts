@@ -1,15 +1,19 @@
 import {useEffect, useState} from "react";
 import {getConcertItems} from "@/apis/concertApi";
-import type {ConcertListResponse} from "@/types/concert";
+import type {ConcertItemPageResult} from "@/types/concert";
 
-const initialConcertList: ConcertListResponse = {
-    data: [],
+const initialConcertList: ConcertItemPageResult = {
+    contents: [],
     page: 1,
-    totalPage: 1,
+    size: 0,
+    totalElements: 0,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false
 };
 
 export function useConcertListPage() {
-    const [concertList, setConcertList] = useState<ConcertListResponse>(initialConcertList);
+    const [concertList, setConcertList] = useState<ConcertItemPageResult>(initialConcertList);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
@@ -25,9 +29,13 @@ export function useConcertListPage() {
 
                 if (isMounted) {
                     setConcertList({
-                        data: concerts,
+                        contents: [],
                         page: 1,
-                        totalPage: 1,
+                        size: concerts.length,
+                        totalElements: concerts.length,
+                        totalPages: 1,
+                        hasNext: false,
+                        hasPrevious: false
                     });
                 }
             } catch (caughtError) {

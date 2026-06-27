@@ -227,40 +227,40 @@ function AdminConcertCreatePage() {
         try {
             await addConcert(
                 {
-                    title: title.trim(),
-                    description: description.trim(),
-                    runningTime: String(runningMinutes || 120),
-                    reservationStartAt: format(firstSchedule.reservationStart, apiDateFormat),
-                    venueId: parsedVenueId,
-                    notice: notice.trim() || undefined,
-                    seatGrades: seatLayout.seatTypes.map((type) => ({
-                        gradeName: type.name,
-                        price: Number(type.price),
-                        color: type.color,
-                    })),
-                    schedules: schedules.map((schedule) => ({
-                        date: format(schedule.concertDateTime, apiDateFormat),
-                        reservationEndAt: format(schedule.reservationEnd, apiDateFormat),
-                    })),
-                    seats: seatLayout.grid.flatMap((row, rowIndex) =>
-                        row.flatMap((seatTypeId, colIndex) => {
-                            const seatGradeName = seatGradeNameById.get(seatTypeId);
+                    request: {
+                        title: title.trim(),
+                        description: description.trim(),
+                        runningTime: String(runningMinutes || 120),
+                        reservationStartAt: format(firstSchedule.reservationStart, apiDateFormat),
+                        venueId: parsedVenueId,
+                        notice: notice.trim() || undefined,
+                        seatGrades: seatLayout.seatTypes.map((type) => ({
+                            gradeName: type.name,
+                            price: Number(type.price),
+                            color: type.color,
+                        })),
+                        schedules: schedules.map((schedule) => ({
+                            date: format(schedule.concertDateTime, apiDateFormat),
+                            reservationEndAt: format(schedule.reservationEnd, apiDateFormat),
+                        })),
+                        seats: seatLayout.grid.flatMap((row, rowIndex) =>
+                            row.flatMap((seatTypeId, colIndex) => {
+                                const seatGradeName = seatGradeNameById.get(seatTypeId);
 
-                            if (!seatGradeName) {
-                                return [];
-                            }
+                                if (!seatGradeName) {
+                                    return [];
+                                }
 
-                            return [{
-                                seatGradeName,
-                                row: rowIndex + 1,
-                                col: colIndex + 1,
-                            }];
-                        }),
-                    ),
-                    rowMax: seatLayout.rowCount,
-                    colMax: seatLayout.columnCount,
-                },
-                {
+                                return [{
+                                    seatGradeName,
+                                    row: rowIndex + 1,
+                                    col: colIndex + 1,
+                                }];
+                            }),
+                        ),
+                        rowMax: seatLayout.rowCount,
+                        colMax: seatLayout.columnCount,
+                    },
                     cardPoster: posterFiles.cardPoster.file,
                     bannerPoster: posterFiles.bannerPoster.file,
                     descriptionPoster: posterFiles.descriptionPoster.file,

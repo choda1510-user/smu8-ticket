@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router";
 import {getAdminConcertList} from "@/apis/concertApi";
-import type {AdminConcertDetailsResponse, AdminConcertScheduleResponse} from "@/types/adminConcert";
+import type {AdminConcertDetailResponse, AdminConcertScheduleResponse} from "@/types/adminConcert";
 import "./AdminPages.css";
 
 const pageSize = 5;
@@ -16,7 +16,7 @@ function formatPeriod(schedules: AdminConcertScheduleResponse[]) {
 
 function AdminConcertListPage() {
     const navigate = useNavigate();
-    const [concerts, setConcerts] = useState<AdminConcertDetailsResponse[]>([]);
+    const [concerts, setConcerts] = useState<AdminConcertDetailResponse[]>([]);
     const [titleInput, setTitleInput] = useState("");
     const [codeInput, setCodeInput] = useState("");
     const [venueInput, setVenueInput] = useState("");

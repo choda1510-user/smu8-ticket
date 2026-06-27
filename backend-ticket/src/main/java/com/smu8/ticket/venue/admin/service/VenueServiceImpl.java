@@ -1,7 +1,8 @@
 package com.smu8.ticket.venue.admin.service;
 
-import com.smu8.ticket.venue.admin.dto.command.CreateVenueCommand;
-import com.smu8.ticket.venue.admin.dto.command.UpdateVenueCommand;
+import com.smu8.ticket.venue.admin.dto.command.AdminCreateVenueCommand;
+import com.smu8.ticket.venue.admin.dto.command.AdminUpdateVenueCommand;
+import com.smu8.ticket.venue.admin.dto.result.AdminVenueDetailResult;
 import com.smu8.ticket.venue.dto.result.VenueDetailResult;
 import com.smu8.ticket.venue.dto.query.VenueDetailQuery;
 import com.smu8.ticket.venue.entity.Address;
@@ -11,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service("adminVenueServiceImpl")
 @RequiredArgsConstructor
 public class VenueServiceImpl implements VenueService {
@@ -20,7 +19,7 @@ public class VenueServiceImpl implements VenueService {
 
     @Override
     @Transactional
-    public VenueDetailResult createVenue(CreateVenueCommand command) {
+    public VenueDetailResult createVenue(AdminCreateVenueCommand command) {
         Venue venue = Venue.builder()
                 .name(command.name())
                 .address(createAddress(
@@ -36,13 +35,13 @@ public class VenueServiceImpl implements VenueService {
     }
 
     @Override
-    public VenueDetailResult getVenue(VenueDetailQuery query) {
-        return VenueDetailResult.from(getById(query.id()));
+    public AdminVenueDetailResult getVenue(VenueDetailQuery query) {
+        return AdminVenueDetailResult.from(getById(query.id()));
     }
 
     @Override
     @Transactional
-    public VenueDetailResult updateVenue(UpdateVenueCommand command) {
+    public VenueDetailResult updateVenue(AdminUpdateVenueCommand command) {
         Venue venue = getById(command.id());
         venue.setName(command.name());
         venue.setAddress(createAddress(

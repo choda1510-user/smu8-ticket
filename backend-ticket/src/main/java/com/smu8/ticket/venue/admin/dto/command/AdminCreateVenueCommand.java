@@ -3,7 +3,7 @@ package com.smu8.ticket.venue.admin.dto.command;
 import lombok.Builder;
 
 @Builder
-public record CreateVenueCommand(
+public record AdminCreateVenueCommand(
         String name,
         String zoneNo,
         String roadAddress,

@@ -8,11 +8,11 @@ import type {
 
 } from "@/types/concert";
 import type {
+    AdminConcertCreateCommand,
     AdminConcertCreateResponse,
-    AdminConcertDetailsResponse,
+    AdminConcertDetailResponse,
     AdminConcertListPageResponse,
-    AdminConcertRequest,
-    AdminConcertUpdateRequest,
+    AdminConcertUpdateCommand,
     AdminConcertUpdateResponse,
 } from "@/types/adminConcert.ts";
 
@@ -20,12 +20,6 @@ import type {VenueSearch, VenueItemResponse} from "@/types/venue";
 import { getAccessToken } from "./authApi";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-
-type ConcertPosterFiles = {
-    cardPoster: File;
-    bannerPoster: File;
-    descriptionPoster: File;
-};
 
 function createJsonHeaders() {
     const headers: HeadersInit = {
@@ -51,16 +45,16 @@ function createMultipartHeaders() {
     return headers;
 }
 
-function createConcertFormData(request: AdminConcertRequest, files: ConcertPosterFiles) {
+function createConcertFormData(command: AdminConcertCreateCommand) {
     const formData = new FormData();
 
     formData.append(
         "request",
-        new Blob([JSON.stringify(request)], {type: "application/json"}),
+        new Blob([JSON.stringify(command.request)], {type: "application/json"}),
     );
-    formData.append("cardPoster", files.cardPoster);
-    formData.append("bannerPoster", files.bannerPoster);
-    formData.append("descriptionPoster", files.descriptionPoster);
+    formData.append("cardPoster", command.cardPoster);
+    formData.append("bannerPoster", command.bannerPoster);
+    formData.append("descriptionPoster", command.descriptionPoster);
 
     return formData;
 }
@@ -273,13 +267,13 @@ export async function getConcertItems(): Promise<ConcertItem[]> {
     return concerts.map(toConcertItem);
 }
 
-export async function getAdminConcert(id: number): Promise<AdminConcertDetailsResponse> {
-    return fetchJson<AdminConcertDetailsResponse>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
+export async function getAdminConcert(id: number): Promise<AdminConcertDetailResponse> {
+    return fetchJson<AdminConcertDetailResponse>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
         headers: createJsonHeaders(),
     });
 }
 
-export async function getAdminConcertList(): Promise<AdminConcertDetailsResponse[]> {
+export async function getAdminConcertList(): Promise<AdminConcertDetailResponse[]> {
     const response = await fetchJson<AdminConcertListPageResponse>(`${API_BASE_URL}/api/admin/concerts`, {
         headers: createJsonHeaders(),
     });
@@ -288,21 +282,20 @@ export async function getAdminConcertList(): Promise<AdminConcertDetailsResponse
 }
 
 export async function addConcert(
-    request: AdminConcertRequest,
-    files: ConcertPosterFiles,
+    command: AdminConcertCreateCommand
 ): Promise<AdminConcertCreateResponse> {
     return fetchJson<AdminConcertCreateResponse>(`${API_BASE_URL}/api/admin/concerts`, {
         method: "POST",
         headers: createMultipartHeaders(),
-        body: createConcertFormData(request, files),
+        body: createConcertFormData(command),
     });
 }
 
-export async function updateConcert(id: number, request: AdminConcertUpdateRequest): Promise<AdminConcertUpdateResponse> {
-    return fetchJson<AdminConcertCreateResponse>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
+export async function updateConcert(command: AdminConcertUpdateCommand): Promise<AdminConcertUpdateResponse> {
+    return fetchJson<AdminConcertCreateResponse>(`${API_BASE_URL}/api/admin/concerts/${command.pathVariables.id}`, {
         method: "PATCH",
         headers: createJsonHeaders(),
-        body: JSON.stringify(request),
+        body: JSON.stringify(command.request),
     });
 }
 

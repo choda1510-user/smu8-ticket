@@ -1,23 +1,36 @@
 import type { PageRequest, PageResponse, PageResult } from "@/types/api";
 import type { ReservationStatus, SeatGradeResponse, SeatResponse } from "@/types/concert";
 
+// request -> 프론트가 백엔드에게 보내는 요청 본문 타입
+// parameters -> 프론트가 백엔드에게 보내는 요청 쿼리 스트링
+// pathVariables -> 프론트가 백엔드에게 보내는 요청 경로 변수
+// query -> 이벤트 핸들러가 Api 함수에게 전달하는 조회 요청 타입
+// command -> 이벤트 핸들러가 Api 함수에게 전달하는 작업 요청 타입
 // 관리자 공연 목록 검색 요청 타입
-export type AdminConcertListPageRequest = PageRequest & {
-    concert_name?: string; // 공연명으로 검색할 때 URL 쿼리 파라미터로 보낼 값
-    concert_code?: string; // 공연코드로 검색할 때 URL 경로 파라미터로 보낼 값
-    venue_name?: string; // 공연장명으로 검색할 때 URL 쿼리 파라미터로 보낼 값
-    venue_code?: string; // 공연장코드로 검색할 때 URL 경로 파라미터로 보낼 값
-    reservation_status?: ReservationStatus; // 예매 상태로 검색할 때 URL 쿼리 파라미터로 보낼 값
+export type AdminConcertListPageParameters = PageRequest & {
+    concertName?: string; // 공연명으로 검색할 때 URL 쿼리 파라미터로 보낼 값
+    concertCode?: string; // 공연코드로 검색할 때 URL 경로 파라미터로 보낼 값
+    venueName?: string; // 공연장명으로 검색할 때 URL 쿼리 파라미터로 보낼 값
+    venueCode?: string; // 공연장코드로 검색할 때 URL 쿼리 파라미터로 보낼 값
+    reservationStatus?: ReservationStatus; // 예매 상태로 검색할 때 URL 쿼리 파라미터로 보낼 값
+};
+// 
+export type AdminConcertListPageQuery = {
+    querys: AdminConcertListPageParameters
 };
 
 // 관리자 공연 상세 조회 요청 타입
-export type AdminConcertDetailsRequest = {
-    id: number; // 상세 조회 URL에 path variable로 보낼 공연 고유 ID
+export type AdminConcertDetailQuery = {
+    pathVariables: {
+        id: number; // 상세 조회 URL에 path variable로 보낼 공연 고유 ID
+    }
 };
 
 // 관리자 공연 삭제 요청 타입
 export type AdminConcertDeleteRequest = {
-    id: number; // 삭제 URL에 path variable로 보낼 공연 고유 ID
+    pathVariables: {
+        id: number; // 삭제 URL에 path variable로 보낼 공연 고유 ID
+    }
 };
 
 // 관리자 공연 좌석 타입 요청 타입
@@ -27,17 +40,18 @@ export type AdminSeatGradeCreateRequest = {
     color: string; // 좌석 타입 색 (예: #fafafa)
 };
 
+// 관리자 공연 회차 등록 요청 타입
 export type AdminConcertScheduleCreateRequest = {
-    date: string;
-    reservationEndAt: string;
+    date: string; // 공연 날짜
+    reservationEndAt: string; // 예매 종료 날짜
 }
+// 관리자 좌석 등록 요청 타입
 export type AdminSeatCreateRequest = {
     seatGradeName: string; // 좌석 타입 이름
     row: number; // 좌석 행 위치
     col: number; // 좌석 열 위치
 }
 // 관리자 공연 등록 요청 타입
-// 이미지 파일은 따로 api 함수에서 매개변수로 받기
 export type AdminConcertCreateRequest = {
     title: string; // 공연 제목
     description: string; // 공연 설명
@@ -51,9 +65,19 @@ export type AdminConcertCreateRequest = {
     rowMax: number; // 행 개수
     colMax: number; // 열 개수
 };
+// 관리자 공연 이미지 등록 작업 타입
+export type AdminConcertPostersCommand = {
+    cardPoster: File;
+    bannerPoster: File;
+    descriptionPoster: File;
+}
+// 관리자 공연 등록 작업 타입
+export type AdminConcertCreateCommand = AdminConcertPostersCommand & {
+    request: AdminConcertCreateRequest;
+}
 
 // 관리자 공연 수정 요청 타입
-export type AdminConcertUpdateRequest = AdminConcertDetailsRequest & {
+export type AdminConcertUpdateRequest = {
     title: string; // 공연명
     runningTime: string; // 공연 시간
     reservationStartAt?: string; // 예매 시작일시
@@ -61,6 +85,12 @@ export type AdminConcertUpdateRequest = AdminConcertDetailsRequest & {
     notice?: string; // 공지사항
     description: string; // 작품 설명
 };
+export type AdminConcertUpdateCommand = {
+    request: AdminConcertUpdateRequest;
+    pathVariables: {
+        id: string
+    }
+}
 
 // 기존 등록 코드 호환용 관리자 공연 요청 타입
 export type AdminConcertRequest = AdminConcertCreateRequest;
@@ -74,7 +104,7 @@ export type AdminConcertScheduleResponse = {
 };
 
 // 백엔드에서 받아오는 관리자 공연 응답 타입
-export type AdminConcertDetailsResponse = {
+export type AdminConcertDetailResponse = {
     id: number; // 공연 고유 ID
     concertCode: string; // 공연 코드
     title: string; // 공연 제목
@@ -170,7 +200,7 @@ export type AdminConcertDetails = {
 
 // 관리자 공연 목록 조회 API의 페이지 응답 타입
 export type AdminConcertListPageResponse =
-    PageResponse<AdminConcertDetailsResponse>;
+    PageResponse<AdminConcertDetailResponse>;
 
 // 관리자 공연 목록 화면에서 사용할 페이지 결과 타입
 export type AdminConcertListPageResult =

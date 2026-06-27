@@ -1,6 +1,6 @@
 import type {
     AdminConcertDetails,
-    AdminConcertDetailsResponse,
+    AdminConcertDetailResponse,
     AdminConcertImageResult,
     AdminConcertItem,
     AdminConcertListPageResponse,
@@ -28,7 +28,7 @@ export const toAdminConcertSessionResult = (
 };
 
 export const toAdminConcertImageResult = (
-    response: AdminConcertDetailsResponse,
+    response: AdminConcertDetailResponse,
 ): AdminConcertImageResult => ({
     cardPosterUrl: response.cardPosterUrl,
     screenPosterUrl: response.bannerPosterUrl,
@@ -52,7 +52,7 @@ export const toAdminConcertSeatResult = (
 });
 
 export const toAdminConcertSeatPolicyResult = (
-    response: AdminConcertDetailsResponse,
+    response: AdminConcertDetailResponse,
 ): AdminConcertSeatPolicyResult => {
 
     return {
@@ -78,7 +78,7 @@ const getConcertPeriodText = (
 };
 
 export const toAdminConcertItem = (
-    response: AdminConcertDetailsResponse,
+    response: AdminConcertDetailResponse,
 ): AdminConcertItem => ({
     id: response.id,
     concertCode: response.concertCode,
@@ -91,7 +91,7 @@ export const toAdminConcertItem = (
 });
 
 export const toAdminConcertDetails = (
-    response: AdminConcertDetailsResponse,
+    response: AdminConcertDetailResponse,
 ): AdminConcertDetails => ({
     id: response.id,
     concertCode: response.concertCode,

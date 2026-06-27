@@ -2,7 +2,7 @@ package com.smu8.ticket.venue.admin.http.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record UpdateVenueRequest(
+public record AdminUpdateVenueRequest(
         @Schema(description = "수정할 공연장 이름", example = "서울아트센터")
         String name,
         @Schema(description = "공연장 설명", example = "설명")

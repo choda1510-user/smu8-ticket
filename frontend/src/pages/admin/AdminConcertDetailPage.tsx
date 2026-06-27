@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {cancelConcert, getAdminConcert, updateConcert} from "@/apis/concertApi";
-import type {AdminConcertScheduleResponse, AdminConcertUpdateRequest} from "@/types/adminConcert";
+import type {AdminConcertScheduleResponse, AdminConcertUpdateCommand} from "@/types/adminConcert";
 import "./AdminPages.css";
 
 function toDateTimeLocalValue(value: string) {
@@ -63,7 +63,7 @@ function AdminConcertDetailPage() {
         void loadConcert();
     }, [concertNumericId]);
 
-    const createRequest = (): AdminConcertUpdateRequest | null => {
+    const updateCommand = (): AdminConcertUpdateCommand | null => {
         const parsedVenueId = Number(venueId);
 
         if (!title.trim() || !description.trim() || !startAt || !endAt || !parsedVenueId) {
@@ -72,25 +72,29 @@ function AdminConcertDetailPage() {
         }
 
         return {
-            id: concertNumericId,
-            title: title.trim(),
-            description: description.trim(),
-            runningTime,
-            reservationStartAt,
-            venueId: parsedVenueId,
+            request: {
+                title: title.trim(),
+                description: description.trim(),
+                runningTime,
+                reservationStartAt,
+                venueId: parsedVenueId,
+            },
+            pathVariables: {
+                id: concertNumericId.toString(),
+            }
         };
     };
 
     const handleUpdateClick = async () => {
-        const request = createRequest();
+        const command = updateCommand();
 
-        if (!request || !concertNumericId) {
+        if (!command || !concertNumericId) {
             return;
         }
 
         try {
             setIsLoading(true);
-            await updateConcert(concertNumericId, request);
+            await updateConcert(command);
             alert("공연 정보가 변경되었습니다.");
         } catch {
             alert("공연 정보 변경에 실패했습니다.");

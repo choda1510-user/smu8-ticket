@@ -36,6 +36,20 @@ public class WebConfig implements WebMvcConfigurer {
             }
         };
     }
+    @Profile("local-dev")
+    @Bean
+    public WebMvcConfigurer corsLocalDevConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(@NonNull CorsRegistry registry) {
+                registry.addMapping("/api/**")
+                        .allowedOrigins("http://localhost:5173", "http://localhost:80", "http://localhost", "http://192.168.0.6:80", "http://192.168.0.6")
+                        .allowedHeaders("Content-Type", "Authorization")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
+                        .allowCredentials(true);
+            }
+        };
+    }
     @Profile("dev")
     @Bean
     public WebMvcConfigurer corsDevConfigurer() {

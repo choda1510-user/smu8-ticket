@@ -26,7 +26,22 @@ spring:
       enabled: true
       poll-interval: 2s
       quiet-period: 1s
-
+cors:
+  origins:
+    - http://localhost:5173
+    - http://localhost:8080
+  headers:
+    - Content-Type
+    - Authorization
+  methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+    - PATCH
+    - HEAD
+  credentials: true
 logging:
   level:
     org.springframework:

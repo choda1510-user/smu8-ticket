@@ -29,7 +29,11 @@ public class WebConfig implements WebMvcConfigurer {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
-                corsProperties.apply(registry.addMapping("/api/**"));
+                registry.addMapping("/api/**")
+                        .allowedOrigins(corsProperties.getOrigins().toArray(String[]::new))
+                        .allowedHeaders(corsProperties.getHeaders().toArray(String[]::new))
+                        .allowedMethods(corsProperties.getMethods().toArray(String[]::new))
+                        .allowCredentials(corsProperties.isCredentials());
             }
         };
     }

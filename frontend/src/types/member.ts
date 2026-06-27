@@ -1,3 +1,5 @@
+import type { LoginUser } from "./auth";
+
 export type MyInfoForm = {
     userId: string;
     nickname: string;
@@ -6,7 +8,7 @@ export type MyInfoForm = {
 };
 
 export type LoginRequest = {
-    loginId: string;
+    username: string;
     password: string;
 };
 
@@ -21,31 +23,37 @@ export type UpdateAccountRequest = {
     password: string;
 };
 
-export type AccountResponse = {
+export type AccountDetailResponse = {
     id: string;
-    username: string;
     nickname: string;
+    role: string;
     createdAt: string;
     updatedAt: string;
 };
 
-export type LoginUser = {
-    loginId: string;
+export type AccountDetailResult = {
+    id: string;
     nickname: string;
-    role: "USER" | "ADMIN";
-};
-
-export type LoginResponse = {
-    accessToken: string;
-    user: LoginUser;
-};
-
-export type AuthTokenResponse = {
-    tokenValue: string;
-    issuedAt?: string;
-    expiresAt?: string;
-};
-
+    role: "ADMIN" | "USER";
+    createdAt: Date;
+    updatedAt: Date;
+}
+export type AccountMyInfoResponse = {
+    id: string;
+    username: string;
+    nickname: string;
+    role: string;
+    createdAt: string;
+    updatedAt: string;
+}
+export type AccountMyInfoResult = {
+    id: string;
+    username: string;
+    nickname: string;
+    role: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
 export type AvailabilityResponse = {
     available: boolean;
 };
@@ -55,6 +63,6 @@ export type LoginContextValue = {
     accessToken: string | null;
     isLoggedIn: boolean;
     isLoading: boolean;
-    login: (request: LoginRequest) => Promise<LoginResponse>;
+    login: (request: LoginRequest) => Promise<AccountDetailResult>;
     logout: () => Promise<void>;
 };

@@ -8,25 +8,9 @@ import type {
     AdminVenueCreateResponse,
     AdminVenueUpdateResponse,
 } from "@/types/adminVenue";
+import { getAccessToken } from "./authApi";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const LOGIN_STORAGE_KEY = "smu8-ticket-login";
-
-function getAccessToken() {
-    const storedLogin = localStorage.getItem(LOGIN_STORAGE_KEY);
-
-    if (!storedLogin) {
-        return null;
-    }
-
-    try {
-        const parsedLogin = JSON.parse(storedLogin) as { accessToken?: string };
-        return parsedLogin.accessToken ?? null;
-    } catch {
-        localStorage.removeItem(LOGIN_STORAGE_KEY);
-        return null;
-    }
-}
 
 function createJsonHeaders() {
     const headers: HeadersInit = {

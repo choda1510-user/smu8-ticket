@@ -2,6 +2,7 @@ package com.smu8.ticket.account.service;
 
 import com.smu8.ticket.account.dto.command.AdminAccountCommand;
 import com.smu8.ticket.account.dto.command.CreateAccountCommand;
+import com.smu8.ticket.account.dto.query.AccountDetailQuery;
 import com.smu8.ticket.account.dto.result.AccountDetailResult;
 
 public interface AccountService {
@@ -9,7 +10,7 @@ public interface AccountService {
     AccountDetailResult updateAdmin(AdminAccountCommand command);
     boolean isUsernameAvailable(String username);
     boolean isNicknameAvailable(String nickname);
-    AccountDetailResult getById(String id);
+    AccountDetailResult getById(AccountDetailQuery query);
     AccountDetailResult updateAccount(String id, String nickname, String password);
 
 }

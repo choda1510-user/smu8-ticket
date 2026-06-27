@@ -34,7 +34,7 @@ public class TokenController {
             summary = "토큰 발급",
             description = "인증된 사용자에게 액세스 토큰을 발급하고 리프레시 토큰을 HttpOnly 쿠키로 저장합니다.",
             security = @SecurityRequirement(name = "Authorization"))
-    @GetMapping("/api/token")
+    @PostMapping("/api/token")
     public ResponseEntity<Jwt> token(
             @Parameter(hidden = true) Authentication authentication,
             @Parameter(hidden = true) HttpServletResponse response

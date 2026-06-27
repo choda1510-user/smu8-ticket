@@ -1,7 +1,7 @@
 import {useNavigate, useSearchParams} from "react-router";
 
 import {useGlobalConcertSearchPage} from "@/hooks/useGlobalConcertSearchPage";
-import styles from "./GloblaConcertSearchPage.module.css"
+import styles from "./GlobalConcertSearchPage.module.css"
 
 /*
  * 통합 검색 결과 페이지

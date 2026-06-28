@@ -1,13 +1,6 @@
 package com.smu8.ticket.concert.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import com.smu8.ticket.reservation.entity.ReservationSeat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +20,7 @@ import java.util.List;
 @Table(name = "seat")
 public class Seat {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "seat_id")
     private Long id;
 

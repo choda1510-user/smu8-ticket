@@ -1,17 +1,7 @@
 package com.smu8.ticket.concert.entity;
 
 import com.smu8.ticket.venue.entity.Venue;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +12,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
 
 @Entity
@@ -63,9 +54,20 @@ public class Concert {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "concert")
-    private List<PerformanceSchedule> performanceSchedules;
+    @Builder.Default
+    @OneToMany(mappedBy = "concert", cascade = CascadeType.PERSIST)
+    private List<PerformanceSchedule> performanceSchedules = new LinkedList<>();
 
-    @OneToMany(mappedBy = "concert")
-    private List<SeatGrade> seatGrades;
+    @Builder.Default
+    @OneToMany(mappedBy = "concert", cascade = CascadeType.PERSIST)
+    private List<SeatGrade> seatGrades = new LinkedList<>();
+
+    public void addPerformanceSchedule(PerformanceSchedule performanceSchedule) {
+        performanceSchedules.add(performanceSchedule);
+        performanceSchedule.setConcert(this);
+    }
+    public void addSeatGrade(SeatGrade seatGrade) {
+        seatGrades.add(seatGrade);
+        seatGrade.setConcert(this);
+    }
 }

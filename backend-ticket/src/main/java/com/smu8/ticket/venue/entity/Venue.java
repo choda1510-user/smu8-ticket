@@ -19,6 +19,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
 
 @Entity
@@ -43,8 +44,9 @@ public class Venue {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "venue")
-    private List<Concert> concerts;
+    private List<Concert> concerts = new LinkedList<>();
 
     public void setAddress(String roadAddress) {
         this.address = Address.builder()
@@ -54,5 +56,9 @@ public class Venue {
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+    public void addConcert(Concert concert) {
+        concerts.add(concert);
+        concert.setVenue(this);
     }
 }

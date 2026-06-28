@@ -3,17 +3,16 @@ package com.smu8.ticket.reservation.entity;
 import com.smu8.ticket.account.entity.Account;
 import com.smu8.ticket.concert.entity.PerformanceSchedule;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
 
 @Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -51,13 +50,20 @@ public class Reservation {
     @Column(name = "reserved_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "reservation")
-    private List<ReservationSeat> reservationSeats;
+    private List<ReservationSeat> reservationSeats = new LinkedList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "reservation")
-    private List<CancelReservation> cancelReservations;
+    private List<CancelReservation> cancelReservations = new LinkedList<>();
 
     public void cancel(String reason) {
         this.reservationStatus = "CANCELED";
+    }
+
+    public void addReservationSeat(ReservationSeat reservationSeat) {
+        reservationSeats.add(reservationSeat);
+        reservationSeat.setReservation(this);
     }
 }

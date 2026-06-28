@@ -36,4 +36,10 @@ public class ReservationSeat {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "round_seat_id", referencedColumnName = "seat_id", nullable = false, unique = true)
     private Seat seat;
+
+    public void setReservation(Reservation reservation) {
+        this.reservation.getReservationSeats().remove(this);
+        this.reservation = reservation;
+        reservation.getReservationSeats().add(this);
+    }
 }

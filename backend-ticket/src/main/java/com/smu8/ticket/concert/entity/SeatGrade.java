@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Entity
@@ -44,6 +45,17 @@ public class SeatGrade {
     @Column(length = 20)
     private String color;
 
+    @Builder.Default
     @OneToMany(mappedBy = "seatGrade")
-    private List<Seat> seats;
+    private List<Seat> seats = new LinkedList<>();
+
+    public void addSeat(Seat seat) {
+        seats.add(seat);
+        seat.setSeatGrade(this);
+    }
+    public void setConcert(Concert concert) {
+        this.concert.getSeatGrades().remove(this);
+        this.concert = concert;
+        concert.getSeatGrades().add(this);
+    }
 }

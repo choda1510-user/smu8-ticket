@@ -9,6 +9,9 @@ public record CreateCancelReservationCommand(
         String reason
 ) {
     public static CreateCancelReservationCommand from(Long id, AdminCreateCancelReservationRequest request) {
-        return null;
+        return CreateCancelReservationCommand.builder()
+                .reservationId(id)
+                .reason(request.reason())
+                .build();
     }
 }

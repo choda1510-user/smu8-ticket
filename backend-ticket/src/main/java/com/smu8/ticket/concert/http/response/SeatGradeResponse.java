@@ -1,5 +1,6 @@
 package com.smu8.ticket.concert.http.response;
 
+import com.smu8.ticket.concert.dto.result.SeatGradeDetailResult;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -14,4 +15,12 @@ public record SeatGradeResponse(
         @Schema(description = " 좌석등급 색", example = "#fafafa")
         String color
 ) {
+        public static SeatGradeResponse from(SeatGradeDetailResult result) {
+                return SeatGradeResponse.builder()
+                        .id(result.id())
+                        .gradeName(result.gradeName())
+                        .price(result.price())
+                        .color(result.color())
+                        .build();
+        }
 }

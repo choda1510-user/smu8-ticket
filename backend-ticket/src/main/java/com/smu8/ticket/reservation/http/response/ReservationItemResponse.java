@@ -36,6 +36,19 @@ public record ReservationItemResponse(
         String venueName
 ) {
     public static ReservationItemResponse from(ReservationItemResult result) {
-        return null;
+        return ReservationItemResponse.builder()
+                .reservationId(result.reservationId())
+                .reservedSchedule(ConcertScheduleResponse.from(result.reservedSchedule()))
+                .reservationNo(result.reservationNo())
+                .accountId(result.accountId())
+                .reservationStatus(result.reservationStatus())
+                .totalQuantity(result.totalQuantity())
+                .totalAmount(result.totalAmount())
+                .reservedAt(result.reservedAt())
+                .concertTitle(result.concertTitle())
+                .cardPosterUrl(result.cardPosterUrl())
+                .venueId(result.venueId())
+                .venueName(result.venueName())
+                .build();
     }
 }

@@ -24,11 +24,19 @@ public class AdminReservationServiceImpl implements AdminReservationService {
     @Override
     @Transactional(readOnly = true)
     public PageResult<AdminReservationItemResult> getReservations(AdminReservationQuery query){
+        PageRequest pageRequest = PageRequest.of(
+                query.pageQuery().page(),
+                query.pageQuery().size()
+        );
+
+        if (query.accountId() != null && !query.accountId().isBlank()) {
+            return PageResult.from(reservationRepository
+                    .findByAccountId(query.accountId(), pageRequest)
+                    .map(AdminReservationItemResult::from));
+        }
+
         return PageResult.from(reservationRepository
-                .findAll(
-                        PageRequest.of(
-                                query.pageQuery().page(),
-                                query.pageQuery().size()))
+                .findAll(pageRequest)
                 .map(AdminReservationItemResult::from));
     }
 
@@ -44,14 +52,14 @@ public class AdminReservationServiceImpl implements AdminReservationService {
     public AdminReservationDetailResult cancelReservation(CreateCancelReservationCommand command){
             Reservation reservation = getById(command.reservationId());
             reservation.cancel("CANCELED");
-            cancelReservationRepository.save(CancelReservation.builder()
+            CancelReservation cancelReservation = cancelReservationRepository.save(CancelReservation.builder()
                     .reservation(reservation)
                     .cancelReason(command.reason())
                     .cancelAmount(0)
                     .cancelStatus("CANCELED")
                     .build());
             
-            return AdminReservationDetailResult.from(reservation);
+            return AdminReservationDetailResult.from(reservation, cancelReservation);
 
     }
 

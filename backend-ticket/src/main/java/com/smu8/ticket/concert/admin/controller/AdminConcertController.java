@@ -13,20 +13,39 @@ import com.smu8.ticket.dto.query.PageQuery;
 import com.smu8.ticket.http.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 
+@SecurityRequirement(name = "Authorization")
 @RestController
 @RequiredArgsConstructor
 public class AdminConcertController {
     private final AdminConcertService adminConcertService;
 
-    @Operation(summary = "관리자 공연 등록", description = "관리자가 새로운 공연을 등록합니다.")
-    @PostMapping("/api/admin/concerts")
+    @Operation(
+            summary = "관리자 공연 등록",
+            description = "관리자가 새로운 공연을 등록합니다.",
+            requestBody = @RequestBody(content = @Content(
+                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                    encoding = @Encoding(
+                            name = "request",
+                            contentType = MediaType.APPLICATION_JSON_VALUE
+                    )
+            ))
+    )
+    @PostMapping(
+            value = "/api/admin/concerts",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public ResponseEntity<AdminConcertDetailResponse> createConcert(
             @RequestPart(value = "cardPoster")
             MultipartFile cardPoster,
@@ -77,8 +96,21 @@ public class AdminConcertController {
         return ResponseEntity.ok(AdminConcertDetailResponse.from(adminConcertService.getConcert(ConcertDetailQuery.builder().id(id).build())));
     }
 
-    @Operation(summary = "관리자 공연 수정", description = "관리자가 공연 정보를 수정합니다.")
-    @PostMapping("/api/admin/concerts/{id}")
+    @Operation(
+            summary = "관리자 공연 수정",
+            description = "관리자가 공연 정보를 수정합니다.",
+            requestBody = @RequestBody(content = @Content(
+                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                    encoding = @Encoding(
+                            name = "request",
+                            contentType = MediaType.APPLICATION_JSON_VALUE
+                    )
+            ))
+    )
+    @PostMapping(
+            value = "/api/admin/concerts/{id}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public ResponseEntity<AdminConcertDetailResponse> updateConcert(
             @Parameter(description = "수정할 공연 고유 ID", example = "1")
             @PathVariable Long id,

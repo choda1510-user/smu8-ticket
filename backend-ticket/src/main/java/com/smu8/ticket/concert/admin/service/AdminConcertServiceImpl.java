@@ -27,21 +27,36 @@ public class AdminConcertServiceImpl implements AdminConcertService {
     private final StorageService storageService;
     private final VenueRepository venueRepository;
 
+    @Transactional
     @Override
     public ConcertDetailResult createConcert(CreateConcertCommand command) {
         validateCreateConcert(command);
 
         Venue venue = getVenueById(command.venueId());
-        String cardPosterKey = storageService.store(command.cardPoster());
-        String bannerPosterKey = storageService.store(command.bannerPoster());
-        String descriptionPosterKey = storageService.store(command.descriptionPoster());
-        Concert concert = command.toEntity(
-                venue,
-                storageService.getUrl(cardPosterKey),
-                storageService.getUrl(bannerPosterKey),
-                storageService.getUrl(descriptionPosterKey)
-        );
-        return ConcertDetailResult.from(concertRepository.save(concert));
+
+        String cardPosterKey=null;
+        String bannerPosterKey=null;
+        String descriptionPosterKey=null;
+
+        try{
+            cardPosterKey = storageService.store(command.cardPoster());
+            bannerPosterKey = storageService.store(command.bannerPoster());
+            descriptionPosterKey = storageService.store(command.descriptionPoster());
+            Concert concert = command.toEntity(
+                    venue,
+                    storageService.getUrl(cardPosterKey),
+                    storageService.getUrl(bannerPosterKey),
+                    storageService.getUrl(descriptionPosterKey)
+            );
+            Concert savedConcert = concertRepository.saveAndFlush(concert);
+            return ConcertDetailResult.from(savedConcert);
+
+        } catch (RuntimeException exception) {
+            deleteStoredFile(descriptionPosterKey, exception);
+            deleteStoredFile(bannerPosterKey, exception);
+            deleteStoredFile(cardPosterKey, exception);
+            throw exception;
+        }
     }
 
 
@@ -81,7 +96,20 @@ public class AdminConcertServiceImpl implements AdminConcertService {
     }
 
     private Venue getVenueById(Long venueId) {
-        return venueRepository.findById(venueId).orElseThrow();
+        return venueRepository.findById(venueId)
+                .orElseThrow(() -> new InvalidConcertException("존재하지 않는 공연장입니다."));
+    }
+
+    private void deleteStoredFile(String fileKey, RuntimeException originalException) {
+        if (fileKey == null) {
+            return;
+        }
+
+        try {
+            storageService.delete(fileKey);
+        } catch (RuntimeException deleteException) {
+            originalException.addSuppressed(deleteException);
+        }
     }
 
     private void validateCreateConcert(CreateConcertCommand command){

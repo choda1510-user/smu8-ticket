@@ -4,4 +4,5 @@ public enum ErrorCode {
     DUPLICATE_USERNAME,
     DUPLICATE_NICKNAME,
     INVALID_ACCOUNT,
+    INVALID_CONCERT
 }

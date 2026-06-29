@@ -2,6 +2,7 @@ package com.smu8.ticket.concert.controller;
 
 import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import com.smu8.ticket.concert.http.response.ConcertDetailResponse;
+import com.smu8.ticket.concert.http.response.ConcertItemResponse;
 import com.smu8.ticket.concert.service.ConcertService;
 import com.smu8.ticket.http.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,7 +21,7 @@ public class ConcertController {
 
     @Operation(summary = "공연 목록 조회", description = "사용자에게 공개된 공연 목록을 조회합니다.")
     @GetMapping("/api/concerts")
-    public ResponseEntity<PageResponse<ConcertDetailResponse>> getConcerts(
+    public ResponseEntity<PageResponse<ConcertItemResponse>> getConcerts(
             @RequestParam(name = "concertNames", required = false)
             String concertNames,
             @RequestParam(name = "page", defaultValue = "0", required = false)

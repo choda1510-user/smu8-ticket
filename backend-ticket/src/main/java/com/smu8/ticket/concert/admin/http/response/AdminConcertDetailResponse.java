@@ -8,6 +8,7 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Builder
 public record AdminConcertDetailResponse(
@@ -53,12 +54,60 @@ public record AdminConcertDetailResponse(
         LocalDateTime updatedAt
 ) {
     public static AdminConcertDetailResponse from(ConcertDetailResult result) {
+        LocalDateTime reservationStartAt = Optional.ofNullable(result.schedules())
+                .orElseGet(List::of)
+                .stream()
+                .findFirst()
+                .map(schedule -> schedule.reservationStartAt())
+                .orElse(null);
+        List<AdminConcertScheduleResponse> schedules = Optional.ofNullable(result.schedules())
+                .orElseGet(List::of)
+                .stream()
+                .map(schedule -> AdminConcertScheduleResponse.builder()
+                        .id(schedule.id())
+                        .concertId(result.id())
+                        .date(schedule.showStartAt())
+                        .reservationEndAt(schedule.reservationEndAt())
+                        .build())
+                .toList();
+        List<SeatGradeResponse> seatGrades = Optional.ofNullable(result.seatGrades())
+                .orElseGet(List::of)
+                .stream()
+                .map(grade -> SeatGradeResponse.builder()
+                        .id(grade.id())
+                        .gradeName(grade.gradeName())
+                        .price(grade.price())
+                        .color(grade.color())
+                        .build())
+                .toList();
+        List<SeatResponse> seats = Optional.ofNullable(result.seats())
+                .orElseGet(List::of)
+                .stream()
+                .map(seat -> SeatResponse.builder()
+                        .id(seat.id())
+                        .seatGradeId(seat.seatGrade().getId())
+                        .row(seat.rowIndex())
+                        .col(seat.columnIndex())
+                        .build())
+                .toList();
+
         return AdminConcertDetailResponse.builder()
                 .id(result.id())
+                .concertCode(result.performanceCode())
                 .title(result.title())
                 .description(result.description())
+                .cardPosterUrl(result.cardPosterUrl())
+                .bannerPosterUrl(result.screenPosterUrl())
+                .descriptionPosterUrl(result.descriptionPosterUrl())
+                .runningTime(result.runningTime())
+                .schedules(schedules)
+                .seatGrades(seatGrades)
+                .seats(seats)
+                .reservationStartAt(reservationStartAt)
+                .reservationStatus(result.performanceStatus())
                 .venueId(result.venueId())
                 .venueName(result.venueName())
+                .notice(result.notice())
                 .createdAt(result.createdAt())
                 .updatedAt(result.updatedAt())
                 .build();

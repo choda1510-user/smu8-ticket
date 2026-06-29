@@ -5,6 +5,8 @@ import com.smu8.ticket.venue.dto.result.VenueDetailResult;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 
 @Builder
 public record ConcertDetailResult(
@@ -20,7 +22,10 @@ public record ConcertDetailResult(
         String descriptionPosterUrl,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-
+        String notice,
+        List<PerformanceScheduleDetailResult> schedules,
+        List<SeatGradeDetailResult> seatGrades,
+        List<SeatDetailResult> seats,
 
         LocalDateTime startAt,
         LocalDateTime endAt,
@@ -30,6 +35,7 @@ public record ConcertDetailResult(
     public static ConcertDetailResult from(Concert concert) {
         return ConcertDetailResult.builder()
                 .id(concert.getId())
+                .performanceCode(concert.getPerformanceCode())
                 .title(concert.getTitle())
                 .performanceStatus(concert.getPerformanceStatus())
                 .description(concert.getDescription())
@@ -42,6 +48,17 @@ public record ConcertDetailResult(
                 .updatedAt(concert.getUpdatedAt())
                 .venueId(concert.getVenue().getId())
                 .venueName(concert.getVenue().getName())
+                .notice(concert.getNotice())
+                .schedules(concert.getPerformanceSchedules().stream()
+                        .map(PerformanceScheduleDetailResult::from)
+                        .toList())
+                .seatGrades(concert.getSeatGrades().stream()
+                        .map(SeatGradeDetailResult::from)
+                        .toList())
+                .seats(concert.getPerformanceSchedules().stream()
+                        .flatMap(schedule -> schedule.getSeats().stream())
+                        .map(SeatDetailResult::from)
+                        .toList())
                 .build();
     }
 }

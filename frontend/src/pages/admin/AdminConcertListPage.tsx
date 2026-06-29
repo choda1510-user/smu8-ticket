@@ -7,6 +7,10 @@ import "./AdminPages.css";
 const pageSize = 5;
 
 function formatPeriod(schedules: AdminConcertScheduleResponse[]) {
+    if (!schedules || schedules.length === 0) {
+        return "-";
+    }
+
     const dates = schedules.map((schedule) => schedule.date).filter(Boolean).sort();
     const startAt = dates[0] ?? "";
     const endAt = dates[dates.length - 1] ?? "";
@@ -54,9 +58,9 @@ function AdminConcertListPage() {
         const venueCodeKeyword = searchCondition.venueCode.trim().toLowerCase();
 
         return concerts.filter((concert) => {
-            const matchesTitle = titleKeyword ? concert.title.toLowerCase().includes(titleKeyword) : true;
+            const matchesTitle = titleKeyword ? (concert.title ?? "").toLowerCase().includes(titleKeyword) : true;
             const matchesCode = codeKeyword ? String(concert.id).includes(codeKeyword) : true;
-            const matchesVenue = venueKeyword ? concert.venueName.toLowerCase().includes(venueKeyword) : true;
+            const matchesVenue = venueKeyword ? (concert.venueName ?? "").toLowerCase().includes(venueKeyword) : true;
             const matchesVenueCode = venueCodeKeyword ? String(concert.venueId).includes(venueCodeKeyword) : true;
 
             return matchesTitle && matchesCode && matchesVenue && matchesVenueCode;
@@ -170,13 +174,13 @@ function AdminConcertListPage() {
                                 <td>{concert.id}</td>
                                 <td>
                                     <button type="button" className="admin-page__link-button" onClick={() => navigate(`/admin/concerts/${concert.id}`)}>
-                                        {concert.title}
+                                        {concert.title ?? "-"}
                                     </button>
                                 </td>
-                                <td>{formatPeriod(concert.schedules)}</td>
-                                <td>{concert.venueId}</td>
-                                <td>{concert.venueName}</td>
-                                <td>등록됨</td>
+                                <td>{formatPeriod(concert.schedules ?? [])}</td>
+                                <td>{concert.venueId ?? "-"}</td>
+                                <td>{concert.venueName ?? "-"}</td>
+                                <td>{concert.reservationStatus ?? "등록됨"}</td>
                             </tr>
                         ))
                     )}

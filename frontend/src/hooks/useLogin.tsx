@@ -14,9 +14,10 @@ const LoginContext = createContext<LoginContextValue | null>(null);
 export function LoginProvider({children}: LoginProviderProps) {
     const [user, setUser] = useState<LoginUser | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    let ignore = false;
 
     useEffect(() => {
+        let ignore = false;
+
         (async () => {
             const storedToken = getAccessToken();
 
@@ -24,16 +25,20 @@ export function LoginProvider({children}: LoginProviderProps) {
                 setUser(null);
                 return;
             }
-            if (!ignore) {
+            try {
                 const response = await getMyInfo(storedToken);
-                if (response) {
+
+                if(!ignore && response) {
                     const account = toAccountDetailResult(response);
                     setUser({
-                        account: account,
+                        account,
                         accessToken: storedToken,
                     });
-                } else {
+                }
+            } catch {
+                if (!ignore) {
                     setUser(null);
+                    delAccessToken();
                 }
             }
         })();

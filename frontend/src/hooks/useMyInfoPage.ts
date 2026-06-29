@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {getAccount} from "@/apis/accountApi.ts";
+import {getMyInfo} from "@/apis/accountApi.ts";
 import useLogin from "@/hooks/useLogin.tsx";
 import type {MyInfoForm} from "@/types/member";
 
@@ -23,12 +23,12 @@ export function useMyInfoPage() {
         }
 
         setForm({
-            userId: user.loginId,
-            nickname: user.nickname,
+            userId: user.account.id,
+            nickname: user.account.nickname,
             newPassword: "",
             newPasswordConfirm: "",
         });
-        setOriginalNickname(user.nickname);
+        setOriginalNickname(user.account.nickname);
     }, [isLoggedIn, user]);
 
     useEffect(() => {
@@ -38,7 +38,7 @@ export function useMyInfoPage() {
 
         let isMounted = true;
 
-        getAccount(accessToken)
+        getMyInfo(accessToken)
             .then((account) => {
                 if (!account || !isMounted) {
                     return;

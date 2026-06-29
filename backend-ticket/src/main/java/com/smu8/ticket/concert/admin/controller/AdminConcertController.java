@@ -9,7 +9,6 @@ import com.smu8.ticket.concert.admin.http.response.AdminConcertDetailResponse;
 import com.smu8.ticket.concert.admin.service.AdminConcertService;
 import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
 import com.smu8.ticket.concert.dto.query.ConcertPageQuery;
-import com.smu8.ticket.concert.http.response.ConcertItemResponse;
 import com.smu8.ticket.dto.query.PageQuery;
 import com.smu8.ticket.http.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,7 +50,7 @@ public class AdminConcertController {
 
     @Operation(summary = "관리자 공연 목록 조회", description = "관리자가 등록된 공연 목록을 조회합니다.")
     @GetMapping("/api/admin/concerts")
-    public ResponseEntity<PageResponse<ConcertItemResponse>> getConcerts(
+    public ResponseEntity<PageResponse<AdminConcertDetailResponse>> getConcerts(
             @RequestParam(name = "concertNames", required = false) String concertNames,
             @RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
             @RequestParam(name = "size", defaultValue = "4", required = false) Integer size,
@@ -59,7 +58,14 @@ public class AdminConcertController {
             @RequestParam(name = "venueCode", required = false) String venueCode,
             @RequestParam(name = "venueNames", required = false) String venueNames
     ) {
-        return ResponseEntity.ok(PageResponse.from(adminConcertService.getConcerts(ConcertPageQuery.builder().pageQuery(PageQuery.builder().page(page).size(size).build()).build()), ConcertItemResponse::from));
+        return ResponseEntity.ok(
+                PageResponse.from(
+                adminConcertService.getConcerts(
+                        ConcertPageQuery.builder()
+                                .pageQuery(PageQuery.builder().page(page).size(size).build())
+                                .build()
+                ),
+                        AdminConcertDetailResponse::from));
     }
 
     @Operation(summary = "관리자 공연 상세 조회", description = "관리자가 공연 고유 ID로 공연 상세 정보를 조회합니다.")

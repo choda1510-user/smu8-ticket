@@ -32,10 +32,14 @@ public record ConcertItemResponse(
                 .cardPosterUrl(result.cardPosterUrl())
                 .bannerPosterUrl(result.screenPosterUrl())
                 .title(result.title())
-                .dates(result.performanceSchedules().stream()
+                .dates(result.schedules().stream()
                         .map(ConcertScheduleResponse::from)
                         .toList())
-                .reservationStartAt(result.startAt())
+                .reservationStartAt(
+                        result.schedules().isEmpty()
+                                ? null
+                                : result.schedules().get(0).reservationStartAt()
+                )
                 .venueId(result.venueId())
                 .venueName(result.venueName())
                 .build();

@@ -7,6 +7,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @Builder
 public record ConcertDetailResult(
         Long id,
@@ -21,15 +22,20 @@ public record ConcertDetailResult(
         String descriptionPosterUrl,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
+        String notice,
+        List<PerformanceScheduleDetailResult> schedules,
         List<SeatGradeDetailResult> seatGrades,
-        List<PerformanceScheduleDetailResult> performanceSchedules,
+        List<SeatDetailResult> seats,
+
         LocalDateTime startAt,
+        LocalDateTime endAt,
         Long venueId,
         String venueName
 ) {
     public static ConcertDetailResult from(Concert concert) {
         return ConcertDetailResult.builder()
                 .id(concert.getId())
+                .performanceCode(concert.getPerformanceCode())
                 .title(concert.getTitle())
                 .performanceStatus(concert.getPerformanceStatus())
                 .description(concert.getDescription())
@@ -40,14 +46,19 @@ public record ConcertDetailResult(
                 .descriptionPosterUrl(concert.getDescriptionPosterUrl())
                 .createdAt(concert.getCreatedAt())
                 .updatedAt(concert.getUpdatedAt())
+                .venueId(concert.getVenue().getId())
+                .venueName(concert.getVenue().getName())
+                .notice(concert.getNotice())
+                .schedules(concert.getPerformanceSchedules().stream()
+                        .map(PerformanceScheduleDetailResult::from)
+                        .toList())
                 .seatGrades(concert.getSeatGrades().stream()
                         .map(SeatGradeDetailResult::from)
                         .toList())
-                .performanceSchedules(concert.getPerformanceSchedules().stream()
-                        .map(PerformanceScheduleDetailResult::from)
+                .seats(concert.getPerformanceSchedules().stream()
+                        .flatMap(schedule -> schedule.getSeats().stream())
+                        .map(SeatDetailResult::from)
                         .toList())
-                .venueId(concert.getVenue().getId())
-                .venueName(concert.getVenue().getName())
                 .build();
     }
 }

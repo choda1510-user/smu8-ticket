@@ -15,3 +15,7 @@ token:
   refresh-token:
     prefix: "refresh-token:"
     expire: 7200
+
+reservation:
+  preempt-seat:
+    ttl-seconds: 300

@@ -2,9 +2,11 @@ package com.smu8.ticket.reservation.controller;
 
 import com.smu8.ticket.dto.query.PageQuery;
 import com.smu8.ticket.http.response.PageResponse;
+import com.smu8.ticket.reservation.dto.command.CreatePreemptReservationSeatCommand;
 import com.smu8.ticket.reservation.dto.command.CreateReservationCommand;
 import com.smu8.ticket.reservation.dto.query.ReservationPageQuery;
 import com.smu8.ticket.reservation.http.request.CreateReservationRequest;
+import com.smu8.ticket.reservation.http.request.PreemptReservationSeatRequest;
 import com.smu8.ticket.reservation.http.response.ReservationDetailResponse;
 import com.smu8.ticket.reservation.http.response.ReservationItemResponse;
 import com.smu8.ticket.reservation.service.ReservationService;
@@ -59,6 +61,17 @@ public class ReservationController {
         );
     }
     // 예매 취소 요청
+    @PostMapping("/api/reservations/preempt-seats")
+    public ResponseEntity<Void> createPreemptReservationSeats(
+            @RequestBody PreemptReservationSeatRequest request,
+            Authentication authentication
+    ) {
+        reservationService.createPreemptReservationSeats(
+                CreatePreemptReservationSeatCommand.from(getAccountId(authentication), request)
+        );
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/api/reservations/{reservationId}")
     public ResponseEntity<ReservationItemResponse> cancelReservation(
             @PathVariable(name = "reservationId")

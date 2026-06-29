@@ -133,6 +133,12 @@ function formatPeriodBySchedules(schedules: ConcertItemResponse["dates"]) {
     return formatPeriod(dates[0], dates[dates.length - 1]);
 }
 
+function getReservationEndAt(schedules: ConcertItemResponse["dates"]) {
+    const dates = schedules.map((schedule) => schedule.reservationEndAt).filter(Boolean).sort();
+
+    return dates[dates.length - 1] ?? "";
+}
+
 function formatReservationPeriod(reservationStartAt: string | undefined, schedules: ConcertSchedule[]) {
     const reservationEndDates = schedules.map((schedule) => schedule.reservationEndAt).filter(Boolean).sort();
     const reservationEndAt = reservationEndDates[reservationEndDates.length - 1];
@@ -158,8 +164,11 @@ function toConcertItem(concert: ConcertItemResponse): ConcertItem {
     return {
         concertId: concert.concertId,
         posterUrl: concert.cardPosterUrl,
+        bannerPosterUrl: concert.bannerPosterUrl,
         title: concert.title,
         period: formatPeriodBySchedules(concert.dates),
+        reservationStartAt: concert.reservationStartAt,
+        reservationEndAt: getReservationEndAt(concert.dates),
         venueId: concert.venueId,
         venueName: concert.venueName,
         badgeText: getBadgeText(concert.reservationStartAt),

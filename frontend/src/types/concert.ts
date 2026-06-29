@@ -64,8 +64,11 @@ export type ConcertItemResponse = { // 공연 목록 백엔드 응답
 export type ConcertItem = {
     concertId: number; // 화면에서 사용하는 공연 ID
     posterUrl?: string; // 공연 포스터 이미지 주소
+    bannerPosterUrl?: string; // 공연 배너 이미지 주소
     title: string; // 공연 제목
     period: string; // 화면에 표시할 공연 기간
+    reservationStartAt: string; // 예매 오픈 시작일시
+    reservationEndAt: string; // 예매 종료일시
     venueId: number // 공연장 고유 Id
     venueName: string; // 공연장 이름
     badgeText: string; // 화면에 표시할 상태 문구

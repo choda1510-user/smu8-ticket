@@ -1,11 +1,9 @@
 import {useEffect, useMemo, useState} from "react";
-import {useFetchJson} from "@/hooks/useFetchJson";
-import type {HomeConcertCard} from "@/types/concert";
-import type {BannerItem, HomeOpenConcertItem, HomeUpcomingConcertItem} from "@/types/home";
+import {getConcertItems} from "@/apis/concertApi";
+import type {ConcertItem, HomeConcertCard} from "@/types/concert";
+import type {BannerItem} from "@/types/home";
 
-const bannerListUrl = new URL("../data/homeBanners.json", import.meta.url).href;
-const openConcertListUrl = new URL("../data/homeOpenConcertList.json", import.meta.url).href;
-const upcomingConcertListUrl = new URL("../data/homeUpcomingConcertList.json", import.meta.url).href;
+const maxHomeConcertCount = 4;
 
 function sortByReservationEndDate(concerts: HomeConcertCard[]) {
     return [...concerts].sort((a, b) => {
@@ -16,22 +14,117 @@ function sortByReservationEndDate(concerts: HomeConcertCard[]) {
     });
 }
 
-export function useHomePage() {
-    const {data: bannerList} = useFetchJson<BannerItem[]>(bannerListUrl, []);
-    const {data: openConcertList} = useFetchJson<HomeOpenConcertItem[]>(openConcertListUrl, []);
-    const {data: upcomingConcertList} = useFetchJson<HomeUpcomingConcertItem[]>(upcomingConcertListUrl, []);
+function formatDateTime(value: string) {
+    if (!value) {
+        return "";
+    }
 
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+    return new Intl.DateTimeFormat("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    }).format(date);
+}
+
+function getReservationStartTime(concert: ConcertItem) {
+    return new Date(concert.reservationStartAt).getTime();
+}
+
+function isUpcomingConcert(concert: ConcertItem) {
+    const startTime = getReservationStartTime(concert);
+
+    if (Number.isNaN(startTime)) {
+        return false;
+    }
+
+    const now = new Date();
+    const startDate = new Date(startTime);
+    const isAfterToday =
+        startDate.getFullYear() > now.getFullYear() ||
+        (startDate.getFullYear() === now.getFullYear() && startDate.getMonth() > now.getMonth()) ||
+        (startDate.getFullYear() === now.getFullYear() && startDate.getMonth() === now.getMonth() && startDate.getDate() > now.getDate());
+
+    return startTime > now.getTime() && isAfterToday;
+}
+
+function toHomeConcertCard(concert: ConcertItem): HomeConcertCard {
+    return {
+        concertId: concert.concertId,
+        posterUrl: concert.posterUrl,
+        title: concert.title,
+        reservationPeriod: `${formatDateTime(concert.reservationStartAt)} ~ ${formatDateTime(concert.reservationEndAt)}`,
+        reservationEndDate: concert.reservationEndAt,
+        badgeText: concert.badgeText,
+    };
+}
+
+function toBannerItem(concert: ConcertItem, index: number): BannerItem {
+    return {
+        bannerId: concert.concertId || index + 1,
+        concertId: concert.concertId,
+        title: concert.title,
+        imageUrl: concert.bannerPosterUrl,
+    };
+}
+
+export function useHomePage() {
+    const [concerts, setConcerts] = useState<ConcertItem[]>([]);
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const [isBannerVisible, setIsBannerVisible] = useState(true);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        async function loadConcerts() {
+            try {
+                const concertItems = await getConcertItems();
+
+                if (isMounted) {
+                    setConcerts(concertItems);
+                }
+            } catch {
+                if (isMounted) {
+                    setConcerts([]);
+                }
+            }
+        }
+
+        void loadConcerts();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    const openConcertList = useMemo(() => {
+        return concerts.filter((concert) => !isUpcomingConcert(concert)).map(toHomeConcertCard);
+    }, [concerts]);
+
+    const upcomingConcertList = useMemo(() => {
+        return concerts.filter(isUpcomingConcert).map(toHomeConcertCard);
+    }, [concerts]);
+
+    const bannerList = useMemo(() => {
+        return concerts.slice(0, maxHomeConcertCount).map(toBannerItem);
+    }, [concerts]);
 
     const currentBanner = bannerList[currentBannerIndex] ?? bannerList[0];
 
     const sortedOpenConcertList = useMemo(() => {
-        return sortByReservationEndDate(openConcertList).slice(0, 4);
+        return sortByReservationEndDate(openConcertList).slice(0, maxHomeConcertCount);
     }, [openConcertList]);
 
     const sortedUpcomingConcertList = useMemo(() => {
-        return sortByReservationEndDate(upcomingConcertList).slice(0, 4);
+        return sortByReservationEndDate(upcomingConcertList).slice(0, maxHomeConcertCount);
     }, [upcomingConcertList]);
 
     useEffect(() => {

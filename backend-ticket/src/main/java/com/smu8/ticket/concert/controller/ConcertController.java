@@ -35,7 +35,7 @@ public class ConcertController {
             @RequestParam(name = "venueNames", required = false)
             String venueNames
     ) {
-        return ResponseEntity.ok(PageResponse.from(concertService.getConcerts(), ConcertDetailResponse::from));
+        return ResponseEntity.ok(PageResponse.from(concertService.getConcerts(), ConcertItemResponse::from));
     }
 
     @Operation(summary = "공연 상세 조회", description = "공연 고유 ID로 공연 상세 정보를 조회합니다.")

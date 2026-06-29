@@ -83,12 +83,7 @@ public record AdminConcertDetailResponse(
         List<SeatResponse> seats = Optional.ofNullable(result.seats())
                 .orElseGet(List::of)
                 .stream()
-                .map(seat -> SeatResponse.builder()
-                        .id(seat.id())
-                        .seatGradeId(seat.seatGrade().getId())
-                        .row(seat.rowIndex())
-                        .col(seat.columnIndex())
-                        .build())
+                .map(SeatResponse::from)
                 .toList();
 
         return AdminConcertDetailResponse.builder()

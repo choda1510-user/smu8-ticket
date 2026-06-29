@@ -57,7 +57,7 @@ public record ReservationDetailResponse(
                         .seatGrades(result.concert().seatGrades().stream()
                                 .map(SeatGradeResponse::from)
                                 .toList())
-                        .concertSchedules(result.concert().performanceSchedules().stream()
+                        .concertSchedules(result.concert().schedules().stream()
                                 .map(ConcertScheduleResponse::from)
                                 .toList())
                         .venueId(result.venue().id())

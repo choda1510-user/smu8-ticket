@@ -1,20 +1,17 @@
 package com.smu8.ticket.venue.admin.service;
 
-import com.smu8.ticket.venue.admin.dto.command.CreateVenueCommand;
-import com.smu8.ticket.venue.admin.dto.command.UpdateVenueCommand;
-import com.smu8.ticket.venue.admin.dto.result.VenueDetailResult;
+import com.smu8.ticket.venue.admin.dto.command.AdminCreateVenueCommand;
+import com.smu8.ticket.venue.admin.dto.command.AdminUpdateVenueCommand;
+import com.smu8.ticket.venue.admin.dto.result.AdminVenueDetailResult;
+import com.smu8.ticket.venue.dto.result.VenueDetailResult;
 import com.smu8.ticket.venue.dto.query.VenueDetailQuery;
 
-import java.util.List;
-
 public interface VenueService {
-    VenueDetailResult createVenue(CreateVenueCommand command);
+    VenueDetailResult createVenue(AdminCreateVenueCommand command);
 
-    List<VenueDetailResult> getVenues();
+    AdminVenueDetailResult getVenue(VenueDetailQuery query);
 
-    VenueDetailResult getVenue(VenueDetailQuery query);
-
-    VenueDetailResult updateVenue(UpdateVenueCommand command);
+    VenueDetailResult updateVenue(AdminUpdateVenueCommand command);
 
     void deleteVenue(Long id);
 }

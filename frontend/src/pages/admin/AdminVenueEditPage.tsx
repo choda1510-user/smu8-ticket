@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router";
-import {getAdminVenue, updateVenue} from "@/apis/venueApi";
+import {getAdminVenue, getVenueAddress, updateVenue} from "@/apis/venueApi";
 import {openDaumPostcode} from "@/utils/daumPostcode";
 import "./AdminPages.css";
 
@@ -9,16 +9,20 @@ type VenueEditErrors = {
     address?: string;
 };
 
+type VenueAddressPayload = {
+    zoneNo?: string;
+    roadAddress: string;
+    jibunAddress?: string;
+    buildingName?: string;
+};
+
 function AdminVenueEditPage() {
     const navigate = useNavigate();
     const {venueId = ""} = useParams();
     const venueNumericId = Number(venueId);
     const [venueName, setVenueName] = useState("");
-    const [zoneNo, setZoneNo] = useState("");
     const [address, setAddress] = useState("");
-    const [jibunAddress, setJibunAddress] = useState("");
-    const [detailAddress, setDetailAddress] = useState("");
-    const [buildingName, setBuildingName] = useState("");
+    const [addressPayload, setAddressPayload] = useState<VenueAddressPayload | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState<VenueEditErrors>({});
     const [errorMessage, setErrorMessage] = useState("");
@@ -35,12 +39,14 @@ function AdminVenueEditPage() {
                 setErrorMessage("");
 
                 const venue = await getAdminVenue(venueNumericId);
-                setVenueName(venue.name);
-                setZoneNo(venue.zoneNo);
-                setAddress(venue.roadAddress);
-                setJibunAddress(venue.jibunAddress);
-                setDetailAddress(venue.detailAddress);
-                setBuildingName(venue.buildingName);
+                setVenueName(venue.name || "");
+                setAddress(getVenueAddress(venue));
+                setAddressPayload({
+                    zoneNo: venue.zoneNo,
+                    roadAddress: venue.roadAddress,
+                    jibunAddress: venue.jibunAddress,
+                    buildingName: venue.buildingName,
+                });
             } catch {
                 setErrorMessage("공연장 정보를 불러오지 못했습니다.");
             } finally {
@@ -56,10 +62,13 @@ function AdminVenueEditPage() {
             const data = await openDaumPostcode();
             const roadAddress = data.roadAddress || data.address;
 
-            setZoneNo(data.zonecode);
             setAddress(roadAddress);
-            setJibunAddress(data.jibunAddress);
-            setBuildingName((currentBuildingName) => currentBuildingName || data.buildingName);
+            setAddressPayload({
+                zoneNo: data.zonecode,
+                roadAddress,
+                jibunAddress: data.jibunAddress,
+                buildingName: data.buildingName,
+            });
             setErrors((currentErrors) => ({...currentErrors, address: undefined}));
         } catch {
             alert("주소찾기를 불러오지 못했습니다.");
@@ -87,11 +96,10 @@ function AdminVenueEditPage() {
             setIsLoading(true);
             await updateVenue(venueNumericId, {
                 name: venueName.trim(),
-                zoneNo,
-                roadAddress: address.trim(),
-                jibunAddress,
-                detailAddress: detailAddress.trim(),
-                buildingName: buildingName.trim(),
+                zoneNo: addressPayload?.zoneNo,
+                roadAddress: addressPayload?.roadAddress || address.trim(),
+                jibunAddress: addressPayload?.jibunAddress,
+                buildingName: addressPayload?.buildingName,
             });
 
             alert("공연장 정보가 수정되었습니다.");
@@ -157,14 +165,6 @@ function AdminVenueEditPage() {
                     >
                         조회
                     </button>
-
-                    <label>상세주소</label>
-                    <input value={detailAddress} onChange={(event) => setDetailAddress(event.target.value)} />
-                    <span />
-
-                    <label>건물명</label>
-                    <input value={buildingName} onChange={(event) => setBuildingName(event.target.value)} />
-                    <span />
                 </div>
 
                 <div className="admin-page__bottom-actions">

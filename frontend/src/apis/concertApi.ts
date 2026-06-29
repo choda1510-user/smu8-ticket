@@ -1,32 +1,25 @@
 import type {
-    AdminConcertRequest,
-    BackendConcert,
-    BackendConcertListResponse,
     ConcertDetail,
+    ConcertDetailResponse,
     ConcertItem,
-    ConcertResult,
-    ConcertSearchResult,
+    ConcertItemPageResponse,
+    ConcertItemResponse,
+    ConcertScheduleResponse
+
 } from "@/types/concert";
-import type {VenueResult, VenueSearchResult} from "@/types/venue";
+import type {
+    AdminConcertCreateCommand,
+    AdminConcertCreateResponse,
+    AdminConcertDetailResponse,
+    AdminConcertListPageResponse,
+    AdminConcertUpdateCommand,
+    AdminConcertUpdateResponse,
+} from "@/types/adminConcert.ts";
+
+import type {VenueSearch, VenueItemResponse} from "@/types/venue";
+import { getAccessToken } from "./authApi";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const LOGIN_STORAGE_KEY = "smu8-ticket-login";
-
-function getAccessToken() {
-    const storedLogin = localStorage.getItem(LOGIN_STORAGE_KEY);
-
-    if (!storedLogin) {
-        return null;
-    }
-
-    try {
-        const parsedLogin = JSON.parse(storedLogin) as { accessToken?: string };
-        return parsedLogin.accessToken ?? null;
-    } catch {
-        localStorage.removeItem(LOGIN_STORAGE_KEY);
-        return null;
-    }
-}
 
 function createJsonHeaders() {
     const headers: HeadersInit = {
@@ -39,6 +32,31 @@ function createJsonHeaders() {
     }
 
     return headers;
+}
+
+function createMultipartHeaders() {
+    const headers: HeadersInit = {};
+    const accessToken = getAccessToken();
+
+    if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    return headers;
+}
+
+function createConcertFormData(command: AdminConcertCreateCommand) {
+    const formData = new FormData();
+
+    formData.append(
+        "request",
+        new Blob([JSON.stringify(command.request)], {type: "application/json"}),
+    );
+    formData.append("cardPoster", command.cardPoster);
+    formData.append("bannerPoster", command.bannerPoster);
+    formData.append("descriptionPoster", command.descriptionPoster);
+
+    return formData;
 }
 
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
@@ -91,36 +109,83 @@ function formatPeriod(startAt: string, endAt: string) {
     return `${startText} ~ ${endText}`;
 }
 
-function toConcertItem(concert: BackendConcert): ConcertItem {
+
+function toConcertSchedule(schedule: ConcertScheduleResponse) {
+    const date = new Date(schedule.date);
+
     return {
-        concertId: concert.id,
+        id: schedule.id,
+        date: Number.isNaN(date.getTime()) ? schedule.date : schedule.date.slice(0, 10),
+        time: Number.isNaN(date.getTime()) ? "" : date.toTimeString().slice(0, 5),
+        datetime: date,
+        reservationEndAt: schedule.reservationEndAt,
+    };
+}
+
+function formatPeriodBySchedules(schedules: ConcertItemResponse["dates"]) {
+    const dates = schedules.map((schedule) => schedule.date).filter(Boolean).sort();
+
+    if (dates.length === 0) {
+        return "";
+    }
+
+    return formatPeriod(dates[0], dates[dates.length - 1]);
+}
+
+function getBadgeText(reservationStartAt: string) {
+    const diff = Math.ceil(
+        (new Date(reservationStartAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (diff > 0) return `D-${diff}`;
+    if (diff === 0) return "D-DAY";
+    return "예매중";
+}
+
+function toConcertItem(concert: ConcertItemResponse): ConcertItem {
+    return {
+        concertId: concert.concertId,
+        posterUrl: concert.cardPosterUrl,
         title: concert.title,
-        period: formatPeriod(concert.startAt, concert.endAt),
-        venueName: concert.venueName,
-        badgeText: "공연 등록",
-    };
-}
-
-export function toConcertSearchResult(concert: BackendConcert): ConcertSearchResult {
-    return {
-        ...toConcertItem(concert),
+        period: formatPeriodBySchedules(concert.dates),
         venueId: concert.venueId,
+        venueName: concert.venueName,
+        badgeText: getBadgeText(concert.reservationStartAt),
     };
 }
 
-export function toConcertResult(concert: BackendConcert): ConcertResult {
+export function toConcertSearchResult(concert: ConcertItemResponse): ConcertItem {
+    return toConcertItem(concert);
+}
+
+export function toConcertDetail(concert: ConcertDetailResponse): ConcertDetail {
+    const schedules = concert.schedules.map(toConcertSchedule);
+    const dates = schedules.map((schedule) => schedule.date).filter(Boolean).sort();
+
     return {
         id: concert.id,
-        title: concert.title,
-        period: formatPeriod(concert.startAt, concert.endAt),
         venueId: concert.venueId,
+        posterUrl: concert.posterUrl,
+        concertTitle: concert.title,
+        concertPeriod: dates.length > 0 ? `${dates[0]} ~ ${dates[dates.length - 1]}` : "",
+        runningTime: concert.runningTime,
         venueName: concert.venueName,
-        status: "등록됨",
+        reservationPeriod: "",
+        schedules,
+        description: concert.description,
+        startAt: dates[0] ?? "",
+        endAt: dates[dates.length - 1] ?? "",
+        reservationStartAt: concert.reservationStartAt,
     };
 }
 
-export function toVenueSearchResult(concerts: BackendConcert[]): VenueSearchResult[] {
-    const venueMap = new Map<number, VenueSearchResult>();
+export function toConcertResult(concert: ConcertItemResponse): ConcertItem {
+    return toConcertItem(concert);
+    }
+
+
+export function toVenueSearchResult(concerts: ConcertItemResponse[]): VenueItemResponse[] {
+    const venueMap = new Map<number, VenueItemResponse>();
 
     concerts.forEach((concert) => {
         const existingVenue = venueMap.get(concert.venueId);
@@ -131,8 +196,8 @@ export function toVenueSearchResult(concerts: BackendConcert[]): VenueSearchResu
         }
 
         venueMap.set(concert.venueId, {
-            venueId: concert.venueId,
-            venueName: concert.venueName,
+            id: concert.venueId,
+            name: concert.venueName,
             availableConcertCount: 1,
         });
     });
@@ -140,15 +205,15 @@ export function toVenueSearchResult(concerts: BackendConcert[]): VenueSearchResu
     return Array.from(venueMap.values());
 }
 
-export function toVenueResult(concerts: BackendConcert[]): VenueResult[] {
+export function toVenueResult(concerts: ConcertItemResponse[]): VenueSearch[] {
     return toVenueSearchResult(concerts).map((venue) => ({
-        id: venue.venueId,
-        venueName: venue.venueName,
+        id: venue.id,
+        venueName: venue.name,
         availableConcertCount: venue.availableConcertCount,
     }));
 }
 
-export function filterConcertsByKeyword(concerts: BackendConcert[], keyword: string) {
+export function filterConcertsByKeyword(concerts: ConcertItemResponse[], keyword: string) {
     const normalizedKeyword = keyword.trim().toLowerCase();
 
     if (!normalizedKeyword) {
@@ -157,45 +222,44 @@ export function filterConcertsByKeyword(concerts: BackendConcert[], keyword: str
 
     return concerts.filter((concert) => {
         return (
-            concert.title.toLowerCase().includes(normalizedKeyword) ||
-            concert.description.toLowerCase().includes(normalizedKeyword) ||
-            concert.venueName.toLowerCase().includes(normalizedKeyword)
+            (concert.title ?? "").toLowerCase().includes(normalizedKeyword) ||
+            (concert.venueName ?? "").toLowerCase().includes(normalizedKeyword)
         );
     });
 }
 
-export function toConcertDetail(concert: BackendConcert): ConcertDetail {
-    return {
-        id: concert.id,
-        venueId: concert.venueId,
-        concertTitle: concert.title,
-        artistName: "",
-        concertPeriod: formatPeriod(concert.startAt, concert.endAt),
-        runningTime: "",
-        venueName: concert.venueName,
-        reservationPeriod: "",
-        schedules: concert.startAt
-            ? [
-                {
-                    id: concert.id,
-                    date: formatDateTime(concert.startAt),
-                    time: "",
-                },
-            ]
-            : [],
-        description: concert.description,
-        startAt: concert.startAt,
-        endAt: concert.endAt,
-    };
+//export function toConcertDetail(concert: ConcertResponse): ConcertDetail {
+ //   return {
+   //     id: concert.id,
+     //   venueId: concert.venueId,
+       // concertTitle: concert.title,
+       // concertPeriod: formatPeriod(concert.startAt, concert.endAt),
+      //  runningTime: "",
+      //  venueName: concert.venueName,
+      //  reservationPeriod: "",
+       // schedules: concert.startAt
+       //     ? [
+        //        {
+        //            id: concert.id,
+        //            date: formatDateTime(concert.startAt),
+         //           time: "",
+         //       },
+          //  ]
+          //  : [],
+       // description: concert.description,
+      //  startAt: concert.startAt,
+      //  endAt: concert.endAt,
+   // };
+// }
+
+export async function getConcert(id: number): Promise<ConcertDetail> {
+    const concert = await fetchJson<ConcertDetailResponse>(`${API_BASE_URL}/api/concerts/${id}`);
+    return toConcertDetail(concert);
 }
 
-export async function getConcert(id: number): Promise<BackendConcert> {
-    return fetchJson<BackendConcert>(`${API_BASE_URL}/api/concerts/${id}`);
-}
-
-export async function getConcertList(): Promise<BackendConcert[]> {
-    const response = await fetchJson<BackendConcertListResponse>(`${API_BASE_URL}/api/concerts`);
-    return response.concerts;
+export async function getConcertList(): Promise<ConcertItemResponse[]> {
+    const response = await fetchJson<ConcertItemPageResponse>(`${API_BASE_URL}/api/concerts`);
+    return response.contents ?? [];
 }
 
 export async function getConcertItems(): Promise<ConcertItem[]> {
@@ -203,33 +267,35 @@ export async function getConcertItems(): Promise<ConcertItem[]> {
     return concerts.map(toConcertItem);
 }
 
-export async function getAdminConcert(id: number): Promise<BackendConcert> {
-    return fetchJson<BackendConcert>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
+export async function getAdminConcert(id: number): Promise<AdminConcertDetailResponse> {
+    return fetchJson<AdminConcertDetailResponse>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
         headers: createJsonHeaders(),
     });
 }
 
-export async function getAdminConcertList(): Promise<BackendConcert[]> {
-    const response = await fetchJson<BackendConcertListResponse>(`${API_BASE_URL}/api/admin/concerts`, {
+export async function getAdminConcertList(): Promise<AdminConcertDetailResponse[]> {
+    const response = await fetchJson<AdminConcertListPageResponse>(`${API_BASE_URL}/api/admin/concerts`, {
         headers: createJsonHeaders(),
     });
 
-    return response.concerts;
+    return response.contents ?? [];
 }
 
-export async function addConcert(request: AdminConcertRequest): Promise<BackendConcert> {
-    return fetchJson<BackendConcert>(`${API_BASE_URL}/api/admin/concerts`, {
+export async function addConcert(
+    command: AdminConcertCreateCommand
+): Promise<AdminConcertCreateResponse> {
+    return fetchJson<AdminConcertCreateResponse>(`${API_BASE_URL}/api/admin/concerts`, {
         method: "POST",
-        headers: createJsonHeaders(),
-        body: JSON.stringify(request),
+        headers: createMultipartHeaders(),
+        body: createConcertFormData(command),
     });
 }
 
-export async function updateConcert(id: number, request: AdminConcertRequest): Promise<BackendConcert> {
-    return fetchJson<BackendConcert>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
+export async function updateConcert(command: AdminConcertUpdateCommand): Promise<AdminConcertUpdateResponse> {
+    return fetchJson<AdminConcertCreateResponse>(`${API_BASE_URL}/api/admin/concerts/${command.pathVariables.id}`, {
         method: "PATCH",
         headers: createJsonHeaders(),
-        body: JSON.stringify(request),
+        body: JSON.stringify(command.request),
     });
 }
 
@@ -240,8 +306,8 @@ export async function cancelConcert(id: number): Promise<void> {
     });
 }
 
+
 // 기존 오타 함수명을 쓰는 코드가 있어도 깨지지 않도록 잠시 유지합니다.
-export const cancleConcert = cancelConcert;
 
 export function getConcertListOnBanner() {
     return getConcertItems();

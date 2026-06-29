@@ -17,7 +17,7 @@ import {useBookingListPage} from "@/hooks/useBookingListPage";
 function BookingListPage() {
     const navigate = useNavigate();
     const {bookingList} = useBookingListPage();
-    const bookings = bookingList.data;
+    const bookings = bookingList.contents;
 
     const handleReserveDetailClick = (reserveId: number) => {
         navigate(`/mypage/reserve/${reserveId}`);

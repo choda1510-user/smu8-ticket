@@ -15,7 +15,7 @@ import {useConcertHoleSearchResultPage} from "@/hooks/useConcertHoleSearchResult
 function ConcertHoleSearchResultPage() {
     const navigate = useNavigate();
     const {venueSearchResults} = useConcertHoleSearchResultPage();
-    const venues = venueSearchResults.data;
+    const venues = venueSearchResults.contents;
 
     const handleVenueClick = (venueId: number) => {
         navigate(`/venues/${venueId}`);
@@ -42,29 +42,20 @@ function ConcertHoleSearchResultPage() {
                         <ul className
                                 ={styles.venueList}>
                             {venues.map((venue) => (
-                                <li key={venue.venueId} className
+                                <li key={venue.id} className
                                     ={styles.venueItem}>
                                     <button
                                         type="button"
                                         className
                                             ={styles.venueButton}
-                                        onClick={() => handleVenueClick(venue.venueId)}
+                                        onClick={() => handleVenueClick(venue.id)}
                                     >
                                         <div className
                                                  ={styles.logoArea}>
                                             <div className
                                                      ={styles.logoBox}>
-                                                {venue.logoUrl ? (
-                                                    <img
-                                                        src={venue.logoUrl}
-                                                        alt="공연장 로고"
-                                                        className
-                                                            ={styles.logoImage}
-                                                    />
-                                                ) : (
-                                                    <span className
-                                                              ={styles.logoText}>공연장 로고</span>
-                                                )}
+                                                <span className
+                                                          ={styles.logoText}>공연장</span>
                                             </div>
                                         </div>
 

@@ -10,9 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-@Service("userConcertServiceImpl")
+@Service
 @RequiredArgsConstructor
 public class ConcertServiceImpl implements ConcertService {
     private final ConcertRepository concertRepository;
@@ -21,7 +19,7 @@ public class ConcertServiceImpl implements ConcertService {
     @Transactional(readOnly = true)
     public PageResult<ConcertDetailResult> getConcerts() {
         return PageResult.from(concertRepository
-                .findAllByOrderByStartAtDesc(PageRequest.of(0, 10))
+                .findAll(PageRequest.of(0, 10))
                 .map(ConcertDetailResult::from));
     }
 

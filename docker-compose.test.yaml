@@ -22,6 +22,8 @@ services:
       - SPRING_PROFILES_ACTIVE=test
     networks:
       - smu8-ticket-network
+    volumes:
+      - backend_file_dir:/app/upload-dir
   database:
     build:
       context: ./database
@@ -48,6 +50,7 @@ services:
       - smu8-ticket-network
 volumes:
   mysql_database:
+  backend_file_dir:
 networks:
   smu8-ticket-network:
     driver: bridge

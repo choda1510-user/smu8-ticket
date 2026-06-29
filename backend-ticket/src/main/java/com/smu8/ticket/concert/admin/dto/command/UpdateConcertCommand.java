@@ -13,7 +13,6 @@ public record UpdateConcertCommand(
         String title,
         String description,
         LocalDateTime startAt,
-        LocalDateTime endAt,
         Long venueId
 ) {
     public static UpdateConcertCommand from(Long id, UpdateConcertRequest request) {
@@ -22,7 +21,6 @@ public record UpdateConcertCommand(
                 .title(request.title())
                 .description(request.description())
                 .startAt(request.startAt())
-                .endAt(request.endAt())
                 .venueId(request.venueId())
                 .build();
     }
@@ -30,8 +28,10 @@ public record UpdateConcertCommand(
     public void update(Concert concert, Venue venue) {
         concert.setTitle(title);
         concert.setDescription(description);
-        concert.setStartAt(startAt);
-        concert.setEndAt(endAt);
+        concert.getPerformanceSchedules().stream()
+                        .forEach(performance -> {
+                            performance.setReservationStartAt(startAt);
+                        });
         concert.setVenue(venue);
     }
 }

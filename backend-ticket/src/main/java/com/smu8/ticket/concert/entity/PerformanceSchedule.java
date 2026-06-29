@@ -1,0 +1,70 @@
+package com.smu8.ticket.concert.entity;
+
+import jakarta.persistence.*;
+import com.smu8.ticket.reservation.entity.Reservation;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.LinkedList;
+import java.util.List;
+
+@Entity
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "performance_schedule")
+public class PerformanceSchedule {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "round_id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "performance_id", nullable = false)
+    private Concert concert;
+
+    // 공연이 시작하는 날짜
+    @Column(name = "show_start_at", nullable = false)
+    private LocalDateTime showStartAt;
+
+    // 예매가 시작하는 날짜
+    @Column(name = "reservation_start_at", nullable = false)
+    private LocalDateTime reservationStartAt;
+    // 예매가 끝나는 날짜
+    @Column(name = "reservation_end_at", nullable = false)
+    private LocalDateTime reservationEndAt;
+
+    @Column(name = "seat_column_count", nullable = false)
+    private Integer seatColumnCount;
+
+    @Column(name = "seat_row_count", nullable = false)
+    private Integer seatRowCount;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "performanceSchedule", cascade = CascadeType.PERSIST)
+    private List<Seat> seats = new LinkedList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "performanceSchedule", cascade = CascadeType.PERSIST)
+    private List<Reservation> reservations = new LinkedList<>();
+
+    public void addSeat(Seat seat) {
+        seats.add(seat);
+        seat.setPerformanceSchedule(this);
+    }
+    public void addReservation(Reservation reservation) {
+        reservations.add(reservation);
+        reservation.setPerformanceSchedule(this);
+    }
+    public void setConcert(Concert concert) {
+        this.concert.getPerformanceSchedules().remove(this);
+        this.concert = concert;
+        concert.getPerformanceSchedules().add(this);
+    }
+}

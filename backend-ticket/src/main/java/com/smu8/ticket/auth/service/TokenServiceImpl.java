@@ -5,6 +5,7 @@ import com.smu8.ticket.auth.dto.command.RegisterTokenCommand;
 import com.smu8.ticket.auth.dto.query.TokenQuery;
 import com.smu8.ticket.auth.dto.result.BlacklistTokenResult;
 import com.smu8.ticket.auth.dto.result.TokenResult;
+import com.smu8.ticket.auth.repository.TokenRepository;
 import com.smu8.ticket.authentication.Authority;
 import com.smu8.ticket.utils.JwtGenerator;
 import lombok.RequiredArgsConstructor;
@@ -20,18 +21,14 @@ import java.time.Instant;
 @Service
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
-    public final String REFRESH_TOKEN_PREFIX = "refresh-token:";
     private final JwtGenerator jwtGenerator;
-    private final RedisTemplate<String, String> redisTemplate;
-    private final long accessTokenExpireSeconds = 60 * 60;
-    private final long refreshTokenExpireSeconds = 2 * 60 * 60;
+    private final TokenRepository tokenRepository;
     @Override
     public TokenResult createToken(CreateTokenCommand command) {
-        Instant expiresAt = Instant.now().plusSeconds(accessTokenExpireSeconds);
+        Instant expiresAt = Instant.now().plusSeconds(tokenRepository.getAccessTokenExpireSeconds());
         Jwt jwt = jwtGenerator.generate(command.userId(), command.role(), expiresAt, command.authorities());
         if (command.authorities().contains(new SimpleGrantedAuthority(Authority.REFRESH_TOKEN.toString()))) {
-            ValueOperations<String, String> ops = redisTemplate.opsForValue();
-            ops.set(REFRESH_TOKEN_PREFIX + jwt.getSubject(), jwt.getId(), Duration.ofSeconds(refreshTokenExpireSeconds));
+            tokenRepository.activateRefreshToken(jwt);
         }
         return TokenResult.builder()
                 .jwt(jwt)
@@ -40,37 +37,19 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public BlacklistTokenResult setBlacklistToken(RegisterTokenCommand command) {
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        Jwt accessToken = command.accessToken();
-        if (accessToken == null) {
-            throw new RuntimeException();
-        }
-        if (accessToken.getId() == null) {
-            throw new RuntimeException();
-        }
-        if (accessToken.getExpiresAt() == null || accessToken.getIssuedAt() == null) {
-            throw new RuntimeException();
-        }
-        ops.set(accessToken.getId(), accessToken.getId(), Duration.ofSeconds(accessTokenExpireSeconds));
-        Jwt refreshToken = command.refreshToken();
-        if (refreshToken == null) {
-            throw new RuntimeException();
-        }
-        if (refreshToken.getId() == null) {
-            throw new RuntimeException();
-        }
-        ops.getAndDelete(REFRESH_TOKEN_PREFIX + refreshToken.getSubject());
+        tokenRepository.addAccessTokenToBlacklist(command.accessToken());
+        tokenRepository.deactivateRefreshToken(command.refreshToken());
         return BlacklistTokenResult.builder()
-                .accessTokenId(accessToken.getId())
-                .refreshTokenId(refreshToken.getId())
+                .accessTokenId(command.accessToken().getId())
+                .refreshTokenId(command.refreshToken().getId())
                 .build();
     }
     @Override
     public Boolean checkAccessToken(TokenQuery query) {
-        return redisTemplate.hasKey(query.jti());
+        return tokenRepository.checkAccessToken(query.jwt());
     }
     @Override
     public Boolean checkRefreshToken(TokenQuery query) {
-        return redisTemplate.hasKey(REFRESH_TOKEN_PREFIX + query.sub());
+        return tokenRepository.checkRefreshToken(query.jwt());
     }
 }

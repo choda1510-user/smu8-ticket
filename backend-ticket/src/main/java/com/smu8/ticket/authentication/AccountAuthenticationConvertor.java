@@ -21,7 +21,7 @@ public class AccountAuthenticationConvertor implements Converter<Jwt, AccountAut
     private final TokenService tokenService;
     @Override
     public AccountAuthentication convert(Jwt source) {
-        if (tokenService.checkAccessToken(TokenQuery.builder().jti(source.getId()).sub(source.getSubject()).build())) {
+        if (tokenService.checkAccessToken(TokenQuery.builder().jti(source.getId()).sub(source.getSubject()).jwt(source).build())) {
             throw new AccessDeniedException("Token is expired.");
         }
         AccountDetailResult account = accountService.getById(source.getSubject());

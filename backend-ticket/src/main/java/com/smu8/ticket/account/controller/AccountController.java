@@ -2,10 +2,11 @@ package com.smu8.ticket.account.controller;
 
 import com.smu8.ticket.account.dto.command.AdminAccountCommand;
 import com.smu8.ticket.account.dto.command.CreateAccountCommand;
+import com.smu8.ticket.account.dto.query.AccountDetailQuery;
 import com.smu8.ticket.account.dto.result.AccountDetailResult;
 import com.smu8.ticket.account.http.request.AdminAccountRequest;
 import com.smu8.ticket.account.http.request.CreateAccountRequest;
-import com.smu8.ticket.account.http.response.AdminAccountResponse;
+import com.smu8.ticket.account.http.response.AccountMyInfoResponse;
 import com.smu8.ticket.account.http.request.UpdateAccountRequest;
 import com.smu8.ticket.account.http.response.AccountDetailResponse;
 import com.smu8.ticket.account.http.response.AvailabilityResponse;
@@ -16,12 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -30,6 +26,17 @@ import java.net.URI;
 public class AccountController {
     private final AccountService accountService;
 
+    @Operation(summary = "사용자 정보 조회")
+    @GetMapping("/api/account/{id}")
+    public ResponseEntity<AccountDetailResponse> findById(
+            @PathVariable String id
+    ) {
+        return ResponseEntity
+                .ok(AccountDetailResponse
+                        .from(accountService
+                                .getById(AccountDetailQuery
+                                        .of(id))));
+    }
     @Operation(summary = "아이디 중복 확인", description = "회원가입에 사용할 로그인 아이디의 사용 가능 여부를 확인합니다.")
     @GetMapping("/api/account/check-username")
     public ResponseEntity<AvailabilityResponse> checkUsername(
@@ -70,17 +77,17 @@ public class AccountController {
 
     @Operation(summary = "내 정보 조회", description = "현재 로그인한 회원의 정보를 조회합니다.")
     @GetMapping("/api/account/me")
-    public ResponseEntity<AccountDetailResponse> me(
+    public ResponseEntity<AccountMyInfoResponse> me(
             @Parameter(hidden = true) Authentication authentication
     ) {
-        AccountDetailResult accountDetailResult = accountService.getById(authentication.getName());
+        AccountDetailResult accountDetailResult = accountService.getById(AccountDetailQuery.of(authentication.getName()));
 
-        return ResponseEntity.ok(AccountDetailResponse.from(accountDetailResult));
+        return ResponseEntity.ok(AccountMyInfoResponse.from(accountDetailResult));
     }
 
     @Operation(summary = "내 정보 수정", description = "현재 로그인한 회원의 닉네임 또는 비밀번호를 수정합니다.")
     @PatchMapping("/api/account/me")
-    public ResponseEntity<AccountDetailResponse> updateMe(
+    public ResponseEntity<AccountMyInfoResponse> updateMe(
             @Parameter(hidden = true) Authentication authentication,
             @RequestBody UpdateAccountRequest updateAccountRequest
     ) {
@@ -90,7 +97,7 @@ public class AccountController {
                 updateAccountRequest.password()
         );
 
-        return ResponseEntity.ok(AccountDetailResponse.from(accountDetailResult));
+        return ResponseEntity.ok(AccountMyInfoResponse.from(accountDetailResult));
     }
 
     @Operation(summary = "회원가입", description = "아이디, 비밀번호, 닉네임을 입력해 회원 계정을 생성합니다.")
@@ -109,7 +116,7 @@ public class AccountController {
 
     @Operation(summary = "관리자 권한 부여", description = "지정한 회원 계정을 관리자 계정으로 변경합니다.")
     @PostMapping("/api/account/admin")
-    public ResponseEntity<AdminAccountResponse> updateAdmin(
+    public ResponseEntity<AccountDetailResponse> updateAdmin(
             @RequestBody AdminAccountRequest adminAccountRequest
     ) {
         AccountDetailResult accountDetailResult = accountService
@@ -117,7 +124,7 @@ public class AccountController {
                         .username(adminAccountRequest.username())
                         .build());
         return ResponseEntity
-                .ok(AdminAccountResponse
+                .ok(AccountDetailResponse
                         .from(accountDetailResult));
     }
 }

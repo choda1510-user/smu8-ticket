@@ -3,3 +3,19 @@ spring:
     name: ticket
   profiles:
     active: dev
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+token:
+  access-token:
+    prefix: "access-token:"
+    expire: 3600
+  refresh-token:
+    prefix: "refresh-token:"
+    expire: 7200
+
+reservation:
+  preempt-seat:
+    ttl-seconds: 300

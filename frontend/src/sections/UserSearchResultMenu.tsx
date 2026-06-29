@@ -4,27 +4,24 @@
 * */
 
 
-import {NavLink} from "react-router";
+import {NavLink, useSearchParams} from "react-router";
 import "./UserSearchResultMenu.css";
 
-interface UserSearchResultMenuProps {
-    keyword: string;
-}
-
 function UserSearchResultMenu() {
-    const {keyword}: UserSearchResultMenuProps = {keyword: "문화예술공연"}
+    const [searchParams] = useSearchParams();
+    const keyword = searchParams.get("keyword") ?? searchParams.get("q") ?? "";
     const encodedKeyword = encodeURIComponent(keyword);
 
     return (
         <nav className="search-result-menu">
-            <NavLink to={`/search/all?keyword=${encodedKeyword}`}>
+            <NavLink to={`/search/all?keyword=${encodedKeyword}&page=1`}>
                 통합검색
             </NavLink>
 
-            <NavLink to={`/search/concerts?keyword=${encodedKeyword}`}>
+            <NavLink to={`/search/concerts?keyword=${encodedKeyword}&page=1`}>
                 공연
             </NavLink>
-            <NavLink to={`/search/venues?keyword=${encodedKeyword}`}>
+            <NavLink to={`/search/venues?keyword=${encodedKeyword}&page=1`}>
                 공연장
             </NavLink>
         </nav>

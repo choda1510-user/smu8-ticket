@@ -16,7 +16,7 @@ import {useConcertSearchResultPage} from "@/hooks/useConcertSearchResultPage";
 function ConcertSearchResultPage() {
     const navigate = useNavigate();
     const {concertSearchResults} = useConcertSearchResultPage();
-    const concerts = concertSearchResults.data;
+    const concerts = concertSearchResults.contents;
 
     const handleConcertClick = (concertId: number) => {
         navigate(`/concerts/${concertId}`);

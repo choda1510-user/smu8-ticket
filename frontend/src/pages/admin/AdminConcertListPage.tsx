@@ -1,18 +1,26 @@
 import {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router";
 import {getAdminConcertList} from "@/apis/concertApi";
-import type {BackendConcert} from "@/types/concert";
+import type {AdminConcertDetailResponse, AdminConcertScheduleResponse} from "@/types/adminConcert";
 import "./AdminPages.css";
 
 const pageSize = 5;
 
-function formatPeriod(startAt: string, endAt: string) {
+function formatPeriod(schedules: AdminConcertScheduleResponse[]) {
+    if (!schedules || schedules.length === 0) {
+        return "-";
+    }
+
+    const dates = schedules.map((schedule) => schedule.date).filter(Boolean).sort();
+    const startAt = dates[0] ?? "";
+    const endAt = dates[dates.length - 1] ?? "";
+
     return `${startAt.replace("T", " ")} ~ ${endAt.replace("T", " ")}`;
 }
 
 function AdminConcertListPage() {
     const navigate = useNavigate();
-    const [concerts, setConcerts] = useState<BackendConcert[]>([]);
+    const [concerts, setConcerts] = useState<AdminConcertDetailResponse[]>([]);
     const [titleInput, setTitleInput] = useState("");
     const [codeInput, setCodeInput] = useState("");
     const [venueInput, setVenueInput] = useState("");
@@ -50,9 +58,9 @@ function AdminConcertListPage() {
         const venueCodeKeyword = searchCondition.venueCode.trim().toLowerCase();
 
         return concerts.filter((concert) => {
-            const matchesTitle = titleKeyword ? concert.title.toLowerCase().includes(titleKeyword) : true;
+            const matchesTitle = titleKeyword ? (concert.title ?? "").toLowerCase().includes(titleKeyword) : true;
             const matchesCode = codeKeyword ? String(concert.id).includes(codeKeyword) : true;
-            const matchesVenue = venueKeyword ? concert.venueName.toLowerCase().includes(venueKeyword) : true;
+            const matchesVenue = venueKeyword ? (concert.venueName ?? "").toLowerCase().includes(venueKeyword) : true;
             const matchesVenueCode = venueCodeKeyword ? String(concert.venueId).includes(venueCodeKeyword) : true;
 
             return matchesTitle && matchesCode && matchesVenue && matchesVenueCode;
@@ -166,13 +174,13 @@ function AdminConcertListPage() {
                                 <td>{concert.id}</td>
                                 <td>
                                     <button type="button" className="admin-page__link-button" onClick={() => navigate(`/admin/concerts/${concert.id}`)}>
-                                        {concert.title}
+                                        {concert.title ?? "-"}
                                     </button>
                                 </td>
-                                <td>{formatPeriod(concert.startAt, concert.endAt)}</td>
-                                <td>{concert.venueId}</td>
-                                <td>{concert.venueName}</td>
-                                <td>등록됨</td>
+                                <td>{formatPeriod(concert.schedules ?? [])}</td>
+                                <td>{concert.venueId ?? "-"}</td>
+                                <td>{concert.venueName ?? "-"}</td>
+                                <td>{concert.reservationStatus ?? "등록됨"}</td>
                             </tr>
                         ))
                     )}

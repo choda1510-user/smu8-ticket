@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ConcertRepository extends JpaRepository<Concert, Long> {
-    Page<Concert> findAllByOrderByStartAtDesc(Pageable pageable);
+    Page<Concert> findAll(Pageable pageable);
 }

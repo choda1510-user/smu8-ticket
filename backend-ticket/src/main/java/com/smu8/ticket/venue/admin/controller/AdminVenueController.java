@@ -1,12 +1,12 @@
 package com.smu8.ticket.venue.admin.controller;
 
-import com.smu8.ticket.venue.admin.dto.command.CreateVenueCommand;
-import com.smu8.ticket.venue.admin.dto.command.UpdateVenueCommand;
-import com.smu8.ticket.venue.admin.dto.result.VenueDetailResult;
-import com.smu8.ticket.venue.admin.http.request.CreateVenueRequest;
-import com.smu8.ticket.venue.admin.http.request.UpdateVenueRequest;
-import com.smu8.ticket.venue.admin.http.response.VenueDetailResponse;
-import com.smu8.ticket.venue.admin.http.response.VenueListResponse;
+import com.smu8.ticket.venue.admin.dto.command.AdminCreateVenueCommand;
+import com.smu8.ticket.venue.admin.dto.command.AdminUpdateVenueCommand;
+import com.smu8.ticket.venue.admin.http.response.AdminVenueItemResponse;
+import com.smu8.ticket.venue.dto.result.VenueDetailResult;
+import com.smu8.ticket.venue.admin.http.request.AdminUpdateVenueRequest;
+import com.smu8.ticket.venue.admin.http.request.AdminCreateVenueRequest;
+import com.smu8.ticket.venue.http.response.VenueItemResponse;
 import com.smu8.ticket.venue.admin.service.VenueService;
 import com.smu8.ticket.venue.dto.query.VenueDetailQuery;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,10 +29,10 @@ public class AdminVenueController {
 
     @Operation(summary = "공연장 등록", description = "관리자가 새로운 공연장을 등록합니다.")
     @PostMapping("/api/admin/venues")
-    public ResponseEntity<VenueDetailResponse> createVenue(
-            @RequestBody CreateVenueRequest request
+    public ResponseEntity<VenueItemResponse> createVenue(
+            @RequestBody AdminCreateVenueRequest request
     ) {
-        VenueDetailResult result = venueService.createVenue(CreateVenueCommand.builder()
+        VenueDetailResult result = venueService.createVenue(AdminCreateVenueCommand.builder()
                 .name(request.name())
                 .zoneNo(request.zoneNo())
                 .roadAddress(request.roadAddress())
@@ -43,29 +43,23 @@ public class AdminVenueController {
 
         return ResponseEntity
                 .created(URI.create("/api/admin/venues/" + result.id()))
-                .body(VenueDetailResponse.from(result));
-    }
-
-    @GetMapping("/api/admin/venues")
-    public ResponseEntity<VenueListResponse> getVenues() {
-        return ResponseEntity.ok(VenueListResponse.from(venueService.getVenues()));
+                .body(VenueItemResponse.from(result));
     }
 
     @GetMapping("/api/admin/venues/{id}")
-    public ResponseEntity<VenueDetailResponse> getVenue(
+    public ResponseEntity<AdminVenueItemResponse> getVenue(
             @PathVariable Long id
     ) {
-        return ResponseEntity.ok(VenueDetailResponse.from(venueService.getVenue(VenueDetailQuery.builder()
+        return ResponseEntity.ok(AdminVenueItemResponse.from(venueService.getVenue(VenueDetailQuery.builder()
                 .id(id)
                 .build())));
     }
-
     @PatchMapping("/api/admin/venues/{id}")
-    public ResponseEntity<VenueDetailResponse> updateVenue(
+    public ResponseEntity<VenueItemResponse> updateVenue(
             @PathVariable Long id,
-            @RequestBody UpdateVenueRequest request
+            @RequestBody AdminUpdateVenueRequest request
     ) {
-        return ResponseEntity.ok(VenueDetailResponse.from(venueService.updateVenue(UpdateVenueCommand.from(id, request))));
+        return ResponseEntity.ok(VenueItemResponse.from(venueService.updateVenue(AdminUpdateVenueCommand.from(id, request))));
     }
 
     @DeleteMapping("/api/admin/venues/{id}")

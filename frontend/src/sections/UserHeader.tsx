@@ -12,7 +12,8 @@ import "./UserHeader.css";
 function UserHeader() {
     const navigate = useNavigate();
     const [searchParams]= useSearchParams();
-    const {isLoggedIn, logout} = useLogin();
+    const {isLoggedIn, user, logout} = useLogin();
+    const isAdmin = user?.account.role === "ADMIN";
 
     const keywordFromUrl = searchParams.get("keyword") ?? "";
     const [keyword, setkeyword] = useState(keywordFromUrl);
@@ -59,6 +60,11 @@ function UserHeader() {
                                     로그아웃
                                 </button>
                                 <Link to="/mypage">마이페이지</Link>
+                                {isAdmin && (
+                                    <Link to="/admin" className="user-header-admin-link">
+                                        관리자 페이지
+                                    </Link>
+                                )}
                             </>
                         ) : (
                             <>

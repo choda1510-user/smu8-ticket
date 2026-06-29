@@ -41,7 +41,7 @@ function LoginPage() {
         try {
             setLoginErrorMessage("");
             await login({
-                loginId: trimmedLoginId,
+                username: trimmedLoginId,
                 password: trimmedPassword,
             });
 

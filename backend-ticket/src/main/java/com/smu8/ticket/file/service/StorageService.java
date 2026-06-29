@@ -1,0 +1,18 @@
+package com.smu8.ticket.file.service;
+
+import org.springframework.core.io.Resource;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.file.Path;
+import java.util.stream.Stream;
+
+public interface StorageService {
+    void init();
+    String store(MultipartFile file);
+    Stream<Path> loadAll();
+    Path load(String key);
+    Resource loadAsResource(String key);
+    String getUrl(String key);
+    void delete(String key);
+    void deleteAll();
+}

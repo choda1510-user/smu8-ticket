@@ -1,6 +1,7 @@
 package com.smu8.ticket.account.service;
 
 import com.smu8.ticket.account.dto.command.AdminAccountCommand;
+import com.smu8.ticket.account.dto.query.AccountDetailQuery;
 import com.smu8.ticket.account.dto.result.AccountDetailResult;
 import com.smu8.ticket.account.dto.command.CreateAccountCommand;
 import com.smu8.ticket.account.entity.Account;
@@ -49,6 +50,11 @@ public class AccountServiceImpl implements AccountService, AccountAuthentication
     @Override
     public AccountDetailResult getByUsername(String username){
         Account account = accountRepository.findByUsername(username).orElseThrow();
+        return AccountDetailResult.from(account);
+    }
+    @Override
+    public AccountDetailResult getById(AccountDetailQuery query) {
+        Account account = accountRepository.findById(query.id()).orElseThrow();
         return AccountDetailResult.from(account);
     }
     @Override

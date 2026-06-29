@@ -14,13 +14,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Address {
     @Column(length = 20)
-    private String zoneNo;
+    private String zoneNo; //구역번호
     @Column(length = 500)
-    private String roadAddress;
+    private String roadAddress; //도로주소
     @Column(length = 500)
-    private String jibunAddress;
+    private String jibunAddress; //지번주소
     @Column(length = 500)
-    private String detailAddress;
+    private String detailAddress; //세부주소
     @Column(length = 200)
     private String buildingName;
 }

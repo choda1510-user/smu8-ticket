@@ -19,8 +19,8 @@ function ConcertListPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const {openConcertList, upcomingConcertList} = useConcertListPage();
-    const openConcerts = openConcertList.data;
-    const upcomingConcerts = upcomingConcertList.data;
+    const openConcerts = openConcertList.contents;
+    const upcomingConcerts = upcomingConcertList.contents;
 
     const filter = searchParams.get("filter");
 

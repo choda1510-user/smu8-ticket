@@ -49,7 +49,15 @@ function BookingDetailsPage() {
                                     ={styles.posterBox}
                                 onClick={handleConcertClick}
                             >
-                                포스터
+                                {bookingDetail.posterUrl ? (
+                                    <img
+                                        className={styles.posterImage}
+                                        src={bookingDetail.posterUrl}
+                                        alt={`${bookingDetail.concertTitle} 포스터`}
+                                    />
+                                ) : (
+                                    "포스터"
+                                )}
                             </button>
 
                             <button
@@ -107,7 +115,7 @@ function BookingDetailsPage() {
 
                                 <InfoItem label="상태" value={bookingDetail.status}/>
 
-                                <InfoItem label="아이디" value={bookingDetail.userId}/>
+                                <InfoItem label="닉네임" value={bookingDetail.nickname}/>
                             </div>
                         </div>
                     </section>

@@ -1,67 +1,22 @@
-import styles from "./BookingPaymentPage.module.css"
+import styles from "./BookingPaymentPage.module.css";
 import {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router";
-import {useFetchJson} from "@/hooks/useFetchJson";
-import type {Payment} from "@/types/booking";
+import {useBookingReservation} from "@/hooks/useBookingReservation";
+import {useBookingSummaryPage} from "@/hooks/useBookingSummaryPage";
+import type {BookingCreateCommand} from "@/types/booking";
 
-const paymentUrl = new URL("../data/payment.json", import.meta.url).href;
-
-const initialPayment: Payment = {
-    concertId: 0,
-    concertTitle: "",
-    venueId: 0,
-    venueName: "",
-    scheduleId: 0,
-    performanceDate: "",
-    performanceTime: "",
-    reservationLimitMinutes: 5,
-    selectedSeats: [],
-    paymentSummary: {
-        ticketAmount: 0,
-        discountAmount: 0,
-        serviceFee: 0,
-        totalAmount: 0,
-    },
-    deliveryMethods: [],
-    selectedDeliveryMethodId: "",
-    orderer: {
-        name: "",
-        phoneNumber: "",
-        email: "",
-    },
-    paymentMethods: [],
-    selectedPaymentMethodId: "",
-    bankOptions: [],
-    depositForm: {
-        selectedBankId: "",
-        depositorName: "",
-        cashReceiptType: "",
-    },
-    cancelPolicy: {
-        cancelDeadline: "",
-        cancelFeeNotice: "",
-    },
-};
+const bookingDraftStorageKey = "smu8-ticket-booking-draft";
+const bookingSuccessStorageKey = "smu8-ticket-booking-success";
+const initialReservationLimitMinutes = 3;
 
 function BookingPaymentPage() {
     const navigate = useNavigate();
-    const {data: payment} = useFetchJson<Payment>(paymentUrl, initialPayment);
-    const [remainingSeconds, setRemainingSeconds] = useState(
-        initialPayment.reservationLimitMinutes * 60
-    );
-    const [ordererPhoneNumbers, setOrdererPhoneNumbers] = useState(["010", "", ""]);
-    const [ordererEmail, setOrdererEmail] = useState("");
-    const [receiptPhoneNumbers, setReceiptPhoneNumbers] = useState(["010", "", ""]);
-    const [selectedBankId, setSelectedBankId] = useState("");
+    const {createBooking} = useBookingReservation();
+    const {bookingSummary} = useBookingSummaryPage();
+    const [remainingSeconds, setRemainingSeconds] = useState(initialReservationLimitMinutes * 60);
     const hasHandledExpirationRef = useRef(false);
 
-    const selectedDeliveryMethod = payment.deliveryMethods.find((deliveryMethod) => (
-        deliveryMethod.methodId === payment.selectedDeliveryMethodId
-    ));
-    const selectedPaymentMethod = payment.paymentMethods.find((paymentMethod) => (
-        paymentMethod.methodId === payment.selectedPaymentMethodId
-    ));
-    const selectedSeatText = payment.selectedSeats.map((seat) => seat.seatNumber).join(", ");
+    const selectedSeatText = bookingSummary.selectedSeats.map((seat) => seat.seatNumber).join(", ");
     const formattedRemainingTime = formatRemainingTime(remainingSeconds);
 
     useEffect(() => {
@@ -79,273 +34,125 @@ function BookingPaymentPage() {
     }, [remainingSeconds]);
 
     useEffect(() => {
-        if (remainingSeconds > 0 || payment.concertId === 0 || hasHandledExpirationRef.current) {
+        if (remainingSeconds > 0 || bookingSummary.concertId === 0 || hasHandledExpirationRef.current) {
             return;
         }
 
         hasHandledExpirationRef.current = true;
         alert("예매 가능 시간이 종료되었습니다.");
-        navigate(`/concerts/${payment.concertId}`, {replace: true});
-    }, [navigate, payment.concertId, remainingSeconds]);
+        navigate(`/concerts/${bookingSummary.concertId}`, {replace: true});
+    }, [bookingSummary.concertId, navigate, remainingSeconds]);
 
-    useEffect(() => {
-        if (payment.concertId === 0) {
+    const handlePreviousClick = () => {
+        navigate(`/booking/paydetail/${bookingSummary.concertId}`);
+    };
+
+    const handleNextClick = async () => {
+        const storedDraft = sessionStorage.getItem(bookingDraftStorageKey);
+
+        if (!storedDraft) {
+            alert("예매할 좌석 정보가 없습니다. 좌석을 다시 선택해 주세요.");
+            navigate(`/booking/select/${bookingSummary.concertId}`);
             return;
         }
 
-        setOrdererPhoneNumbers(splitPhoneNumber(payment.orderer.phoneNumber));
-        setOrdererEmail(payment.orderer.email);
-    }, [payment.concertId, payment.orderer.email, payment.orderer.phoneNumber]);
+        try {
+            const command = JSON.parse(storedDraft) as BookingCreateCommand;
+            const bookingSuccess = await createBooking(command);
 
-    const handlePreviousClick = () => {
-        navigate(`/booking/paydetail/${payment.concertId}`);
-    };
-
-    const handleNextClick = () => {
-        navigate(`/booking/success/${payment.concertId}`);
-    };
-
-    const handleReceiptPhoneChange = (index: number, value: string) => {
-        setReceiptPhoneNumbers((prevPhoneNumbers) => (
-            prevPhoneNumbers.map((phoneNumber, phoneNumberIndex) => (
-                phoneNumberIndex === index ? value : phoneNumber
-            ))
-        ));
-    };
-
-    const handleOrdererPhoneChange = (index: number, value: string) => {
-        setOrdererPhoneNumbers((prevPhoneNumbers) => (
-            prevPhoneNumbers.map((phoneNumber, phoneNumberIndex) => (
-                phoneNumberIndex === index ? value : phoneNumber
-            ))
-        ));
+            sessionStorage.setItem(bookingSuccessStorageKey, JSON.stringify(bookingSuccess));
+            sessionStorage.removeItem(bookingDraftStorageKey);
+            navigate(`/booking/success/${bookingSuccess.concertId}`);
+        } catch {
+            alert("예매 생성에 실패했습니다. 다시 시도해 주세요.");
+        }
     };
 
     return (
-        <section className
-                     ={styles.page}>
-            <div className
-                     ={styles.frame}>
-                <main className
-                          ={styles.bookingBox}>
-                    <div className
-                             ={styles.stepBar}>
-                        <span className
-                                  ={styles.stepItem}>좌석 선택</span>
-                        <span className
-                                  ={styles.stepDivider}>〉</span>
-                        <span className
-                                  ={styles.stepItem}>가격 선택</span>
-                        <span className
-                                  ={styles.stepDivider}>〉</span>
-                        <span className
-                                  ={`${styles.stepItem} ${styles.activeStepItem}`}>결제</span>
+        <section className={styles.page}>
+            <div className={styles.frame}>
+                <main className={styles.bookingBox}>
+                    <div className={styles.stepBar}>
+                        <span className={styles.stepItem}>좌석 선택</span>
+                        <span className={styles.stepDivider}>›</span>
+                        <span className={styles.stepItem}>가격 확인</span>
+                        <span className={styles.stepDivider}>›</span>
+                        <span className={`${styles.stepItem} ${styles.activeStepItem}`}>예매 완료</span>
                     </div>
 
-                    <div className
-                             ={styles.contentArea}>
-                        <section className
-                                     ={styles.paymentArea}>
-                            <div className
-                                     ={styles.remainingTime}>
-                                결제 가능 시간 : {formattedRemainingTime}
-                            </div>
+                    <div className={styles.contentArea}>
+                        <section className={styles.paymentArea}>
+                            <div className={styles.remainingTime}>예매 가능 시간 : {formattedRemainingTime}</div>
 
-                            <h1 className
-                                    ={styles.sectionTitle}>수령방법</h1>
-                            <h2 className
-                                    ={styles.receiveTitle}>{selectedDeliveryMethod?.label ?? "현장수령"}</h2>
-                            <p className
-                                   ={styles.receiveDescription}>
-                                {selectedDeliveryMethod?.description}
-                            </p>
+                            <h1 className={styles.sectionTitle}>예매 확인</h1>
 
-                            <section className
-                                         ={styles.orderInfoBox}>
-                                <h3 className
-                                        ={styles.boxTitle}>주문자 정보</h3>
-                                <div className
-                                         ={styles.orderRow}>
-                                    <span className
-                                              ={styles.orderLabel}>이름</span>
-                                    <strong className
-                                                ={styles.orderValue}>{payment.orderer.name}</strong>
+                            <section className={styles.orderInfoBox}>
+                                <h3 className={styles.boxTitle}>선택 내역</h3>
+                                <div className={styles.orderRow}>
+                                    <span className={styles.orderLabel}>공연명</span>
+                                    <strong className={styles.orderValue}>{bookingSummary.concertTitle}</strong>
 
-                                    <span className
-                                              ={styles.orderLabel}>연락처*</span>
-                                    <div className
-                                             ={styles.orderPhoneGroup}>
-                                        {ordererPhoneNumbers.map((phoneNumber, index) => (
-                                            <input
-                                                key={index}
-                                                type="tel"
-                                                value={phoneNumber}
-                                                className
-                                                    ={styles.shortInput}
-                                                onChange={(event) => {
-                                                    handleOrdererPhoneChange(index, event.target.value);
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
+                                    <span className={styles.orderLabel}>관람일시</span>
+                                    <strong className={styles.orderValue}>
+                                        {bookingSummary.performanceDate} {bookingSummary.performanceTime}
+                                    </strong>
 
-                                    <span className
-                                              ={styles.orderLabel}>이메일</span>
-                                    <input
-                                        type="email"
-                                        value={ordererEmail}
-                                        className
-                                            ={styles.emailInput}
-                                        onChange={(event) => {
-                                            setOrdererEmail(event.target.value);
-                                        }}
-                                    />
+                                    <span className={styles.orderLabel}>좌석</span>
+                                    <strong className={styles.orderValue}>{selectedSeatText}</strong>
                                 </div>
-                                <p className
-                                       ={styles.orderGuide}>
-                                    입력하신 정보는 공연장에서 예매확인을 위해 사용될 수 있습니다.
+                                <p className={styles.orderGuide}>
+                                    예매 완료 버튼을 누르면 선택한 좌석으로 예매가 생성됩니다.
                                 </p>
-                                <p className
-                                       ={styles.warningGuide}>
-                                    티켓 수령 및 본인 확인을 위해 반드시 본인의 연락처와 이메일 주소를 정확히 입력해 주시기 바랍니다
-                                </p>
-                            </section>
-
-                            <h1 className
-                                    ={styles.sectionTitle}>결제수단</h1>
-
-                            <section className
-                                         ={styles.bankTransferBox}>
-                                <div className
-                                         ={styles.bankHeader}>
-                                    <strong>{selectedPaymentMethod?.label ?? "무통장입금"}</strong>
-                                </div>
-                                <div className
-                                         ={styles.bankBody}>
-                                    <label className
-                                               ={styles.bankRow}>
-                                        <span>입금은행</span>
-                                        <select
-                                            className
-                                                ={styles.bankSelect}
-                                            value={selectedBankId || payment.depositForm.selectedBankId}
-                                            onChange={(event) => setSelectedBankId(event.target.value)}
-                                        >
-                                            {payment.bankOptions.map((bankOption) => (
-                                                <option key={bankOption.bankId} value={bankOption.bankId}>
-                                                    {bankOption.bankName}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </label>
-                                    <div className
-                                             ={styles.bankRow}>
-                                        <span>예금주</span>
-                                        <strong>{payment.depositForm.depositorName}</strong>
-                                    </div>
-                                    <div className
-                                             ={styles.receiptRow}>
-                                        <span>현금영수증</span>
-                                        {["소득공제용", "지출증빙용", payment.depositForm.cashReceiptType].map((type) => (
-                                            <label key={type}>
-                                                <input
-                                                    type="radio"
-                                                    name="receipt"
-                                                    defaultChecked={type === payment.depositForm.cashReceiptType}
-                                                />{" "}
-                                                {type}
-                                            </label>
-                                        ))}
-                                    </div>
-                                    <div className
-                                             ={styles.phoneRow}>
-                                        {receiptPhoneNumbers.map((phoneNumber, index) => (
-                                            <input
-                                                key={index}
-                                                type="tel"
-                                                value={phoneNumber}
-                                                className
-                                                    ={styles.phoneInput}
-                                                onChange={(event) => {
-                                                    handleReceiptPhoneChange(index, event.target.value);
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
                             </section>
                         </section>
 
-                        <aside className
-                                   ={styles.sidePanel}>
-                            <div className
-                                     ={styles.logoBox}>SM
+                        <aside className={styles.sidePanel}>
+                            <div className={styles.logoBox}>SM</div>
+
+                            <h2 className={styles.concertTitle}>{bookingSummary.concertTitle}</h2>
+
+                            <div className={styles.selectedInfoBox}>
+                                <p className={styles.selectedSchedule}>
+                                    {bookingSummary.performanceDate} {bookingSummary.performanceTime}
+                                </p>
+                                <p className={styles.selectedSeatCount}>
+                                    총 {bookingSummary.selectedSeats.length}석 선택
+                                </p>
+                                <p className={styles.selectedSeatText}>{selectedSeatText}</p>
                             </div>
 
-                            <h2 className
-                                    ={styles.concertTitle}>{payment.concertTitle}</h2>
+                            <h3 className={styles.paymentTitle}>예매 금액</h3>
 
-                            <div className
-                                     ={styles.selectedInfoBox}>
-                                <p className
-                                       ={styles.selectedSchedule}>
-                                    {payment.performanceDate} {payment.performanceTime}
-                                </p>
-                                <p className
-                                       ={styles.selectedSeatCount}>
-                                    총 {payment.selectedSeats.length}석 선택
-                                </p>
-                                <p className
-                                       ={styles.selectedSeatText}>{selectedSeatText}</p>
-                            </div>
-
-                            <h3 className
-                                    ={styles.paymentTitle}>결제금액</h3>
-
-                            <div className
-                                     ={styles.paymentBox}>
-                                <div className
-                                         ={styles.paymentRow}>
-                                    <span>티켓금액</span>
-                                    <strong>{formatWon(payment.paymentSummary.ticketAmount)}</strong>
+                            <div className={styles.paymentBox}>
+                                <div className={styles.paymentRow}>
+                                    <span>티켓 금액</span>
+                                    <strong>{formatWon(bookingSummary.totalAmount)}</strong>
                                 </div>
-                                <div className
-                                         ={`${styles.paymentRow} ${styles.dimmedPaymentRow}`}>
-                                    <span>할인금액</span>
-                                    <span>{formatWon(payment.paymentSummary.discountAmount)}</span>
+                                <div className={`${styles.paymentRow} ${styles.dimmedPaymentRow}`}>
+                                    <span>할인 금액</span>
+                                    <span>{formatWon(0)}</span>
                                 </div>
-                                <div className
-                                         ={`${styles.paymentRow} ${styles.dimmedPaymentRow}`}>
+                                <div className={`${styles.paymentRow} ${styles.dimmedPaymentRow}`}>
                                     <span>수수료</span>
-                                    <span>{formatWon(payment.paymentSummary.serviceFee)}</span>
+                                    <span>{formatWon(0)}</span>
                                 </div>
                             </div>
 
-                            <div className
-                                     ={styles.totalRow}>
-                                <span>총 결제금액</span>
-                                <strong>{formatWon(payment.paymentSummary.totalAmount)}</strong>
+                            <div className={styles.totalRow}>
+                                <span>총 예매 금액</span>
+                                <strong>{formatWon(bookingSummary.totalAmount)}</strong>
                             </div>
 
-                            <ul className
-                                    ={styles.noticeList}>
-                                <li>취소기한: {payment.cancelPolicy.cancelDeadline}</li>
-                                <li>{payment.cancelPolicy.cancelFeeNotice}</li>
+                            <ul className={styles.noticeList}>
+                                <li>예매 완료 후 마이페이지에서 상세 내역을 확인할 수 있습니다.</li>
                             </ul>
 
-                            <div className
-                                     ={styles.buttonArea}>
-                                <button
-                                    type="button"
-                                    className
-                                        ={styles.previousButton}
-                                    onClick={handlePreviousClick}
-                                >
+                            <div className={styles.buttonArea}>
+                                <button type="button" className={styles.previousButton} onClick={handlePreviousClick}>
                                     이전
                                 </button>
-                                <button type="button" className
-                                    ={styles.nextButton} onClick={handleNextClick}>
-                                    다음
+                                <button type="button" className={styles.nextButton} onClick={handleNextClick}>
+                                    예매 완료
                                 </button>
                             </div>
                         </aside>
@@ -354,12 +161,6 @@ function BookingPaymentPage() {
             </div>
         </section>
     );
-}
-
-function splitPhoneNumber(phoneNumber: string) {
-    const phoneNumbers = phoneNumber.split("-");
-
-    return [phoneNumbers[0] || "010", phoneNumbers[1] ?? "", phoneNumbers[2] ?? ""];
 }
 
 function formatRemainingTime(totalSeconds: number) {
@@ -372,6 +173,5 @@ function formatRemainingTime(totalSeconds: number) {
 function formatWon(price: number) {
     return `${price.toLocaleString()}원`;
 }
-
 
 export default BookingPaymentPage;

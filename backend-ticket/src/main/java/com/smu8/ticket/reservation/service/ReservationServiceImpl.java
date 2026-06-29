@@ -10,11 +10,12 @@ import com.smu8.ticket.concert.repository.SeatRepository;
 import com.smu8.ticket.dto.result.PageResult;
 import com.smu8.ticket.reservation.dto.command.CreatePreemptReservationSeatCommand;
 import com.smu8.ticket.reservation.dto.command.CreateReservationCommand;
+import com.smu8.ticket.reservation.dto.query.ReservationConcertSeatFrameQuery;
 import com.smu8.ticket.reservation.dto.query.ReservationPageQuery;
-import com.smu8.ticket.reservation.dto.result.ReservationDetailResult;
-import com.smu8.ticket.reservation.dto.result.ReservationItemResult;
+import com.smu8.ticket.reservation.dto.result.*;
 import com.smu8.ticket.reservation.entity.Reservation;
 import com.smu8.ticket.reservation.entity.ReservationSeat;
+import com.smu8.ticket.reservation.http.response.SeatStatus;
 import com.smu8.ticket.reservation.repository.PreemptReservationSeatRepository;
 import com.smu8.ticket.reservation.repository.ReservationRepository;
 import com.smu8.ticket.reservation.repository.ReservationSeatRepository;
@@ -59,8 +60,38 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = getOwnedReservation(reservationId, accountId);
         return ReservationDetailResult.from(
                 reservation,
-                reservationSeatRepository.findByReservationReservationId(reservationId)
+                reservationSeatRepository.findByReservationReservationId(reservationId).stream()
+                        .map((reservationSeat) -> ReservationSeatDetailResult.from(reservationSeat, getSeatStatus(reservationSeat)))
+                        .toList()
         );
+    }
+
+    @Override
+    public ReservationConcertSeatFrameResult getReservationSeats(ReservationConcertSeatFrameQuery query) {
+        PerformanceSchedule performanceSchedule = performanceScheduleRepository.findById(query.scheduleId()).orElseThrow();
+        List<Seat> seats = seatRepository.findAllByPerformanceScheduleId(query.scheduleId());
+        return ReservationConcertSeatFrameResult.from(performanceSchedule, seats.stream()
+                .map((seat) -> ConcertSeatStatusResult.from(seat, getSeatStatus(seat)))
+                .toList());
+    }
+
+    private SeatStatus getSeatStatus(ReservationSeat reservationSeat) {
+        if (reservationSeatRepository.existsBySeatIdIn(List.of(reservationSeat.getSeat().getId()))) {
+            return SeatStatus.UNAVAILABLE;
+        }
+        if (preemptReservationSeatRepository.existsPreempt(reservationSeat.getSeat().getId().toString())) {
+            return SeatStatus.SELECTED;
+        }
+        return SeatStatus.AVAILABLE;
+    }
+    private SeatStatus getSeatStatus(Seat seat) {
+        if (reservationSeatRepository.existsBySeatIdIn(List.of(seat.getId()))) {
+            return SeatStatus.UNAVAILABLE;
+        }
+        if (preemptReservationSeatRepository.existsPreempt(seat.getId().toString())) {
+            return SeatStatus.SELECTED;
+        }
+        return SeatStatus.AVAILABLE;
     }
 
     @Override

@@ -18,7 +18,7 @@ public record ReservationSeatResponse(
         return ReservationSeatResponse.builder()
                 .id(result.id())
                 .seat(SeatResponse.from(result.seat()))
-                .status(SeatStatus.SELECTED)
+                .status(result.status())
                 .build();
     }
 }

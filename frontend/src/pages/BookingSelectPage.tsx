@@ -2,36 +2,27 @@ import type {CSSProperties} from "react";
 import styles from "./BookingSelectPage.module.css"
 import {useEffect, useMemo, useRef, useState} from "react";
 import {useNavigate} from "react-router";
-import {useFetchJson} from "@/hooks/useFetchJson";
+import {useBookingReservation} from "@/hooks/useBookingReservation";
+import {useSeatSelectionPage} from "@/hooks/useSeatSelectionPage";
+import {toBookingDraft} from "@/utils/bookingConvertor";
 import type {
     SeatGrade,
-    SeatSelection,
     SeatSelectionSeat,
     SeatSelectionSeatMap,
 } from "@/types/booking";
 
-const seatSelectionUrl = new URL("../data/seatSelection.json", import.meta.url).href;
-
-const initialSeatSelection: SeatSelection = {
-    concertId: 0,
-    concertTitle: "",
-    venueId: 0,
-    venueName: "",
-    selectedScheduleId: 0,
-    schedules: [],
-    reservationLimitMinutes: 5,
-    maxSelectableSeatCount: 2,
-    seatGrades: [],
-    seatMaps: [],
-};
+const bookingDraftStorageKey = "smu8-ticket-booking-draft";
+const initialReservationLimitMinutes = 5;
+const initialSelectedScheduleId = 0;
 
 function BookingSelectPage() {
     const navigate = useNavigate();
-    const {data: seatSelection} = useFetchJson<SeatSelection>(seatSelectionUrl, initialSeatSelection);
-    const [selectedScheduleId, setSelectedScheduleId] = useState(initialSeatSelection.selectedScheduleId);
+    const {preemptSeats} = useBookingReservation();
+    const {seatSelection} = useSeatSelectionPage();
+    const [selectedScheduleId, setSelectedScheduleId] = useState(initialSelectedScheduleId);
     const [selectedSeatIds, setSelectedSeatIds] = useState<number[]>([]);
     const [remainingSeconds, setRemainingSeconds] = useState(
-        initialSeatSelection.reservationLimitMinutes * 60
+        initialReservationLimitMinutes * 60
     );
     const hasHandledExpirationRef = useRef(false);
 
@@ -43,9 +34,11 @@ function BookingSelectPage() {
     const formattedRemainingTime = formatRemainingTime(remainingSeconds);
 
     const gradeSummaries = useMemo(() => {
+        const seats = getSeats(currentSeatMap);
+
         return seatSelection.seatGrades.map((grade) => {
-            const remainingCount = (currentSeatMap?.seats ?? []).filter((seat) => (
-                seat.gradeId === grade.gradeId && seat.status === "available"
+            const remainingCount = seats.filter((seat) => (
+                seat.gradeId === grade.gradeId && seat.status === "AVAILABLE"
             )).length;
 
             return {
@@ -53,7 +46,7 @@ function BookingSelectPage() {
                 remainingCount,
             };
         });
-    }, [currentSeatMap?.seats, seatSelection.seatGrades]);
+    }, [currentSeatMap, seatSelection.seatGrades]);
 
     useEffect(() => {
         if (remainingSeconds <= 0) {
@@ -80,7 +73,7 @@ function BookingSelectPage() {
     }, [navigate, remainingSeconds, seatSelection.concertId]);
 
     const handleSeatClick = (seat: SeatSelectionSeat) => {
-        if (seat.status !== "available") {
+        if (seat.status !== "AVAILABLE") {
             alert("선택할 수 없는 좌석입니다.");
             return;
         }
@@ -106,13 +99,26 @@ function BookingSelectPage() {
         setSelectedSeatIds([]);
     };
 
-    const handleCompleteClick = () => {
+    const handleCompleteClick = async () => {
         if (selectedSeatIds.length === 0) {
             alert("좌석을 선택해주세요.");
             return;
         }
 
-        navigate(`/booking/paydetail/${seatSelection.concertId}`);
+        try {
+            await preemptSeats({
+                concertId: seatSelection.concertId,
+                scheduleId: currentScheduleId,
+                seatIds: selectedSeatIds,
+            });
+            sessionStorage.setItem(
+                bookingDraftStorageKey,
+                JSON.stringify(toBookingDraft(seatSelection, currentScheduleId, selectedSeatIds)),
+            );
+            navigate(`/booking/paydetail/${seatSelection.concertId}`);
+        } catch {
+            alert("좌석 선점에 실패했습니다. 다시 시도해 주세요.");
+        }
     };
 
     return (
@@ -175,23 +181,36 @@ function BookingSelectPage() {
                                 }}
                                 aria-label="좌석 선택"
                             >
-                                {(currentSeatMap?.seats ?? []).map((seat) => {
-                                    const grade = findGrade(seatSelection.seatGrades, seat.gradeId);
+                                {(currentSeatMap?.seatRows ?? []).map((seatRow, rowIndex) => (
+                                    seatRow.map((seat, columnIndex) => {
+                                        if (seat === null) {
+                                            return (
+                                                <span
+                                                    key={`${rowIndex}-${columnIndex}`}
+                                                    className={styles.seatButton}
+                                                    style={{visibility: "hidden"}}
+                                                    aria-hidden="true"
+                                                />
+                                            );
+                                        }
 
-                                    return (
-                                        <button
-                                            key={seat.seatId}
-                                            type="button"
-                                            className
-                                                ={`${styles.seatButton} ${selectedSeatIds.includes(seat.seatId) ? styles.currentSelectedSeat : ""}`}
-                                            style={getSeatStyle(seat, grade)}
-                                            disabled={seat.status !== "available"}
-                                            onClick={() => handleSeatClick(seat)}
-                                            aria-label={seat.seatNumber}
-                                            title={seat.seatNumber}
-                                        />
-                                    );
-                                })}
+                                        const grade = findGrade(seatSelection.seatGrades, seat.gradeId);
+
+                                        return (
+                                            <button
+                                                key={seat.seatId}
+                                                type="button"
+                                                className
+                                                    ={`${styles.seatButton} ${selectedSeatIds.includes(seat.seatId) ? styles.currentSelectedSeat : ""}`}
+                                                style={getSeatStyle(seat, grade)}
+                                                disabled={seat.status !== "AVAILABLE"}
+                                                onClick={() => handleSeatClick(seat)}
+                                                aria-label={seat.seatNumber}
+                                                title={seat.seatNumber}
+                                            />
+                                        );
+                                    })
+                                ))}
                             </div>
                         </section>
 
@@ -208,20 +227,33 @@ function BookingSelectPage() {
                                     gridTemplateColumns: getMiniSeatGridColumns(currentSeatMap),
                                 }}
                             >
-                                {(currentSeatMap?.seats ?? []).map((seat) => {
-                                    const grade = findGrade(seatSelection.seatGrades, seat.gradeId);
+                                {(currentSeatMap?.seatRows ?? []).map((seatRow, rowIndex) => (
+                                    seatRow.map((seat, columnIndex) => {
+                                        if (seat === null) {
+                                            return (
+                                                <span
+                                                    key={`${rowIndex}-${columnIndex}`}
+                                                    className={styles.miniSeat}
+                                                    style={{visibility: "hidden"}}
+                                                    aria-hidden="true"
+                                                />
+                                            );
+                                        }
 
-                                    return (
-                                        <span
-                                            key={seat.seatId}
-                                            className
-                                                ={`${styles.miniSeat} ${seat.status !== "available" ? styles.unavailableMiniSeat : ""}`}
+                                        const grade = findGrade(seatSelection.seatGrades, seat.gradeId);
 
-                                            style={getMiniSeatStyle(seat, grade)
-                                            }
-                                        />
-                                    );
-                                })}
+                                        return (
+                                            <span
+                                                key={seat.seatId}
+                                                className
+                                                    ={`${styles.miniSeat} ${seat.status !== "AVAILABLE" ? styles.unavailableMiniSeat : ""}`}
+
+                                                style={getMiniSeatStyle(seat, grade)
+                                                }
+                                            />
+                                        );
+                                    })
+                                ))}
                             </div>
 
                             <h2 className
@@ -279,6 +311,14 @@ function findGrade(grades: SeatGrade[], gradeId: string) {
     return grades.find((grade) => grade.gradeId === gradeId);
 }
 
+function getSeats(seatMap?: SeatSelectionSeatMap) {
+    return seatMap?.seatRows.flatMap((seatRow) => seatRow.filter(isSeat)) ?? [];
+}
+
+function isSeat(seat: SeatSelectionSeat | null): seat is SeatSelectionSeat {
+    return seat !== null;
+}
+
 function getSeatGridColumns(seatMap?: SeatSelectionSeatMap) {
     return `repeat(${seatMap?.columnCount ?? 8}, 48px)`;
 }
@@ -288,7 +328,7 @@ function getMiniSeatGridColumns(seatMap?: SeatSelectionSeatMap) {
 }
 
 function getSeatStyle(seat: SeatSelectionSeat, grade?: SeatGrade): CSSProperties {
-    if (seat.status !== "available") {
+    if (seat.status !== "AVAILABLE") {
         return {};
     }
 
@@ -299,7 +339,7 @@ function getSeatStyle(seat: SeatSelectionSeat, grade?: SeatGrade): CSSProperties
 }
 
 function getMiniSeatStyle(seat: SeatSelectionSeat, grade?: SeatGrade): CSSProperties {
-    if (seat.status !== "available") {
+    if (seat.status !== "AVAILABLE") {
         return {};
     }
 

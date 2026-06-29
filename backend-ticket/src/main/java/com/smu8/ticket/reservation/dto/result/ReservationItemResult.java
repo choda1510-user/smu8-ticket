@@ -7,6 +7,7 @@ import com.smu8.ticket.reservation.entity.Reservation;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record ReservationItemResult(
@@ -20,6 +21,7 @@ public record ReservationItemResult(
         LocalDateTime reservedAt,
         String concertTitle,
         String cardPosterUrl,
+        List<PerformanceScheduleDetailResult> concertSchedules,
         Long venueId,
         String venueName
 ) {
@@ -38,6 +40,9 @@ public record ReservationItemResult(
                 .reservedAt(reservation.getCreatedAt())
                 .concertTitle(concert.getTitle())
                 .cardPosterUrl(concert.getCardPosterUrl())
+                .concertSchedules(concert.getPerformanceSchedules().stream()
+                        .map(PerformanceScheduleDetailResult::from)
+                        .toList())
                 .venueId(concert.getVenue().getId())
                 .venueName(concert.getVenue().getName())
                 .build();

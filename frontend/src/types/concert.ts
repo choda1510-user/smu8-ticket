@@ -103,7 +103,19 @@ export type SeatGradeResponse = {
     price: number; // 좌석등급 가격
     color: string; // 좌석등급 색 (예: #fafafa)
 }
+export type SeatGrade = {
+    id: number; // 좌석등급 Id
+    gradeName: string; // 좌석등급 이름
+    price: number; // 좌석등급 가격
+    color: string; // 좌석등급 색 (예: #fafafa)
+}
 export type SeatResponse = {
+    id: number; // 좌석 Id
+    seatGradeId: number; // 좌석등급 Id
+    row: number; // 좌석 행 위치
+    col: number; // 좌석 열 위치
+}
+export type Seat = {
     id: number; // 좌석 Id
     seatGradeId: number; // 좌석등급 Id
     row: number; // 좌석 행 위치

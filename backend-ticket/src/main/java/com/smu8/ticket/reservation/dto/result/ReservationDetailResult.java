@@ -25,11 +25,8 @@ public record ReservationDetailResult (
         List<ReservationSeatDetailResult> seats,
         LocalDateTime createdAt
 ){
-    public static ReservationDetailResult from(Reservation reservation){
-        return from(reservation, reservation.getReservationSeats());
-    }
 
-    public static ReservationDetailResult from(Reservation reservation, List<ReservationSeat> reservationSeats){
+    public static ReservationDetailResult from(Reservation reservation, List<ReservationSeatDetailResult> reservationSeats){
         return ReservationDetailResult.builder()
                 .reservationId(reservation.getReservationId())
                 .reservationNo(reservation.getReservationNo())
@@ -40,9 +37,7 @@ public record ReservationDetailResult (
                 .reservationStatus(reservation.getReservationStatus())
                 .totalQuantity(reservation.getTotalQuantity())
                 .totalAmount(reservation.getTotalAmount())
-                .seats(reservationSeats.stream()
-                        .map(ReservationSeatDetailResult::from)
-                        .toList())
+                .seats(reservationSeats)
                 .createdAt(reservation.getCreatedAt())
                 .build();
     }

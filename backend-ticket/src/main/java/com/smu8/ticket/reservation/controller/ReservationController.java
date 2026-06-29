@@ -4,9 +4,11 @@ import com.smu8.ticket.dto.query.PageQuery;
 import com.smu8.ticket.http.response.PageResponse;
 import com.smu8.ticket.reservation.dto.command.CreatePreemptReservationSeatCommand;
 import com.smu8.ticket.reservation.dto.command.CreateReservationCommand;
+import com.smu8.ticket.reservation.dto.query.ReservationConcertSeatFrameQuery;
 import com.smu8.ticket.reservation.dto.query.ReservationPageQuery;
 import com.smu8.ticket.reservation.http.request.CreateReservationRequest;
 import com.smu8.ticket.reservation.http.request.PreemptReservationSeatRequest;
+import com.smu8.ticket.reservation.http.response.ReservationConcertSeatFrameResponse;
 import com.smu8.ticket.reservation.http.response.ReservationDetailResponse;
 import com.smu8.ticket.reservation.http.response.ReservationItemResponse;
 import com.smu8.ticket.reservation.service.ReservationService;
@@ -60,7 +62,16 @@ public class ReservationController {
                 )
         );
     }
-    // 예매 취소 요청
+    @GetMapping("/api/reservaions/preempt-seats")
+    public ResponseEntity<ReservationConcertSeatFrameResponse> getPreemptSeats(
+            @RequestParam(name = "concertId") Long concertId,
+            @RequestParam(name = "scheduleId") Long scheduleId
+    ) {
+        return ResponseEntity.ok(
+                ReservationConcertSeatFrameResponse.from(
+                        reservationService.getReservationSeats(
+                                ReservationConcertSeatFrameQuery.of(concertId, scheduleId))));
+    }
     @PostMapping("/api/reservations/preempt-seats")
     public ResponseEntity<Void> createPreemptReservationSeats(
             @RequestBody PreemptReservationSeatRequest request,
@@ -72,6 +83,7 @@ public class ReservationController {
         return ResponseEntity.ok().build();
     }
 
+    // 예매 취소 요청
     @DeleteMapping("/api/reservations/{reservationId}")
     public ResponseEntity<ReservationItemResponse> cancelReservation(
             @PathVariable(name = "reservationId")

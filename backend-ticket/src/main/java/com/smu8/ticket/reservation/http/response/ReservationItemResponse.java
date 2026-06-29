@@ -30,6 +30,8 @@ public record ReservationItemResponse(
         String concertTitle,
         @Schema(description = "공연 카드 이미지 주소")
         String cardPosterUrl,
+        @Schema(description = "예매한 공연 회차 전체 목록")
+        List<ConcertScheduleResponse> concertSchedules,
         @Schema(description = "공연장 고유 Id")
         Long venueId,
         @Schema(description = "공연장 이름")
@@ -47,6 +49,9 @@ public record ReservationItemResponse(
                 .reservedAt(result.reservedAt())
                 .concertTitle(result.concertTitle())
                 .cardPosterUrl(result.cardPosterUrl())
+                .concertSchedules(result.concertSchedules().stream()
+                        .map(ConcertScheduleResponse::from)
+                        .toList())
                 .venueId(result.venueId())
                 .venueName(result.venueName())
                 .build();

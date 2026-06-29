@@ -15,6 +15,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class AdminConcertServiceImpl implements AdminConcertService {
@@ -104,9 +108,31 @@ public class AdminConcertServiceImpl implements AdminConcertService {
         if (command.descriptionPoster() == null || command.descriptionPoster().isEmpty()){
             throw new IllegalArgumentException("상세 포스터는 필수입니다.");
         }
+
+        Set<String> seatGradeNames = new HashSet<>();
+        for (CreateSeatGradeCommand grade : command.seatGrades()){
+            if (grade.gradeName() == null || grade.gradeName().isBlank()){
+                throw new IllegalArgumentException("좌석 등급 이름은 필수입니다.");
+            }
+            if (grade.price() == null || grade.price() < 0){
+                throw new IllegalArgumentException("좌석 가격은 0원 이상이어야합니다.");
+            }
+            if (!seatGradeNames.add(grade.gradeName())){
+                throw new IllegalArgumentException("같은 좌석 등급 이름을 중복해서 등록할 수 없습니다.");
+            }
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        Set<LocalDateTime> scheduleDates = new HashSet<>();
         for (CreatePerformanceScheduleCommand schedule : command.schedules()){
             if (schedule.date()==null){
                 throw new IllegalArgumentException("공연 시작일시는 필수입니다.");
+            }
+            if (schedule.date().isBefore(now)){
+                throw new IllegalArgumentException("공연 시작일시는 현재보다 이후여야 합니다.");
+            }
+            if (!scheduleDates.add(schedule.date())){
+                throw new IllegalArgumentException("같은 공연 시작일시를 중복해서 등록할 수 없습니다.");
             }
             if (schedule.reservationEndAt()==null){
                 throw new IllegalArgumentException("예매 종료일시는 필수입니다.");
@@ -120,19 +146,35 @@ public class AdminConcertServiceImpl implements AdminConcertService {
             }
             if (schedule.rowMax()== null|| schedule.rowMax() <= 0 || schedule.rowMax()>1000){
                 throw new IllegalArgumentException("좌석 행 개수는 1개 이상 1000개 이하여야합니다.");
-                }
+            }
             if (schedule.colMax()==null|| schedule.colMax() <=0 || schedule.colMax()>1000){
                 throw new IllegalArgumentException("좌석의 열개수는 1개 이상 1000개 이하여야합니다.");
             }
+            if (schedule.seats() == null || schedule.seats().isEmpty()){
+                throw new IllegalArgumentException("좌석은 하나 이상이어야 합니다.");
             }
-        for (CreateSeatGradeCommand grade : command.seatGrades()){
-            if (grade.gradeName() ==null || grade.gradeName().isBlank()){
-                throw new IllegalArgumentException("좌석 등급 이름은 필수입니다.");
-            }
-            if (grade.price() == null || grade.price()<0){
-                throw new IllegalArgumentException("좌석 가격은 0원 이상이어야합니다");
+
+            Set<String> seatPositions = new HashSet<>();
+            for (CreateSeatCommand seat : schedule.seats()){
+                if (seat.row() == null || seat.col() == null){
+                    throw new IllegalArgumentException("좌석의 행과 열은 필수입니다.");
+                }
+                if (seat.row() < 1 || seat.row() > schedule.rowMax()
+                        || seat.col() < 1 || seat.col() > schedule.colMax()){
+                    throw new IllegalArgumentException("좌석 위치가 지정된 행과 열의 범위를 벗어났습니다.");
+                }
+                if (seat.seatGradeName() == null || seat.seatGradeName().isBlank()){
+                    throw new IllegalArgumentException("좌석 등급 이름은 필수입니다.");
+                }
+                if (!seatGradeNames.contains(seat.seatGradeName())){
+                    throw new IllegalArgumentException("등록되지 않은 좌석 등급입니다: " + seat.seatGradeName());
+                }
+
+                String seatPosition = seat.row() + ":" + seat.col();
+                if (!seatPositions.add(seatPosition)){
+                    throw new IllegalArgumentException("같은 위치의 좌석을 중복해서 등록할 수 없습니다.");
+                }
             }
         }
-
     }
 }

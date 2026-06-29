@@ -142,6 +142,7 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/api/concerts/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/venues/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/test").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
                             .anyRequest().authenticated();
                 })
                 .sessionManagement((session) ->

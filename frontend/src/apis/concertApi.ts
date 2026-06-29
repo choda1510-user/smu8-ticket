@@ -4,6 +4,7 @@ import type {
     ConcertItem,
     ConcertItemPageResponse,
     ConcertItemResponse,
+    ConcertSchedule,
     ConcertScheduleResponse
 
 } from "@/types/concert";
@@ -132,6 +133,17 @@ function formatPeriodBySchedules(schedules: ConcertItemResponse["dates"]) {
     return formatPeriod(dates[0], dates[dates.length - 1]);
 }
 
+function formatReservationPeriod(reservationStartAt: string | undefined, schedules: ConcertSchedule[]) {
+    const reservationEndDates = schedules.map((schedule) => schedule.reservationEndAt).filter(Boolean).sort();
+    const reservationEndAt = reservationEndDates[reservationEndDates.length - 1];
+
+    if (!reservationStartAt && !reservationEndAt) {
+        return "";
+    }
+
+    return `${formatDateTime(reservationStartAt ?? "")} ~ ${formatDateTime(reservationEndAt ?? "")}`;
+}
+
 function getBadgeText(reservationStartAt: string) {
     const diff = Math.ceil(
         (new Date(reservationStartAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
@@ -170,9 +182,11 @@ export function toConcertDetail(concert: ConcertDetailResponse): ConcertDetail {
         concertPeriod: dates.length > 0 ? `${dates[0]} ~ ${dates[dates.length - 1]}` : "",
         runningTime: concert.runningTime,
         venueName: concert.venueName,
-        reservationPeriod: "",
+        reservationPeriod: formatReservationPeriod(concert.reservationStartAt, schedules),
         schedules,
         description: concert.description,
+        descriptionPosterUrl: concert.descriptionPosterUrl,
+        notice: concert.notice,
         startAt: dates[0] ?? "",
         endAt: dates[dates.length - 1] ?? "",
         reservationStartAt: concert.reservationStartAt,

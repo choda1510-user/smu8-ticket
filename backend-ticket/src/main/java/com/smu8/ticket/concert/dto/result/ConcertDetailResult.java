@@ -26,6 +26,7 @@ public record ConcertDetailResult(
         List<PerformanceScheduleDetailResult> schedules,
         List<SeatGradeDetailResult> seatGrades,
         List<SeatDetailResult> seats,
+        Long reservedSeatCount,
 
         LocalDateTime startAt,
         LocalDateTime endAt,
@@ -59,6 +60,11 @@ public record ConcertDetailResult(
                         .flatMap(schedule -> schedule.getSeats().stream())
                         .map(SeatDetailResult::from)
                         .toList())
+                .reservedSeatCount(concert.getPerformanceSchedules().stream()
+                        .flatMap(schedule -> schedule.getReservations().stream())
+                        .filter(reservation -> !"CANCELED".equalsIgnoreCase(reservation.getReservationStatus()))
+                        .mapToLong(reservation -> reservation.getTotalQuantity() == null ? 0 : reservation.getTotalQuantity())
+                        .sum())
                 .build();
     }
 }

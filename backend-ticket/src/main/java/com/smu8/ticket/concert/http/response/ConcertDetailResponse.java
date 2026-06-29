@@ -17,6 +17,8 @@ public record ConcertDetailResponse(
         String description,
         @Schema(description = "공연 카드 포스터 이미지 주소")
         String posterUrl,
+        @Schema(description = "공연 설명 포스터 이미지 주소")
+        String descriptionPosterUrl,
         @Schema(description = "공연 회차 목록")
         List<ConcertScheduleResponse> schedules,
         @Schema(description = "공연 러닝타임", example = "90분")
@@ -27,6 +29,8 @@ public record ConcertDetailResponse(
         String venueName,
         @Schema(description = "예매 오픈 시작일시")
         LocalDateTime reservationStartAt,
+        @Schema(description = "공지사항")
+        String notice,
         @Schema(description = "좌석 행 개수")
         Integer rowMax,
         @Schema(description = "좌석 열 개수")
@@ -42,13 +46,15 @@ public record ConcertDetailResponse(
                 .title(result.title())
                 .description(result.description())
                 .posterUrl(result.cardPosterUrl())
+                .descriptionPosterUrl(result.descriptionPosterUrl())
                 .schedules(result.schedules().stream()
                         .map(ConcertScheduleResponse::from)
                         .toList())
                 .runningTime(result.runningTime())
                 .venueId(result.venueId())
                 .venueName(result.venueName())
-                .reservationStartAt(result.startAt())
+                .reservationStartAt(result.schedules().isEmpty() ? null : result.schedules().get(0).reservationStartAt())
+                .notice(result.notice())
                 .rowMax(result.schedules().isEmpty() ? null : result.schedules().get(0).seatRowCount())
                 .colMax(result.schedules().isEmpty() ? null : result.schedules().get(0).seatColumnCount())
                 .createdAt(result.createdAt())

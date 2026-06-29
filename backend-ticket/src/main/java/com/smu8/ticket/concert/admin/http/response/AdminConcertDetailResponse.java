@@ -48,6 +48,10 @@ public record AdminConcertDetailResponse(
         Integer rowMax,
         @Schema(description = "좌석 열 개수")
         Integer colMax,
+        @Schema(description = "해당 공연 총 좌석수")
+        Long totalSeatCount,
+        @Schema(description = "예매완료 총 좌석수")
+        Long reservedSeatCount,
         @Schema(description = "생성일시", example = "2026-06-22T10:30:00")
         LocalDateTime createdAt,
         @Schema(description = "수정일시", example = "2026-06-22T10:30:00")
@@ -103,6 +107,10 @@ public record AdminConcertDetailResponse(
                 .venueId(result.venueId())
                 .venueName(result.venueName())
                 .notice(result.notice())
+                .rowMax(schedules.isEmpty() ? null : result.schedules().get(0).seatRowCount())
+                .colMax(schedules.isEmpty() ? null : result.schedules().get(0).seatColumnCount())
+                .totalSeatCount((long) seats.size())
+                .reservedSeatCount(result.reservedSeatCount())
                 .createdAt(result.createdAt())
                 .updatedAt(result.updatedAt())
                 .build();

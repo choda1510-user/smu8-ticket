@@ -319,7 +319,10 @@ function AdminConcertCreatePage() {
                                             open={openedCalendar === "concert"}
                                             preventOpenOnFocus
                                             showTimeSelect
+                                            showMonthDropdown
+                                            showYearDropdown
                                             shouldCloseOnSelect
+                                            dropdownMode="select"
                                             calendarClassName="admin-datepicker"
                                             popperClassName="admin-datepicker-popper"
                                             timeFormat="HH:mm"
@@ -344,7 +347,10 @@ function AdminConcertCreatePage() {
                                             open={openedCalendar === "reservationStart"}
                                             preventOpenOnFocus
                                             showTimeSelect
+                                            showMonthDropdown
+                                            showYearDropdown
                                             shouldCloseOnSelect
+                                            dropdownMode="select"
                                             calendarClassName="admin-datepicker"
                                             popperClassName="admin-datepicker-popper"
                                             timeFormat="HH:mm"
@@ -368,7 +374,10 @@ function AdminConcertCreatePage() {
                                             open={openedCalendar === "reservationEnd"}
                                             preventOpenOnFocus
                                             showTimeSelect
+                                            showMonthDropdown
+                                            showYearDropdown
                                             shouldCloseOnSelect
+                                            dropdownMode="select"
                                             calendarClassName="admin-datepicker"
                                             popperClassName="admin-datepicker-popper"
                                             timeFormat="HH:mm"
@@ -459,10 +468,14 @@ function AdminConcertCreatePage() {
                 </section>
 
                 <section className="admin-page__concert-section">
-                    <h2>공지 / 작품 설명</h2>
+                    <h2>예매 안내사항 / 작품 설명</h2>
                     <div className="admin-page__concert-grid admin-page__concert-grid--textarea">
-                        <label>공지사항</label>
-                        <textarea value={notice} onChange={(event) => setNotice(event.target.value)} />
+                        <label>예매 안내사항</label>
+                        <textarea
+                            value={notice}
+                            onChange={(event) => setNotice(event.target.value)}
+                            placeholder="예매 오픈 시간, 예매 제한, 좌석 선택 안내 등 사용자 상세 페이지에 표시할 내용을 입력하세요."
+                        />
 
                         <label>작품설명</label>
                         <div className="admin-page__description-editor">

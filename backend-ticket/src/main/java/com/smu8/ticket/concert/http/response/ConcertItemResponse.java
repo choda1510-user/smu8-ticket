@@ -9,24 +9,35 @@ import java.util.List;
 
 @Builder
 public record ConcertItemResponse(
-        @Schema(description = "화면에서 사용하는 공연 ID")
+        @Schema(description = "Concert ID")
         Long concertId,
-        @Schema(description = "공연 포스터 이미지 주소")
+        @Schema(description = "Card poster image URL")
         String cardPosterUrl,
-        @Schema(description = "공연 배너 이미지 주소")
+        @Schema(description = "Banner poster image URL")
         String bannerPosterUrl,
-        @Schema(description = "공연 제목")
+        @Schema(description = "Concert title")
         String title,
-        @Schema(description = "공연 날짜들")
+        @Schema(description = "Concert schedules")
         List<ConcertScheduleResponse> dates,
-        @Schema(description = "예매 오픈 시작일시")
+        @Schema(description = "Reservation start date time")
         LocalDateTime reservationStartAt,
-        @Schema(description = "공연장 고유 ID")
+        @Schema(description = "Venue ID")
         Long venueId,
-        @Schema(description = "공연장 이름")
+        @Schema(description = "Venue name")
         String venueName
 ) {
     public static ConcertItemResponse from(ConcertDetailResult result) {
-        return null;
+        return ConcertItemResponse.builder()
+                .concertId(result.id())
+                .cardPosterUrl(result.cardPosterUrl())
+                .bannerPosterUrl(result.screenPosterUrl())
+                .title(result.title())
+                .dates(result.performanceSchedules().stream()
+                        .map(ConcertScheduleResponse::from)
+                        .toList())
+                .reservationStartAt(result.startAt())
+                .venueId(result.venueId())
+                .venueName(result.venueName())
+                .build();
     }
 }

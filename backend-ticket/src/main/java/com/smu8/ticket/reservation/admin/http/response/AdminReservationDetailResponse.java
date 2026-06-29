@@ -30,6 +30,7 @@ public record AdminReservationDetailResponse(
                 .totalPrice(result.totalPrice())
                 .cancelReason(result.cancelReason())
                 .reservedAt(result.reservedAt())
-                                .build();
+                .canceledAt(result.canceledAt())
+                .build();
     }
 }

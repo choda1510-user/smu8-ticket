@@ -9,7 +9,7 @@ import lombok.Builder;
 public record SeatDetailResult (
         Long id,
         PerformanceSchedule performanceSchedule,
-        SeatGrade seatGrade,
+        SeatGradeDetailResult seatGrade,
         Integer rowIndex,
         Integer columnIndex
 ){
@@ -17,7 +17,7 @@ public record SeatDetailResult (
             return SeatDetailResult.builder()
                     .id(seat.getId())
                     .performanceSchedule(seat.getPerformanceSchedule())
-                    .seatGrade(seat.getSeatGrade())
+                    .seatGrade(SeatGradeDetailResult.from(seat.getSeatGrade()))
                     .rowIndex(seat.getRowIndex())
                     .columnIndex(seat.getColumnIndex())
                     .build();

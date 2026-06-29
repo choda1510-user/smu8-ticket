@@ -5,6 +5,7 @@ import com.smu8.ticket.venue.dto.result.VenueDetailResult;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record ConcertDetailResult(
@@ -20,10 +21,9 @@ public record ConcertDetailResult(
         String descriptionPosterUrl,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-
-
+        List<SeatGradeDetailResult> seatGrades,
+        List<PerformanceScheduleDetailResult> performanceSchedules,
         LocalDateTime startAt,
-        LocalDateTime endAt,
         Long venueId,
         String venueName
 ) {
@@ -40,6 +40,12 @@ public record ConcertDetailResult(
                 .descriptionPosterUrl(concert.getDescriptionPosterUrl())
                 .createdAt(concert.getCreatedAt())
                 .updatedAt(concert.getUpdatedAt())
+                .seatGrades(concert.getSeatGrades().stream()
+                        .map(SeatGradeDetailResult::from)
+                        .toList())
+                .performanceSchedules(concert.getPerformanceSchedules().stream()
+                        .map(PerformanceScheduleDetailResult::from)
+                        .toList())
                 .venueId(concert.getVenue().getId())
                 .venueName(concert.getVenue().getName())
                 .build();

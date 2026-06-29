@@ -1,6 +1,6 @@
 package com.smu8.ticket.reservation.admin.dto.result;
 
-import com.smu8.ticket.reservation.dto.result.ReservationDetailResult;
+import com.smu8.ticket.reservation.entity.CancelReservation;
 import com.smu8.ticket.reservation.entity.Reservation;
 import lombok.Builder;
 
@@ -17,11 +17,29 @@ public record AdminReservationDetailResult (
         String reservationStatus,
         BigDecimal totalPrice,
         String cancelReason,
-        LocalDateTime reservedAt
+        LocalDateTime reservedAt,
+        LocalDateTime canceledAt
 ){
    public static AdminReservationDetailResult from(Reservation reservation){
-       return null;
+       CancelReservation cancelReservation = reservation.getCancelReservations().stream()
+               .reduce((first, second) -> second)
+               .orElse(null);
 
+       return from(reservation, cancelReservation);
+   }
 
+   public static AdminReservationDetailResult from(Reservation reservation, CancelReservation cancelReservation){
+       return AdminReservationDetailResult.builder()
+               .id(reservation.getReservationId())
+               .accountId(reservation.getAccount().getId())
+               .accountName(reservation.getAccount().getNickname())
+               .concertId(reservation.getPerformanceSchedule().getConcert().getId())
+               .concertTitle(reservation.getPerformanceSchedule().getConcert().getTitle())
+               .reservationStatus(reservation.getReservationStatus())
+               .totalPrice(BigDecimal.valueOf(reservation.getTotalAmount()))
+               .cancelReason(cancelReservation == null ? null : cancelReservation.getCancelReason())
+               .reservedAt(reservation.getCreatedAt())
+               .canceledAt(cancelReservation == null ? null : cancelReservation.getCreatedAt())
+               .build();
    }
 }

@@ -51,7 +51,7 @@ public class Reservation {
     private LocalDateTime createdAt;
 
     @Builder.Default
-    @OneToMany(mappedBy = "reservation")
+    @OneToMany(mappedBy = "reservation", cascade = CascadeType.PERSIST)
     private List<ReservationSeat> reservationSeats = new LinkedList<>();
 
     @Builder.Default

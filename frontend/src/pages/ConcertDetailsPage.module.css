@@ -253,11 +253,25 @@
 }
 
 .detailPlaceholder {
-    height: 620px;
+    min-height: 620px;
     padding: 24px;
     box-sizing: border-box;
-    color: #777;
+    color: #333;
     font-size: 13px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.detailPlaceholder p {
+    margin: 0 0 18px;
+}
+
+.detailImage {
+    width: 100%;
+    max-height: 500px;
+    border-radius: 12px;
+    object-fit: contain;
+    background: #fff;
 }
 
 .moreButton {

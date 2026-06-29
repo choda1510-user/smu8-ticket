@@ -231,7 +231,14 @@ function ConcertDetailsPage() {
                     >
                         <div className
                                  ={styles.detailPlaceholder}>
-                            공연명, 공연기간, 관람시간, 공연장, 관람등급 등 핵심 정보를 요약.
+                            <p>{concertDetail.description || "등록된 공연 상세정보가 없습니다."}</p>
+                            {concertDetail.descriptionPosterUrl && (
+                                <img
+                                    src={concertDetail.descriptionPosterUrl}
+                                    alt="공연 상세 이미지"
+                                    className={styles.detailImage}
+                                />
+                            )}
                         </div>
                     </div>
 
@@ -253,7 +260,7 @@ function ConcertDetailsPage() {
 
                     <div className
                              ={styles.guideBox}>
-                        예매 오픈 시간, 예매 제한, 대기열 적용, 좌석 임시 선점 시간을 안내.
+                        {concertDetail.notice || "등록된 예매 안내사항이 없습니다."}
                     </div>
                 </section>
 

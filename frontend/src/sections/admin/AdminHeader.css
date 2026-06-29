@@ -87,21 +87,34 @@
     background: #f052a9;
 }
 
-.admin-header__logout {
+.admin-header__actions {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-header__logout,
+.admin-header__user-link {
     width: 122px;
     height: 38px;
-    justify-self: end;
     border: 1px solid #ffd5e8;
     border-radius: 999px;
     background: #fff1f8;
     color: #d44495;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: 12px;
     font-weight: 800;
+    text-decoration: none;
     cursor: pointer;
     box-shadow: 0 8px 20px rgba(240, 82, 169, 0.1);
+    box-sizing: border-box;
 }
 
-.admin-header__logout:hover {
+.admin-header__logout:hover,
+.admin-header__user-link:hover {
     background: #ffe4f2;
 }
 

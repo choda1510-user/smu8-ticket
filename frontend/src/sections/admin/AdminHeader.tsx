@@ -97,9 +97,14 @@ function AdminHeader() {
                     </div>
                 </div>
 
-                <button type="button" className="admin-header__logout" onClick={handleLogoutClick}>
-                    로그아웃
-                </button>
+                <div className="admin-header__actions">
+                    <Link to="/" className="admin-header__user-link">
+                        사용자 페이지
+                    </Link>
+                    <button type="button" className="admin-header__logout" onClick={handleLogoutClick}>
+                        로그아웃
+                    </button>
+                </div>
             </div>
         </header>
     );

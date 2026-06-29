@@ -14,6 +14,8 @@ const initialConcertDetail: ConcertDetail = {
     reservationPeriod: "",
     schedules: [],
     description: "",
+    descriptionPosterUrl: "",
+    notice: "",
     startAt: "",
     endAt: "",
     reservationStartAt: "",

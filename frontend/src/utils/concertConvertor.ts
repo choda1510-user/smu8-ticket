@@ -52,8 +52,11 @@ export function convertConcertItem(response: ConcertItemResponse): ConcertItem {
     return {
         concertId: response.concertId,
         posterUrl: response.cardPosterUrl,
+        bannerPosterUrl: response.bannerPosterUrl,
         title: response.title,
         period: datesToPeriod(response.dates.map((date) => date.date)),
+        reservationStartAt: response.reservationStartAt,
+        reservationEndAt: response.dates.map((date) => date.reservationEndAt).filter(Boolean).sort().at(-1) ?? "",
         venueId: response.venueId,
         venueName: response.venueName,
         badgeText: badgeTextFrom(response)

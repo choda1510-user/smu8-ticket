@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 public record CreateConcertCommand(
         String title,
         String description,
+        String runningTime,
+        String notice,
         LocalDateTime startReservationAt,
         Long venueId,
         List<CreateSeatGradeCommand> seatGrades,
@@ -49,6 +51,8 @@ public record CreateConcertCommand(
         return CreateConcertCommand.builder()
                 .title(request.title())
                 .description(request.description())
+                .runningTime(request.runningTime())
+                .notice(request.notice())
                 .startReservationAt(request.reservationStartAt())
                 .venueId(request.venueId())
                 .seatGrades(seatGrades)
@@ -70,6 +74,8 @@ public record CreateConcertCommand(
                 .title(title)
                 .performanceStatus("READY")
                 .description(description)
+                .runningTime(runningTime)
+                .notice(notice)
                 .venue(venue)
                 .cardPosterUrl(cardPosterUrl)
                 .screenPosterUrl(bannerPosterUrl)

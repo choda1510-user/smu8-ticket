@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {getConcertItems} from "@/apis/concertApi";
-import type {ConcertItemPageResult} from "@/types/concert";
+import type {ConcertItem, ConcertItemPageResult} from "@/types/concert";
 
 const initialConcertList: ConcertItemPageResult = {
     contents: [],
@@ -11,6 +11,39 @@ const initialConcertList: ConcertItemPageResult = {
     hasNext: false,
     hasPrevious: false
 };
+
+function toPageResult(concerts: ConcertItem[]): ConcertItemPageResult {
+    return {
+        contents: concerts,
+        page: 1,
+        size: concerts.length,
+        totalElements: concerts.length,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false
+    };
+}
+
+function getReservationStartTime(concert: ConcertItem) {
+    return new Date(concert.reservationStartAt).getTime();
+}
+
+function isUpcomingConcert(concert: ConcertItem) {
+    const startTime = getReservationStartTime(concert);
+
+    if (Number.isNaN(startTime)) {
+        return false;
+    }
+
+    const now = new Date();
+    const startDate = new Date(startTime);
+    const isAfterToday =
+        startDate.getFullYear() > now.getFullYear() ||
+        (startDate.getFullYear() === now.getFullYear() && startDate.getMonth() > now.getMonth()) ||
+        (startDate.getFullYear() === now.getFullYear() && startDate.getMonth() === now.getMonth() && startDate.getDate() > now.getDate());
+
+    return startTime > now.getTime() && isAfterToday;
+}
 
 export function useConcertListPage() {
     const [concertList, setConcertList] = useState<ConcertItemPageResult>(initialConcertList);
@@ -28,15 +61,7 @@ export function useConcertListPage() {
                 const concerts = await getConcertItems();
 
                 if (isMounted) {
-                    setConcertList({
-                        contents: concerts,
-                        page: 1,
-                        size: concerts.length,
-                        totalElements: concerts.length,
-                        totalPages: 1,
-                        hasNext: false,
-                        hasPrevious: false
-                    });
+                    setConcertList(toPageResult(concerts));
                 }
             } catch (caughtError) {
                 if (isMounted) {
@@ -56,9 +81,12 @@ export function useConcertListPage() {
         };
     }, []);
 
+    const openConcerts = concertList.contents.filter((concert) => !isUpcomingConcert(concert));
+    const upcomingConcerts = concertList.contents.filter(isUpcomingConcert);
+
     return {
-        openConcertList: concertList,
-        upcomingConcertList: concertList,
+        openConcertList: toPageResult(openConcerts),
+        upcomingConcertList: toPageResult(upcomingConcerts),
         isLoading,
         error,
     };

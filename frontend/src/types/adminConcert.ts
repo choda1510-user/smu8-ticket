@@ -123,6 +123,8 @@ export type AdminConcertDetailResponse = {
     notice?: string; // 공지사항
     rowMax: number, // 좌석 행 개수
     colMax: number, // 좌석 열 개수
+    totalSeatCount?: number; // 해당 공연 총 좌석수
+    reservedSeatCount?: number; // 예매완료 총 좌석수
     createdAt?: string; // 생성일시
     updatedAt?: string; // 수정일시
 };

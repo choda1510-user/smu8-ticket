@@ -13,6 +13,7 @@ public record UpdateConcertBasicInfoCommand(
         String title,
         String description,
         String runningTime,
+        String notice,
         List<UpdateScheduleCommand> schedules,
         List<UpdateSeatGradeCommand> seatGrades,
         List<UpdateSeatCommand> seats,
@@ -34,6 +35,7 @@ public record UpdateConcertBasicInfoCommand(
                 .title(request.title())
                 .description(request.description())
                 .runningTime(request.runningTime())
+                .notice(request.notice())
                 .schedules(request.schedules())
                 .seatGrades(request.seatGrades())
                 .seats(request.seats())
@@ -54,6 +56,9 @@ public record UpdateConcertBasicInfoCommand(
         }
         if (runningTime != null) {
             concert.setRunningTime(runningTime);
+        }
+        if (notice != null) {
+            concert.setNotice(notice);
         }
     }
 

@@ -14,6 +14,8 @@ public record UpdateConcertBasicInfoRequest(
         String description,
         @Schema(description = "수정할 공연 러닝타임(분)", example = "150")
         String runningTime,
+        @Schema(description = "수정할 예매 안내사항")
+        String notice,
         @Schema(description = "수정할 공연 회차 목록 (기존 회차는 id 포함, 신규 회차는 id 생략)")
         List<UpdateScheduleCommand> schedules,
         @Schema(description = "수정할 좌석 등급 목록 (기존 등급은 id 포함, 신규 등급은 id 생략)")

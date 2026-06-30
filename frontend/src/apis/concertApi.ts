@@ -15,7 +15,7 @@ import type {
     AdminConcertListPageResponse,
     AdminConcertUpdateCommand,
     AdminConcertUpdateResponse,
-    AdminConcertUpdateBasicInfoCommand,
+    AdminConcertUpdateBasicInfoCommand, AdminConcertListPageParameters,
 } from "@/types/adminConcert.ts";
 
 import type {VenueSearch, VenueItemResponse} from "@/types/venue";
@@ -321,14 +321,14 @@ export async function getAdminConcert(id: number): Promise<AdminConcertDetailRes
     });
 }
 
-export async function getAdminConcertList(): Promise<AdminConcertDetailResponse[]> {
+export async function getAdminConcertList(parameters: AdminConcertListPageParameters): Promise<AdminConcertDetailResponse[]> {
     const response = await getAdminConcertPage(
-        {page: 0, size: 100},
+        {page: parameters.page, size: parameters.size},
         {
-            concertName: "",
-            concertCode: "",
-            venueName: "",
-            venueCode: "",
+            concertName: parameters.concertName ?? "",
+            concertCode: parameters.concertCode ?? "",
+            venueName: parameters.venueName ?? "",
+            venueCode: parameters.venueCode ?? "",
         },
     );
 

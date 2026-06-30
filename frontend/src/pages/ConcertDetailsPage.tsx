@@ -80,9 +80,6 @@ function ConcertDetailsPage() {
                      ={styles.page}>
             <div className
                      ={styles.inner}>
-                <h1 className
-                        ={styles.pageTitle}>공연 상세</h1>
-
                 <section className
                              ={styles.summaryCard}>
                     <div className

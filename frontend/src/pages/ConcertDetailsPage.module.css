@@ -1,34 +1,55 @@
 .page {
+    position: relative;
     width: 100%;
     display: flex;
     justify-content: center;
-    padding: 18px 20px 80px;
+    min-height: 100%;
+    padding: 34px 20px 104px;
     box-sizing: border-box;
-    color: #222;
+    color: #171717;
+    background-color: #fff;
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+    font-weight: 300;
+    overflow: hidden;
+}
+
+.page::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 164px;
+    background-color: #233154;
+    content: "";
+}
+
+.page::after {
+    position: absolute;
+    top: 126px;
+    left: 0;
+    width: 100%;
+    height: 66px;
+    background-color: #ffd4e5;
+    content: "";
 }
 
 .inner {
-    width: min(720px, 100%);
+    width: min(760px, 100%);
     position: relative;
-}
-
-.pageTitle {
-    margin: 0 0 18px;
-    text-align: center;
-    font-size: 16px;
-    font-weight: 700;
+    z-index: 1;
 }
 
 .summaryCard {
     display: flex;
-    gap: 30px;
+    align-items: center;
+    column-gap: 34px;
     width: 100%;
     min-height: 260px;
-    padding: 28px 32px;
-    border: 1px solid #d9d9e3;
-    border-radius: 10px;
+    padding: 32px;
+    border: 1px solid #e3e5ec;
+    border-radius: 30px;
     background-color: #fff;
-    box-shadow: 0 8px 24px rgba(154, 99, 255, 0.08);
+    box-shadow: 0 22px 50px rgba(255, 148, 190, 0.24);
     box-sizing: border-box;
 }
 
@@ -36,21 +57,22 @@
     width: 170px;
     flex-shrink: 0;
     display: flex;
+    align-items: center;
     justify-content: center;
 }
 
 .posterBox {
-    width: 145px;
-    height: 190px;
-    border: 1px solid #d6d6df;
-    border-radius: 10px;
-    background-color: #ececf3;
+    width: 154px;
+    height: 206px;
+    border: 1px solid #e3e5ec;
+    border-radius: 24px;
+    background-color: #f5e8ef;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #777;
+    color: #233154;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 300;
     overflow: hidden;
 }
 
@@ -69,40 +91,47 @@
 }
 
 .concertTitle {
-    margin: 0 0 24px;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.45;
+    margin: 0 0 26px;
+    color: #233154;
+    text-align: left;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.25;
     overflow-wrap: anywhere;
 }
 
 .infoGrid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 22px;
-    row-gap: 14px;
-    margin-bottom: 24px;
+    column-gap: 26px;
+    row-gap: 16px;
+    margin-bottom: 28px;
 }
 
 .infoItem {
     display: flex;
     align-items: flex-start;
     min-width: 0;
-    min-height: 20px;
+    min-height: 24px;
     line-height: 1.45;
+    padding-top: 10px;
+    border-top: 1px solid #e3e5ec;
 }
 
 .infoLabel {
-    width: 64px;
+    width: 72px;
     flex-shrink: 0;
-    color: #555;
-    font-size: 12px;
+    color: #6a5870;
+    font-size: 11px;
+    font-weight: 300;
+    line-height: 1.45;
 }
 
 .infoValue {
     min-width: 0;
-    color: #222;
-    font-size: 12px;
+    color: #171717;
+    font-size: 13px;
+    font-weight: 300;
     line-height: 1.45;
     overflow-wrap: anywhere;
     word-break: keep-all;
@@ -113,10 +142,13 @@
     padding: 0;
     border: none;
     background-color: transparent;
-    color: #222;
-    font-size: 12px;
+    color: #171717;
+    font-size: 13px;
+    font-weight: 300;
     line-height: 1.45;
     text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
     cursor: pointer;
     overflow-wrap: anywhere;
     word-break: keep-all;
@@ -127,143 +159,202 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 14px;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .timerText {
-    color: #cf7373;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid #e3e5ec;
+    border-radius: 999px;
+    color: #233154;
+    background-color: #ffe1ec;
+    display: inline-flex;
+    align-items: center;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 300;
+    box-sizing: border-box;
 }
 
 .bookingButton {
-    min-width: 112px;
-    height: 36px;
-    border: 1px solid #222;
-    border-radius: 4px;
-    background-color: #222;
+    min-width: 126px;
+    height: 40px;
+    padding: 0 18px;
+    border: 2px solid #233154;
+    border-radius: 999px;
+    background-color: #233154;
     color: #fff;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
+    box-shadow: 0 8px 18px rgba(35, 49, 84, 0.18);
+    transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bookingButton:hover {
+    background-color: #2f416e;
+    box-shadow: 0 8px 18px rgba(35, 49, 84, 0.22);
+    transform: translateY(-1px);
 }
 
 .scheduleSection {
-    margin-top: 24px;
-    padding-top: 4px;
-    border-top: 1px solid #ddd8e5;
-    border-bottom: 1px solid #ddd8e5;
+    margin-top: 38px;
+    padding: 0 0 28px;
+    border-top: 1px solid #e3e5ec;
+    border-bottom: 1px solid #e3e5ec;
     background-color: #fff;
 }
 
 .sectionTitle {
     margin: 0;
-    padding: 16px 0;
-    font-size: 16px;
-    font-weight: 700;
+    padding: 20px 0 12px;
+    color: #233154;
+    font-size: 18px;
+    font-weight: 400;
 }
 
 .scheduleList {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
-    padding: 24px 0 34px;
+    gap: 12px;
+    padding: 18px 0 0;
     box-sizing: border-box;
 }
 
 .scheduleButton {
-    width: min(410px, 100%);
-    height: 54px;
-    border: 1px solid #d8d2e4;
-    border-radius: 6px;
+    width: min(430px, 100%);
+    min-height: 56px;
+    padding: 0 18px;
+    border: 1px solid #f1bad0;
+    border-radius: 999px;
     background-color: #fff;
-    color: #222;
+    color: #171717;
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
     cursor: pointer;
     box-sizing: border-box;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .activeSchedule {
-    border: 2px solid #9a63ff;
-    background-color: #fbf8ff;
+    border: 2px solid #f0a8c6;
+    background-color: #233154;
+    color: #fff;
+}
+
+.scheduleButton:hover {
+    background-color: #fff0f6;
+    transform: translateY(-1px);
+}
+
+.activeSchedule:hover {
+    background-color: #233154;
 }
 
 .scheduleDate {
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 300;
     text-align: center;
 }
 
 .scheduleTime {
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 300;
     color: #9a63ff;
     text-align: center;
 }
 
 .activeScheduleTime {
-    color: #7c43ff;
+    color: #ffc6da;
 }
 
 .detailMenu {
-    margin-top: 24px;
-    min-height: 74px;
-    padding: 0 22px;
-    border: 1px solid #d9d9e3;
-    border-radius: 10px;
-    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    margin-top: 34px;
+    min-height: 68px;
+    padding: 12px;
+    border: none;
+    border-radius: 999px;
+    background-color: rgba(255, 226, 237, 0.9);
+    backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 12px;
     box-sizing: border-box;
+    box-shadow: 0 12px 28px rgba(255, 148, 190, 0.22);
 }
 
 .detailMenuButton {
     flex: 1;
     min-width: 0;
-    max-width: 150px;
-    height: 36px;
-    border: 1px solid #d8d2e4;
-    border-radius: 20px;
-    background-color: #fff;
-    color: #777;
+    max-width: none;
+    height: 38px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.82);
+    color: #171717;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 300;
     cursor: pointer;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.detailMenuButton:hover {
+    background-color: #fff7fa;
+    transform: translateY(-1px);
 }
 
 .activeDetailMenuButton {
-    border: 1px solid #ffd6e8;
-    background-color: #fff2f8;
-    color: #9a63ff;
+    border: none;
+    background-color: #233154;
+    color: #fff;
 }
 
 .detailSection {
-    margin-top: 18px;
+    margin-top: 34px;
     width: 100%;
     background-color: #fff;
     box-sizing: border-box;
 }
 
 .detailTitle {
-    margin: 0 0 8px;
-    color: #9a63ff;
-    font-size: 15px;
-    font-weight: 700;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e3e5ec;
+    color: #233154;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.detailTitle::before,
+.guideTitle::before,
+.sectionTitle::before {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 10px;
+    border: 1px solid #e3e5ec;
+    border-radius: 50%;
+    background-color: #ffd4e5;
+    content: "";
+    vertical-align: 2px;
 }
 
 .detailContent {
     height: 330px;
-    border: 1px solid #d8d2e4;
-    border-radius: 12px;
-    background-color: #fff2f7;
+    border: 1px solid #e3e5ec;
+    border-radius: 28px 28px 0 0;
+    background-color: #ffe7f0;
     overflow: hidden;
     box-sizing: border-box;
     transition: height 0.2s ease;
@@ -277,10 +368,12 @@
     min-height: 620px;
     padding: 24px;
     box-sizing: border-box;
-    color: #333;
+    color: #171717;
     font-size: 13px;
     line-height: 1.7;
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
 }
 
 .detailPlaceholder p {
@@ -290,43 +383,48 @@
 .detailImage {
     width: 100%;
     max-height: 500px;
-    border-radius: 12px;
+    border: 1px solid #e3e5ec;
+    border-radius: 20px;
     object-fit: contain;
     background: #fff;
 }
 
 .moreButton {
     width: 100%;
-    height: 18px;
+    height: 32px;
     margin-top: -1px;
-    border: 1px solid #bfbfc8;
+    border: 1px solid #e3e5ec;
+    border-radius: 0 0 28px 28px;
     background-color: #fff;
-    color: #222;
-    font-size: 11px;
-    line-height: 16px;
+    color: #233154;
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 30px;
     cursor: pointer;
 }
 
 .guideSection {
-    margin-top: 70px;
+    margin-top: 64px;
     background-color: #fff;
 }
 
 .guideTitle {
-    margin: 0 0 12px;
-    color: #9a63ff;
-    font-size: 15px;
-    font-weight: 700;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e3e5ec;
+    color: #233154;
+    font-size: 20px;
+    font-weight: 400;
 }
 
 .guideBox {
     min-height: 105px;
-    padding: 24px;
-    border: 1px solid #d8d2e4;
-    border-radius: 12px;
-    background-color: #f7f1ff;
+    padding: 26px;
+    border: 1px solid #e3e5ec;
+    border-radius: 28px;
+    background-color: #ffe7f0;
     box-sizing: border-box;
-    color: #777;
+    color: #171717;
     font-size: 13px;
     line-height: 1.7;
     overflow-wrap: anywhere;
@@ -335,43 +433,52 @@
 
 .venueInfoBox {
     min-height: 150px;
-    padding: 22px 24px;
-    border: 1px solid #d8d2e4;
-    border-radius: 12px;
-    background-color: #f7f1ff;
+    padding: 26px;
+    border: 1px solid #e3e5ec;
+    border-radius: 28px;
+    background-color: #ffe7f0;
     box-sizing: border-box;
     overflow: hidden;
 }
 
 .venueDescription {
-    margin: 0 0 14px;
-    color: #777;
+    margin: 0 0 16px;
+    color: #4f4f4f;
     font-size: 13px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
 }
 
 .venueNameButton {
-    margin-bottom: 14px;
-    padding: 0;
-    border: none;
-    background-color: transparent;
-    color: #222;
+    margin-bottom: 18px;
+    padding: 8px 14px;
+    border: 1px solid #e3e5ec;
+    border-radius: 999px;
+    background-color: #fff;
+    color: #171717;
     font-size: 13px;
-    font-weight: 700;
-    text-decoration: underline;
+    font-weight: 300;
+    text-decoration: none;
     cursor: pointer;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+    text-align: left;
 }
 
 .mapBox {
     width: min(520px, 100%);
-    height: 58px;
+    min-height: 64px;
+    padding: 12px;
     margin: 0 auto;
-    border: 1px solid #d6d6df;
-    border-radius: 8px;
+    border: 1px solid #e3e5ec;
+    border-radius: 20px;
     background-color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #777;
+    color: #5f6470;
     font-size: 13px;
     text-align: center;
     box-sizing: border-box;
@@ -381,19 +488,21 @@
     position: fixed;
     right: 34px;
     bottom: 34px;
-    width: 92px;
-    height: 92px;
-    border: none;
+    width: 76px;
+    height: 76px;
+    border: 1px solid #e3e5ec;
     border-radius: 50%;
-    background-color: #d8d8d8;
-    color: #000;
+    background-color: #233154;
+    color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 6px;
     font-size: 12px;
+    font-weight: 300;
     cursor: pointer;
+    box-shadow: 0 12px 24px rgba(255, 148, 190, 0.28);
 }
 
 @media (max-width: 720px) {
@@ -414,12 +523,22 @@
         justify-content: flex-start;
         flex-wrap: wrap;
     }
+
+    .detailMenu {
+        position: static;
+    }
 }
 
 @media (max-width: 560px) {
+    .page {
+        padding: 22px 14px 82px;
+    }
+
     .summaryCard {
         flex-direction: column;
         align-items: center;
+        padding: 24px 18px;
+        box-shadow: 0 18px 36px rgba(255, 148, 190, 0.22);
     }
 
     .posterArea {
@@ -438,5 +557,12 @@
     .detailMenuButton {
         max-width: none;
         flex-basis: calc(50% - 8px);
+    }
+
+    .topButton {
+        right: 18px;
+        bottom: 18px;
+        width: 64px;
+        height: 64px;
     }
 }

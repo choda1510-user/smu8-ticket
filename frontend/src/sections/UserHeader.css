@@ -1,8 +1,11 @@
 .user-header {
-    width: 100%;
-    background: #ffffff;
-    border-bottom: 1px solid #eeeeee;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    background:
+        linear-gradient(135deg, rgba(244, 127, 166, 0.12), transparent 38%),
+        #071120;
+    border-bottom: 1px solid rgba(255, 200, 217, 0.22);
+    box-shadow: 0 14px 32px rgba(7, 17, 32, 0.18);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -10,18 +13,18 @@
 
 .user-header-inner {
     width: 100%;
-    max-width: 1126px;
+    max-width: 1160px;
     margin: 0 auto;
-    padding: 10px 20px 0;
+    padding: 0 24px;
     box-sizing: border-box;
 }
 
-/* 로그인 / 회원가입 */
 .user-header-auth-row {
+    min-height: 34px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
-    justify-content: flex-end;
     align-items: center;
-    height: 28px;
+    justify-content: flex-end;
 }
 
 .user-header-auth {
@@ -32,11 +35,12 @@
 
 .user-header-auth a,
 .user-header-auth-button {
-    color: #555555;
-    font-size: 13px;
-    font-weight: 500;
+    color: rgba(255, 255, 255, 0.74);
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 300;
     text-decoration: none;
-    transition: 0.2s ease;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .user-header-auth-button {
@@ -49,90 +53,104 @@
 
 .user-header-auth a:hover,
 .user-header-auth-button:hover {
-    color: #ff4fa3;
+    color: #ffd4e5;
 }
 
 .user-header-auth .user-header-admin-link {
-    padding: 5px 10px;
-    border: 1px solid #ff8bc6;
+    padding: 5px 12px;
+    border: 1px solid rgba(255, 212, 229, 0.72);
     border-radius: 999px;
-    color: #c02775;
-    background: #fff5fa;
-    font-weight: 700;
+    color: #ffd4e5;
+    background: rgba(255, 212, 229, 0.08);
+    font-weight: 400;
 }
 
 .user-header-auth .user-header-admin-link:hover {
-    color: #ffffff;
-    background: #ff4fa3;
-    border-color: #ff4fa3;
+    color: #233154;
+    background: #ffd4e5;
+    border-color: #ffd4e5;
 }
 
-/* 메인 영역 */
 .user-header-main-row {
     display: grid;
-    grid-template-columns: 180px 1fr;
-    align-items: start;
-    gap: 28px;
-    padding: 14px 0 18px;
+    grid-template-columns: 260px 1fr;
+    align-items: center;
+    gap: 40px;
+    padding: 20px 0 12px;
 }
 
-/* 새 로고 */
 .user-header-logo {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 12px;
     text-decoration: none;
-    padding-top: 4px;
 }
 
 .user-header-logo-mark {
     width: 54px;
     height: 54px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #ff4fa3 0%, #9b5cff 100%);
+    border: 1px solid rgba(255, 200, 217, 0.72);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.06);
     color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 21px;
-    font-weight: 900;
-    letter-spacing: -1px;
-    box-shadow: 0 8px 20px rgba(255, 79, 163, 0.32);
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0;
+    box-shadow: inset 0 0 20px rgba(244, 127, 166, 0.12);
+}
+
+.user-header-logo-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .user-header-logo-text {
-    color: #111111;
-    font-size: 19px;
-    font-weight: 900;
-    letter-spacing: -0.8px;
+    color: #ffffff;
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
 }
 
-/* 검색창 + 카테고리 묶음 */
+.user-header-logo-subtext {
+    color: #ff9fbd;
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0;
+}
+
 .user-header-center {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    gap: 12px;
 }
 
-/* 검색창 */
 .user-header-search {
     width: 100%;
-    max-width: 590px;
-    height: 48px;
+    max-width: 560px;
+    height: 44px;
     display: flex;
     align-items: center;
-    background: #f7f7fa;
-    border: 1px solid #e7e7ee;
+    background: rgba(16, 27, 44, 0.86);
+    border: 1px solid rgba(255, 159, 189, 0.62);
     border-radius: 999px;
     overflow: hidden;
-    transition: 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .user-header-search:focus-within {
-    background: #ffffff;
-    border-color: #ff4fa3;
-    box-shadow: 0 0 0 4px rgba(255, 79, 163, 0.12);
+    background: rgba(16, 27, 44, 0.98);
+    border-color: #ff9fbd;
+    box-shadow: 0 0 0 4px rgba(255, 159, 189, 0.16);
 }
 
 .user-header-search input {
@@ -142,66 +160,83 @@
     border: none;
     outline: none;
     background: transparent;
-    color: #222222;
-    font-size: 15px;
-    font-weight: 500;
+    color: #ffffff;
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 300;
 }
 
 .user-header-search input::placeholder {
-    color: #999999;
+    color: rgba(255, 255, 255, 0.58);
 }
 
 .user-header-search button {
-    width: 58px;
+    position: relative;
+    width: 52px;
     height: 100%;
     border: none;
     outline: none;
     cursor: pointer;
-    background: linear-gradient(135deg, #ff4fa3 0%, #9b5cff 100%);
-    color: #ffffff;
-    font-size: 18px;
+    background: transparent;
+    color: #ffd4e5;
+    font-size: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: 0.2s ease;
+    transition: filter 0.2s ease;
+}
+
+.user-header-search button::before {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 36px;
+    height: 36px;
+    background-image: url("data:image/svg+xml,%3Csvg width='42' height='42' viewBox='0 0 42 42' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='18' cy='18' r='12.5' fill='none' stroke='%23ff9fbd' stroke-width='3'/%3E%3Cpath d='M27.5 27.5 L35.5 35.5' stroke='%23ff9fbd' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    content: "";
+    transform: translate(-50%, -50%);
 }
 
 .user-header-search button:hover {
-    filter: brightness(1.08);
+    filter: brightness(1.03);
 }
 
-/* 홈 / 공연 카테고리 */
 .user-header-nav {
     display: flex;
     align-items: center;
-    gap: 28px;
-    margin-top: 13px;
-    padding-left: 4px;
+    gap: 18px;
+    margin-top: 0;
+    padding-left: 20px;
+    padding-bottom: 2px;
 }
 
 .user-header-nav-link {
     position: relative;
-    color: #555555;
-    font-size: 15px;
-    font-weight: 700;
+    color: rgba(255, 255, 255, 0.82);
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 400;
     text-decoration: none;
-    letter-spacing: -0.3px;
-    transition: 0.2s ease;
+    letter-spacing: 0;
+    transition: color 0.2s ease;
 }
 
 .user-header-nav-link:hover {
-    color: #111111;
+    color: #ffd4e5;
 }
 
 .user-header-nav-link::after {
-    content: "";
     position: absolute;
     left: 0;
-    bottom: -7px;
+    bottom: -2px;
     width: 0;
-    height: 3px;
+    height: 1px;
     border-radius: 999px;
-    background: linear-gradient(90deg, #ff4fa3, #9b5cff);
+    background: #ffd4e5;
+    content: "";
     transition: width 0.25s ease;
 }
 
@@ -211,26 +246,28 @@
 }
 
 .user-header-nav-link.active {
-    color: #111111;
+    color: #ffffff;
 }
 
-/* 반응형 */
 @media (max-width: 768px) {
     .user-header-inner {
-        padding: 10px 16px 0;
+        padding: 0 16px;
     }
 
     .user-header-main-row {
         grid-template-columns: 1fr;
-        gap: 18px;
+        gap: 16px;
+        padding: 16px 0 10px;
     }
 
     .user-header-logo {
-        justify-content: center;
+        justify-content: flex-start;
     }
 
     .user-header-center {
         align-items: stretch;
+        flex-direction: column;
+        gap: 16px;
     }
 
     .user-header-search {
@@ -239,6 +276,7 @@
 
     .user-header-nav {
         justify-content: flex-start;
-        gap: 24px;
+        gap: 18px;
+        padding-left: 20px;
     }
 }

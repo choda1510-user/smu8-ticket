@@ -79,7 +79,10 @@ function UserHeader() {
 
                     <Link to="/" className="user-header-logo" aria-label="홈으로 이동">
                         <span className="user-header-logo-mark">SM</span>
-                        <span className="user-header-logo-text">TICKET</span>
+                        <span className="user-header-logo-copy">
+                            <span className="user-header-logo-text">SMTOWN TICKET</span>
+                            <span className="user-header-logo-subtext">LIVE BOOKING</span>
+                        </span>
                     </Link>
 
                     <div className="user-header-center">

@@ -4,6 +4,7 @@ import com.smu8.ticket.dto.query.PageQuery;
 import com.smu8.ticket.http.response.PageResponse;
 import com.smu8.ticket.reservation.dto.command.CreatePreemptReservationSeatCommand;
 import com.smu8.ticket.reservation.dto.command.CreateReservationCommand;
+import com.smu8.ticket.reservation.dto.command.RemovePreemptReservationSeatCommand;
 import com.smu8.ticket.reservation.dto.query.ReservationConcertSeatFrameQuery;
 import com.smu8.ticket.reservation.dto.query.ReservationPageQuery;
 import com.smu8.ticket.reservation.http.request.CreateReservationRequest;
@@ -79,6 +80,18 @@ public class ReservationController {
     ) {
         reservationService.createPreemptReservationSeats(
                 CreatePreemptReservationSeatCommand.from(getAccountId(authentication), request)
+        );
+        return ResponseEntity.ok().build();
+    }
+
+    // 사용자가 선택을 취소한 좌석의 임시 선점을 해제한다.
+    @DeleteMapping("/api/reservations/preempt-seats")
+    public ResponseEntity<Void> removePreemptReservationSeats(
+            @RequestBody PreemptReservationSeatRequest request, // delete 관습적으로 get delete는 http요청에서 본문을 보내지 않음.
+            Authentication authentication
+    ) {
+        reservationService.removePreemptReservationSeats(
+                RemovePreemptReservationSeatCommand.from(getAccountId(authentication), request)
         );
         return ResponseEntity.ok().build();
     }

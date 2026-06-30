@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
 @SecurityRequirement(name = "Authorization")
 @RestController
@@ -82,6 +84,11 @@ public class AdminConcertController {
                 adminConcertService.getConcerts(
                         ConcertPageQuery.builder()
                                 .pageQuery(PageQuery.builder().page(page).size(size).build())
+                                // 컨트롤러가 받은 필터 값을 서비스까지 넘겨 DB에서 조건 조회를 할 수 있게 합니다.
+                                .concertNames(parseQueryValues(concertNames))
+                                .status(status)
+                                .venueCode(venueCode)
+                                .venueNames(venueNames)
                                 .build()
                 ),
                         AdminConcertDetailResponse::from));
@@ -135,5 +142,17 @@ public class AdminConcertController {
     ) {
         adminConcertService.deleteConcert(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // 공연명 검색은 쉼표로 여러 값을 받을 수 있어 빈 값을 제거한 리스트로 변환합니다.
+    private List<String> parseQueryValues(String value) {
+        if (value == null || value.isBlank()) {
+            return List.of();
+        }
+
+        return Arrays.stream(value.split(","))
+                .map(String::trim)
+                .filter(queryValue -> !queryValue.isBlank())
+                .toList();
     }
 }

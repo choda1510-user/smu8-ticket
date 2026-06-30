@@ -12,6 +12,7 @@ import type {
     AdminConcertCreateCommand,
     AdminConcertCreateResponse,
     AdminConcertDetailResponse,
+    AdminConcertListPageParameters,
     AdminConcertListPageResponse,
     AdminConcertUpdateCommand,
     AdminConcertUpdateResponse,
@@ -296,8 +297,41 @@ export async function getAdminConcert(id: number): Promise<AdminConcertDetailRes
     });
 }
 
-export async function getAdminConcertList(): Promise<AdminConcertDetailResponse[]> {
-    const response = await fetchJson<AdminConcertListPageResponse>(`${API_BASE_URL}/api/admin/concerts`, {
+export async function getAdminConcertList(
+    parameters: Partial<AdminConcertListPageParameters> = {},
+): Promise<AdminConcertDetailResponse[]> {
+    // 필요한 화면에서 page/size와 검색 조건을 조절해 조회할 수 있도록 쿼리스트링을 만듭니다.
+    const searchParams = new URLSearchParams();
+
+    if (parameters.page !== undefined) {
+        searchParams.set("page", String(parameters.page));
+    }
+
+    if (parameters.size !== undefined) {
+        searchParams.set("size", String(parameters.size));
+    }
+
+    if (parameters.concertName) {
+        searchParams.set("concertNames", parameters.concertName);
+    }
+
+    if (parameters.venueCode) {
+        searchParams.set("venueCode", parameters.venueCode);
+    }
+
+    if (parameters.venueName) {
+        searchParams.set("venueNames", parameters.venueName);
+    }
+
+    if (parameters.reservationStatus) {
+        // 프론트 타입명은 reservationStatus지만 백엔드 관리자 목록 API는 status 파라미터로 받습니다.
+        searchParams.set("status", parameters.reservationStatus);
+    }
+
+    const queryString = searchParams.toString();
+    // 기존 호출은 그대로 두고, 조건이 있을 때만 관리자 공연 목록 API에 쿼리를 붙입니다.
+    const requestUrl = `${API_BASE_URL}/api/admin/concerts${queryString ? `?${queryString}` : ""}`;
+    const response = await fetchJson<AdminConcertListPageResponse>(requestUrl, {
         headers: createJsonHeaders(),
     });
 

@@ -20,6 +20,7 @@ import com.smu8.ticket.concert.entity.Seat;
 import com.smu8.ticket.concert.entity.SeatGrade;
 import com.smu8.ticket.concert.repository.PerformanceScheduleRepository;
 import com.smu8.ticket.concert.repository.SeatGradeRepository;
+import com.smu8.ticket.concert.repository.SeatRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,6 +39,7 @@ public class AdminConcertServiceImpl implements AdminConcertService {
     private final VenueRepository venueRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
     private final SeatGradeRepository seatGradeRepository;
+    private final SeatRepository seatRepository;
 
     @Transactional
     @Override
@@ -177,6 +179,10 @@ public class AdminConcertServiceImpl implements AdminConcertService {
                                 "존재하지 않는 회차입니다. (회차 ID: " + scheduleCommand.id() + ")"));
                 existing.setShowStartAt(scheduleCommand.date());
                 existing.setReservationEndAt(scheduleCommand.reservationEndAt());
+
+                if (command.seats() != null && rowMax != null && colMax != null) {
+                    updateExistingScheduleSeats(existing, concert, command.seats(), rowMax, colMax);
+                }
             } else {
                 PerformanceSchedule newSchedule = PerformanceSchedule.builder()
                         .concert(concert)
@@ -213,6 +219,70 @@ public class AdminConcertServiceImpl implements AdminConcertService {
             schedule.getSeats().add(seat);
             seatGrade.getSeats().add(seat);
         }
+    }
+
+    private void updateExistingScheduleSeats(
+            PerformanceSchedule schedule,
+            Concert concert,
+            List<UpdateSeatCommand> seatCommands,
+            Integer rowMax,
+            Integer colMax
+    ) {
+        Map<String, SeatGrade> seatGradeByName = concert.getSeatGrades().stream()
+                .collect(Collectors.toMap(SeatGrade::getGradeName, Function.identity(), (a, b) -> a));
+
+        Map<String, UpdateSeatCommand> requestedByPosition = seatCommands.stream()
+                .collect(Collectors.toMap(
+                        seatCommand -> seatCommand.row() + ":" + seatCommand.col(),
+                        Function.identity(),
+                        (a, b) -> a));
+
+        Map<String, Seat> existingByPosition = schedule.getSeats().stream()
+                .collect(Collectors.toMap(
+                        seat -> seat.getRowIndex() + ":" + seat.getColumnIndex(),
+                        Function.identity(),
+                        (a, b) -> a));
+
+        List<Seat> seatsToRemove = schedule.getSeats().stream()
+                .filter(seat -> !requestedByPosition.containsKey(seat.getRowIndex() + ":" + seat.getColumnIndex()))
+                .toList();
+
+        for (Seat seat : seatsToRemove) {
+            if (!seat.getReservationSeats().isEmpty()) {
+                throw new InvalidConcertException(
+                        "이미 예약된 좌석은 삭제할 수 없습니다. (행: " + seat.getRowIndex() + ", 열: " + seat.getColumnIndex() + ")");
+            }
+        }
+        schedule.getSeats().removeAll(seatsToRemove);
+        seatRepository.deleteAll(seatsToRemove);
+
+        for (UpdateSeatCommand seatCommand : seatCommands) {
+            String position = seatCommand.row() + ":" + seatCommand.col();
+            Seat existingSeat = existingByPosition.get(position);
+            SeatGrade seatGrade = seatGradeByName.get(seatCommand.seatGradeName());
+
+            if (existingSeat != null) {
+                if (seatGrade != null && !seatGrade.equals(existingSeat.getSeatGrade())) {
+                    if (!existingSeat.getReservationSeats().isEmpty()) {
+                        throw new InvalidConcertException(
+                                "이미 예약된 좌석의 등급은 변경할 수 없습니다. (행: " + seatCommand.row() + ", 열: " + seatCommand.col() + ")");
+                    }
+                    existingSeat.setSeatGrade(seatGrade);
+                }
+            } else if (seatGrade != null) {
+                Seat newSeat = Seat.builder()
+                        .performanceSchedule(schedule)
+                        .seatGrade(seatGrade)
+                        .rowIndex(seatCommand.row())
+                        .columnIndex(seatCommand.col())
+                        .build();
+                schedule.getSeats().add(newSeat);
+                seatGrade.getSeats().add(newSeat);
+            }
+        }
+
+        schedule.setSeatRowCount(rowMax);
+        schedule.setSeatColumnCount(colMax);
     }
 
     private void syncSeatGrades(Concert concert, List<UpdateSeatGradeCommand> requestedSeatGrades) {

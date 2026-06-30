@@ -54,7 +54,7 @@ export type BookingDetailResponse = {
     reservationId: number;
     reservedSchedule: ConcertScheduleResponse;
     reservationNo: string;
-    accountId: string;
+    nickname: string;
     reservationStatus: string;
     totalQuantity: number;
     totalAmount: number;
@@ -98,6 +98,8 @@ export type BookingDetailResult = {
     reservationNumber: string;
     venueName: string;
     reservationDate: string;
+    posterUrl: string;
+    nickname: string;
     userId: string;
     viewingDateTime: string;
     cancelDeadline: string;

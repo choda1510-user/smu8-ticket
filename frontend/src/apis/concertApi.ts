@@ -15,9 +15,12 @@ import type {
     AdminConcertListPageResponse,
     AdminConcertUpdateCommand,
     AdminConcertUpdateResponse,
+    AdminConcertUpdateBasicInfoCommand, AdminConcertListPageParameters,
 } from "@/types/adminConcert.ts";
 
 import type {VenueSearch, VenueItemResponse} from "@/types/venue";
+import type {PageRequest} from "@/types/api";
+import {pageConvert} from "@/utils/commonConvertor";
 import { getAccessToken } from "./authApi";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
@@ -281,7 +284,9 @@ export async function getConcert(id: number): Promise<ConcertDetail> {
 }
 
 export async function getConcertList(): Promise<ConcertItemResponse[]> {
-    const response = await fetchJson<ConcertItemPageResponse>(`${API_BASE_URL}/api/concerts`);
+    const response = await fetchJson<ConcertItemPageResponse>(
+        `${API_BASE_URL}/api/concerts?page=0&size=100`,
+    );
     return response.contents ?? [];
 }
 
@@ -290,18 +295,76 @@ export async function getConcertItems(): Promise<ConcertItem[]> {
     return concerts.map(toConcertItem);
 }
 
+export async function getConcertPage(
+    query: PageRequest,
+    status?: "open" | "upcoming",
+) {
+    const params = new URLSearchParams({
+        page: String(query.page),
+        size: String(query.size),
+    });
+
+    if (status) {
+        params.set("status", status);
+    }
+
+    const response = await fetchJson<ConcertItemPageResponse>(
+        `${API_BASE_URL}/api/concerts?${params.toString()}`,
+    );
+
+    return pageConvert(response, toConcertItem);
+}
+
 export async function getAdminConcert(id: number): Promise<AdminConcertDetailResponse> {
     return fetchJson<AdminConcertDetailResponse>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
         headers: createJsonHeaders(),
     });
 }
 
-export async function getAdminConcertList(): Promise<AdminConcertDetailResponse[]> {
-    const response = await fetchJson<AdminConcertListPageResponse>(`${API_BASE_URL}/api/admin/concerts`, {
-        headers: createJsonHeaders(),
-    });
+export async function getAdminConcertList(parameters: AdminConcertListPageParameters): Promise<AdminConcertDetailResponse[]> {
+    const response = await getAdminConcertPage(
+        {page: parameters.page, size: parameters.size},
+        {
+            concertName: parameters.concertName ?? "",
+            concertCode: parameters.concertCode ?? "",
+            venueName: parameters.venueName ?? "",
+            venueCode: parameters.venueCode ?? "",
+        },
+    );
 
     return response.contents ?? [];
+}
+
+export async function getAdminConcertPage(
+    query: PageRequest,
+    filters: {
+        concertName: string;
+        concertCode: string;
+        venueName: string;
+        venueCode: string;
+    },
+): Promise<AdminConcertListPageResponse> {
+    const params = new URLSearchParams({
+        page: String(query.page),
+        size: String(query.size),
+    });
+
+    if (filters.concertName.trim()) {
+        params.set("concertNames", filters.concertName.trim());
+    }
+    if (filters.concertCode.trim()) {
+        params.set("concertCode", filters.concertCode.trim());
+    }
+    if (filters.venueName.trim()) {
+        params.set("venueNames", filters.venueName.trim());
+    }
+    if (filters.venueCode.trim()) {
+        params.set("venueCode", filters.venueCode.trim());
+    }
+
+    return fetchJson<AdminConcertListPageResponse>(`${API_BASE_URL}/api/admin/concerts?${params.toString()}`, {
+        headers: createJsonHeaders(),
+    });
 }
 
 export async function addConcert(
@@ -329,6 +392,35 @@ export async function cancelConcert(id: number): Promise<void> {
     });
 }
 
+export async function updateConcertBasicInfo(
+    command: AdminConcertUpdateBasicInfoCommand
+): Promise<AdminConcertDetailResponse> {
+    const formData = new FormData();
+
+    formData.append(
+        "request",
+        new Blob([JSON.stringify(command.request)], {type: "application/json"}),
+    );
+
+    if (command.cardPoster) {
+        formData.append("cardPoster", command.cardPoster);
+    }
+    if (command.bannerPoster) {
+        formData.append("bannerPoster", command.bannerPoster);
+    }
+    if (command.descriptionPoster) {
+        formData.append("descriptionPoster", command.descriptionPoster);
+    }
+
+    return fetchJson<AdminConcertDetailResponse>(
+        `${API_BASE_URL}/api/admin/concerts/${command.pathVariables.id}/basic-info`,
+        {
+            method: "PATCH",
+            headers: createMultipartHeaders(),
+            body: formData,
+        },
+    );
+}
 
 // 기존 오타 함수명을 쓰는 코드가 있어도 깨지지 않도록 잠시 유지합니다.
 

@@ -11,6 +11,8 @@ const initialBookingDetail: BookingDetailResult = {
     reservationNumber: "",
     venueName: "",
     reservationDate: "",
+    posterUrl: "",
+    nickname: "",
     userId: "",
     viewingDateTime: "",
     cancelDeadline: "",

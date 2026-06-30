@@ -8,6 +8,7 @@ import java.util.List;
 @Builder
 public record VenuePageQuery(
         PageQuery pageQuery,
-        List<String> venueNames
+        List<String> venueNames,
+        String venueCode
 ) {
 }

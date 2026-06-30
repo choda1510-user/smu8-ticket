@@ -1,33 +1,55 @@
 .page {
+    position: relative;
     width: 100%;
     display: flex;
     justify-content: center;
-    padding-top: 18px;
-    padding-bottom: 80px;
+    min-height: 100%;
+    padding: 34px 20px 104px;
     box-sizing: border-box;
-    color: #222;
+    color: #111827;
+    background-color: #fff;
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+    font-weight: 300;
+    overflow: hidden;
+}
+
+.page::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 164px;
+    background-color: #fff;
+    content: "";
+}
+
+.page::after {
+    position: absolute;
+    top: 126px;
+    left: 0;
+    width: 100%;
+    height: 66px;
+    background-color: #fff;
+    content: "";
 }
 
 .inner {
-    width: 720px;
+    width: min(760px, 100%);
     position: relative;
-}
-
-.pageTitle {
-    margin: 0 0 18px;
-    text-align: center;
-    font-size: 16px;
-    font-weight: 700;
+    z-index: 1;
 }
 
 .summaryCard {
     display: flex;
-    gap: 34px;
+    align-items: center;
+    column-gap: 34px;
     width: 100%;
     min-height: 260px;
-    padding: 28px 32px;
-    border: 1px solid #d9d9e3;
+    padding: 32px;
+    border: 1px solid #eadde4;
+    border-radius: 18px;
     background-color: #fff;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
     box-sizing: border-box;
 }
 
@@ -35,21 +57,22 @@
     width: 170px;
     flex-shrink: 0;
     display: flex;
+    align-items: center;
     justify-content: center;
 }
 
 .posterBox {
-    width: 145px;
-    height: 190px;
-    border: 1px solid #d6d6df;
-    border-radius: 10px;
-    background-color: #ececf3;
+    width: 154px;
+    height: 206px;
+    border: 1px solid #eadde4;
+    border-radius: 16px;
+    background-color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #777;
+    color: #071120;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 300;
     overflow: hidden;
 }
 
@@ -60,6 +83,7 @@
 }
 
 .infoArea {
+    min-width: 0;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -67,182 +91,293 @@
 }
 
 .concertTitle {
-    margin: 0 0 28px;
-    font-size: 18px;
-    font-weight: 700;
+    margin: 0 0 26px;
+    color: #071120;
+    text-align: left;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 
 .infoGrid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 26px;
-    row-gap: 15px;
+    row-gap: 16px;
     margin-bottom: 28px;
 }
 
 .infoItem {
     display: flex;
-    align-items: center;
-    min-height: 18px;
-    white-space: nowrap;
+    align-items: flex-start;
+    min-width: 0;
+    min-height: 24px;
+    line-height: 1.45;
+    padding-top: 10px;
+    border-top: 1px solid #eadde4;
 }
 
 .infoLabel {
-    width: 64px;
+    width: 72px;
     flex-shrink: 0;
-    color: #555;
-    font-size: 12px;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 300;
+    line-height: 1.45;
 }
 
 .infoValue {
-    color: #222;
-    font-size: 12px;
+    min-width: 0;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 300;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
 }
 
 .linkButton {
+    min-width: 0;
     padding: 0;
     border: none;
     background-color: transparent;
-    color: #222;
-    font-size: 12px;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 300;
+    line-height: 1.45;
     text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
     cursor: pointer;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+    text-align: left;
 }
 
 .bookingArea {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 14px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.bookingControl {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
 }
 
 .timerText {
-    color: #cf7373;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid #eadde4;
+    border-radius: 999px;
+    color: #233154;
+    background-color: #fff;
+    display: inline-flex;
+    align-items: center;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 300;
+    box-sizing: border-box;
 }
 
 .bookingButton {
-    width: 112px;
-    height: 36px;
-    border: 1px solid #222;
-    border-radius: 4px;
-    background-color: #222;
+    min-width: 126px;
+    height: 40px;
+    padding: 0 18px;
+    border: 2px solid #071120;
+    border-radius: 8px;
+    background-color: #071120;
     color: #fff;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+    transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bookingButton:hover {
+    background-color: #101b2c;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+    transform: translateY(-1px);
+}
+
+.bookingButton:disabled {
+    border-color: #c8c8ce;
+    background-color: #c8c8ce;
+    color: #fff;
+    cursor: not-allowed;
 }
 
 .scheduleSection {
-    margin-top: 24px;
-    padding-top: 4px;
-    border-top: 1px solid #ddd8e5;
-    border-bottom: 1px solid #ddd8e5;
+    margin-top: 38px;
+    padding: 24px 26px 28px;
+    border: 1px solid #eadde4;
+    border-radius: 18px;
     background-color: #fff;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.05);
+    box-sizing: border-box;
 }
 
 .sectionTitle {
+    width: 100%;
     margin: 0;
-    padding: 16px 0;
-    font-size: 16px;
-    font-weight: 700;
+    padding: 0 0 12px;
+    color: #071120;
+    text-align: left;
+    font-size: 18px;
+    font-weight: 400;
 }
 
 .scheduleList {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
-    padding: 24px 0 34px;
+    gap: 12px;
+    padding: 18px 0 0;
     box-sizing: border-box;
 }
 
 .scheduleButton {
-    width: 410px;
-    height: 54px;
-    border: 1px solid #d8d2e4;
-    border-radius: 6px;
+    width: min(430px, 100%);
+    min-height: 56px;
+    padding: 0 18px;
+    border: 1px solid #eadde4;
+    border-radius: 14px;
     background-color: #fff;
-    color: #222;
+    color: #111827;
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
     cursor: pointer;
     box-sizing: border-box;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .activeSchedule {
-    border: 2px solid #9a63ff;
-    background-color: #fbf8ff;
+    border: 2px solid #071120;
+    background-color: #071120;
+    color: #fff;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
+}
+
+.scheduleButton:hover {
+    background-color: #fff;
+    border-color: #d9cbd2;
+    transform: translateY(-1px);
+}
+
+.activeSchedule:hover {
+    background-color: #071120;
 }
 
 .scheduleDate {
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 300;
     text-align: center;
 }
 
 .scheduleTime {
     font-size: 14px;
-    font-weight: 700;
-    color: #9a63ff;
+    font-weight: 300;
+    color: #f47fa6;
     text-align: center;
 }
 
 .activeScheduleTime {
-    color: #7c43ff;
+    color: #ffc6da;
 }
 
 .detailMenu {
-    margin-top: 24px;
-    height: 74px;
-    padding: 0 22px;
-    border: 1px solid #d9d9e3;
-    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    margin-top: 34px;
+    min-height: 68px;
+    padding: 12px;
+    border: 1px solid #eadde4;
+    border-radius: 18px;
+    background-color: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
-    gap: 30px;
+    justify-content: space-between;
+    gap: 12px;
     box-sizing: border-box;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
 }
 
 .detailMenuButton {
-    width: 150px;
-    height: 36px;
-    border: 1px solid #d8d2e4;
-    border-radius: 20px;
-    background-color: #fff;
-    color: #777;
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    height: 38px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.82);
+    color: #374151;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 300;
     cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.detailMenuButton:hover {
+    background-color: #fff;
+    transform: translateY(-1px);
 }
 
 .activeDetailMenuButton {
-    border: 1px solid #ffd6e8;
-    background-color: #fff2f8;
-    color: #9a63ff;
+    border: none;
+    background-color: #071120;
+    color: #fff;
 }
 
 .detailSection {
-    margin-top: 18px;
+    margin-top: 34px;
     width: 100%;
     background-color: #fff;
     box-sizing: border-box;
 }
 
 .detailTitle {
-    margin: 0 0 8px;
-    color: #9a63ff;
-    font-size: 15px;
-    font-weight: 700;
+    width: 100%;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eadde4;
+    color: #071120;
+    text-align: left;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.detailTitle::before,
+.guideTitle::before,
+.sectionTitle::before {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 10px;
+    border: 1px solid #eadde4;
+    border-radius: 50%;
+    background-color: #eadde4;
+    content: "";
+    vertical-align: 2px;
 }
 
 .detailContent {
     height: 330px;
-    border: 1px solid #d8d2e4;
-    border-radius: 18px;
-    background-color: #fff2f7;
+    border: 1px solid #eadde4;
+    border-radius: 18px 18px 0 0;
+    background-color: #fff;
     overflow: hidden;
     box-sizing: border-box;
     transition: height 0.2s ease;
@@ -256,10 +391,12 @@
     min-height: 620px;
     padding: 24px;
     box-sizing: border-box;
-    color: #333;
+    color: #111827;
     font-size: 13px;
     line-height: 1.7;
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
 }
 
 .detailPlaceholder p {
@@ -269,102 +406,188 @@
 .detailImage {
     width: 100%;
     max-height: 500px;
-    border-radius: 12px;
+    border: 1px solid #eadde4;
+    border-radius: 14px;
     object-fit: contain;
     background: #fff;
 }
 
 .moreButton {
     width: 100%;
-    height: 18px;
+    height: 32px;
     margin-top: -1px;
-    border: 1px solid #bfbfc8;
+    border: 1px solid #eadde4;
+    border-radius: 0 0 18px 18px;
     background-color: #fff;
-    color: #222;
-    font-size: 11px;
-    line-height: 16px;
+    color: #233154;
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 30px;
     cursor: pointer;
 }
 
 .guideSection {
-    margin-top: 70px;
+    margin-top: 64px;
     background-color: #fff;
 }
 
 .guideTitle {
-    margin: 0 0 12px;
-    color: #9a63ff;
-    font-size: 15px;
-    font-weight: 700;
+    width: 100%;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eadde4;
+    color: #071120;
+    text-align: left;
+    font-size: 20px;
+    font-weight: 400;
 }
 
 .guideBox {
     min-height: 105px;
-    padding: 24px;
-    border: 1px solid #d8d2e4;
-    border-radius: 12px;
-    background-color: #f7f1ff;
+    padding: 26px;
+    border: 1px solid #eadde4;
+    border-radius: 18px;
+    background-color: #fff;
     box-sizing: border-box;
-    color: #777;
+    color: #111827;
     font-size: 13px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
 }
 
 .venueInfoBox {
     min-height: 150px;
-    padding: 22px 24px;
-    border: 1px solid #d8d2e4;
-    border-radius: 12px;
-    background-color: #f7f1ff;
+    padding: 26px;
+    border: 1px solid #eadde4;
+    border-radius: 18px;
+    background-color: #fff;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .venueDescription {
-    margin: 0 0 14px;
-    color: #777;
+    margin: 0 0 16px;
+    color: #6b7280;
     font-size: 13px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
 }
 
 .venueNameButton {
-    margin-bottom: 14px;
-    padding: 0;
-    border: none;
-    background-color: transparent;
-    color: #222;
+    margin-bottom: 18px;
+    padding: 8px 14px;
+    border: 1px solid #eadde4;
+    border-radius: 999px;
+    background-color: #fff;
+    color: #233154;
     font-size: 13px;
-    font-weight: 700;
-    text-decoration: underline;
+    font-weight: 300;
+    text-decoration: none;
     cursor: pointer;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+    text-align: left;
 }
 
 .mapBox {
-    width: 520px;
-    height: 58px;
+    width: min(520px, 100%);
+    min-height: 64px;
+    padding: 12px;
     margin: 0 auto;
-    border: 1px solid #d6d6df;
-    border-radius: 8px;
+    border: 1px solid #eadde4;
+    border-radius: 14px;
     background-color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #777;
+    color: #6b7280;
     font-size: 13px;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .topButton {
     position: fixed;
     right: 34px;
     bottom: 34px;
-    width: 92px;
-    height: 92px;
-    border: none;
+    width: 76px;
+    height: 76px;
+    border: 1px solid #eadde4;
     border-radius: 50%;
-    background-color: #d8d8d8;
-    color: #000;
+    background-color: #071120;
+    color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 6px;
     font-size: 12px;
+    font-weight: 300;
     cursor: pointer;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+}
+
+@media (max-width: 720px) {
+    .summaryCard {
+        gap: 22px;
+        padding: 24px;
+    }
+
+    .posterArea {
+        width: 150px;
+    }
+
+    .infoGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .bookingArea {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .detailMenu {
+        position: static;
+    }
+}
+
+@media (max-width: 560px) {
+    .page {
+        padding: 22px 14px 82px;
+    }
+
+    .summaryCard {
+        flex-direction: column;
+        align-items: center;
+        padding: 24px 18px;
+        box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+    }
+
+    .posterArea {
+        width: 100%;
+    }
+
+    .infoArea {
+        width: 100%;
+    }
+
+    .detailMenu {
+        padding: 16px;
+        flex-wrap: wrap;
+    }
+
+    .detailMenuButton {
+        max-width: none;
+        flex-basis: calc(50% - 8px);
+    }
+
+    .topButton {
+        right: 18px;
+        bottom: 18px;
+        width: 64px;
+        height: 64px;
+    }
 }

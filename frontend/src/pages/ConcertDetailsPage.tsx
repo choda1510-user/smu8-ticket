@@ -2,6 +2,7 @@ import styles from "./ConcertDetailsPage.module.css"
 import {useRef, useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {useConcertDetailsPage} from "@/hooks/useConcertDetailsPage";
+import {useReservationCountdown} from "@/hooks/useReservationCountdown";
 
 /*
  * 공연 상세 페이지
@@ -19,6 +20,12 @@ function ConcertDetailsPage() {
     const navigate = useNavigate();
     const {concertId} = useParams();
     const {concertDetail} = useConcertDetailsPage();
+    const {
+        bookingStatusText,
+        countdownText,
+        isCountdownVisible,
+        isBookingOpen,
+    } = useReservationCountdown(concertDetail.reservationStartAt);
 
     const currentConcertId = concertId ?? String(concertDetail.id);
 
@@ -80,9 +87,6 @@ function ConcertDetailsPage() {
                      ={styles.page}>
             <div className
                      ={styles.inner}>
-                <h1 className
-                        ={styles.pageTitle}>공연 상세</h1>
-
                 <section className
                              ={styles.summaryCard}>
                     <div className
@@ -137,17 +141,25 @@ function ConcertDetailsPage() {
 
                         <div className
                                  ={styles.bookingArea}>
-                            <span className
-                                      ={styles.timerText}>59:59.99</span>
+                            {isCountdownVisible && (
+                                <span className={styles.timerText}>{countdownText}</span>
+                            )}
 
-                            <button
-                                type="button"
-                                className
-                                    ={styles.bookingButton}
-                                onClick={handleBookingClick}
-                            >
-                                예매하기
-                            </button>
+                            <div className={styles.bookingControl}>
+                                {bookingStatusText && (
+                                    <span className={styles.timerText}>{bookingStatusText}</span>
+                                )}
+
+                                <button
+                                    type="button"
+                                    className
+                                        ={styles.bookingButton}
+                                    onClick={handleBookingClick}
+                                    disabled={!isBookingOpen}
+                                >
+                                    예매하기
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -201,21 +213,21 @@ function ConcertDetailsPage() {
                     <button
                         type="button"
                         className
-                            ={`${styles.detailMenuButton} ${activeMenu === "venue" ? styles.activeDetailMenuButton : ""}`
-                        }
-                        onClick={() => handleMenuClick("venue")}
-                    >
-                        공연장 정보
-                    </button>
-
-                    <button
-                        type="button"
-                        className
                             ={`${styles.detailMenuButton} ${activeMenu === "notice" ? styles.activeDetailMenuButton : ""}`
                         }
                         onClick={() => handleMenuClick("notice")}
                     >
                         예매안내
+                    </button>
+
+                    <button
+                        type="button"
+                        className
+                            ={`${styles.detailMenuButton} ${activeMenu === "venue" ? styles.activeDetailMenuButton : ""}`
+                        }
+                        onClick={() => handleMenuClick("venue")}
+                    >
+                        공연장 정보
                     </button>
                 </nav>
 
@@ -256,7 +268,7 @@ function ConcertDetailsPage() {
                 <section ref={noticeRef} className
                     ={styles.guideSection}>
                     <h2 className
-                            ={styles.guideTitle}>예매 안내사항</h2>
+                            ={styles.guideTitle}>예매안내</h2>
 
                     <div className
                              ={styles.guideBox}>

@@ -1,0 +1,63 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.1.0'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.smu8'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
+	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-data-redis-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	testCompileOnly 'org.projectlombok:lombok'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+bootJar {
+	archiveFileName = 'smu8waiting-backend.jar'
+}
+
+tasks.register('bootRunLocal', org.springframework.boot.gradle.tasks.run.BootRun) {
+	group = 'application'
+	description = 'Run the Backend Server with a local-dev profile.'
+
+	mainClass = 'com.smu8.waiting.WaitingApplication'
+	classpath = sourceSets.main.runtimeClasspath
+
+	systemProperty 'spring.profiles.active', 'local-dev'
+	jvmArgs = ["-Dcustom.property=true"]
+}
+
+tasks.register('bootRunWaitingLocal', org.springframework.boot.gradle.tasks.run.BootRun) {
+	group = 'application'
+	description = 'Run the Backend Server with a local-dev-waiting profile.'
+
+	mainClass = 'com.smu8.waiting.WaitingApplication'
+	classpath = sourceSets.main.runtimeClasspath
+
+	systemProperty 'spring.profiles.active', 'local-dev-waiting'
+	jvmArgs = ["-Dcustom.property=true"]
+}

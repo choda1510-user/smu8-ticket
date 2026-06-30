@@ -1,0 +1,20 @@
+spring:
+  config:
+    activate:
+      on-profile: load-test-waiting
+cors:
+  origins:
+    - http://192.168.0.6:80
+    - http://192.168.0.6
+  headers:
+    - Content-Type
+    - Authorization
+  methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+    - PATCH
+    - HEAD
+  credentials: true

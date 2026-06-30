@@ -11,7 +11,13 @@ function BookingSuccessPage() {
     const redirectConcertId = concertId ?? String(bookingSuccess.concertId);
 
     const handleConfirmClick = () => {
-        navigate(`/concerts/${redirectConcertId}`);
+        window.close();
+
+        window.setTimeout(() => {
+            if (!window.closed) {
+                navigate(`/concerts/${redirectConcertId}`, {replace: true});
+            }
+        }, 100);
     };
 
     return (

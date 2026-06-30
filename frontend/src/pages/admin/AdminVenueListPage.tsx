@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router";
-import {getAdminVenueList, getVenueAddress} from "@/apis/venueApi";
+import {getAdminVenuePage, getVenueAddress} from "@/apis/venueApi";
 import type {AdminVenueItemResponse} from "@/types/adminVenue";
 import "./AdminPages.css";
 
@@ -14,6 +14,7 @@ function AdminVenueListPage() {
     const [venueCodeKeyword, setVenueCodeKeyword] = useState("");
     const [venueNameKeyword, setVenueNameKeyword] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -22,7 +23,12 @@ function AdminVenueListPage() {
             try {
                 setIsLoading(true);
                 setErrorMessage("");
-                setVenues(await getAdminVenueList());
+                const response = await getAdminVenuePage({
+                    page: currentPage - 1,
+                    size: pageSize,
+                });
+                setVenues(response.contents);
+                setTotalPage(Math.max(1, response.totalPages));
             } catch {
                 setErrorMessage("공연장 목록을 불러오지 못했습니다.");
             } finally {
@@ -31,7 +37,7 @@ function AdminVenueListPage() {
         }
 
         void loadVenues();
-    }, []);
+    }, [currentPage]);
 
     const filteredVenues = useMemo(() => {
         const codeKeyword = venueCodeKeyword.trim();
@@ -47,9 +53,7 @@ function AdminVenueListPage() {
         });
     }, [venues, venueCodeKeyword, venueNameKeyword]);
 
-    const totalPage = Math.max(1, Math.ceil(filteredVenues.length / pageSize));
-    const startIndex = (currentPage - 1) * pageSize;
-    const pagedVenues = filteredVenues.slice(startIndex, startIndex + pageSize);
+    const pagedVenues = filteredVenues;
 
     const handleSearchClick = () => {
         setVenueCodeKeyword(venueCodeInput);

@@ -18,6 +18,8 @@ import type {
 } from "@/types/adminConcert.ts";
 
 import type {VenueSearch, VenueItemResponse} from "@/types/venue";
+import type {PageRequest} from "@/types/api";
+import {pageConvert} from "@/utils/commonConvertor";
 import { getAccessToken } from "./authApi";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
@@ -281,13 +283,35 @@ export async function getConcert(id: number): Promise<ConcertDetail> {
 }
 
 export async function getConcertList(): Promise<ConcertItemResponse[]> {
-    const response = await fetchJson<ConcertItemPageResponse>(`${API_BASE_URL}/api/concerts`);
+    const response = await fetchJson<ConcertItemPageResponse>(
+        `${API_BASE_URL}/api/concerts?page=0&size=100`,
+    );
     return response.contents ?? [];
 }
 
 export async function getConcertItems(): Promise<ConcertItem[]> {
     const concerts = await getConcertList();
     return concerts.map(toConcertItem);
+}
+
+export async function getConcertPage(
+    query: PageRequest,
+    status?: "open" | "upcoming",
+) {
+    const params = new URLSearchParams({
+        page: String(query.page),
+        size: String(query.size),
+    });
+
+    if (status) {
+        params.set("status", status);
+    }
+
+    const response = await fetchJson<ConcertItemPageResponse>(
+        `${API_BASE_URL}/api/concerts?${params.toString()}`,
+    );
+
+    return pageConvert(response, toConcertItem);
 }
 
 export async function getAdminConcert(id: number): Promise<AdminConcertDetailResponse> {
@@ -297,11 +321,22 @@ export async function getAdminConcert(id: number): Promise<AdminConcertDetailRes
 }
 
 export async function getAdminConcertList(): Promise<AdminConcertDetailResponse[]> {
-    const response = await fetchJson<AdminConcertListPageResponse>(`${API_BASE_URL}/api/admin/concerts`, {
-        headers: createJsonHeaders(),
-    });
+    const response = await getAdminConcertPage({page: 0, size: 100});
 
     return response.contents ?? [];
+}
+
+export async function getAdminConcertPage(
+    query: PageRequest,
+): Promise<AdminConcertListPageResponse> {
+    const params = new URLSearchParams({
+        page: String(query.page),
+        size: String(query.size),
+    });
+
+    return fetchJson<AdminConcertListPageResponse>(`${API_BASE_URL}/api/admin/concerts?${params.toString()}`, {
+        headers: createJsonHeaders(),
+    });
 }
 
 export async function addConcert(

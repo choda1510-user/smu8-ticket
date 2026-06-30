@@ -1,10 +1,10 @@
 import {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router";
-import {getAdminConcertList} from "@/apis/concertApi";
+import {getAdminConcertPage} from "@/apis/concertApi";
 import type {AdminConcertDetailResponse, AdminConcertScheduleResponse} from "@/types/adminConcert";
 import "./AdminPages.css";
 
-const pageSize = 5;
+const pageSize = 4;
 
 function formatPeriod(schedules: AdminConcertScheduleResponse[]) {
     if (!schedules || schedules.length === 0) {
@@ -32,6 +32,7 @@ function AdminConcertListPage() {
         venueCode: "",
     });
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -40,7 +41,12 @@ function AdminConcertListPage() {
             try {
                 setIsLoading(true);
                 setErrorMessage("");
-                setConcerts(await getAdminConcertList());
+                const response = await getAdminConcertPage({
+                    page: currentPage - 1,
+                    size: pageSize,
+                });
+                setConcerts(response.contents);
+                setTotalPage(Math.max(1, response.totalPages));
             } catch {
                 setErrorMessage("공연 목록을 불러오지 못했습니다.");
             } finally {
@@ -49,7 +55,7 @@ function AdminConcertListPage() {
         }
 
         void loadConcerts();
-    }, []);
+    }, [currentPage]);
 
     const filteredConcerts = useMemo(() => {
         const titleKeyword = searchCondition.title.trim().toLowerCase();
@@ -67,9 +73,7 @@ function AdminConcertListPage() {
         });
     }, [concerts, searchCondition]);
 
-    const totalPage = Math.max(1, Math.ceil(filteredConcerts.length / pageSize));
-    const startIndex = (currentPage - 1) * pageSize;
-    const pagedConcerts = filteredConcerts.slice(startIndex, startIndex + pageSize);
+    const pagedConcerts = filteredConcerts;
 
     const handleSearchClick = () => {
         setSearchCondition({

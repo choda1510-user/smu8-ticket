@@ -15,6 +15,7 @@ import type {
     AdminConcertListPageResponse,
     AdminConcertUpdateCommand,
     AdminConcertUpdateResponse,
+    AdminConcertUpdateBasicInfoCommand,
 } from "@/types/adminConcert.ts";
 
 import type {VenueSearch, VenueItemResponse} from "@/types/venue";
@@ -327,6 +328,18 @@ export async function cancelConcert(id: number): Promise<void> {
         method: "DELETE",
         headers: createJsonHeaders(),
     });
+}
+export async function updateConcertBasicInfo(
+    command: AdminConcertUpdateBasicInfoCommand
+): Promise<AdminConcertDetailResponse> {
+    return fetchJson<AdminConcertDetailResponse>(
+        `${API_BASE_URL}/api/admin/concerts/${command.pathVariables.id}/basic-info`,
+        {
+            method: "PATCH",
+            headers: createJsonHeaders(),
+            body: JSON.stringify(command.request),
+        },
+    );
 }
 
 

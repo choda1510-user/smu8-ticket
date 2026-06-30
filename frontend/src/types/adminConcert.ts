@@ -91,6 +91,19 @@ export type AdminConcertUpdateCommand = {
         id: string
     }
 }
+// 관리자 공연 기본정보 수정 요청 타입 (제목/설명/러닝타임만, 포스터/일정/좌석 변경 없음)
+export type AdminConcertUpdateBasicInfoRequest = {
+    title: string; // 공연명
+    description: string; // 작품 설명
+    runningTime: string; // 공연 시간
+};
+
+export type AdminConcertUpdateBasicInfoCommand = {
+    request: AdminConcertUpdateBasicInfoRequest;
+    pathVariables: {
+        id: string;
+    };
+};
 
 // 기존 등록 코드 호환용 관리자 공연 요청 타입
 export type AdminConcertRequest = AdminConcertCreateRequest;

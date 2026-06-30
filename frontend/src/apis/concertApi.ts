@@ -329,19 +329,36 @@ export async function cancelConcert(id: number): Promise<void> {
         headers: createJsonHeaders(),
     });
 }
+
 export async function updateConcertBasicInfo(
     command: AdminConcertUpdateBasicInfoCommand
 ): Promise<AdminConcertDetailResponse> {
+    const formData = new FormData();
+
+    formData.append(
+        "request",
+        new Blob([JSON.stringify(command.request)], {type: "application/json"}),
+    );
+
+    if (command.cardPoster) {
+        formData.append("cardPoster", command.cardPoster);
+    }
+    if (command.bannerPoster) {
+        formData.append("bannerPoster", command.bannerPoster);
+    }
+    if (command.descriptionPoster) {
+        formData.append("descriptionPoster", command.descriptionPoster);
+    }
+
     return fetchJson<AdminConcertDetailResponse>(
         `${API_BASE_URL}/api/admin/concerts/${command.pathVariables.id}/basic-info`,
         {
             method: "PATCH",
-            headers: createJsonHeaders(),
-            body: JSON.stringify(command.request),
+            headers: createMultipartHeaders(),
+            body: formData,
         },
     );
 }
-
 
 // 기존 오타 함수명을 쓰는 코드가 있어도 깨지지 않도록 잠시 유지합니다.
 

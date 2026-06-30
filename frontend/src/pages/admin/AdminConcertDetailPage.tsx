@@ -210,15 +210,12 @@ function AdminConcertDetailPage() {
         }
         setIsEditing(false);
     };
-
     const handleSaveClick = async () => {
-        if (!title.trim() || !description.trim() || !schedules ) {
-
-            // TODO: 백엔드 연동 단계에서 멀티파트 PATCH 요청으로 교체 예정
-            alert("공연명과 작품명을 입력해주세요.");
-            // setIsEditing(false);
+        if (!title.trim() || !description.trim()) {
+            alert("공연명과 작품설명을 입력해주세요.");
             return;
         }
+
         try {
             setIsLoading(true);
             const updatedConcert = await updateConcertBasicInfo({
@@ -227,6 +224,9 @@ function AdminConcertDetailPage() {
                     description: description.trim(),
                     runningTime,
                 },
+                cardPoster: posterFields.cardPoster.file ?? undefined,
+                bannerPoster: posterFields.bannerPoster.file ?? undefined,
+                descriptionPoster: posterFields.descriptionPoster.file ?? undefined,
                 pathVariables: {
                     id: concertNumericId.toString(),
                 },
@@ -235,13 +235,12 @@ function AdminConcertDetailPage() {
             setConcert(updatedConcert);
             loadFormFromConcert(updatedConcert);
             setIsEditing(false);
-            alert("공연 기본정보가 저장되었습니다. (일정/포스터/좌석 변경은 이번 저장에 포함되지 않았습니다.)");
+            alert("공연 정보가 저장되었습니다. (일정/좌석 변경은 이번 저장에 포함되지 않았습니다.)");
         } catch {
             alert("공연 정보 저장에 실패했습니다.");
         } finally {
             setIsLoading(false);
         }
-
     };
 
     const handleDeleteClick = async () => {

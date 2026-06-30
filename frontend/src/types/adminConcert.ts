@@ -100,6 +100,9 @@ export type AdminConcertUpdateBasicInfoRequest = {
 
 export type AdminConcertUpdateBasicInfoCommand = {
     request: AdminConcertUpdateBasicInfoRequest;
+    cardPoster?: File; // 새로 선택한 카드형 포스터 (선택하지 않으면 기존 유지)
+    bannerPoster?: File; // 새로 선택한 스크린형 포스터 (선택하지 않으면 기존 유지)
+    descriptionPoster?: File; // 새로 선택한 작품설명 이미지 (선택하지 않으면 기존 유지)
     pathVariables: {
         id: string;
     };

@@ -1,7 +1,7 @@
 import {useNavigate, useSearchParams} from "react-router";
 
 import {useGlobalConcertSearchPage} from "@/hooks/useGlobalConcertSearchPage";
-import styles from "./GloblaConcertSearchPage.module.css"
+import styles from "./GlobalConcertSearchPage.module.css"
 
 /*
  * 통합 검색 결과 페이지
@@ -13,8 +13,8 @@ function GlobalConcertSearchPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const {concertResults, venueResults} = useGlobalConcertSearchPage();
-    const concerts = concertResults.data;
-    const venues = venueResults.data;
+    const concerts = concertResults.contents;
+    const venues = venueResults.contents;
 
     const keyword = searchParams.get("keyword") ?? searchParams.get("q") ?? "";
 
@@ -80,7 +80,7 @@ function GlobalConcertSearchPage() {
                         <ul className
                                 ={styles.concertList}>
                             {concerts.map((concert) => (
-                                <li key={concert.id} className
+                                <li key={concert.concertId} className
                                     ={styles.concertItem}>
 
                                     <div className
@@ -89,7 +89,7 @@ function GlobalConcertSearchPage() {
                                             type="button"
                                             className
                                                 ={styles.posterButton}
-                                            onClick={() => handleConcertClick(concert.id)}
+                                            onClick={() => handleConcertClick(concert.concertId)}
                                         >
                                             {concert.posterUrl ? (
                                                 <img src={concert.posterUrl} alt="공연 포스터" className
@@ -105,7 +105,7 @@ function GlobalConcertSearchPage() {
                                             type="button"
                                             className
                                                 ={styles.concertTitleButton}
-                                            onClick={() => handleConcertClick(concert.id)}
+                                            onClick={() => handleConcertClick(concert.concertId)}
                                         >
                                             {concert.title}
                                         </button>
@@ -128,7 +128,7 @@ function GlobalConcertSearchPage() {
                                     <div className
                                              ={styles.badgeArea}>
                                         <strong className
-                                                    ={styles.badge}>{concert.status}</strong>
+                                                    ={styles.badge}>{concert.badgeText}</strong>
                                     </div>
                                 </li>
                             ))}

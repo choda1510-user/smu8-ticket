@@ -1,63 +1,111 @@
 import type {
-    BookingDetail,
-    BookingListResponse,
-    BookingSuccess,
-    BookingWaiting,
-    Payment,
-    PriceSelection,
-    SeatSelection,
+    BookingCancelCommand,
+    BookingConcertSeatFrameResponse,
+    BookingCreateCommand,
+    BookingDetailQuery,
+    BookingDetailResponse,
+    BookingItemResponse,
+    BookingPageQuery,
+    BookingPageResponse,
+    BookingPreemptSeatCommand,
+    ConcertSeatsStatusQuery,
 } from "@/types/booking";
+import {getAccessToken} from "@/apis/authApi";
 
-const bookingListUrl = new URL("../data/bookingList.json", import.meta.url).href;
-const bookingDetailUrl = new URL("../data/bookingDetail.json", import.meta.url).href;
-const waitingListUrl = new URL("../data/waitingList.json", import.meta.url).href;
-const seatSelectionUrl = new URL("../data/seatSelection.json", import.meta.url).href;
-const priceSelectionUrl = new URL("../data/priceSelection.json", import.meta.url).href;
-const paymentUrl = new URL("../data/payment.json", import.meta.url).href;
-const bookingSuccessUrl = new URL("../data/bookingSuccess.json", import.meta.url).href;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
-async function fetchBookingMock<T>(url: string): Promise<T> {
-    const response = await fetch(url);
+function createJsonHeaders() {
+    const headers: HeadersInit = {
+        "Content-Type": "application/json",
+    };
+    const accessToken = getAccessToken();
+
+    if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    return headers;
+}
+
+async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
+    const response = await fetch(url, options);
 
     if (!response.ok) {
-        throw new Error(`Failed to fetch ${url}`);
+        throw new Error(`API request failed. status=${response.status}`);
     }
 
     return (await response.json()) as T;
 }
 
-export function getBooking(): Promise<BookingDetail> {
-    return fetchBookingMock<BookingDetail>(bookingDetailUrl);
+async function fetchEmpty(url: string, options?: RequestInit): Promise<void> {
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+        throw new Error(`API request failed. status=${response.status}`);
+    }
 }
 
-export function getBookingList(): Promise<BookingListResponse> {
-    return fetchBookingMock<BookingListResponse>(bookingListUrl);
+function toReservationPageUrl(query: BookingPageQuery) {
+    const params = new URLSearchParams();
+    params.set("page", String(query.page));
+    params.set("size", String(query.size));
+
+    return `${API_BASE_URL}/api/reservations?${params.toString()}`;
 }
 
-export function getBookingWaiting(): Promise<BookingWaiting> {
-    return fetchBookingMock<BookingWaiting>(waitingListUrl);
+function toReservationSeatsUrl(query: ConcertSeatsStatusQuery) {
+    const params = new URLSearchParams();
+    params.set("concertId", String(query.concertId));
+    params.set("scheduleId", String(query.scheduleId));
+
+    return `${API_BASE_URL}/api/reservaions/preempt-seats?${params.toString()}`;
 }
 
-export function getSeatSelection(): Promise<SeatSelection> {
-    return fetchBookingMock<SeatSelection>(seatSelectionUrl);
+export function getBooking(query: BookingDetailQuery): Promise<BookingDetailResponse> {
+    return fetchJson<BookingDetailResponse>(`${API_BASE_URL}/api/reservations/${query.reservationId}`, {
+        headers: createJsonHeaders(),
+    });
 }
 
-export function getPriceSelection(): Promise<PriceSelection> {
-    return fetchBookingMock<PriceSelection>(priceSelectionUrl);
+export function getBookingList(query: BookingPageQuery): Promise<BookingPageResponse> {
+    return fetchJson<BookingPageResponse>(toReservationPageUrl(query), {
+        headers: createJsonHeaders(),
+    });
 }
 
-export function getPayment(): Promise<Payment> {
-    return fetchBookingMock<Payment>(paymentUrl);
+export function getBookingSeats(query: ConcertSeatsStatusQuery): Promise<BookingConcertSeatFrameResponse> {
+    return fetchJson<BookingConcertSeatFrameResponse>(toReservationSeatsUrl(query), {
+        headers: createJsonHeaders(),
+    });
 }
 
-export function getBookingSuccess(): Promise<BookingSuccess> {
-    return fetchBookingMock<BookingSuccess>(bookingSuccessUrl);
+export function preemptBookingSeats(command: BookingPreemptSeatCommand): Promise<void> {
+    return fetchEmpty(`${API_BASE_URL}/api/reservations/preempt-seats`, {
+        method: "POST",
+        headers: createJsonHeaders(),
+        body: JSON.stringify({
+            concertId: command.concertId,
+            scheduleId: command.scheduleId,
+            seatIds: command.seatIds,
+        }),
+    });
 }
 
-export function addBooking(): Promise<BookingSuccess> {
-    return getBookingSuccess();
+export function addBooking(command: BookingCreateCommand): Promise<BookingItemResponse> {
+    return fetchJson<BookingItemResponse>(`${API_BASE_URL}/api/reservations`, {
+        method: "POST",
+        headers: createJsonHeaders(),
+        body: JSON.stringify({
+            concertId: command.concertId,
+            scheduleId: command.scheduleId,
+            seatIds: command.seatIds,
+        }),
+    });
 }
 
-export function cancelBooking(): Promise<BookingDetail> {
-    return getBooking();
+export function cancelBooking(command: BookingCancelCommand): Promise<BookingItemResponse> {
+    return fetchJson<BookingItemResponse>(`${API_BASE_URL}/api/reservations/${command.reservationId}`, {
+        method: "DELETE",
+        headers: createJsonHeaders(),
+    });
 }

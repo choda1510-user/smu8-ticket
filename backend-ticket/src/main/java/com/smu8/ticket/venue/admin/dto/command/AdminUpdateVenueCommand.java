@@ -1,10 +1,10 @@
 package com.smu8.ticket.venue.admin.dto.command;
 
-import com.smu8.ticket.venue.admin.http.request.UpdateVenueRequest;
+import com.smu8.ticket.venue.admin.http.request.AdminUpdateVenueRequest;
 import lombok.Builder;
 
 @Builder
-public record UpdateVenueCommand(
+public record AdminUpdateVenueCommand(
         Long id,
         String name,
         String zoneNo,
@@ -13,8 +13,8 @@ public record UpdateVenueCommand(
         String detailAddress,
         String buildingName
 ) {
-    public static UpdateVenueCommand from(Long id, UpdateVenueRequest request) {
-        return UpdateVenueCommand.builder()
+    public static AdminUpdateVenueCommand from(Long id, AdminUpdateVenueRequest request) {
+        return AdminUpdateVenueCommand.builder()
                 .id(id)
                 .name(request.name())
                 .zoneNo(request.zoneNo())

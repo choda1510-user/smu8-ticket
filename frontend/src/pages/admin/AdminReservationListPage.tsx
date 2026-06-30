@@ -3,6 +3,7 @@ import {useNavigate} from "react-router";
 import DatePicker from "react-datepicker";
 import {format} from "date-fns";
 import {useBookingListPage} from "@/hooks/useBookingListPage";
+import type {BookingItemResult} from "@/types/booking";
 import "react-datepicker/dist/react-datepicker.css";
 import "./AdminPages.css";
 
@@ -39,7 +40,7 @@ function AdminReservationListPage() {
         const searchStartDate = parseDateValue(searchCondition.startDate);
         const searchEndDate = parseDateValue(searchCondition.endDate);
 
-        return bookingList.data.filter((reservation) => {
+        return bookingList.contents.filter((reservation: BookingItemResult) => {
             const [concertStartDate, concertEndDate] = parseConcertPeriod(reservation.concertPeriod);
             const matchesTitle = titleKeyword
                 ? reservation.concertTitle.toLowerCase().includes(titleKeyword)
@@ -56,7 +57,7 @@ function AdminReservationListPage() {
 
             return matchesTitle && matchesReservationNumber && matchesStartDate && matchesEndDate;
         });
-    }, [bookingList.data, hasSearched, searchCondition]);
+    }, [bookingList.contents, hasSearched, searchCondition]);
 
     const totalPage = Math.max(1, Math.ceil(filteredReservations.length / pageSize));
     const startIndex = (currentPage - 1) * pageSize;
@@ -185,7 +186,7 @@ function AdminReservationListPage() {
                     </tr>
                     </thead>
                     <tbody>
-                    {pagedReservations.map((reservation) => (
+                    {pagedReservations.map((reservation: BookingItemResult) => (
                         <tr key={reservation.reserveId}>
                             <td>{reservation.concertTitle}</td>
                             <td>{reservation.venueName}</td>

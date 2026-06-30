@@ -1,12 +1,16 @@
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router";
 import {filterConcertsByKeyword, getConcertList, toConcertSearchResult} from "@/apis/concertApi";
-import type {ConcertSearchResultResponse} from "@/types/concert";
+import type {ConcertItemPageResult} from "@/types/concert";
 
-const initialConcertSearchResults: ConcertSearchResultResponse = {
-    data: [],
+const initialConcertSearchResults: ConcertItemPageResult = {
+    contents: [],
     page: 1,
-    totalPage: 1,
+    size: 0,
+    totalElements: 0,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false
 };
 
 function getKeyword(searchParams: URLSearchParams) {
@@ -16,7 +20,7 @@ function getKeyword(searchParams: URLSearchParams) {
 export function useConcertSearchResultPage() {
     const [searchParams] = useSearchParams();
     const keyword = getKeyword(searchParams);
-    const [concertSearchResults, setConcertSearchResults] = useState<ConcertSearchResultResponse>(initialConcertSearchResults);
+    const [concertSearchResults, setConcertSearchResults] = useState<ConcertItemPageResult>(initialConcertSearchResults);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
@@ -33,9 +37,13 @@ export function useConcertSearchResultPage() {
 
                 if (isMounted) {
                     setConcertSearchResults({
-                        data: concerts,
+                        contents: concerts,
                         page: 1,
-                        totalPage: 1,
+                        size: concerts.length,
+                        totalElements: concerts.length,
+                        totalPages: 1,
+                        hasNext: false,
+                        hasPrevious: false
                     });
                 }
             } catch (caughtError) {

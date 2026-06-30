@@ -1,12 +1,16 @@
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router";
 import {filterVenuesByKeyword, getVenueList, toVenueSearchResult} from "@/apis/venueApi";
-import type {VenueSearchPageResponse} from "@/types/venue";
+import type {VenueSearchPageResult} from "@/types/venue";
 
-const initialVenueSearchResults: VenueSearchPageResponse = {
-    data: [],
+const initialVenueSearchResults: VenueSearchPageResult = {
+    contents: [],
     page: 1,
-    totalPage: 1,
+    size: 0,
+    totalElements: 0,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false
 };
 
 function getKeyword(searchParams: URLSearchParams) {
@@ -16,7 +20,7 @@ function getKeyword(searchParams: URLSearchParams) {
 export function useConcertHoleSearchResultPage() {
     const [searchParams] = useSearchParams();
     const keyword = getKeyword(searchParams);
-    const [venueSearchResults, setVenueSearchResults] = useState<VenueSearchPageResponse>(initialVenueSearchResults);
+    const [venueSearchResults, setVenueSearchResults] = useState<VenueSearchPageResult>(initialVenueSearchResults);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
@@ -33,9 +37,13 @@ export function useConcertHoleSearchResultPage() {
 
                 if (isMounted) {
                     setVenueSearchResults({
-                        data: venues,
+                        contents: venues,
                         page: 1,
-                        totalPage: 1,
+                        size: venues.length,
+                        totalElements: venues.length,
+                        totalPages: 1,
+                        hasNext: false,
+                        hasPrevious: false
                     });
                 }
             } catch (caughtError) {

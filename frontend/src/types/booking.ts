@@ -1,8 +1,86 @@
-import type {PageResponse} from "@/types/api";
+import type {PageRequest, PageResponse, PageResult} from "@/types/api";
+import type {ConcertScheduleResponse, SeatGradeResponse, SeatResponse} from "@/types/concert";
 
-// 예매 요청 타입
-// 프론트에서 백엔드로 보낼 때 사용
+export type SeatStatus = "AVAILABLE" | "SELECTED" | "UNAVAILABLE";
 
+export type BookingPageQuery = PageRequest;
+
+export type BookingDetailQuery = {
+    reservationId: number;
+};
+
+export type ConcertSeatsStatusQuery = {
+    concertId: number;
+    scheduleId: number;
+};
+
+export type BookingCancelCommand = {
+    reservationId: number;
+};
+
+export type BookingCreateCommand = {
+    concertId: number;
+    scheduleId: number;
+    seatIds: number[];
+};
+
+export type BookingPreemptSeatCommand = BookingCreateCommand;
+
+export type BookingItemResponse = {
+    reservationId: number;
+    reservedSchedule: ConcertScheduleResponse;
+    reservationNo: string;
+    accountId: string;
+    reservationStatus: string;
+    totalQuantity: number;
+    totalAmount: number;
+    reservedAt: string;
+    concertTitle: string;
+    cardPosterUrl: string;
+    concertSchedules: ConcertScheduleResponse[];
+    venueId: number;
+    venueName: string;
+};
+
+export type BookingPageResponse = PageResponse<BookingItemResponse>;
+
+export type BookingSeatResponse = {
+    id: number;
+    seat: SeatResponse;
+    status: SeatStatus;
+};
+
+export type BookingDetailResponse = {
+    reservationId: number;
+    reservedSchedule: ConcertScheduleResponse;
+    reservationNo: string;
+    accountId: string;
+    reservationStatus: string;
+    totalQuantity: number;
+    totalAmount: number;
+    reservedAt: string;
+    concertTitle: string;
+    cardPosterUrl: string;
+    seatGrades: SeatGradeResponse[];
+    concertSchedules: ConcertScheduleResponse[];
+    venueId: number;
+    venueName: string;
+    seats: BookingSeatResponse[];
+};
+
+export type ConcertSeatStatusResponse = {
+    seat: SeatResponse;
+    status: SeatStatus;
+};
+
+export type BookingConcertSeatFrameResponse = {
+    concertId: number;
+    selectSchedule: ConcertScheduleResponse;
+    seatGrades: SeatGradeResponse[];
+    seats: ConcertSeatStatusResponse[];
+    rowMax: number;
+    colMax: number;
+};
 
 export type BookingSeat = {
     id: number;
@@ -13,7 +91,7 @@ export type BookingSeat = {
     cancelStatus: string;
 };
 
-export type BookingDetail = {
+export type BookingDetailResult = {
     concertId: number;
     venueId: number;
     concertTitle: string;
@@ -31,7 +109,7 @@ export type BookingDetail = {
     seats: BookingSeat[];
 };
 
-export type BookingItem = {
+export type BookingItemResult = {
     reserveId: number;
     concertId: number;
     venueId: number;
@@ -46,17 +124,7 @@ export type BookingItem = {
     status: string;
 };
 
-export type BookingPageResponse = PageResponse<BookingItem>;
-
-export type BookingWaiting = {
-    concertId: number;
-    waitingCount: number;
-    waitingTime: string;
-    waitingInformation: string;
-    nextRedirectPath: string;
-};
-
-export type SeatStatus = "available" | "selected" | "unavailable";
+export type BookingPageResult = PageResult<BookingItemResult>;
 
 export type SeatGrade = {
     gradeId: string;
@@ -75,18 +143,19 @@ export type SeatSelectionSchedule = {
 export type SeatSelectionSeat = {
     seatId: number;
     seatNumber: string;
-    rowName: string;
-    columnNumber: number;
     gradeId: string;
     status: SeatStatus;
 };
 
+export type SeatSelectionSeatCell = SeatSelectionSeat | null;
+
+export type SeatSelectionSeatRow = SeatSelectionSeatCell[];
+
 export type SeatSelectionSeatMap = {
     scheduleId: number;
     stageLabel: string;
-    rowNames: string[];
     columnCount: number;
-    seats: SeatSelectionSeat[];
+    seatRows: SeatSelectionSeatRow[];
 };
 
 export type SeatSelection = {
@@ -102,95 +171,30 @@ export type SeatSelection = {
     seatMaps: SeatSelectionSeatMap[];
 };
 
-export type PriceSelectionSeat = {
+export type BookingDraftSeat = {
     seatId: number;
     seatNumber: string;
     gradeName: string;
     price: number;
 };
 
-export type PriceSelectionTicketPrice = {
-    priceId: string;
-    label: string;
-    price: number;
-    quantity: number;
-};
-
-export type PriceSelectionPaymentSummary = {
-    ticketAmount: number;
-    discountAmount: number;
-    serviceFee: number;
+export type BookingDraft = BookingCreateCommand & {
+    concertTitle: string;
+    performanceDate: string;
+    performanceTime: string;
+    selectedSeats: BookingDraftSeat[];
     totalAmount: number;
 };
 
-export type PriceSelection = {
+export type BookingSummary = {
     concertId: number;
     concertTitle: string;
-    venueId: number;
-    venueName: string;
     scheduleId: number;
     performanceDate: string;
     performanceTime: string;
     reservationLimitMinutes: number;
-    selectedSeats: PriceSelectionSeat[];
-    ticketPrices: PriceSelectionTicketPrice[];
-    paymentSummary: PriceSelectionPaymentSummary;
-    cancelPolicy: PaymentCancelPolicy;
-};
-
-export type PaymentDeliveryMethod = {
-    methodId: string;
-    label: string;
-    description: string;
-};
-
-export type PaymentOrderer = {
-    name: string;
-    phoneNumber: string;
-    email: string;
-};
-
-export type PaymentMethodOption = {
-    methodId: string;
-    label: string;
-    isAvailable: boolean;
-};
-
-export type PaymentBankOption = {
-    bankId: string;
-    bankName: string;
-};
-
-export type PaymentDepositForm = {
-    selectedBankId: string;
-    depositorName: string;
-    cashReceiptType: string;
-};
-
-export type PaymentCancelPolicy = {
-    cancelDeadline: string;
-    cancelFeeNotice: string;
-};
-
-export type Payment = {
-    concertId: number;
-    concertTitle: string;
-    venueId: number;
-    venueName: string;
-    scheduleId: number;
-    performanceDate: string;
-    performanceTime: string;
-    reservationLimitMinutes: number;
-    selectedSeats: PriceSelectionSeat[];
-    paymentSummary: PriceSelectionPaymentSummary;
-    deliveryMethods: PaymentDeliveryMethod[];
-    selectedDeliveryMethodId: string;
-    orderer: PaymentOrderer;
-    paymentMethods: PaymentMethodOption[];
-    selectedPaymentMethodId: string;
-    bankOptions: PaymentBankOption[];
-    depositForm: PaymentDepositForm;
-    cancelPolicy: PaymentCancelPolicy;
+    selectedSeats: BookingDraftSeat[];
+    totalAmount: number;
 };
 
 export type BookingSuccessStatus = "success";
@@ -206,8 +210,14 @@ export type BookingSuccess = {
     confirmRedirectPath: string;
 };
 
-export type BookingWaitingHookResult = {
-    bookingWaiting: BookingWaiting;
+export type BookingListHookResult = {
+    bookingList: BookingPageResult;
+    isLoading: boolean;
+    error: Error | null;
+};
+
+export type BookingDetailHookResult = {
+    bookingDetail: BookingDetailResult;
     isLoading: boolean;
     error: Error | null;
 };
@@ -218,14 +228,8 @@ export type SeatSelectionHookResult = {
     error: Error | null;
 };
 
-export type PriceSelectionHookResult = {
-    priceSelection: PriceSelection;
-    isLoading: boolean;
-    error: Error | null;
-};
-
-export type PaymentHookResult = {
-    payment: Payment;
+export type BookingSummaryHookResult = {
+    bookingSummary: BookingSummary;
     isLoading: boolean;
     error: Error | null;
 };
@@ -234,4 +238,12 @@ export type BookingSuccessHookResult = {
     bookingSuccess: BookingSuccess;
     isLoading: boolean;
     error: Error | null;
+};
+
+export type BookingReservationHookResult = {
+    bookingSuccess: BookingSuccess | null;
+    isLoading: boolean;
+    error: Error | null;
+    preemptSeats: (command: BookingPreemptSeatCommand) => Promise<void>;
+    createBooking: (command: BookingCreateCommand) => Promise<BookingSuccess>;
 };

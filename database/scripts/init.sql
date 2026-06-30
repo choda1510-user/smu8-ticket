@@ -64,7 +64,7 @@ CREATE TABLE `seat_grade` (
 );
 
 CREATE TABLE `seat` (
-    `seat_id` bigint PRIMARY KEY COMMENT '한글명: 좌석_ID',
+    `seat_id` bigint PRIMARY KEY AUTO_INCREMENT COMMENT '한글명: 좌석_ID',
     `round_id` bigint COMMENT '한글명: 공연회차_ID',
     `seat_grade_id` bigint NOT NULL COMMENT '한글명: 좌석등급_ID / 연결 좌석등급',
     `row_index` int NOT NULL COMMENT '한글명: 행_위치 / 좌석 행',

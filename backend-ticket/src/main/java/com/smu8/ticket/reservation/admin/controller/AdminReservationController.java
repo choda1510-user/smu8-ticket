@@ -1,6 +1,5 @@
 package com.smu8.ticket.reservation.admin.controller;
 
-import com.smu8.ticket.dto.query.PageQuery;
 import com.smu8.ticket.http.response.PageResponse;
 import com.smu8.ticket.reservation.admin.dto.command.CreateCancelReservationCommand;
 import com.smu8.ticket.reservation.admin.dto.query.AdminReservationQuery;
@@ -30,12 +29,7 @@ public class AdminReservationController {
         return ResponseEntity.ok(
                 PageResponse.from(
                         adminReservationService
-                                .getReservations(AdminReservationQuery.builder()
-                                        .pageQuery(PageQuery.builder()
-                                                .page(page)
-                                                .size(size)
-                                                .build())
-                                        .build()),
+                                .getReservations(AdminReservationQuery.from(page, size, accountId)),
                         AdminReservationItemResponse::from)
         );
     }

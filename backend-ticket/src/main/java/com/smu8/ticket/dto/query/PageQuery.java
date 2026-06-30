@@ -7,7 +7,7 @@ public record PageQuery(
         int page,
         int size
 ) {
-    private static final int DEFAULT_PAGE = 1;
+    private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_SIZE = 10;
     private static final int MAX_SIZE = 100;
 

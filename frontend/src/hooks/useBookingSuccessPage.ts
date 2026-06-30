@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
-import {getBookingSuccess} from "@/apis/bookingApi";
 import type {BookingSuccess, BookingSuccessHookResult} from "@/types/booking";
+
+const bookingSuccessStorageKey = "smu8-ticket-booking-success";
 
 const initialBookingSuccess: BookingSuccess = {
     concertId: 0,
@@ -15,38 +16,27 @@ const initialBookingSuccess: BookingSuccess = {
 
 export default function useBookingSuccessPage(): BookingSuccessHookResult {
     const [bookingSuccess, setBookingSuccess] = useState<BookingSuccess>(initialBookingSuccess);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
-        let isMounted = true;
+        try {
+            setIsLoading(true);
+            setError(null);
 
-        async function loadBookingSuccess() {
-            try {
-                setIsLoading(true);
-                setError(null);
-                const data = await getBookingSuccess();
+            const storedBookingSuccess = sessionStorage.getItem(bookingSuccessStorageKey);
 
-                if (isMounted) {
-                    setBookingSuccess(data);
-                }
-            } catch (caughtError) {
-                if (isMounted) {
-                    setError(caughtError instanceof Error ? caughtError : new Error("Unknown booking success error"));
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                }
+            if (!storedBookingSuccess) {
+                return;
             }
+
+            setBookingSuccess(JSON.parse(storedBookingSuccess) as BookingSuccess);
+        } catch (caughtError) {
+            setError(caughtError instanceof Error ? caughtError : new Error("Unknown booking success error"));
+        } finally {
+            setIsLoading(false);
         }
-
-        void loadBookingSuccess();
-
-        return () => {
-            isMounted = false;
-        };
-    }, []); // 목업 API는 고정 데이터라 최초 렌더링 때 한 번만 호출합니다.
+    }, []);
 
     return {bookingSuccess, isLoading, error};
 }

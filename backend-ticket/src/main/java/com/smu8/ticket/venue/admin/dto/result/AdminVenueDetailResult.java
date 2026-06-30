@@ -7,7 +7,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record VenueDetailResult(
+public record AdminVenueDetailResult(
         Long id,
         String name,
         String zoneNo,
@@ -18,10 +18,10 @@ public record VenueDetailResult(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static VenueDetailResult from(Venue venue) {
+    public static AdminVenueDetailResult from(Venue venue) {
         Address address = venue.getAddress();
 
-        return VenueDetailResult.builder()
+        return AdminVenueDetailResult.builder()
                 .id(venue.getId())
                 .name(venue.getName())
                 .zoneNo(address.getZoneNo())

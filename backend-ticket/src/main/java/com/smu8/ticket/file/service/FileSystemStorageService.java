@@ -4,6 +4,7 @@ import com.smu8.ticket.file.config.StorageProperties;
 import com.smu8.ticket.file.exception.StorageException;
 import com.smu8.ticket.file.exception.StorageFileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -18,28 +19,32 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Profile("!dev")
 @Service
 public class FileSystemStorageService implements StorageService {
     private final Path rootLocation;
+    private final String BASE_URL;
     @Autowired
-    public FileSystemStorageService(StorageProperties properties) {
+    public FileSystemStorageService(StorageProperties properties, @Value("${spring.storage.url}") String BASE_URL) {
         if (properties.getLocation().trim().isEmpty()) {
             throw new StorageException("File upload location cannot be empty");
         }
         this.rootLocation = Paths.get(properties.getLocation());
+        this.BASE_URL = BASE_URL;
     }
 
     @Override
-    public void store(MultipartFile file) {
+    public String store(MultipartFile file) {
         try {
-            if (file.isEmpty()) {
+            if (file == null || file.isEmpty()) {
                 throw new StorageException("Failed to store empty file.");
             }
+            String key = UUID.randomUUID().toString();
             Path destinationFile = this.rootLocation.resolve(
-                            Paths.get(file.getOriginalFilename()))
+                            Paths.get(key))
                     .normalize().toAbsolutePath();
             if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
                 // This is a security check
@@ -50,6 +55,7 @@ public class FileSystemStorageService implements StorageService {
                 Files.copy(inputStream, destinationFile,
                         StandardCopyOption.REPLACE_EXISTING);
             }
+            return key;
         }
         catch (IOException e) {
             throw new StorageException("Failed to store file.", e);
@@ -70,29 +76,45 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public Path load(String filename) {
-        return rootLocation.resolve(filename);
+    public Path load(String key) {
+        return rootLocation.resolve(key);
     }
 
     @Override
-    public Resource loadAsResource(String filename) {
+    public Resource loadAsResource(String key) {
         try {
-            Path file = load(filename);
+            Path file = load(key);
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;
             }
             else {
                 throw new StorageFileNotFoundException(
-                        "Could not read file: " + filename);
+                        "Could not read file: " + key);
 
             }
         }
         catch (MalformedURLException e) {
-            throw new StorageFileNotFoundException("Could not read file: " + filename, e);
+            throw new StorageFileNotFoundException("Could not read file: " + key, e);
         }
     }
+    @Override
+    public String getUrl(String key) {
+        return BASE_URL + "/" + key;
+    }
 
+    @Override
+    public void delete(String key) {
+        try {
+            Path file = load(key);
+            if (!file.toFile().delete()) {
+                throw new StorageFileNotFoundException("Could not read file: " + key);
+            }
+        }
+        catch (UnsupportedOperationException e) {
+            throw new StorageException("Could not execute operation: " + key, e);
+        }
+    }
     @Override
     public void deleteAll() {
         FileSystemUtils.deleteRecursively(rootLocation.toFile());

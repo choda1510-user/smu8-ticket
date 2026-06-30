@@ -19,6 +19,16 @@ public record AdminReservationItemResult(
         LocalDateTime createdAt
 ) {
     public static AdminReservationItemResult from(Reservation reservation) {
-        return null;
+        return AdminReservationItemResult.builder()
+                .id(reservation.getReservationId())
+                .accountId(reservation.getAccount().getId())
+                .accountName(reservation.getAccount().getNickname())
+                .concertId(reservation.getPerformanceSchedule().getConcert().getId())
+                .concertTitle(reservation.getPerformanceSchedule().getConcert().getTitle())
+                .reservationStatus(reservation.getReservationStatus())
+                .seatCount(reservation.getTotalQuantity())
+                .totalPrice(BigDecimal.valueOf(reservation.getTotalAmount()))
+                .createdAt(reservation.getCreatedAt())
+                .build();
     }
 }

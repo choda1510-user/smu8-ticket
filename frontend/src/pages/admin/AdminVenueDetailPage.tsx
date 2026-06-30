@@ -1,14 +1,14 @@
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {getAdminVenue, getVenueAddress, removeVenue} from "@/apis/venueApi";
-import type {BackendVenue} from "@/types/venue";
+import type {AdminVenueDetailResponse} from "@/types/adminVenue";
 import "./AdminPages.css";
 
 function AdminVenueDetailPage() {
     const navigate = useNavigate();
     const {venueId = ""} = useParams();
     const venueNumericId = Number(venueId);
-    const [venue, setVenue] = useState<BackendVenue | null>(null);
+    const [venue, setVenue] = useState<AdminVenueDetailResponse | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -80,20 +80,16 @@ function AdminVenueDetailPage() {
                 ) : venue ? (
                     <div className="admin-page__info-grid">
                         <label>공연장 이름</label>
-                        <p>{venue.venue_name || venue.name}</p>
+                        <p>{venue.name}</p>
 
                         <label>공연장코드</label>
-                        <p>{venue.venue_code || venue.id}</p>
+                        <p>{venue.id}</p>
 
                         <label>주소</label>
                         <p>{getVenueAddress(venue)}</p>
 
                         <label>현재 등록된 공연</label>
-                        <p>
-                            {venue.current_concerts && venue.current_concerts.length > 0
-                                ? venue.current_concerts.map((concert) => concert.title).join(", ")
-                                : "-"}
-                        </p>
+                        <p>-</p>
                     </div>
                 ) : (
                     <div className="admin-page__empty">공연장 정보가 없습니다.</div>

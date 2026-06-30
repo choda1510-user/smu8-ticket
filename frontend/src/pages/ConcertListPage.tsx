@@ -1,4 +1,5 @@
 import styles from "./ConcertListPage.module.css"
+import {useEffect, useMemo, useState} from "react";
 import {useNavigate, useSearchParams} from "react-router";
 import BottomPaginationBar from "@/sections/BottomPaginationBar";
 import {useConcertListPage} from "@/hooks/useConcertListPage";
@@ -15,18 +16,37 @@ import type {ConcertItem} from "@/types/concert";
  *   공연상세: /concerts/:concertId
  */
 
+const mainPreviewSize = 5;
+const pageSize = 10;
+
 function ConcertListPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const {openConcertList, upcomingConcertList} = useConcertListPage();
-    const openConcerts = openConcertList.data;
-    const upcomingConcerts = upcomingConcertList.data;
+    const openConcerts = openConcertList.contents;
+    const upcomingConcerts = upcomingConcertList.contents;
 
     const filter = searchParams.get("filter");
 
     const isOpenFilter = filter === "open";
     const isUpcomingFilter = filter === "upcoming";
     const isMainPage = !filter;
+    const [currentPage, setCurrentPage] = useState(1);
+    const activeConcerts = isUpcomingFilter ? upcomingConcerts : openConcerts;
+    const totalPages = Math.max(1, Math.ceil(activeConcerts.length / pageSize));
+    const pagedConcerts = useMemo(() => {
+        const startIndex = (currentPage - 1) * pageSize;
+
+        return activeConcerts.slice(startIndex, startIndex + pageSize);
+    }, [activeConcerts, currentPage]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filter]);
+
+    useEffect(() => {
+        setCurrentPage((page) => Math.min(page, totalPages));
+    }, [totalPages]);
 
     const handleConcertClick = (concertId: number) => {
         navigate(`/concerts/${concertId}`);
@@ -84,7 +104,7 @@ function ConcertListPage() {
                 <>
                     <ConcertSection
                         title="예매중인 공연"
-                        concerts={openConcerts.slice(0, 2)}
+                        concerts={openConcerts.slice(0, mainPreviewSize)}
                         showMoreButton
                         onMoreClick={handleOpenConcertMoreClick}
                         onConcertClick={handleConcertClick}
@@ -92,7 +112,7 @@ function ConcertListPage() {
 
                     <ConcertSection
                         title="티켓팅 오픈 예정"
-                        concerts={upcomingConcerts.slice(0, 2)}
+                        concerts={upcomingConcerts.slice(0, mainPreviewSize)}
                         showMoreButton
                         onMoreClick={handleUpcomingConcertMoreClick}
                         onConcertClick={handleConcertClick}
@@ -104,7 +124,7 @@ function ConcertListPage() {
                 <>
                     <ConcertSection
                         title="예매중인 공연"
-                        concerts={openConcerts}
+                        concerts={pagedConcerts}
                         showMoreButton={false}
                         onMoreClick={handleOpenConcertMoreClick}
                         onConcertClick={handleConcertClick}
@@ -112,7 +132,11 @@ function ConcertListPage() {
 
                     <div className
                              ={styles.paginationArea}>
-                        <BottomPaginationBar/>
+                        <BottomPaginationBar
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                        />
                     </div>
                 </>
             )}
@@ -121,7 +145,7 @@ function ConcertListPage() {
                 <>
                     <ConcertSection
                         title="티켓팅 오픈 예정"
-                        concerts={upcomingConcerts}
+                        concerts={pagedConcerts}
                         showMoreButton={false}
                         onMoreClick={handleUpcomingConcertMoreClick}
                         onConcertClick={handleConcertClick}
@@ -129,7 +153,11 @@ function ConcertListPage() {
 
                     <div className
                              ={styles.paginationArea}>
-                        <BottomPaginationBar/>
+                        <BottomPaginationBar
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                        />
                     </div>
                 </>
             )}

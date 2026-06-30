@@ -8,4 +8,10 @@ public record AdminReservationQuery(
         PageQuery pageQuery,
         String accountId
 ) {
+    public static AdminReservationQuery from(Integer page, Integer size, String accountId) {
+        return AdminReservationQuery.builder()
+                .pageQuery(PageQuery.of(page, size))
+                .accountId(accountId)
+                .build();
+    }
 }

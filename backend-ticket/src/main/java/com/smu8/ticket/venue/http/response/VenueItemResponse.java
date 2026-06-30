@@ -26,6 +26,8 @@ public record VenueItemResponse(
         String detailAddress,
         @Schema(description = "건물명", example = "서울아트센터")
         String buildingName,
+        @Schema(description = "예매 가능한 공연 수")
+        Integer availableConcertCount,
         @Schema(description = "생성일시", example = "2026-06-22T10:30:00")
         LocalDateTime createdAt,
         @Schema(description = "수정일시", example = "2026-06-22T10:30:00")

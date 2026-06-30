@@ -1,18 +1,17 @@
+import type { AuthTokenResponse } from "@/types/auth";
 import type {
-    AuthTokenResponse,
     AvailabilityResponse,
-    AccountResponse,
+    AccountDetailResponse,
     LoginRequest,
-    LoginResponse,
-    LoginUser,
     SignUpRequest,
     UpdateAccountRequest,
+    AccountMyInfoResponse,
 } from "@/types/member.ts";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
-function createBasicAuthorization(loginId: string, password: string) {
-    return `Basic ${btoa(`${loginId}:${password}`)}`;
+function createBasicAuthorization(username: string, password: string) {
+    return `Basic ${btoa(`${username}:${password}`)}`;
 }
 
 async function parseTokenResponse(response: Response): Promise<AuthTokenResponse> {
@@ -45,7 +44,8 @@ export function checkNickname(nickname: string): Promise<boolean> {
     return checkAvailability(`${API_BASE_URL}/api/account/check-nickname?nickname=${encodeURIComponent(nickname)}`);
 }
 
-export async function signUp(request: SignUpRequest): Promise<AccountResponse> {
+// 회원가입 요청 함수
+export async function signUp(request: SignUpRequest): Promise<AccountDetailResponse> {
     const response = await fetch(`${API_BASE_URL}/api/account`, {
         method: "POST",
         headers: {
@@ -62,14 +62,15 @@ export async function signUp(request: SignUpRequest): Promise<AccountResponse> {
         throw new Error("Sign up failed.");
     }
 
-    return (await response.json()) as AccountResponse;
+    return (await response.json()) as AccountDetailResponse;
 }
 
-export async function login(request: LoginRequest): Promise<LoginResponse> {
+// 토큰 요청 함수
+export async function login(request: LoginRequest): Promise<AuthTokenResponse> {
     const response = await fetch(`${API_BASE_URL}/api/token`, {
-        method: "GET",
+        method: "POST",
         headers: {
-            Authorization: createBasicAuthorization(request.loginId, request.password),
+            Authorization: createBasicAuthorization(request.username, request.password),
         },
         credentials: "include",
     });
@@ -78,20 +79,9 @@ export async function login(request: LoginRequest): Promise<LoginResponse> {
         throw new Error("Login failed.");
     }
 
-    const token = await parseTokenResponse(response);
-    const account = await getAccount(token.tokenValue);
-    const user: LoginUser = {
-        loginId: account?.username ?? request.loginId,
-        nickname: account?.nickname ?? request.loginId,
-        role: request.loginId === "admin" ? "ADMIN" : "USER",
-    };
-
-    return {
-        accessToken: token.tokenValue,
-        user,
-    };
+    return await parseTokenResponse(response);
 }
-
+// 로그아웃 요청 함수
 export async function logout(accessToken?: string | null): Promise<void> {
     if (!accessToken) {
         return;
@@ -105,8 +95,24 @@ export async function logout(accessToken?: string | null): Promise<void> {
         credentials: "include",
     });
 }
+// 사용자 정보 요청 함수
+export async function getAccount(userId?: string | null): Promise<AccountDetailResponse | null> {
+    if (!userId) {
+        return null;
+    }
 
-export async function getAccount(accessToken?: string | null): Promise<AccountResponse | null> {
+    const response = await fetch(`${API_BASE_URL}/api/account/${userId}`, {
+        method: "GET",
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch account.");
+    }
+
+    return (await response.json()) as AccountDetailResponse;
+}
+// 자기 자신의 정보 요청 함수
+export async function getMyInfo(accessToken?: string | null): Promise<AccountMyInfoResponse | null> {
     if (!accessToken) {
         return null;
     }
@@ -119,16 +125,15 @@ export async function getAccount(accessToken?: string | null): Promise<AccountRe
     });
 
     if (!response.ok) {
-        throw new Error("Failed to fetch account.");
+        throw new Error("Failed to fetch information.");
     }
 
-    return (await response.json()) as AccountResponse;
+    return (await response.json()) as AccountMyInfoResponse;
 }
-
 export async function updateAccount(
     accessToken: string,
     request: UpdateAccountRequest,
-): Promise<AccountResponse> {
+): Promise<AccountMyInfoResponse> {
     const response = await fetch(`${API_BASE_URL}/api/account/me`, {
         method: "PATCH",
         headers: {
@@ -142,7 +147,7 @@ export async function updateAccount(
         throw new Error("Failed to update account.");
     }
 
-    return (await response.json()) as AccountResponse;
+    return (await response.json()) as AccountMyInfoResponse;
 }
 
 export function withdraw() {

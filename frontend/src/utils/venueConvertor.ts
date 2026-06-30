@@ -1,14 +1,14 @@
-import type { VenueSearch, VenueSearchPageResponse, VenueSearchPageResult, VenueSearchResponse } from "@/types/venue";
+import type { VenueSearch, VenueItemPageResponse, VenueSearchPageResult, VenueItemResponse } from "@/types/venue";
 import { pageConvert } from "./commonConvertor";
 
 
-export function convertVenueSearch(response: VenueSearchResponse) : VenueSearch {
+export function convertVenueSearch(response: VenueItemResponse) : VenueSearch {
     return {
-        id: response.venueId,
-        venueName: response.venueName,
+        id: response.id,
+        venueName: response.name,
         availableConcertCount: response.availableConcertCount
     };
 };
-export function convertVenueSearchPage(response: VenueSearchPageResponse): VenueSearchPageResult {
+export function convertVenueSearchPage(response: VenueItemPageResponse): VenueSearchPageResult {
     return pageConvert(response, convertVenueSearch);
 };

@@ -52,6 +52,21 @@
     color: #ff4fa3;
 }
 
+.user-header-auth .user-header-admin-link {
+    padding: 5px 10px;
+    border: 1px solid #ff8bc6;
+    border-radius: 999px;
+    color: #c02775;
+    background: #fff5fa;
+    font-weight: 700;
+}
+
+.user-header-auth .user-header-admin-link:hover {
+    color: #ffffff;
+    background: #ff4fa3;
+    border-color: #ff4fa3;
+}
+
 /* 메인 영역 */
 .user-header-main-row {
     display: grid;

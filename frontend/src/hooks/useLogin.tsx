@@ -1,68 +1,72 @@
 import {createContext, useCallback, useContext, useEffect, useMemo, useState} from "react";
 import type {ReactNode} from "react";
-import {login as requestLogin, logout as requestLogout} from "@/apis/accountApi.ts";
-import type {LoginContextValue, LoginRequest, LoginResponse, LoginUser} from "@/types/member.ts";
+import {getMyInfo, login as requestLogin, logout as requestLogout} from "@/apis/accountApi.ts";
+import type {AccountDetailResult, LoginContextValue, LoginRequest} from "@/types/member.ts";
+import type { LoginUser } from "@/types/auth";
+import { delAccessToken, getAccessToken, setAccessToken } from "@/apis/authApi";
+import { toAccountDetailResult } from "@/utils/memberConvertor";
 
 type LoginProviderProps = {
     children: ReactNode;
 };
-
-type StoredLogin = {
-    accessToken: string;
-    user: LoginUser;
-};
-
-const LOGIN_STORAGE_KEY = "smu8-ticket-login";
 const LoginContext = createContext<LoginContextValue | null>(null);
-
-function readStoredLogin(): StoredLogin | null {
-    const storedLogin = localStorage.getItem(LOGIN_STORAGE_KEY);
-
-    if (!storedLogin) {
-        return null;
-    }
-
-    try {
-        const parsedLogin = JSON.parse(storedLogin) as StoredLogin;
-
-        if (!parsedLogin.accessToken || !parsedLogin.user) {
-            return null;
-        }
-
-        return parsedLogin;
-    } catch {
-        localStorage.removeItem(LOGIN_STORAGE_KEY);
-        return null;
-    }
-}
 
 export function LoginProvider({children}: LoginProviderProps) {
     const [user, setUser] = useState<LoginUser | null>(null);
-    const [accessToken, setAccessToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        const storedLogin = readStoredLogin();
+        let ignore = false;
 
-        if (!storedLogin) {
-            return;
+        (async () => {
+            const storedToken = getAccessToken();
+
+            if (!storedToken) {
+                setUser(null);
+                return;
+            }
+            try {
+                const response = await getMyInfo(storedToken);
+
+                if(!ignore && response) {
+                    const account = toAccountDetailResult(response);
+                    setUser({
+                        account,
+                        accessToken: storedToken,
+                    });
+                }
+            } catch {
+                if (!ignore) {
+                    setUser(null);
+                    delAccessToken();
+                }
+            }
+        })();
+        return () => {
+            ignore = true;
         }
-
-        setUser(storedLogin.user);
-        setAccessToken(storedLogin.accessToken);
     }, []);
 
-    const login = useCallback(async (request: LoginRequest): Promise<LoginResponse> => {
+    const login = useCallback(async (request: LoginRequest): Promise<AccountDetailResult> => {
         setIsLoading(true);
 
         try {
-            const response = await requestLogin(request);
+            const tokenResponse = await requestLogin(request);
+            const tokenValue = tokenResponse.tokenValue;
 
-            setUser(response.user);
-            setAccessToken(response.accessToken);
-            localStorage.setItem(LOGIN_STORAGE_KEY, JSON.stringify(response));
+            const accountResponse = await getMyInfo(tokenValue);
+            if (accountResponse) {
+                const accountDetail = toAccountDetailResult(accountResponse);
 
-            return response;
+                setUser({
+                    account: accountDetail,
+                    accessToken: tokenValue,
+                });
+                setAccessToken(tokenValue);
+                return accountDetail;
+            } else {
+                throw new Error("accountResponse is falsy. at the useLogin");
+            }
         } finally {
             setIsLoading(false);
         }
@@ -72,23 +76,22 @@ export function LoginProvider({children}: LoginProviderProps) {
         setIsLoading(true);
 
         try {
-            await requestLogout(accessToken);
+            await requestLogout(user?.accessToken);
             setUser(null);
-            setAccessToken(null);
-            localStorage.removeItem(LOGIN_STORAGE_KEY);
+            delAccessToken();
         } finally {
             setIsLoading(false);
         }
-    }, [accessToken]);
+    }, [user]);
 
     const value = useMemo<LoginContextValue>(() => ({
         user,
-        accessToken,
-        isLoggedIn: !!user && !!accessToken,
+        accessToken: user?.accessToken ?? null,
+        isLoggedIn: !!user && !!user?.accessToken,
         isLoading,
         login,
         logout,
-    }), [accessToken, isLoading, login, logout, user]);
+    }), [isLoading, login, logout, user]);
 
     return (
         <LoginContext.Provider value={value}>

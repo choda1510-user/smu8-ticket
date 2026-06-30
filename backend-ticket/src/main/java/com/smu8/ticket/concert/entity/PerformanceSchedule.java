@@ -1,15 +1,6 @@
 package com.smu8.ticket.concert.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import com.smu8.ticket.reservation.entity.Reservation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
 
 @Entity
@@ -54,9 +46,25 @@ public class PerformanceSchedule {
     @Column(name = "seat_row_count", nullable = false)
     private Integer seatRowCount;
 
-    @OneToMany(mappedBy = "performanceSchedule")
-    private List<Seat> seats;
+    @Builder.Default
+    @OneToMany(mappedBy = "performanceSchedule", cascade = CascadeType.PERSIST)
+    private List<Seat> seats = new LinkedList<>();
 
-    @OneToMany(mappedBy = "performanceSchedule")
-    private List<Reservation> reservations;
+    @Builder.Default
+    @OneToMany(mappedBy = "performanceSchedule", cascade = CascadeType.PERSIST)
+    private List<Reservation> reservations = new LinkedList<>();
+
+    public void addSeat(Seat seat) {
+        seats.add(seat);
+        seat.setPerformanceSchedule(this);
+    }
+    public void addReservation(Reservation reservation) {
+        reservations.add(reservation);
+        reservation.setPerformanceSchedule(this);
+    }
+    public void setConcert(Concert concert) {
+        this.concert.getPerformanceSchedules().remove(this);
+        this.concert = concert;
+        concert.getPerformanceSchedules().add(this);
+    }
 }

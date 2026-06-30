@@ -10,6 +10,7 @@ import com.smu8.ticket.concert.repository.SeatRepository;
 import com.smu8.ticket.dto.result.PageResult;
 import com.smu8.ticket.reservation.dto.command.CreatePreemptReservationSeatCommand;
 import com.smu8.ticket.reservation.dto.command.CreateReservationCommand;
+import com.smu8.ticket.reservation.dto.command.RemovePreemptReservationSeatCommand;
 import com.smu8.ticket.reservation.dto.query.ReservationConcertSeatFrameQuery;
 import com.smu8.ticket.reservation.dto.query.ReservationPageQuery;
 import com.smu8.ticket.reservation.dto.result.*;
@@ -122,9 +123,31 @@ public class ReservationServiceImpl implements ReservationService {
                 }
             }
         } catch (RuntimeException e) {
-            createdSeatIds.forEach(preemptReservationSeatRepository::removePreempt);
+            createdSeatIds.forEach((seatId) ->
+                    preemptReservationSeatRepository.removeOwnPreempt(seatId, command.accountId()));
             throw e;
         }
+    }
+
+    @Override
+    @Transactional
+    // 공연/회차/좌석 검증 후 현재 사용자가 잡은 선점만 해제한다.
+    public void removePreemptReservationSeats(RemovePreemptReservationSeatCommand command) {
+        validateRemovePreemptCommand(command);
+
+        PerformanceSchedule schedule = performanceScheduleRepository.findById(command.scheduleId())
+                .orElseThrow(() -> new IllegalArgumentException("Performance schedule was not found."));
+
+        if (!schedule.getConcert().getId().equals(command.concertId())) {
+            throw new IllegalArgumentException("Concert and schedule do not match.");
+        }
+
+        List<Seat> seats = seatRepository.findAllById(command.seatIds());
+        validateSeats(command.scheduleId(), command.seatIds(), seats);
+
+        command.seatIds().stream()
+                .map(String::valueOf)
+                .forEach((seatId) -> preemptReservationSeatRepository.removeOwnPreempt(seatId, command.accountId()));
     }
 
     @Override
@@ -155,7 +178,7 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalStateException("이미 예매된 좌석이 포함되어 있습니다.");
         }
 
-        validateSeatsNotPreemptedByOthers(command.accountId(), command.seatIds());
+        validateSeatsPreemptedByAccount(command.accountId(), command.seatIds());
 
         Reservation reservation = Reservation.builder()
                 .reservationNo(createReservationNo())
@@ -174,7 +197,7 @@ public class ReservationServiceImpl implements ReservationService {
                         .build())
                 .toList());
 
-        removePreemptReservationSeatsAfterCommit(command.seatIds());
+        removePreemptReservationSeatsAfterCommit(command.accountId(), command.seatIds());
 
         return ReservationItemResult.from(savedReservation);
     }
@@ -219,6 +242,17 @@ public class ReservationServiceImpl implements ReservationService {
         }
     }
 
+    // 선점 해제도 선점 생성과 같은 필수값을 요구한다.
+    private void validateRemovePreemptCommand(RemovePreemptReservationSeatCommand command) {
+        if (command == null || command.accountId() == null || command.concertId() == null || command.scheduleId() == null) {
+            throw new IllegalArgumentException("Preempt reservation seat information is required.");
+        }
+
+        if (command.seatIds() == null || command.seatIds().isEmpty()) {
+            throw new IllegalArgumentException("At least one seat is required.");
+        }
+    }
+
     private void validateSeats(Long scheduleId, List<Long> seatIds, List<Seat> seats) {
         if (seats.size() != seatIds.size()) {
             throw new IllegalArgumentException("Some seats do not exist.");
@@ -235,33 +269,33 @@ public class ReservationServiceImpl implements ReservationService {
         }
     }
 
-    private void validateSeatsNotPreemptedByOthers(String accountId, List<Long> seatIds) {
+    private void validateSeatsPreemptedByAccount(String accountId, List<Long> seatIds) {
         for (Long seatId : seatIds) {
             String preemptAccountId = preemptReservationSeatRepository.findOwnPreemptAccountId(String.valueOf(seatId));
-            if (preemptAccountId != null && !preemptAccountId.equals(accountId)) {
+            if (preemptAccountId == null || !preemptAccountId.equals(accountId)) {
                 throw new IllegalStateException("Some seats are preempted by another account.");
             }
         }
     }
 
-    private void removePreemptReservationSeatsAfterCommit(List<Long> seatIds) {
+    private void removePreemptReservationSeatsAfterCommit(String accountId, List<Long> seatIds) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            removePreemptReservationSeats(seatIds);
+            removePreemptReservationSeats(accountId, seatIds);
             return;
         }
 
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                removePreemptReservationSeats(seatIds);
+                removePreemptReservationSeats(accountId, seatIds);
             }
         });
     }
 
-    private void removePreemptReservationSeats(List<Long> seatIds) {
+    private void removePreemptReservationSeats(String accountId, List<Long> seatIds) {
         seatIds.stream()
                 .map(String::valueOf)
-                .forEach(preemptReservationSeatRepository::removePreempt);
+                .forEach((seatId) -> preemptReservationSeatRepository.removeOwnPreempt(seatId, accountId));
     }
 
     private String createReservationNo() {

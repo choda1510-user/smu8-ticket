@@ -14,6 +14,7 @@ const LoginContext = createContext<LoginContextValue | null>(null);
 export function LoginProvider({children}: LoginProviderProps) {
     const [user, setUser] = useState<LoginUser | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isAuthReady, setIsAuthReady] = useState(false);
 
     useEffect(() => {
         let ignore = false;
@@ -22,7 +23,10 @@ export function LoginProvider({children}: LoginProviderProps) {
             const storedToken = getAccessToken();
 
             if (!storedToken) {
-                setUser(null);
+                if (!ignore) {
+                    setUser(null);
+                    setIsAuthReady(true);
+                }
                 return;
             }
             try {
@@ -39,6 +43,10 @@ export function LoginProvider({children}: LoginProviderProps) {
                 if (!ignore) {
                     setUser(null);
                     delAccessToken();
+                }
+            } finally {
+                if (!ignore) {
+                    setIsAuthReady(true);
                 }
             }
         })();
@@ -89,9 +97,10 @@ export function LoginProvider({children}: LoginProviderProps) {
         accessToken: user?.accessToken ?? null,
         isLoggedIn: !!user && !!user?.accessToken,
         isLoading,
+        isAuthReady,
         login,
         logout,
-    }), [isLoading, login, logout, user]);
+    }), [isAuthReady, isLoading, login, logout, user]);
 
     return (
         <LoginContext.Provider value={value}>

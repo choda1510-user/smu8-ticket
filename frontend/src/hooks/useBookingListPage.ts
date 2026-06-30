@@ -13,7 +13,10 @@ const initialBookingList: BookingPageResult = {
     hasPrevious: false,
 };
 
-export function useBookingListPage(): BookingListHookResult {
+export function useBookingListPage(
+    currentPage = 1,
+    pageSize = 4,
+): BookingListHookResult {
     const [bookingList, setBookingList] = useState<BookingPageResult>(initialBookingList);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
@@ -26,7 +29,10 @@ export function useBookingListPage(): BookingListHookResult {
                 setIsLoading(true);
                 setError(null);
 
-                const response = await getBookingList({page: 0, size: 4});
+                const response = await getBookingList({
+                    page: currentPage - 1,
+                    size: pageSize,
+                });
                 const result = toBookingPageResult(response);
 
                 if (isMounted) {
@@ -48,7 +54,7 @@ export function useBookingListPage(): BookingListHookResult {
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, [currentPage, pageSize]);
 
     return {
         bookingList,

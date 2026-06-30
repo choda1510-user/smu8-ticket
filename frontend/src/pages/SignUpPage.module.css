@@ -1,148 +1,222 @@
 .page {
-    width: 720px;
-    min-height: 620px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #222;
+    width: 100dvw;
+    min-width: 100dvw;
+    min-height: auto;
+    height: 100dvh;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: -20px;
+    padding: 28px 20px;
+    display: grid;
+    place-items: center;
+    color: #111827;
     box-sizing: border-box;
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+    font-weight: 300;
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 18% 18%, rgba(244, 127, 166, 0.2), transparent 32%),
+        radial-gradient(circle at 82% 82%, rgba(255, 200, 217, 0.82), transparent 36%),
+        linear-gradient(160deg, #071120 0%, #101b2c 42%, #233154 58%, #fff0f5 82%, #ffc8d9 100%);
 }
 
 .signUpBox {
-    width: 500px;
-    min-height: 500px;
-    border: 1px solid #d9d9e3;
-    border-radius: 4px;
+    width: min(520px, 100%);
+    position: relative;
+    z-index: 1;
+    border: 1px solid #e3e5ec;
+    border-radius: 18px;
     background-color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 42px 0 38px;
+    padding: 36px 44px 34px;
     box-sizing: border-box;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
 }
 
 .logoButton {
     width: 54px;
     height: 54px;
-    margin-bottom: 20px;
-    border: none;
-    background-color: transparent;
-    color: #222;
-    font-size: 28px;
-    font-weight: 500;
+    margin-bottom: 18px;
+    border: 1px solid #ffc8d9;
+    border-radius: 16px;
+    background: #071120;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 0;
     cursor: pointer;
+    box-shadow: inset 0 0 20px rgba(244, 127, 166, 0.18);
 }
 
 .pageTitle {
-    margin: 0 0 38px;
-    font-size: 18px;
-    font-weight: 700;
+    margin: 0 0 30px;
+    color: #071120;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.3;
 }
 
 .formBox {
-    width: 390px;
+    width: 100%;
 }
 
 .formRow {
-    min-height: 42px;
+    min-height: 60px;
     display: grid;
-    grid-template-columns: 110px 1fr;
+    grid-template-columns: 124px minmax(0, 1fr);
     align-items: start;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     box-sizing: border-box;
 }
 
 .label {
-    color: #222;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 18px;
+    color: #374151;
     font-size: 13px;
-    font-weight: 700;
-    padding-top: 7px;
+    font-weight: 400;
+    line-height: 1.4;
 }
 
 .inputArea {
     display: flex;
     align-items: flex-start;
-    min-height: 30px;
+    min-height: 40px;
+    min-width: 0;
 }
 
 .input {
-    width: 180px;
-    height: 28px;
-    border: 1px solid #aaa;
+    width: 230px;
+    flex: 0 0 230px;
+    max-width: 100%;
+    height: 40px;
+    border: 1px solid #e3e5ec;
+    border-radius: 10px;
     background-color: #fff;
-    padding: 0 8px;
-    color: #222;
-    font-size: 12px;
+    padding: 0 12px;
+    color: #111827;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 300;
     outline: none;
     box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.input:focus {
+    border-color: #ff9fbd;
+    background: #fffafd;
+    box-shadow: 0 0 0 4px rgba(255, 159, 189, 0.16);
 }
 
 .inlineArea {
+    width: 100%;
+    max-width: 324px;
+    min-height: 40px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .checkArea {
+    width: 100%;
+    min-height: 60px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 5px;
+    gap: 6px;
 }
 
 .checkButton {
-    width: 64px;
-    height: 28px;
-    border: none;
-    border-radius: 4px;
-    background-color: #9a63ff;
-    color: #fff;
-    font-size: 11px;
+    width: 84px;
+    height: 40px;
+    border: 1px solid #f47fa6;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #f47fa6;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
     cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.checkButton:hover {
+    background: #fff0f5;
+    box-shadow: 0 8px 18px rgba(244, 127, 166, 0.14);
+    transform: translateY(-1px);
 }
 
 .checkCompleteText {
-    color: #222;
+    color: #233154;
     font-size: 11px;
     line-height: 14px;
     min-height: 14px;
 }
 
 .checkErrorText {
-    color: #e55757;
+    color: #d7447d;
     font-size: 11px;
     line-height: 14px;
     min-height: 14px;
 }
 
 .passwordErrorText {
-    color: #e55757;
-    font-size: 11px;
+    color: #d7447d;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 .passwordSuccessText {
-    color: #222;
-    font-size: 11px;
+    color: #233154;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 .buttonArea {
-    margin-top: 52px;
+    margin-top: 38px;
     display: flex;
     justify-content: center;
 }
 
 .signUpButton {
-    padding: 0;
-    border: none;
-    background-color: transparent;
-    color: #d46b6b;
-    font-size: 13px;
+    width: min(290px, 100%);
+    height: 44px;
+    padding: 0 18px;
+    border: 2px solid #071120;
+    border-radius: 8px;
+    background-color: #071120;
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.signUpButton:hover:not(:disabled) {
+    background-color: #101b2c;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+    transform: translateY(-1px);
+}
+
+.signUpButton:disabled {
+    border-color: #c7ccd6;
+    background: #c7ccd6;
+    cursor: not-allowed;
 }
 
 .loginGuideArea {
-    margin-top: 28px;
+    margin-top: 24px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -150,7 +224,7 @@
 }
 
 .loginGuideText {
-    color: #777;
+    color: #6b7280;
     font-size: 12px;
 }
 
@@ -158,9 +232,60 @@
     padding: 0;
     border: none;
     background-color: transparent;
-    color: #222;
+    color: #f47fa6;
+    font-family: inherit;
     font-size: 12px;
+    font-weight: 500;
     text-decoration: underline;
     text-underline-offset: 3px;
     cursor: pointer;
+}
+
+.logoButton:hover,
+.loginButton:hover {
+    color: #ff9fbd;
+}
+
+.logoButton:focus-visible,
+.input:focus-visible,
+.checkButton:focus-visible,
+.signUpButton:focus-visible,
+.loginButton:focus-visible {
+    outline: 3px solid rgba(255, 159, 189, 0.45);
+    outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+    .page {
+        height: calc(100dvh - 188px);
+        min-height: auto;
+        padding: 24px 16px;
+    }
+
+    .signUpBox {
+        padding: 30px 20px;
+    }
+
+    .formRow {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+
+    .label {
+        min-height: auto;
+        justify-content: flex-start;
+        padding-right: 0;
+    }
+
+    .inlineArea {
+        max-width: none;
+        align-items: stretch;
+    }
+
+    .input {
+        width: 100%;
+        flex: 1 1 auto;
+        max-width: none;
+    }
 }

@@ -61,8 +61,8 @@ function UserHeader() {
                                 </button>
                                 <Link to="/mypage">마이페이지</Link>
                                 {isAdmin && (
-                                    <Link to="/admin" className="user-header-admin-link">
-                                        관리자 페이지
+                                    <Link to="/admin">
+                                        관리자페이지
                                     </Link>
                                 )}
                             </>
@@ -79,7 +79,10 @@ function UserHeader() {
 
                     <Link to="/" className="user-header-logo" aria-label="홈으로 이동">
                         <span className="user-header-logo-mark">SM</span>
-                        <span className="user-header-logo-text">TICKET</span>
+                        <span className="user-header-logo-copy">
+                            <span className="user-header-logo-text">SMTOWN TICKET</span>
+                            <span className="user-header-logo-subtext">LIVE BOOKING</span>
+                        </span>
                     </Link>
 
                     <div className="user-header-center">

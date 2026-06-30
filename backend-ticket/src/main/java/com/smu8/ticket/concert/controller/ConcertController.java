@@ -1,6 +1,8 @@
 package com.smu8.ticket.concert.controller;
 
 import com.smu8.ticket.concert.dto.query.ConcertDetailQuery;
+import com.smu8.ticket.concert.dto.query.ConcertPageQuery;
+import com.smu8.ticket.dto.query.PageQuery;
 import com.smu8.ticket.concert.http.response.ConcertDetailResponse;
 import com.smu8.ticket.concert.http.response.ConcertItemResponse;
 import com.smu8.ticket.concert.service.ConcertService;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,7 +39,16 @@ public class ConcertController {
             @RequestParam(name = "venueNames", required = false)
             String venueNames
     ) {
-        return ResponseEntity.ok(PageResponse.from(concertService.getConcerts(), ConcertItemResponse::from));
+        return ResponseEntity.ok(PageResponse.from(
+                concertService.getConcerts(ConcertPageQuery.builder()
+                        .pageQuery(PageQuery.of(page, size))
+                        .concertNames(concertNames == null ? List.of() : List.of(concertNames))
+                        .status(status)
+                        .venueCode(venueCode)
+                        .venueNames(venueNames)
+                        .build()),
+                ConcertItemResponse::from
+        ));
     }
 
     @Operation(summary = "공연 상세 조회", description = "공연 고유 ID로 공연 상세 정보를 조회합니다.")

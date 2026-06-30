@@ -2,14 +2,13 @@
     width: 100%;
     display: flex;
     justify-content: center;
-    padding-top: 18px;
-    padding-bottom: 80px;
+    padding: 18px 20px 80px;
     box-sizing: border-box;
     color: #222;
 }
 
 .inner {
-    width: 720px;
+    width: min(720px, 100%);
     position: relative;
 }
 
@@ -22,12 +21,14 @@
 
 .summaryCard {
     display: flex;
-    gap: 34px;
+    gap: 30px;
     width: 100%;
     min-height: 260px;
     padding: 28px 32px;
     border: 1px solid #d9d9e3;
+    border-radius: 10px;
     background-color: #fff;
+    box-shadow: 0 8px 24px rgba(154, 99, 255, 0.08);
     box-sizing: border-box;
 }
 
@@ -60,6 +61,7 @@
 }
 
 .infoArea {
+    min-width: 0;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -67,24 +69,27 @@
 }
 
 .concertTitle {
-    margin: 0 0 28px;
+    margin: 0 0 24px;
     font-size: 18px;
     font-weight: 700;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
 }
 
 .infoGrid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: 26px;
-    row-gap: 15px;
-    margin-bottom: 28px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 22px;
+    row-gap: 14px;
+    margin-bottom: 24px;
 }
 
 .infoItem {
     display: flex;
-    align-items: center;
-    min-height: 18px;
-    white-space: nowrap;
+    align-items: flex-start;
+    min-width: 0;
+    min-height: 20px;
+    line-height: 1.45;
 }
 
 .infoLabel {
@@ -95,18 +100,27 @@
 }
 
 .infoValue {
+    min-width: 0;
     color: #222;
     font-size: 12px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
 }
 
 .linkButton {
+    min-width: 0;
     padding: 0;
     border: none;
     background-color: transparent;
     color: #222;
     font-size: 12px;
+    line-height: 1.45;
     text-decoration: underline;
     cursor: pointer;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+    text-align: left;
 }
 
 .bookingArea {
@@ -123,7 +137,7 @@
 }
 
 .bookingButton {
-    width: 112px;
+    min-width: 112px;
     height: 36px;
     border: 1px solid #222;
     border-radius: 4px;
@@ -159,7 +173,7 @@
 }
 
 .scheduleButton {
-    width: 410px;
+    width: min(410px, 100%);
     height: 54px;
     border: 1px solid #d8d2e4;
     border-radius: 6px;
@@ -196,18 +210,22 @@
 
 .detailMenu {
     margin-top: 24px;
-    height: 74px;
+    min-height: 74px;
     padding: 0 22px;
     border: 1px solid #d9d9e3;
+    border-radius: 10px;
     background-color: #fff;
     display: flex;
     align-items: center;
-    gap: 30px;
+    justify-content: space-between;
+    gap: 16px;
     box-sizing: border-box;
 }
 
 .detailMenuButton {
-    width: 150px;
+    flex: 1;
+    min-width: 0;
+    max-width: 150px;
     height: 36px;
     border: 1px solid #d8d2e4;
     border-radius: 20px;
@@ -216,6 +234,9 @@
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .activeDetailMenuButton {
@@ -241,7 +262,7 @@
 .detailContent {
     height: 330px;
     border: 1px solid #d8d2e4;
-    border-radius: 18px;
+    border-radius: 12px;
     background-color: #fff2f7;
     overflow: hidden;
     box-sizing: border-box;
@@ -307,6 +328,9 @@
     box-sizing: border-box;
     color: #777;
     font-size: 13px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
 }
 
 .venueInfoBox {
@@ -316,6 +340,7 @@
     border-radius: 12px;
     background-color: #f7f1ff;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .venueDescription {
@@ -337,7 +362,7 @@
 }
 
 .mapBox {
-    width: 520px;
+    width: min(520px, 100%);
     height: 58px;
     margin: 0 auto;
     border: 1px solid #d6d6df;
@@ -348,6 +373,8 @@
     justify-content: center;
     color: #777;
     font-size: 13px;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .topButton {
@@ -367,4 +394,49 @@
     gap: 6px;
     font-size: 12px;
     cursor: pointer;
+}
+
+@media (max-width: 720px) {
+    .summaryCard {
+        gap: 22px;
+        padding: 24px;
+    }
+
+    .posterArea {
+        width: 150px;
+    }
+
+    .infoGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .bookingArea {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 560px) {
+    .summaryCard {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .posterArea {
+        width: 100%;
+    }
+
+    .infoArea {
+        width: 100%;
+    }
+
+    .detailMenu {
+        padding: 16px;
+        flex-wrap: wrap;
+    }
+
+    .detailMenuButton {
+        max-width: none;
+        flex-basis: calc(50% - 8px);
+    }
 }

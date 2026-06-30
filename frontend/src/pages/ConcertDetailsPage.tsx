@@ -201,21 +201,21 @@ function ConcertDetailsPage() {
                     <button
                         type="button"
                         className
-                            ={`${styles.detailMenuButton} ${activeMenu === "venue" ? styles.activeDetailMenuButton : ""}`
-                        }
-                        onClick={() => handleMenuClick("venue")}
-                    >
-                        공연장 정보
-                    </button>
-
-                    <button
-                        type="button"
-                        className
                             ={`${styles.detailMenuButton} ${activeMenu === "notice" ? styles.activeDetailMenuButton : ""}`
                         }
                         onClick={() => handleMenuClick("notice")}
                     >
                         예매안내
+                    </button>
+
+                    <button
+                        type="button"
+                        className
+                            ={`${styles.detailMenuButton} ${activeMenu === "venue" ? styles.activeDetailMenuButton : ""}`
+                        }
+                        onClick={() => handleMenuClick("venue")}
+                    >
+                        공연장 정보
                     </button>
                 </nav>
 

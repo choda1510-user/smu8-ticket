@@ -1,0 +1,44 @@
+services:
+  backend:
+    build:
+      context: ./backend-ticket
+      dockerfile: Dockerfile.test
+    container_name: backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=test
+    networks:
+      - smu8-ticket-network
+  database:
+    build:
+      context: ./database
+      dockerfile: Dockerfile.test
+    container_name: database
+    ports:
+      - "3306:3306"
+    networks:
+      - smu8-ticket-network
+    volumes:
+      - mysql_database:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$root']
+      timeout: 20s
+      retries: 10
+  redis-ticket:
+    build:
+      context: ./redis-ticket
+      dockerfile: Dockerfile.dev
+    container_name: redis-ticket
+    ports:
+      - "6379:6379"
+    networks:
+      - smu8-ticket-network
+volumes:
+  mysql_test_database:
+networks:
+  smu8-ticket-network:
+    driver: bridge

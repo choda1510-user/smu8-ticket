@@ -115,6 +115,7 @@ export type AdminConcertUpdateBasicInfoRequest = {
     title: string; // 공연명
     description: string; // 작품 설명
     runningTime: string; // 공연 시간
+    notice: string;
     schedules: AdminConcertUpdateScheduleRequest[];
     seatGrades: AdminConcertUpdateSeatGradeRequest[];
     seats: AdminConcertUpdateSeatRequest[];

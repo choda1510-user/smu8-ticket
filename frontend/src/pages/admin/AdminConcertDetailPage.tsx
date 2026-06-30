@@ -259,6 +259,7 @@ function AdminConcertDetailPage() {
                     title: title.trim(),
                     description: description.trim(),
                     runningTime,
+                    notice: notice.trim(),
                     schedules: schedulePayload,
                     seatGrades: seatGradePayload,
                     seats: seatPayload,

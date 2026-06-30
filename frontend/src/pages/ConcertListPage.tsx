@@ -1,5 +1,5 @@
 import styles from "./ConcertListPage.module.css"
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useState} from "react";
 import {useNavigate, useSearchParams} from "react-router";
 import BottomPaginationBar from "@/sections/BottomPaginationBar";
 import {useConcertListPage} from "@/hooks/useConcertListPage";
@@ -22,23 +22,21 @@ const pageSize = 10;
 function ConcertListPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const {openConcertList, upcomingConcertList} = useConcertListPage();
-    const openConcerts = openConcertList.contents;
-    const upcomingConcerts = upcomingConcertList.contents;
-
     const filter = searchParams.get("filter");
 
     const isOpenFilter = filter === "open";
     const isUpcomingFilter = filter === "upcoming";
     const isMainPage = !filter;
     const [currentPage, setCurrentPage] = useState(1);
-    const activeConcerts = isUpcomingFilter ? upcomingConcerts : openConcerts;
-    const totalPages = Math.max(1, Math.ceil(activeConcerts.length / pageSize));
-    const pagedConcerts = useMemo(() => {
-        const startIndex = (currentPage - 1) * pageSize;
-
-        return activeConcerts.slice(startIndex, startIndex + pageSize);
-    }, [activeConcerts, currentPage]);
+    const {openConcertList, upcomingConcertList} = useConcertListPage(
+        currentPage,
+        isMainPage ? mainPreviewSize : pageSize,
+    );
+    const openConcerts = openConcertList.contents;
+    const upcomingConcerts = upcomingConcertList.contents;
+    const activeConcertList = isUpcomingFilter ? upcomingConcertList : openConcertList;
+    const totalPages = Math.max(1, activeConcertList.totalPages);
+    const pagedConcerts = activeConcertList.contents;
 
     useEffect(() => {
         setCurrentPage(1);

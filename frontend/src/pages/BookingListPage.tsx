@@ -1,4 +1,5 @@
 import styles from "./BookingListPage.module.css"
+import {useEffect, useState} from "react";
 import {useNavigate} from "react-router";
 import BottomPaginationBar from "@/sections/BottomPaginationBar";
 import {useBookingListPage} from "@/hooks/useBookingListPage";
@@ -16,8 +17,16 @@ import {useBookingListPage} from "@/hooks/useBookingListPage";
 
 function BookingListPage() {
     const navigate = useNavigate();
-    const {bookingList} = useBookingListPage();
+    const [currentPage, setCurrentPage] = useState(1);
+    const {bookingList} = useBookingListPage(currentPage, 4);
     const bookings = bookingList.contents;
+    const totalPages = Math.max(1, bookingList.totalPages);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
 
     const handleReserveDetailClick = (reserveId: number) => {
         navigate(`/mypage/reserve/${reserveId}`);
@@ -141,7 +150,11 @@ function BookingListPage() {
             {bookings.length > 0 && (
                 <div className
                          ={styles.paginationArea}>
-                    <BottomPaginationBar/>
+                    <BottomPaginationBar
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
                 </div>
             )}
         </section>

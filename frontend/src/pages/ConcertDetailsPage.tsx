@@ -2,6 +2,7 @@ import styles from "./ConcertDetailsPage.module.css"
 import {useRef, useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {useConcertDetailsPage} from "@/hooks/useConcertDetailsPage";
+import {useReservationCountdown} from "@/hooks/useReservationCountdown";
 
 /*
  * 공연 상세 페이지
@@ -19,6 +20,12 @@ function ConcertDetailsPage() {
     const navigate = useNavigate();
     const {concertId} = useParams();
     const {concertDetail} = useConcertDetailsPage();
+    const {
+        bookingStatusText,
+        countdownText,
+        isCountdownVisible,
+        isBookingOpen,
+    } = useReservationCountdown(concertDetail.reservationStartAt);
 
     const currentConcertId = concertId ?? String(concertDetail.id);
 
@@ -134,17 +141,25 @@ function ConcertDetailsPage() {
 
                         <div className
                                  ={styles.bookingArea}>
-                            <span className
-                                      ={styles.timerText}>59:59.99</span>
+                            {isCountdownVisible && (
+                                <span className={styles.timerText}>{countdownText}</span>
+                            )}
 
-                            <button
-                                type="button"
-                                className
-                                    ={styles.bookingButton}
-                                onClick={handleBookingClick}
-                            >
-                                예매하기
-                            </button>
+                            <div className={styles.bookingControl}>
+                                {bookingStatusText && (
+                                    <span className={styles.timerText}>{bookingStatusText}</span>
+                                )}
+
+                                <button
+                                    type="button"
+                                    className
+                                        ={styles.bookingButton}
+                                    onClick={handleBookingClick}
+                                    disabled={!isBookingOpen}
+                                >
+                                    예매하기
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </section>

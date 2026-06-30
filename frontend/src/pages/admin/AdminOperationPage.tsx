@@ -1,5 +1,7 @@
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router";
+import {getAdminConcertList} from "@/apis/concertApi";
+import type {AdminConcertDetailResponse, AdminConcertScheduleResponse} from "@/types/adminConcert";
 import "./AdminOperationPage.css";
 
 type PerformanceRow = {
@@ -11,63 +13,120 @@ type PerformanceRow = {
     reservationPeriod: string;
 };
 
-const openRows: PerformanceRow[] = [
-    {
-        id: 12345,
-        venueId: 986532,
-        period: "2026.07.10 - 2026.07.12",
-        title: "예술콘서트",
-        venue: "고척돔",
-        reservationPeriod: "2026.06.15 - 2026.07.10",
-    },
-    {
-        id: 56789,
-        venueId: 986532,
-        period: "2026.07.20 - 2026.07.22",
-        title: "NCT 콘서트",
-        venue: "고척돔",
-        reservationPeriod: "2026.06.15 - 2026.07.10",
-    },
-    {
-        id: 67890,
-        venueId: 986533,
-        period: "2026.08.01 - 2026.08.03",
-        title: "뮤지컬 갈라",
-        venue: "세종문화회관",
-        reservationPeriod: "2026.06.20 - 2026.07.20",
-    },
-];
+const pageSize = 2;
 
-const upcomingRows: PerformanceRow[] = [
-    {
-        id: 90123,
-        venueId: 986532,
-        period: "2026.08.10 - 2026.08.12",
-        title: "예술콘서트",
-        venue: "고척돔",
-        reservationPeriod: "2026.06.15 - 2026.07.10",
-    },
-    {
-        id: 45678,
-        venueId: 986532,
-        period: "2026.09.10 - 2026.09.12",
-        title: "NCT 콘서트",
-        venue: "고척돔",
-        reservationPeriod: "2026.06.15 - 2026.07.10",
-    },
-    {
-        id: 34567,
-        venueId: 986534,
-        period: "2026.10.02 - 2026.10.03",
-        title: "클래식 나이트",
-        venue: "롯데콘서트홀",
-        reservationPeriod: "2026.07.01 - 2026.09.20",
-    },
-];
+// 백엔드에서 status별 필터링을 하므로 운영 테이블 한 페이지 크기만 요청합니다.
+const operationConcertPageSize = 2;
 
-const pageSize = 10;
+function formatDate(value: string | undefined) {
+    if (!value) {
+        return "-";
+    }
+
+    return value.slice(0, 10).replaceAll("-", ".");
+}
+
+function formatDateTime(value: string | undefined) {
+    if (!value) {
+        return "-";
+    }
+
+    return value.replace("T", " ").slice(0, 16).replaceAll("-", ".");
+}
+
+// 시작일 또는 종료일이 비어 있어도 테이블에 깨지지 않는 기간 문구를 보여주기 위해 공통 처리합니다.
+function formatRange(startAt: string | undefined, endAt: string | undefined, formatter: (value: string | undefined) => string) {
+    if (!startAt && !endAt) {
+        return "-";
+    }
+
+    return `${formatter(startAt)} - ${formatter(endAt)}`;
+}
+
+// 여러 공연 회차 중 가장 빠른 회차와 가장 늦은 회차를 공연 기간으로 표시합니다.
+function getSchedulePeriod(schedules: AdminConcertScheduleResponse[]) {
+    const dates = schedules.map((schedule) => schedule.date).filter(Boolean).sort();
+
+    return formatRange(dates[0], dates[dates.length - 1], formatDate);
+}
+
+// 회차마다 예매 종료 시간이 다를 수 있어 가장 늦은 종료 시간을 예매 마감 기준으로 사용합니다.
+function getReservationEndAt(schedules: AdminConcertScheduleResponse[]) {
+    const reservationEndDates = schedules
+        .map((schedule) => schedule.reservationEndAt)
+        .filter(Boolean)
+        .sort();
+
+    return reservationEndDates[reservationEndDates.length - 1];
+}
+
+// 운영 페이지의 예매가능기간 컬럼을 실제 공연 데이터 기준으로 구성합니다.
+function getReservationPeriod(concert: AdminConcertDetailResponse) {
+    return formatRange(concert.reservationStartAt, getReservationEndAt(concert.schedules ?? []), formatDateTime);
+}
+
+// 백엔드 공연 응답을 운영 페이지 테이블에서 바로 사용할 행 데이터로 변환합니다.
+function toPerformanceRow(concert: AdminConcertDetailResponse): PerformanceRow {
+    return {
+        id: concert.id,
+        venueId: concert.venueId,
+        period: getSchedulePeriod(concert.schedules ?? []),
+        title: concert.title ?? "-",
+        venue: concert.venueName ?? "-",
+        reservationPeriod: getReservationPeriod(concert),
+    };
+}
 
 function AdminOperationPage() {
+    // 백엔드가 status별로 필터링한 결과를 두 테이블에 따로 보관합니다.
+    const [openConcerts, setOpenConcerts] = useState<AdminConcertDetailResponse[]>([]);
+    const [upcomingConcerts, setUpcomingConcerts] = useState<AdminConcertDetailResponse[]>([]);
+    // *추후 추가*
+    // const [isLoading, setIsLoading] = useState(false); //로딩상태 넣을까 말까 고민스
+    // const [errorMsg, setErrorMsg] = useState("");  // 에러상태
+    // 빈데이터상태(등록된공연이 없을때 or 예매진행중인 공연이 없을 때)
+
+    useEffect(() => {
+        // API 응답이 늦게 도착했을 때 언마운트된 컴포넌트에 상태를 세팅하지 않도록 막습니다.
+        let isMounted = true;
+
+        async function loadConcerts() {
+            try {
+                // 백엔드가 status 조건으로 필터링한 결과를 받아 프론트는 그대로 테이블에 표시합니다.
+                const [openConcertList, upcomingConcertList] = await Promise.all([
+                    // 진행중/대기중 테이블이 서로 다른 status를 쓰므로 각각 별도 요청합니다.
+                    getAdminConcertList({page: 0, size: operationConcertPageSize, reservationStatus: "OPEN"}),
+                    getAdminConcertList({page: 0, size: operationConcertPageSize, reservationStatus: "BEFORE_OPEN"}),
+                ]);
+
+                if (isMounted) {
+                    setOpenConcerts(openConcertList);
+                    setUpcomingConcerts(upcomingConcertList);
+                }
+            } catch {
+                if (isMounted) {
+                    setOpenConcerts([]);
+                    setUpcomingConcerts([]);
+                }
+            }
+        }
+
+        void loadConcerts();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    // 백엔드에서 이미 분류된 공연 목록이 바뀔 때만 테이블 행 데이터로 변환합니다.
+    const {openRows, upcomingRows} = useMemo(() => {
+        return {
+            // 여기서는 더 이상 예매 상태를 필터링하지 않고 화면 표시용 데이터로만 변환합니다.
+            openRows: openConcerts.map(toPerformanceRow),
+            upcomingRows: upcomingConcerts.map(toPerformanceRow),
+        };
+    }, [openConcerts, upcomingConcerts]);
+
     return (
         <section className="admin-operation">
             <div className="admin-operation__toolbar">

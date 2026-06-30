@@ -29,6 +29,7 @@ import AdminReservationDetailPage from "@/pages/admin/AdminReservationDetailPage
 import AdminConcertListPage from "@/pages/admin/AdminConcertListPage.tsx";
 import AdminConcertDetailPage from "@/pages/admin/AdminConcertDetailPage.tsx";
 import AdminConcertCreatePage from "@/pages/admin/AdminConcertCreatePage.tsx";
+import AdminRouteGuard from "@/component/AdminRouteGuard.tsx";
 /*료
 * 리액트 라우터가 이곳에 있어야 함
 */
@@ -61,17 +62,19 @@ function App() {
         <Route path={"/booking/success/:concertId"} element={<BookingSuccessPage />} />
         <Route path={"/login"} element={<LoginPage />} />
         <Route path={"/signup"} element={<SignUpPage />} />
-        <Route path={"/admin"} element={<AdminLayout />}>
-          <Route path={""} element={<AdminOperationPage />} />
-          <Route path={"venues"} element={<AdminVenueListPage />} />
-          <Route path={"venues/:venueId"} element={<AdminVenueDetailPage />} />
-          <Route path={"venueadd"} element={<AdminVenueCreatePage />} />
-          <Route path={"venues/:venueId/update"} element={<AdminVenueEditPage />} />
-          <Route path={"reserve"} element={<AdminReservationListPage />} />
-          <Route path={"reserve/:reserveId"} element={<AdminReservationDetailPage />} />
-          <Route path={"concerts"} element={<AdminConcertListPage />} />
-          <Route path={"concertadd"} element={<AdminConcertCreatePage />} />
-          <Route path={"concerts/:concertId"} element={<AdminConcertDetailPage />} />
+        <Route element={<AdminRouteGuard />}>
+          <Route path={"/admin"} element={<AdminLayout />}>
+            <Route path={""} element={<AdminOperationPage />} />
+            <Route path={"venues"} element={<AdminVenueListPage />} />
+            <Route path={"venues/:venueId"} element={<AdminVenueDetailPage />} />
+            <Route path={"venueadd"} element={<AdminVenueCreatePage />} />
+            <Route path={"venues/:venueId/update"} element={<AdminVenueEditPage />} />
+            <Route path={"reserve"} element={<AdminReservationListPage />} />
+            <Route path={"reserve/:reserveId"} element={<AdminReservationDetailPage />} />
+            <Route path={"concerts"} element={<AdminConcertListPage />} />
+            <Route path={"concertadd"} element={<AdminConcertCreatePage />} />
+            <Route path={"concerts/:concertId"} element={<AdminConcertDetailPage />} />
+          </Route>
         </Route>
 
       </Routes>

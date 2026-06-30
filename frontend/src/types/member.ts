@@ -63,6 +63,7 @@ export type LoginContextValue = {
     accessToken: string | null;
     isLoggedIn: boolean;
     isLoading: boolean;
+    isAuthReady: boolean;
     login: (request: LoginRequest) => Promise<AccountDetailResult>;
     logout: () => Promise<void>;
 };

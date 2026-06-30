@@ -22,6 +22,8 @@ public class VenueController {
     public ResponseEntity<PageResponse<VenueItemResponse>> getVenues(
             @RequestParam(name = "venueNames", required = false)
             String venueNames,
+            @RequestParam(name = "venueCode", required = false)
+            String venueCode,
             @RequestParam(name = "page", defaultValue = "0", required = false)
             Integer page,
             @RequestParam(name = "size", defaultValue = "4", required = false)
@@ -33,6 +35,8 @@ public class VenueController {
                                 .page(page)
                                 .size(size)
                                 .build())
+                        .venueNames(venueNames == null ? java.util.List.of() : java.util.List.of(venueNames))
+                        .venueCode(venueCode)
                         .build()), VenueItemResponse::from));
     }
 

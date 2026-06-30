@@ -9,6 +9,7 @@ import type {
     AdminVenueUpdateResponse,
 } from "@/types/adminVenue";
 import { getAccessToken } from "./authApi";
+import type {PageRequest} from "@/types/api";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
@@ -102,11 +103,36 @@ export async function getAdminVenue(id: number): Promise<AdminVenueDetailRespons
 }
 
 export async function getAdminVenueList(): Promise<AdminVenueItemResponse[]> {
-    const response = await fetchJson<AdminVenuePageResponse>(`${API_BASE_URL}/api/venues`, {
-        headers: createJsonHeaders(),
-    });
+    const response = await getAdminVenuePage(
+        {page: 0, size: 100},
+        {venueCode: "", venueName: ""},
+    );
 
     return response.contents ?? [];
+}
+
+export async function getAdminVenuePage(
+    query: PageRequest,
+    filters: {
+        venueCode: string;
+        venueName: string;
+    },
+): Promise<AdminVenuePageResponse> {
+    const params = new URLSearchParams({
+        page: String(query.page),
+        size: String(query.size),
+    });
+
+    if (filters.venueCode.trim()) {
+        params.set("venueCode", filters.venueCode.trim());
+    }
+    if (filters.venueName.trim()) {
+        params.set("venueNames", filters.venueName.trim());
+    }
+
+    return fetchJson<AdminVenuePageResponse>(`${API_BASE_URL}/api/venues?${params.toString()}`, {
+        headers: createJsonHeaders(),
+    });
 }
 
 export async function addVenue(request: AdminVenueCreateRequest): Promise<AdminVenueCreateResponse> {

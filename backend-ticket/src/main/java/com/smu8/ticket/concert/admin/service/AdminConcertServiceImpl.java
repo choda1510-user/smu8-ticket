@@ -179,13 +179,14 @@ public class AdminConcertServiceImpl implements AdminConcertService {
                 existing.setReservationEndAt(scheduleCommand.reservationEndAt());
             } else {
                 PerformanceSchedule newSchedule = PerformanceSchedule.builder()
+                        .concert(concert)
                         .showStartAt(scheduleCommand.date())
                         .reservationStartAt(reservationStartAt)
                         .reservationEndAt(scheduleCommand.reservationEndAt())
                         .seatRowCount(rowMax)
                         .seatColumnCount(colMax)
                         .build();
-                concert.addPerformanceSchedule(newSchedule);
+                concert.getPerformanceSchedules().add(newSchedule);
 
                 if (command.seats() != null && rowMax != null && colMax != null) {
                     addSeatsToSchedule(newSchedule, concert, command.seats());

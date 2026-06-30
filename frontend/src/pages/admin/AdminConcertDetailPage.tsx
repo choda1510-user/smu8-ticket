@@ -11,10 +11,10 @@ import "./AdminPages.css";
 
 type EditableSchedule = {
     id: number;
+    isExisting: boolean; // true면 서버에 존재하는 회차(진짜 ID), false면 새로 추가한 회차
     concertDateTime: Date;
     reservationEnd: Date;
 };
-
 type PosterField = "cardPoster" | "bannerPoster" | "descriptionPoster";
 
 type PosterFormState = {
@@ -80,6 +80,7 @@ function getReservationStatusText(concert: AdminConcertDetailResponse) {
 function buildEditableSchedules(concert: AdminConcertDetailResponse): EditableSchedule[] {
     return concert.schedules.map((schedule) => ({
         id: schedule.id,
+        isExisting: true,
         concertDateTime: new Date(schedule.date),
         reservationEnd: new Date(schedule.reservationEndAt),
     }));
@@ -216,6 +217,41 @@ function AdminConcertDetailPage() {
             return;
         }
 
+        // 숫자로만 이루어진 ID는 서버에 이미 존재하는 좌석등급(기존), 그 외는 새로 추가된 좌석등급으로 판단
+        const isExistingSeatTypeId = (id: string) => /^\d+$/.test(id);
+
+        const schedulePayload = schedules.map((schedule) => ({
+            id: schedule.isExisting ? schedule.id : null,
+            date: schedule.concertDateTime.toISOString(),
+            reservationEndAt: schedule.reservationEnd.toISOString(),
+        }));
+
+        const seatGradePayload = seatLayout.seatTypes.map((seatType) => ({
+            id: isExistingSeatTypeId(seatType.id) ? Number(seatType.id) : null,
+            gradeName: seatType.name,
+            price: Number(seatType.price) || 0,
+            color: seatType.color,
+        }));
+
+        const seatTypeNameById = new Map(seatLayout.seatTypes.map((seatType) => [seatType.id, seatType.name]));
+        const seatPayload = seatLayout.grid.flatMap((row, rowIndex) =>
+            row.flatMap((seatTypeId, colIndex) => {
+                const seatGradeName = seatTypeNameById.get(seatTypeId);
+
+                if (!seatGradeName) {
+                    return [];
+                }
+
+                return [{
+                    seatGradeName,
+                    row: rowIndex + 1,
+                    col: colIndex + 1,
+                }];
+            }),
+        );
+
+        console.log("schedulePayload", schedulePayload);
+
         try {
             setIsLoading(true);
             const updatedConcert = await updateConcertBasicInfo({
@@ -223,6 +259,11 @@ function AdminConcertDetailPage() {
                     title: title.trim(),
                     description: description.trim(),
                     runningTime,
+                    schedules: schedulePayload,
+                    seatGrades: seatGradePayload,
+                    seats: seatPayload,
+                    rowMax: seatLayout.rowCount,
+                    colMax: seatLayout.columnCount,
                 },
                 cardPoster: posterFields.cardPoster.file ?? undefined,
                 bannerPoster: posterFields.bannerPoster.file ?? undefined,
@@ -235,14 +276,13 @@ function AdminConcertDetailPage() {
             setConcert(updatedConcert);
             loadFormFromConcert(updatedConcert);
             setIsEditing(false);
-            alert("공연 정보가 저장되었습니다. (일정/좌석 변경은 이번 저장에 포함되지 않았습니다.)");
+            alert("공연 정보가 저장되었습니다.");
         } catch {
-            alert("공연 정보 저장에 실패했습니다.");
+            alert("공연 정보 저장에 실패했습니다. 이미 예약이 있는 회차/좌석등급은 삭제할 수 없습니다.");
         } finally {
             setIsLoading(false);
         }
     };
-
     const handleDeleteClick = async () => {
         if (!concertNumericId || !confirm("삭제 하시겠습니까?")) {
             return;
@@ -369,6 +409,7 @@ function AdminConcertDetailPage() {
             ...currentSchedules,
             {
                 id: Date.now(),
+                isExisting: false,
                 concertDateTime: concertDateTimeDraft,
                 reservationEnd: reservationEndDraft,
             },

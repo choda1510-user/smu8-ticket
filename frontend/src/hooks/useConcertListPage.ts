@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
-import {getConcertItems} from "@/apis/concertApi";
-import type {ConcertItem, ConcertItemPageResult} from "@/types/concert";
+import {getConcertPage} from "@/apis/concertApi";
+import type {ConcertItemPageResult} from "@/types/concert";
 
 const initialConcertList: ConcertItemPageResult = {
     contents: [],
@@ -12,41 +12,9 @@ const initialConcertList: ConcertItemPageResult = {
     hasPrevious: false
 };
 
-function toPageResult(concerts: ConcertItem[]): ConcertItemPageResult {
-    return {
-        contents: concerts,
-        page: 1,
-        size: concerts.length,
-        totalElements: concerts.length,
-        totalPages: 1,
-        hasNext: false,
-        hasPrevious: false
-    };
-}
-
-function getReservationStartTime(concert: ConcertItem) {
-    return new Date(concert.reservationStartAt).getTime();
-}
-
-function isUpcomingConcert(concert: ConcertItem) {
-    const startTime = getReservationStartTime(concert);
-
-    if (Number.isNaN(startTime)) {
-        return false;
-    }
-
-    const now = new Date();
-    const startDate = new Date(startTime);
-    const isAfterToday =
-        startDate.getFullYear() > now.getFullYear() ||
-        (startDate.getFullYear() === now.getFullYear() && startDate.getMonth() > now.getMonth()) ||
-        (startDate.getFullYear() === now.getFullYear() && startDate.getMonth() === now.getMonth() && startDate.getDate() > now.getDate());
-
-    return startTime > now.getTime() && isAfterToday;
-}
-
-export function useConcertListPage() {
-    const [concertList, setConcertList] = useState<ConcertItemPageResult>(initialConcertList);
+export function useConcertListPage(currentPage = 1, pageSize = 10) {
+    const [openConcertList, setOpenConcertList] = useState<ConcertItemPageResult>(initialConcertList);
+    const [upcomingConcertList, setUpcomingConcertList] = useState<ConcertItemPageResult>(initialConcertList);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
@@ -58,10 +26,14 @@ export function useConcertListPage() {
                 setIsLoading(true);
                 setError(null);
 
-                const concerts = await getConcertItems();
+                const [openConcerts, upcomingConcerts] = await Promise.all([
+                    getConcertPage({page: currentPage - 1, size: pageSize}, "open"),
+                    getConcertPage({page: currentPage - 1, size: pageSize}, "upcoming"),
+                ]);
 
                 if (isMounted) {
-                    setConcertList(toPageResult(concerts));
+                    setOpenConcertList(openConcerts);
+                    setUpcomingConcertList(upcomingConcerts);
                 }
             } catch (caughtError) {
                 if (isMounted) {
@@ -79,14 +51,11 @@ export function useConcertListPage() {
         return () => {
             isMounted = false;
         };
-    }, []);
-
-    const openConcerts = concertList.contents.filter((concert) => !isUpcomingConcert(concert));
-    const upcomingConcerts = concertList.contents.filter(isUpcomingConcert);
+    }, [currentPage, pageSize]);
 
     return {
-        openConcertList: toPageResult(openConcerts),
-        upcomingConcertList: toPageResult(upcomingConcerts),
+        openConcertList,
+        upcomingConcertList,
         isLoading,
         error,
     };

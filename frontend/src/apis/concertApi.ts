@@ -12,13 +12,15 @@ import type {
     AdminConcertCreateCommand,
     AdminConcertCreateResponse,
     AdminConcertDetailResponse,
-    AdminConcertListPageParameters,
     AdminConcertListPageResponse,
     AdminConcertUpdateCommand,
     AdminConcertUpdateResponse,
+    AdminConcertUpdateBasicInfoCommand,
 } from "@/types/adminConcert.ts";
 
 import type {VenueSearch, VenueItemResponse} from "@/types/venue";
+import type {PageRequest} from "@/types/api";
+import {pageConvert} from "@/utils/commonConvertor";
 import { getAccessToken } from "./authApi";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
@@ -282,7 +284,9 @@ export async function getConcert(id: number): Promise<ConcertDetail> {
 }
 
 export async function getConcertList(): Promise<ConcertItemResponse[]> {
-    const response = await fetchJson<ConcertItemPageResponse>(`${API_BASE_URL}/api/concerts`);
+    const response = await fetchJson<ConcertItemPageResponse>(
+        `${API_BASE_URL}/api/concerts?page=0&size=100`,
+    );
     return response.contents ?? [];
 }
 
@@ -291,51 +295,76 @@ export async function getConcertItems(): Promise<ConcertItem[]> {
     return concerts.map(toConcertItem);
 }
 
+export async function getConcertPage(
+    query: PageRequest,
+    status?: "open" | "upcoming",
+) {
+    const params = new URLSearchParams({
+        page: String(query.page),
+        size: String(query.size),
+    });
+
+    if (status) {
+        params.set("status", status);
+    }
+
+    const response = await fetchJson<ConcertItemPageResponse>(
+        `${API_BASE_URL}/api/concerts?${params.toString()}`,
+    );
+
+    return pageConvert(response, toConcertItem);
+}
+
 export async function getAdminConcert(id: number): Promise<AdminConcertDetailResponse> {
     return fetchJson<AdminConcertDetailResponse>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
         headers: createJsonHeaders(),
     });
 }
 
-export async function getAdminConcertList(
-    parameters: Partial<AdminConcertListPageParameters> = {},
-): Promise<AdminConcertDetailResponse[]> {
-    // 필요한 화면에서 page/size와 검색 조건을 조절해 조회할 수 있도록 쿼리스트링을 만듭니다.
-    const searchParams = new URLSearchParams();
-
-    if (parameters.page !== undefined) {
-        searchParams.set("page", String(parameters.page));
-    }
-
-    if (parameters.size !== undefined) {
-        searchParams.set("size", String(parameters.size));
-    }
-
-    if (parameters.concertName) {
-        searchParams.set("concertNames", parameters.concertName);
-    }
-
-    if (parameters.venueCode) {
-        searchParams.set("venueCode", parameters.venueCode);
-    }
-
-    if (parameters.venueName) {
-        searchParams.set("venueNames", parameters.venueName);
-    }
-
-    if (parameters.reservationStatus) {
-        // 프론트 타입명은 reservationStatus지만 백엔드 관리자 목록 API는 status 파라미터로 받습니다.
-        searchParams.set("status", parameters.reservationStatus);
-    }
-
-    const queryString = searchParams.toString();
-    // 기존 호출은 그대로 두고, 조건이 있을 때만 관리자 공연 목록 API에 쿼리를 붙입니다.
-    const requestUrl = `${API_BASE_URL}/api/admin/concerts${queryString ? `?${queryString}` : ""}`;
-    const response = await fetchJson<AdminConcertListPageResponse>(requestUrl, {
-        headers: createJsonHeaders(),
-    });
+export async function getAdminConcertList(): Promise<AdminConcertDetailResponse[]> {
+    const response = await getAdminConcertPage(
+        {page: 0, size: 100},
+        {
+            concertName: "",
+            concertCode: "",
+            venueName: "",
+            venueCode: "",
+        },
+    );
 
     return response.contents ?? [];
+}
+
+export async function getAdminConcertPage(
+    query: PageRequest,
+    filters: {
+        concertName: string;
+        concertCode: string;
+        venueName: string;
+        venueCode: string;
+    },
+): Promise<AdminConcertListPageResponse> {
+    const params = new URLSearchParams({
+        page: String(query.page),
+        size: String(query.size),
+    });
+
+    if (filters.concertName.trim()) {
+        params.set("concertNames", filters.concertName.trim());
+    }
+    if (filters.concertCode.trim()) {
+        params.set("concertCode", filters.concertCode.trim());
+    }
+    if (filters.venueName.trim()) {
+        params.set("venueNames", filters.venueName.trim());
+    }
+    if (filters.venueCode.trim()) {
+        params.set("venueCode", filters.venueCode.trim());
+    }
+
+    return fetchJson<AdminConcertListPageResponse>(`${API_BASE_URL}/api/admin/concerts?${params.toString()}`, {
+        headers: createJsonHeaders(),
+    });
 }
 
 export async function addConcert(
@@ -363,6 +392,35 @@ export async function cancelConcert(id: number): Promise<void> {
     });
 }
 
+export async function updateConcertBasicInfo(
+    command: AdminConcertUpdateBasicInfoCommand
+): Promise<AdminConcertDetailResponse> {
+    const formData = new FormData();
+
+    formData.append(
+        "request",
+        new Blob([JSON.stringify(command.request)], {type: "application/json"}),
+    );
+
+    if (command.cardPoster) {
+        formData.append("cardPoster", command.cardPoster);
+    }
+    if (command.bannerPoster) {
+        formData.append("bannerPoster", command.bannerPoster);
+    }
+    if (command.descriptionPoster) {
+        formData.append("descriptionPoster", command.descriptionPoster);
+    }
+
+    return fetchJson<AdminConcertDetailResponse>(
+        `${API_BASE_URL}/api/admin/concerts/${command.pathVariables.id}/basic-info`,
+        {
+            method: "PATCH",
+            headers: createMultipartHeaders(),
+            body: formData,
+        },
+    );
+}
 
 // 기존 오타 함수명을 쓰는 코드가 있어도 깨지지 않도록 잠시 유지합니다.
 

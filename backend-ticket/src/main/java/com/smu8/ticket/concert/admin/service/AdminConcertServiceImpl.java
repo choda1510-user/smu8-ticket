@@ -20,13 +20,24 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.smu8.ticket.concert.entity.PerformanceSchedule;
+import com.smu8.ticket.concert.entity.Seat;
+import com.smu8.ticket.concert.entity.SeatGrade;
+import com.smu8.ticket.concert.repository.PerformanceScheduleRepository;
+import com.smu8.ticket.concert.repository.SeatGradeRepository;
+import com.smu8.ticket.concert.repository.SeatRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +45,9 @@ public class AdminConcertServiceImpl implements AdminConcertService {
     private final ConcertRepository concertRepository;
     private final StorageService storageService;
     private final VenueRepository venueRepository;
+    private final PerformanceScheduleRepository performanceScheduleRepository;
+    private final SeatGradeRepository seatGradeRepository;
+    private final SeatRepository seatRepository;
 
     @Transactional
     @Override
@@ -95,6 +109,233 @@ public class AdminConcertServiceImpl implements AdminConcertService {
         Venue venue = getVenueById(command.venueId());
         command.update(concert, venue);
         return ConcertDetailResult.from(concert);
+    }
+
+    @Override
+    @Transactional
+    public ConcertDetailResult updateConcertBasicInfo(UpdateConcertBasicInfoCommand command) {
+        Concert concert = getById(command.id());
+        command.update(concert);
+
+        if (command.schedules() != null) {
+            syncSchedules(concert, command);
+        }
+
+        if (command.seatGrades() != null) {
+            syncSeatGrades(concert, command.seatGrades());
+        }
+
+        String newCardPosterKey = null;
+        String newBannerPosterKey = null;
+        String newDescriptionPosterKey = null;
+
+        try {
+            if (command.hasNewCardPoster()) {
+                newCardPosterKey = storageService.store(command.cardPoster());
+                concert.setCardPosterUrl(storageService.getUrl(newCardPosterKey));
+            }
+            if (command.hasNewBannerPoster()) {
+                newBannerPosterKey = storageService.store(command.bannerPoster());
+                concert.setScreenPosterUrl(storageService.getUrl(newBannerPosterKey));
+            }
+            if (command.hasNewDescriptionPoster()) {
+                newDescriptionPosterKey = storageService.store(command.descriptionPoster());
+                concert.setDescriptionPosterUrl(storageService.getUrl(newDescriptionPosterKey));
+            }
+
+            return ConcertDetailResult.from(concert);
+        } catch (RuntimeException exception) {
+            deleteStoredFile(newDescriptionPosterKey, exception);
+            deleteStoredFile(newBannerPosterKey, exception);
+            deleteStoredFile(newCardPosterKey, exception);
+            throw exception;
+        }
+    }
+
+    private void syncSchedules(Concert concert, UpdateConcertBasicInfoCommand command) {
+        List<UpdateScheduleCommand> requestedSchedules = command.schedules();
+        Set<Long> keepIds = requestedSchedules.stream()
+                .map(UpdateScheduleCommand::id)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        List<PerformanceSchedule> toRemove = concert.getPerformanceSchedules().stream()
+                .filter(schedule -> !keepIds.contains(schedule.getId()))
+                .toList();
+
+        for (PerformanceSchedule schedule : toRemove) {
+            if (!schedule.getReservations().isEmpty()) {
+                throw new InvalidConcertException(
+                        "이미 예약이 존재하는 회차는 삭제할 수 없습니다. (회차 ID: " + schedule.getId() + ")");
+            }
+        }
+        concert.getPerformanceSchedules().removeAll(toRemove);
+        performanceScheduleRepository.deleteAll(toRemove);
+
+        LocalDateTime reservationStartAt = concert.getPerformanceSchedules().stream()
+                .map(PerformanceSchedule::getReservationStartAt)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(LocalDateTime.now());
+
+        Integer rowMax = command.rowMax();
+        Integer colMax = command.colMax();
+
+        for (UpdateScheduleCommand scheduleCommand : requestedSchedules) {
+            if (scheduleCommand.id() != null) {
+                PerformanceSchedule existing = concert.getPerformanceSchedules().stream()
+                        .filter(schedule -> schedule.getId().equals(scheduleCommand.id()))
+                        .findFirst()
+                        .orElseThrow(() -> new InvalidConcertException(
+                                "존재하지 않는 회차입니다. (회차 ID: " + scheduleCommand.id() + ")"));
+                existing.setShowStartAt(scheduleCommand.date());
+                existing.setReservationEndAt(scheduleCommand.reservationEndAt());
+
+                if (command.seats() != null && rowMax != null && colMax != null) {
+                    updateExistingScheduleSeats(existing, concert, command.seats(), rowMax, colMax);
+                }
+            } else {
+                PerformanceSchedule newSchedule = PerformanceSchedule.builder()
+                        .concert(concert)
+                        .showStartAt(scheduleCommand.date())
+                        .reservationStartAt(reservationStartAt)
+                        .reservationEndAt(scheduleCommand.reservationEndAt())
+                        .seatRowCount(rowMax)
+                        .seatColumnCount(colMax)
+                        .build();
+                concert.getPerformanceSchedules().add(newSchedule);
+
+                if (command.seats() != null && rowMax != null && colMax != null) {
+                    addSeatsToSchedule(newSchedule, concert, command.seats());
+                }
+            }
+        }
+    }
+
+    private void addSeatsToSchedule(PerformanceSchedule schedule, Concert concert, List<UpdateSeatCommand> seatCommands) {
+        Map<String, SeatGrade> seatGradeByName = concert.getSeatGrades().stream()
+                .collect(Collectors.toMap(SeatGrade::getGradeName, Function.identity(), (a, b) -> a));
+
+        for (UpdateSeatCommand seatCommand : seatCommands) {
+            SeatGrade seatGrade = seatGradeByName.get(seatCommand.seatGradeName());
+            if (seatGrade == null) {
+                continue;
+            }
+            Seat seat = Seat.builder()
+                    .performanceSchedule(schedule)
+                    .seatGrade(seatGrade)
+                    .rowIndex(seatCommand.row())
+                    .columnIndex(seatCommand.col())
+                    .build();
+            schedule.getSeats().add(seat);
+            seatGrade.getSeats().add(seat);
+        }
+    }
+
+    private void updateExistingScheduleSeats(
+            PerformanceSchedule schedule,
+            Concert concert,
+            List<UpdateSeatCommand> seatCommands,
+            Integer rowMax,
+            Integer colMax
+    ) {
+        Map<String, SeatGrade> seatGradeByName = concert.getSeatGrades().stream()
+                .collect(Collectors.toMap(SeatGrade::getGradeName, Function.identity(), (a, b) -> a));
+
+        Map<String, UpdateSeatCommand> requestedByPosition = seatCommands.stream()
+                .collect(Collectors.toMap(
+                        seatCommand -> seatCommand.row() + ":" + seatCommand.col(),
+                        Function.identity(),
+                        (a, b) -> a));
+
+        Map<String, Seat> existingByPosition = schedule.getSeats().stream()
+                .collect(Collectors.toMap(
+                        seat -> seat.getRowIndex() + ":" + seat.getColumnIndex(),
+                        Function.identity(),
+                        (a, b) -> a));
+
+        List<Seat> seatsToRemove = schedule.getSeats().stream()
+                .filter(seat -> !requestedByPosition.containsKey(seat.getRowIndex() + ":" + seat.getColumnIndex()))
+                .toList();
+
+        for (Seat seat : seatsToRemove) {
+            if (!seat.getReservationSeats().isEmpty()) {
+                throw new InvalidConcertException(
+                        "이미 예약된 좌석은 삭제할 수 없습니다. (행: " + seat.getRowIndex() + ", 열: " + seat.getColumnIndex() + ")");
+            }
+        }
+        schedule.getSeats().removeAll(seatsToRemove);
+        seatRepository.deleteAll(seatsToRemove);
+
+        for (UpdateSeatCommand seatCommand : seatCommands) {
+            String position = seatCommand.row() + ":" + seatCommand.col();
+            Seat existingSeat = existingByPosition.get(position);
+            SeatGrade seatGrade = seatGradeByName.get(seatCommand.seatGradeName());
+
+            if (existingSeat != null) {
+                if (seatGrade != null && !seatGrade.equals(existingSeat.getSeatGrade())) {
+                    if (!existingSeat.getReservationSeats().isEmpty()) {
+                        throw new InvalidConcertException(
+                                "이미 예약된 좌석의 등급은 변경할 수 없습니다. (행: " + seatCommand.row() + ", 열: " + seatCommand.col() + ")");
+                    }
+                    existingSeat.setSeatGrade(seatGrade);
+                }
+            } else if (seatGrade != null) {
+                Seat newSeat = Seat.builder()
+                        .performanceSchedule(schedule)
+                        .seatGrade(seatGrade)
+                        .rowIndex(seatCommand.row())
+                        .columnIndex(seatCommand.col())
+                        .build();
+                schedule.getSeats().add(newSeat);
+                seatGrade.getSeats().add(newSeat);
+            }
+        }
+
+        schedule.setSeatRowCount(rowMax);
+        schedule.setSeatColumnCount(colMax);
+    }
+
+    private void syncSeatGrades(Concert concert, List<UpdateSeatGradeCommand> requestedSeatGrades) {
+        Set<Long> keepIds = requestedSeatGrades.stream()
+                .map(UpdateSeatGradeCommand::id)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        List<SeatGrade> toRemove = concert.getSeatGrades().stream()
+                .filter(seatGrade -> !keepIds.contains(seatGrade.getId()))
+                .toList();
+
+        for (SeatGrade seatGrade : toRemove) {
+            boolean hasReservedSeat = seatGrade.getSeats().stream()
+                    .anyMatch(seat -> !seat.getReservationSeats().isEmpty());
+            if (hasReservedSeat) {
+                throw new InvalidConcertException(
+                        "이미 예약이 존재하는 좌석등급은 삭제할 수 없습니다. (등급명: " + seatGrade.getGradeName() + ")");
+            }
+        }
+        concert.getSeatGrades().removeAll(toRemove);
+        seatGradeRepository.deleteAll(toRemove);
+
+        for (UpdateSeatGradeCommand seatGradeCommand : requestedSeatGrades) {
+            if (seatGradeCommand.id() != null) {
+                SeatGrade existing = concert.getSeatGrades().stream()
+                        .filter(seatGrade -> seatGrade.getId().equals(seatGradeCommand.id()))
+                        .findFirst()
+                        .orElseThrow(() -> new InvalidConcertException(
+                                "존재하지 않는 좌석등급입니다. (등급 ID: " + seatGradeCommand.id() + ")"));
+                existing.setGradeName(seatGradeCommand.gradeName());
+                existing.setPrice(seatGradeCommand.price());
+                existing.setColor(seatGradeCommand.color());
+            } else {
+                SeatGrade newSeatGrade = SeatGrade.builder()
+                        .gradeName(seatGradeCommand.gradeName())
+                        .price(seatGradeCommand.price())
+                        .color(seatGradeCommand.color())
+                        .build();
+                concert.addSeatGrade(newSeatGrade);
+            }
+        }
     }
 
     @Override

@@ -9,6 +9,7 @@ import java.util.List;
 public record ConcertPageQuery(
         PageQuery pageQuery,
         List<String> concertNames,
+        String concertCode,
         String status,
         String venueCode,
         String venueNames

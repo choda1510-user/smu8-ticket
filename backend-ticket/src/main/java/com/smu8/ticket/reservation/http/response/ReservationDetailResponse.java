@@ -17,8 +17,8 @@ public record ReservationDetailResponse(
         ConcertScheduleResponse reservedSchedule,
         @Schema(description = "예매번호")
         String reservationNo,
-        @Schema(description = "예매자 고유 Id")
-        String accountId,
+        @Schema(description = "예매자 닉네임")
+        String nickname,
         @Schema(description = "예매 상태")
         String reservationStatus,
         @Schema(description = "예매한 좌석 총합 수")
@@ -47,7 +47,7 @@ public record ReservationDetailResponse(
                         .reservationId(result.reservationId())
                         .reservedSchedule(ConcertScheduleResponse.from(result.performanceSchedule()))
                         .reservationNo(result.reservationNo())
-                        .accountId(result.account().id())
+                        .nickname(result.account().nickname())
                         .reservationStatus(result.reservationStatus())
                         .totalQuantity(result.totalQuantity())
                         .totalAmount(result.totalAmount())

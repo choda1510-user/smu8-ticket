@@ -17,8 +17,14 @@ public class VenueServiceImpl implements VenueService {
 
     @Override
     public PageResult<VenueDetailResult> getVenues(VenuePageQuery query) {
+        String venueName = query.venueNames() == null || query.venueNames().isEmpty()
+                ? null
+                : trimToNull(query.venueNames().get(0));
+
         return PageResult.from(venueRepository
-                .findAll(
+                .search(
+                        venueName,
+                        parseId(query.venueCode()),
                         PageRequest.of(
                                 query.pageQuery().page(),
                                 query.pageQuery().size()))
@@ -33,5 +39,20 @@ public class VenueServiceImpl implements VenueService {
     private Venue getById(Long id) {
         return venueRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공연장입니다."));
+    }
+
+    private String trimToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private Long parseId(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Long.valueOf(value.trim());
+        } catch (NumberFormatException exception) {
+            return -1L;
+        }
     }
 }

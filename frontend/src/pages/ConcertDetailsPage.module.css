@@ -116,6 +116,13 @@
     gap: 14px;
 }
 
+.bookingControl {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
 .timerText {
     color: #cf7373;
     font-size: 13px;
@@ -132,6 +139,13 @@
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+}
+
+.bookingButton:disabled {
+    border-color: #c8c8ce;
+    background-color: #c8c8ce;
+    color: #fff;
+    cursor: not-allowed;
 }
 
 .scheduleSection {

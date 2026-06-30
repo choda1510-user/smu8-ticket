@@ -91,6 +91,46 @@ export type AdminConcertUpdateCommand = {
         id: string
     }
 }
+// 관리자 공연 기본정보 수정 요청 타입 (제목/설명/러닝타임만, 포스터/일정/좌석 변경 없음)
+export type AdminConcertUpdateScheduleRequest = {
+    id: number | null; // 기존 회차면 서버 ID, 새 회차면 null
+    date: string;
+    reservationEndAt: string;
+};
+
+export type AdminConcertUpdateSeatGradeRequest = {
+    id: number | null; // 기존 등급이면 서버 ID, 새 등급이면 null
+    gradeName: string;
+    price: number;
+    color: string;
+};
+
+export type AdminConcertUpdateSeatRequest = {
+    seatGradeName: string;
+    row: number;
+    col: number;
+};
+
+export type AdminConcertUpdateBasicInfoRequest = {
+    title: string; // 공연명
+    description: string; // 작품 설명
+    runningTime: string; // 공연 시간
+    notice: string;
+    schedules: AdminConcertUpdateScheduleRequest[];
+    seatGrades: AdminConcertUpdateSeatGradeRequest[];
+    seats: AdminConcertUpdateSeatRequest[];
+    rowMax: number;
+    colMax: number;
+};
+export type AdminConcertUpdateBasicInfoCommand = {
+    request: AdminConcertUpdateBasicInfoRequest;
+    cardPoster?: File; // 새로 선택한 카드형 포스터 (선택하지 않으면 기존 유지)
+    bannerPoster?: File; // 새로 선택한 스크린형 포스터 (선택하지 않으면 기존 유지)
+    descriptionPoster?: File; // 새로 선택한 작품설명 이미지 (선택하지 않으면 기존 유지)
+    pathVariables: {
+        id: string;
+    };
+};
 
 // 기존 등록 코드 호환용 관리자 공연 요청 타입
 export type AdminConcertRequest = AdminConcertCreateRequest;

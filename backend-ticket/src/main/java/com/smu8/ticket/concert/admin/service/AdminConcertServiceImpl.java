@@ -85,12 +85,38 @@ public class AdminConcertServiceImpl implements AdminConcertService {
         command.update(concert, venue);
         return ConcertDetailResult.from(concert);
     }
+
     @Override
     @Transactional
     public ConcertDetailResult updateConcertBasicInfo(UpdateConcertBasicInfoCommand command) {
         Concert concert = getById(command.id());
         command.update(concert);
-        return ConcertDetailResult.from(concert);
+
+        String newCardPosterKey = null;
+        String newBannerPosterKey = null;
+        String newDescriptionPosterKey = null;
+
+        try {
+            if (command.hasNewCardPoster()) {
+                newCardPosterKey = storageService.store(command.cardPoster());
+                concert.setCardPosterUrl(storageService.getUrl(newCardPosterKey));
+            }
+            if (command.hasNewBannerPoster()) {
+                newBannerPosterKey = storageService.store(command.bannerPoster());
+                concert.setScreenPosterUrl(storageService.getUrl(newBannerPosterKey));
+            }
+            if (command.hasNewDescriptionPoster()) {
+                newDescriptionPosterKey = storageService.store(command.descriptionPoster());
+                concert.setDescriptionPosterUrl(storageService.getUrl(newDescriptionPosterKey));
+            }
+
+            return ConcertDetailResult.from(concert);
+        } catch (RuntimeException exception) {
+            deleteStoredFile(newDescriptionPosterKey, exception);
+            deleteStoredFile(newBannerPosterKey, exception);
+            deleteStoredFile(newCardPosterKey, exception);
+            throw exception;
+        }
     }
 
     @Override

@@ -129,17 +129,30 @@ public class AdminConcertController {
         ConcertDetailResult result = adminConcertService.updateConcert(UpdateConcertCommand.from(id, updateConcertRequest));
         return ResponseEntity.ok(AdminConcertDetailResponse.from(result));
     }
-    @Operation(summary = "관리자 공연 기본정보 수정", description = "관리자가 공연 제목/설명/러닝타임만 빠르게 수정합니다. (포스터/일정/좌석 변경 없음)")
+    @Operation(
+            summary = "관리자 공연 기본정보 수정",
+            description = "관리자가 공연 제목/설명/러닝타임/포스터를 수정합니다. (일정/좌석 변경 없음)",
+            requestBody = @RequestBody(content = @Content(
+                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                    encoding = @Encoding(
+                            name = "request",
+                            contentType = MediaType.APPLICATION_JSON_VALUE
+                    )
+            ))
+    )
     @PatchMapping(
             value = "/api/admin/concerts/{id}/basic-info",
-            consumes = MediaType.APPLICATION_JSON_VALUE
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<AdminConcertDetailResponse> updateConcertBasicInfo(
             @PathVariable Long id,
-            @org.springframework.web.bind.annotation.RequestBody UpdateConcertBasicInfoRequest request
+            @RequestPart(value = "cardPoster", required = false) MultipartFile cardPoster,
+            @RequestPart(value = "bannerPoster", required = false) MultipartFile bannerPoster,
+            @RequestPart(value = "descriptionPoster", required = false) MultipartFile descriptionPoster,
+            @RequestPart(value = "request") UpdateConcertBasicInfoRequest request
     ) {
         ConcertDetailResult result = adminConcertService.updateConcertBasicInfo(
-                UpdateConcertBasicInfoCommand.from(id, request));
+                UpdateConcertBasicInfoCommand.from(id, request, cardPoster, bannerPoster, descriptionPoster));
         return ResponseEntity.ok(AdminConcertDetailResponse.from(result));
     }
 

@@ -61,8 +61,8 @@ function UserHeader() {
                                 </button>
                                 <Link to="/mypage">마이페이지</Link>
                                 {isAdmin && (
-                                    <Link to="/admin" className="user-header-admin-link">
-                                        관리자 페이지
+                                    <Link to="/admin">
+                                        관리자페이지
                                     </Link>
                                 )}
                             </>

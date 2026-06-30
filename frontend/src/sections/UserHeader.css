@@ -56,21 +56,6 @@
     color: #ffd4e5;
 }
 
-.user-header-auth .user-header-admin-link {
-    padding: 5px 12px;
-    border: 1px solid rgba(255, 212, 229, 0.72);
-    border-radius: 999px;
-    color: #ffd4e5;
-    background: rgba(255, 212, 229, 0.08);
-    font-weight: 400;
-}
-
-.user-header-auth .user-header-admin-link:hover {
-    color: #233154;
-    background: #ffd4e5;
-    border-color: #ffd4e5;
-}
-
 .user-header-main-row {
     display: grid;
     grid-template-columns: 230px 1fr;

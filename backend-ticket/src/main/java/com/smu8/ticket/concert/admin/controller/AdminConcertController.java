@@ -1,5 +1,7 @@
 package com.smu8.ticket.concert.admin.controller;
 
+import com.smu8.ticket.concert.admin.dto.command.UpdateConcertBasicInfoCommand;
+import com.smu8.ticket.concert.admin.http.request.UpdateConcertBasicInfoRequest;
 import com.smu8.ticket.concert.admin.dto.command.CreateConcertCommand;
 import com.smu8.ticket.concert.admin.dto.command.UpdateConcertCommand;
 import com.smu8.ticket.concert.dto.result.ConcertDetailResult;
@@ -118,6 +120,7 @@ public class AdminConcertController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<AdminConcertDetailResponse> updateConcert(
+
             @Parameter(description = "수정할 공연 고유 ID", example = "1")
             @PathVariable Long id,
             @RequestPart(value = "cardPoster")
@@ -130,6 +133,32 @@ public class AdminConcertController {
             UpdateConcertRequest updateConcertRequest
     ) {
         ConcertDetailResult result = adminConcertService.updateConcert(UpdateConcertCommand.from(id, updateConcertRequest));
+        return ResponseEntity.ok(AdminConcertDetailResponse.from(result));
+    }
+    @Operation(
+            summary = "관리자 공연 기본정보 수정",
+            description = "관리자가 공연 제목/설명/러닝타임/포스터를 수정합니다. (일정/좌석 변경 없음)",
+            requestBody = @RequestBody(content = @Content(
+                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                    encoding = @Encoding(
+                            name = "request",
+                            contentType = MediaType.APPLICATION_JSON_VALUE
+                    )
+            ))
+    )
+    @PatchMapping(
+            value = "/api/admin/concerts/{id}/basic-info",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<AdminConcertDetailResponse> updateConcertBasicInfo(
+            @PathVariable Long id,
+            @RequestPart(value = "cardPoster", required = false) MultipartFile cardPoster,
+            @RequestPart(value = "bannerPoster", required = false) MultipartFile bannerPoster,
+            @RequestPart(value = "descriptionPoster", required = false) MultipartFile descriptionPoster,
+            @RequestPart(value = "request") UpdateConcertBasicInfoRequest request
+    ) {
+        ConcertDetailResult result = adminConcertService.updateConcertBasicInfo(
+                UpdateConcertBasicInfoCommand.from(id, request, cardPoster, bannerPoster, descriptionPoster));
         return ResponseEntity.ok(AdminConcertDetailResponse.from(result));
     }
 

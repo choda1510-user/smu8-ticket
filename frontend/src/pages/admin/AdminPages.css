@@ -10,6 +10,23 @@
     box-sizing: border-box;
 }
 
+.admin-page__seat-editor-locked {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.admin-page__detail-card .admin-page__info-grid.admin-page__info-grid--triple {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.admin-page__concert-grid--with-code {
+    grid-template-columns: 140px minmax(160px, 1fr) max-content minmax(140px, 1fr);
+}
+
+.admin-page__concert-grid--with-code span {
+    display: none;
+}
+
 .admin-page__header {
     margin-bottom: 28px;
     display: flex;
@@ -1005,6 +1022,7 @@
 }
 
 .admin-page__image-inputs label,
+.admin-page__image-picker label,
 .admin-page__file-chip {
     min-height: 74px;
     padding: 12px;
@@ -1019,6 +1037,7 @@
 }
 
 .admin-page__image-inputs input,
+.admin-page__image-picker input,
 .admin-page__file-chip input {
     display: none;
 }

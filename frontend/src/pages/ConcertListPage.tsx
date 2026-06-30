@@ -68,19 +68,34 @@ function ConcertListPage() {
         navigate("/concerts?filter=upcoming");
     };
 
+    const handleCategoryTitleClick = () => {
+        navigate("/concerts");
+    };
+
     return (
-        <section className
-                     ={styles.page}>
-            <section className
-                         ={styles.categoryBox}>
-                <div className
-                         ={styles.tabMenu}>
+        <section className={styles.page}>
+            <section className={styles.categoryBox}>
+                <span className={styles.categoryEyebrow}>SMTOWN LIVE TICKET</span>
+                <div className={styles.categoryHeader}>
+                    <div>
+                        <button
+                            type="button"
+                            className={styles.categoryTitleButton}
+                            onClick={handleCategoryTitleClick}
+                            aria-label="공연 기본 화면으로 이동"
+                        >
+                            공연
+                        </button>
+                        <p className={styles.categoryDescription}>
+                            원하는 공연의 예매 상태와 일정을 한눈에 확인하세요.
+                        </p>
+                    </div>
+                </div>
+
+                <div className={styles.tabMenu}>
                     <button
                         type="button"
-                        className
-                            ={
-                            `${styles.tabButton} ${isOpenFilter ? styles.activeTabButton : ""}`
-                        }
+                        className={`${styles.tabButton} ${isOpenFilter ? styles.activeTabButton : ""}`}
                         onClick={handleOpenTabClick}
                     >
                         예매중인 공연
@@ -88,22 +103,20 @@ function ConcertListPage() {
 
                     <button
                         type="button"
-                        className
-                            ={`${styles.tabButton} ${isUpcomingFilter ? styles.activeTabButton : ""}`}
+                        className={`${styles.tabButton} ${isUpcomingFilter ? styles.activeTabButton : ""}`}
                         onClick={handleUpcomingTabClick}
                     >
                         티켓팅 오픈예정
                     </button>
                 </div>
-
-                <h1 className
-                        ={styles.categoryTitle}>공연</h1>
             </section>
 
             {isMainPage && (
                 <>
                     <ConcertSection
                         title="예매중인 공연"
+                        description="지금 바로 예매할 수 있는 공연입니다."
+                        tone="open"
                         concerts={openConcerts.slice(0, mainPreviewSize)}
                         showMoreButton
                         onMoreClick={handleOpenConcertMoreClick}
@@ -112,6 +125,8 @@ function ConcertListPage() {
 
                     <ConcertSection
                         title="티켓팅 오픈 예정"
+                        description="오픈 일정을 확인하고 예매 준비를 해보세요."
+                        tone="upcoming"
                         concerts={upcomingConcerts.slice(0, mainPreviewSize)}
                         showMoreButton
                         onMoreClick={handleUpcomingConcertMoreClick}
@@ -124,14 +139,15 @@ function ConcertListPage() {
                 <>
                     <ConcertSection
                         title="예매중인 공연"
+                        description="지금 바로 예매할 수 있는 공연입니다."
+                        tone="open"
                         concerts={pagedConcerts}
                         showMoreButton={false}
                         onMoreClick={handleOpenConcertMoreClick}
                         onConcertClick={handleConcertClick}
                     />
 
-                    <div className
-                             ={styles.paginationArea}>
+                    <div className={styles.paginationArea}>
                         <BottomPaginationBar
                             currentPage={currentPage}
                             totalPages={totalPages}
@@ -145,14 +161,15 @@ function ConcertListPage() {
                 <>
                     <ConcertSection
                         title="티켓팅 오픈 예정"
+                        description="오픈 일정을 확인하고 예매 준비를 해보세요."
+                        tone="upcoming"
                         concerts={pagedConcerts}
                         showMoreButton={false}
                         onMoreClick={handleUpcomingConcertMoreClick}
                         onConcertClick={handleConcertClick}
                     />
 
-                    <div className
-                             ={styles.paginationArea}>
+                    <div className={styles.paginationArea}>
                         <BottomPaginationBar
                             currentPage={currentPage}
                             totalPages={totalPages}
@@ -167,6 +184,8 @@ function ConcertListPage() {
 
 type ConcertSectionProps = {
     title: string;
+    description: string;
+    tone: "open" | "upcoming";
     concerts: ConcertItem[];
     showMoreButton: boolean;
     onMoreClick: () => void;
@@ -175,48 +194,47 @@ type ConcertSectionProps = {
 
 function ConcertSection({
                             title,
+                            description,
+                            tone,
                             concerts,
                             showMoreButton,
                             onMoreClick,
                             onConcertClick,
                         }: ConcertSectionProps) {
+    const sectionToneClass =
+        tone === "open" ? styles.openSection : styles.upcomingSection;
+
     return (
-        <section className
-                     ={styles.section}>
-            <div className
-                     ={styles.sectionHeader}>
-                <h2 className
-                        ={styles.sectionTitle}>{title}</h2>
+        <section className={`${styles.section} ${sectionToneClass}`}>
+            <div className={styles.sectionHeader}>
+                <div>
+                    <h2 className={styles.sectionTitle}>{title}</h2>
+                    <p className={styles.sectionDescription}>{description}</p>
+                </div>
 
                 {showMoreButton && (
-                    <button type="button" className
-                        ={styles.moreButton} onClick={onMoreClick}>
+                    <button type="button" className={styles.moreButton} onClick={onMoreClick}>
                         전체보기
                     </button>
                 )}
             </div>
 
             {concerts.length === 0 ? (
-                <div className
-                         ={styles.emptyBox}>등록된 공연이 없습니다.</div>
+                <div className={styles.emptyBox}>등록된 공연이 없습니다.</div>
             ) : (
-                <ul className
-                        ={styles.concertList}>
+                <ul className={styles.concertList}>
                     {concerts.map((concert) => (
-                        <li key={concert.concertId} className
-                            ={styles.concertItem}>
+                        <li key={concert.concertId} className={styles.concertItem}>
                             <button
                                 type="button"
-                                className
-                                    ={styles.posterButton}
+                                className={styles.posterButton}
                                 onClick={() => onConcertClick(concert.concertId)}
                             >
                                 {concert.posterUrl ? (
                                     <img
                                         src={concert.posterUrl}
                                         alt="공연 포스터"
-                                        className
-                                            ={styles.posterImage}
+                                        className={styles.posterImage}
                                     />
                                 ) : (
                                     <span>포스터</span>
@@ -225,31 +243,24 @@ function ConcertSection({
 
                             <button
                                 type="button"
-                                className
-                                    ={styles.concertTitleButton}
+                                className={styles.concertTitleButton}
                                 onClick={() => onConcertClick(concert.concertId)}
                             >
                                 {concert.title}
                             </button>
 
-                            <div className
-                                     ={styles.periodArea}>
-                                <span className
-                                          ={styles.smallLabel}>공연날짜</span>
-                                <span className
-                                          ={styles.periodText}>{concert.period}</span>
+                            <div className={styles.periodArea}>
+                                <span className={styles.smallLabel}>공연날짜</span>
+                                <span className={styles.periodText}>{concert.period}</span>
                             </div>
 
-                            <div className
-                                     ={styles.venueArea}>
-                                <span className
-                                          ={styles.venueName}>{concert.venueName}</span>
+                            <div className={styles.venueArea}>
+                                <span className={styles.smallLabel}>공연장</span>
+                                <span className={styles.venueName}>{concert.venueName}</span>
                             </div>
 
-                            <div className
-                                     ={styles.badgeArea}>
-                                <span className
-                                          ={styles.badge}>{concert.badgeText}</span>
+                            <div className={styles.badgeArea}>
+                                <span className={styles.badge}>{concert.badgeText}</span>
                             </div>
                         </li>
                     ))}

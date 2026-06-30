@@ -20,7 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.smu8.ticket.concert.entity.PerformanceSchedule;
 import com.smu8.ticket.concert.entity.Seat;
 import com.smu8.ticket.concert.entity.SeatGrade;
 import com.smu8.ticket.concert.repository.PerformanceScheduleRepository;
@@ -37,7 +36,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -66,12 +64,12 @@ public class AdminConcertServiceImpl implements AdminConcertService {
             descriptionPosterKey = storageService.store(command.descriptionPoster());
             Concert concert = command.toEntity(
                     venue,
-                    storageService.getUrl(cardPosterKey),
-                    storageService.getUrl(bannerPosterKey),
-                    storageService.getUrl(descriptionPosterKey)
+                    cardPosterKey,
+                    bannerPosterKey,
+                    descriptionPosterKey
             );
             Concert savedConcert = concertRepository.saveAndFlush(concert);
-            return ConcertDetailResult.from(savedConcert);
+            return ConcertDetailResult.from(savedConcert, storageService);
 
         } catch (RuntimeException exception) {
             deleteStoredFile(descriptionPosterKey, exception);
@@ -92,13 +90,13 @@ public class AdminConcertServiceImpl implements AdminConcertService {
         return PageResult.from(concertRepository.findAll(
                         createAdminConcertSpecification(query),
                         PageRequest.of(query.pageQuery().page(), query.pageQuery().size()))
-                .map(ConcertDetailResult::from));
+                .map((concert -> ConcertDetailResult.from(concert, storageService))));
     }
 
     @Override
     @Transactional(readOnly = true)
     public ConcertDetailResult getConcert(ConcertDetailQuery query) {
-        return ConcertDetailResult.from(getById(query.id()));
+        return ConcertDetailResult.from(getById(query.id()), storageService);
     }
 
 
@@ -108,7 +106,7 @@ public class AdminConcertServiceImpl implements AdminConcertService {
         Concert concert = getById(command.id());
         Venue venue = getVenueById(command.venueId());
         command.update(concert, venue);
-        return ConcertDetailResult.from(concert);
+        return ConcertDetailResult.from(concert, storageService);
     }
 
     @Override
@@ -131,19 +129,31 @@ public class AdminConcertServiceImpl implements AdminConcertService {
 
         try {
             if (command.hasNewCardPoster()) {
+                String oldCardPosterKey = concert.getCardPosterId();
                 newCardPosterKey = storageService.store(command.cardPoster());
-                concert.setCardPosterUrl(storageService.getUrl(newCardPosterKey));
+                concert.setCardPosterId(newCardPosterKey);
+                if (oldCardPosterKey != null) {
+                    storageService.delete(oldCardPosterKey);
+                }
             }
             if (command.hasNewBannerPoster()) {
+                String oldBannerPosterKey = concert.getScreenPosterId();
                 newBannerPosterKey = storageService.store(command.bannerPoster());
-                concert.setScreenPosterUrl(storageService.getUrl(newBannerPosterKey));
+                concert.setScreenPosterId(newBannerPosterKey);
+                if (oldBannerPosterKey != null) {
+                    storageService.delete(oldBannerPosterKey);
+                }
             }
             if (command.hasNewDescriptionPoster()) {
+                String oldDescriptionPosterKey = concert.getDescriptionPosterId();
                 newDescriptionPosterKey = storageService.store(command.descriptionPoster());
-                concert.setDescriptionPosterUrl(storageService.getUrl(newDescriptionPosterKey));
+                concert.setDescriptionPosterId(newDescriptionPosterKey);
+                if (oldDescriptionPosterKey != null) {
+                    storageService.delete(oldDescriptionPosterKey);
+                }
             }
 
-            return ConcertDetailResult.from(concert);
+            return ConcertDetailResult.from(concert, storageService);
         } catch (RuntimeException exception) {
             deleteStoredFile(newDescriptionPosterKey, exception);
             deleteStoredFile(newBannerPosterKey, exception);

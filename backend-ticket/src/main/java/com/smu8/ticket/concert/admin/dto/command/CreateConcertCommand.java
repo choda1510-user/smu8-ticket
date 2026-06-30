@@ -65,9 +65,9 @@ public record CreateConcertCommand(
 
     public Concert toEntity(
             Venue venue,
-            String cardPosterUrl,
-            String bannerPosterUrl,
-            String descriptionPosterUrl
+            String cardPosterId,
+            String bannerPosterId,
+            String descriptionPosterId
     ) {
         Concert concert = Concert.builder()
                 .performanceCode(createPerformanceCode())
@@ -77,9 +77,9 @@ public record CreateConcertCommand(
                 .runningTime(runningTime)
                 .notice(notice)
                 .venue(venue)
-                .cardPosterUrl(cardPosterUrl)
-                .screenPosterUrl(bannerPosterUrl)
-                .descriptionPosterUrl(descriptionPosterUrl)
+                .cardPosterId(cardPosterId)
+                .screenPosterId(bannerPosterId)
+                .descriptionPosterId(descriptionPosterId)
                 .build();
 
         List<SeatGrade> seatGradeEntities = seatGrades.stream()

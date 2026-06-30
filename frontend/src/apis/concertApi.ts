@@ -321,18 +321,45 @@ export async function getAdminConcert(id: number): Promise<AdminConcertDetailRes
 }
 
 export async function getAdminConcertList(): Promise<AdminConcertDetailResponse[]> {
-    const response = await getAdminConcertPage({page: 0, size: 100});
+    const response = await getAdminConcertPage(
+        {page: 0, size: 100},
+        {
+            concertName: "",
+            concertCode: "",
+            venueName: "",
+            venueCode: "",
+        },
+    );
 
     return response.contents ?? [];
 }
 
 export async function getAdminConcertPage(
     query: PageRequest,
+    filters: {
+        concertName: string;
+        concertCode: string;
+        venueName: string;
+        venueCode: string;
+    },
 ): Promise<AdminConcertListPageResponse> {
     const params = new URLSearchParams({
         page: String(query.page),
         size: String(query.size),
     });
+
+    if (filters.concertName.trim()) {
+        params.set("concertNames", filters.concertName.trim());
+    }
+    if (filters.concertCode.trim()) {
+        params.set("concertCode", filters.concertCode.trim());
+    }
+    if (filters.venueName.trim()) {
+        params.set("venueNames", filters.venueName.trim());
+    }
+    if (filters.venueCode.trim()) {
+        params.set("venueCode", filters.venueCode.trim());
+    }
 
     return fetchJson<AdminConcertListPageResponse>(`${API_BASE_URL}/api/admin/concerts?${params.toString()}`, {
         headers: createJsonHeaders(),

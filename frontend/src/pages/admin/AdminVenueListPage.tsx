@@ -1,72 +1,42 @@
-import {useEffect, useMemo, useState} from "react";
+import {useState} from "react";
 import {useNavigate} from "react-router";
 import {getAdminVenuePage, getVenueAddress} from "@/apis/venueApi";
 import type {AdminVenueItemResponse} from "@/types/adminVenue";
+import {usePagination} from "@/hooks/usePagination";
 import "./AdminPages.css";
 
 const pageSize = 5;
+const initialSearchCondition = {
+    venueCode: "",
+    venueName: "",
+};
 
 function AdminVenueListPage() {
     const navigate = useNavigate();
-    const [venues, setVenues] = useState<AdminVenueItemResponse[]>([]);
     const [venueCodeInput, setVenueCodeInput] = useState("");
     const [venueNameInput, setVenueNameInput] = useState("");
-    const [venueCodeKeyword, setVenueCodeKeyword] = useState("");
-    const [venueNameKeyword, setVenueNameKeyword] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPage, setTotalPage] = useState(1);
-    const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-
-    useEffect(() => {
-        async function loadVenues() {
-            try {
-                setIsLoading(true);
-                setErrorMessage("");
-                const response = await getAdminVenuePage({
-                    page: currentPage - 1,
-                    size: pageSize,
-                });
-                setVenues(response.contents);
-                setTotalPage(Math.max(1, response.totalPages));
-            } catch {
-                setErrorMessage("공연장 목록을 불러오지 못했습니다.");
-            } finally {
-                setIsLoading(false);
-            }
-        }
-
-        void loadVenues();
-    }, [currentPage]);
-
-    const filteredVenues = useMemo(() => {
-        const codeKeyword = venueCodeKeyword.trim();
-        const nameKeyword = venueNameKeyword.trim().toLowerCase();
-
-        return venues.filter((venue) => {
-            const venueCode = String(venue.id);
-            const venueName = venue.name || "";
-            const matchesCode = codeKeyword ? venueCode.includes(codeKeyword) : true;
-            const matchesName = nameKeyword ? venueName.toLowerCase().includes(nameKeyword) : true;
-
-            return matchesCode && matchesName;
-        });
-    }, [venues, venueCodeKeyword, venueNameKeyword]);
-
-    const pagedVenues = filteredVenues;
+    const {
+        pageResult,
+        currentPage,
+        totalPages,
+        isLoading,
+        error,
+        search,
+        changePage,
+        previousPage,
+        nextPage,
+    } = usePagination<AdminVenueItemResponse, typeof initialSearchCondition>({
+        pageSize,
+        initialFilters: initialSearchCondition,
+        fetchPage: getAdminVenuePage,
+    });
+    const pagedVenues = pageResult.contents;
 
     const handleSearchClick = () => {
-        setVenueCodeKeyword(venueCodeInput);
-        setVenueNameKeyword(venueNameInput);
-        setCurrentPage(1);
-    };
-
-    const handlePrevPageClick = () => {
-        setCurrentPage((page) => Math.max(1, page - 1));
-    };
-
-    const handleNextPageClick = () => {
-        setCurrentPage((page) => Math.min(totalPage, page + 1));
+        search({
+            venueCode: venueCodeInput,
+            venueName: venueNameInput,
+        });
     };
 
     return (
@@ -103,7 +73,7 @@ function AdminVenueListPage() {
                     </button>
                 </div>
 
-                {errorMessage && <p className="admin-page__error-text">{errorMessage}</p>}
+                {error && <p className="admin-page__error-text">공연장 목록을 불러오지 못했습니다.</p>}
 
                 <table className="admin-page__table">
                     <thead>
@@ -139,10 +109,10 @@ function AdminVenueListPage() {
                 </table>
 
                 <div className="admin-page__pagination">
-                    <button type="button" onClick={handlePrevPageClick} disabled={currentPage === 1}>
+                    <button type="button" onClick={previousPage} disabled={currentPage === 1}>
                         ‹
                     </button>
-                    {Array.from({length: totalPage}).map((_, index) => {
+                    {Array.from({length: totalPages}).map((_, index) => {
                         const page = index + 1;
 
                         return (
@@ -150,13 +120,13 @@ function AdminVenueListPage() {
                                 key={page}
                                 type="button"
                                 className={currentPage === page ? "active" : undefined}
-                                onClick={() => setCurrentPage(page)}
+                                onClick={() => changePage(page)}
                             >
                                 {page}
                             </button>
                         );
                     })}
-                    <button type="button" onClick={handleNextPageClick} disabled={currentPage === totalPage}>
+                    <button type="button" onClick={nextPage} disabled={currentPage === totalPages}>
                         ›
                     </button>
                 </div>

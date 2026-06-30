@@ -63,10 +63,17 @@ public class AdminConcertServiceImpl implements AdminConcertService {
     @Override
     @Transactional(readOnly = true)
     public PageResult<ConcertDetailResult> getConcerts(ConcertPageQuery query) {
-//        return concertRepository.findAll().stream()
-//                .map(ConcertDetailResult::from)
-//                .toList();
-        return PageResult.from(concertRepository.findAll(PageRequest.of(query.pageQuery().page(), query.pageQuery().size()))
+        String concertName = query.concertNames() == null || query.concertNames().isEmpty()
+                ? null
+                : trimToNull(query.concertNames().get(0));
+
+        return PageResult.from(concertRepository.search(
+                        concertName,
+                        trimToNull(query.concertCode()),
+                        trimToNull(query.venueNames()),
+                        parseId(query.venueCode()),
+                        trimToNull(query.status()),
+                        PageRequest.of(query.pageQuery().page(), query.pageQuery().size()))
                 .map(ConcertDetailResult::from));
     }
 
@@ -98,6 +105,21 @@ public class AdminConcertServiceImpl implements AdminConcertService {
     private Venue getVenueById(Long venueId) {
         return venueRepository.findById(venueId)
                 .orElseThrow(() -> new InvalidConcertException("존재하지 않는 공연장입니다."));
+    }
+
+    private String trimToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private Long parseId(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Long.valueOf(value.trim());
+        } catch (NumberFormatException exception) {
+            return -1L;
+        }
     }
 
     private void deleteStoredFile(String fileKey, RuntimeException originalException) {

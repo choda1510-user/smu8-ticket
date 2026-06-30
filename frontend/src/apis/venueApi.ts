@@ -103,18 +103,32 @@ export async function getAdminVenue(id: number): Promise<AdminVenueDetailRespons
 }
 
 export async function getAdminVenueList(): Promise<AdminVenueItemResponse[]> {
-    const response = await getAdminVenuePage({page: 0, size: 100});
+    const response = await getAdminVenuePage(
+        {page: 0, size: 100},
+        {venueCode: "", venueName: ""},
+    );
 
     return response.contents ?? [];
 }
 
 export async function getAdminVenuePage(
     query: PageRequest,
+    filters: {
+        venueCode: string;
+        venueName: string;
+    },
 ): Promise<AdminVenuePageResponse> {
     const params = new URLSearchParams({
         page: String(query.page),
         size: String(query.size),
     });
+
+    if (filters.venueCode.trim()) {
+        params.set("venueCode", filters.venueCode.trim());
+    }
+    if (filters.venueName.trim()) {
+        params.set("venueNames", filters.venueName.trim());
+    }
 
     return fetchJson<AdminVenuePageResponse>(`${API_BASE_URL}/api/venues?${params.toString()}`, {
         headers: createJsonHeaders(),

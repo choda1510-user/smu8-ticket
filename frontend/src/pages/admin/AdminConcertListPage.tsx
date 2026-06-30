@@ -1,10 +1,17 @@
-import {useEffect, useMemo, useState} from "react";
+import {useState} from "react";
 import {useNavigate} from "react-router";
 import {getAdminConcertPage} from "@/apis/concertApi";
 import type {AdminConcertDetailResponse, AdminConcertScheduleResponse} from "@/types/adminConcert";
+import {usePagination} from "@/hooks/usePagination";
 import "./AdminPages.css";
 
-const pageSize = 4;
+const pageSize = 5;
+const initialSearchCondition = {
+    concertName: "",
+    concertCode: "",
+    venueName: "",
+    venueCode: "",
+};
 
 function formatPeriod(schedules: AdminConcertScheduleResponse[]) {
     if (!schedules || schedules.length === 0) {
@@ -20,77 +27,34 @@ function formatPeriod(schedules: AdminConcertScheduleResponse[]) {
 
 function AdminConcertListPage() {
     const navigate = useNavigate();
-    const [concerts, setConcerts] = useState<AdminConcertDetailResponse[]>([]);
     const [titleInput, setTitleInput] = useState("");
     const [codeInput, setCodeInput] = useState("");
     const [venueInput, setVenueInput] = useState("");
     const [venueCodeInput, setVenueCodeInput] = useState("");
-    const [searchCondition, setSearchCondition] = useState({
-        title: "",
-        code: "",
-        venue: "",
-        venueCode: "",
+    const {
+        pageResult,
+        currentPage,
+        totalPages,
+        isLoading,
+        error,
+        search,
+        changePage,
+        previousPage,
+        nextPage,
+    } = usePagination<AdminConcertDetailResponse, typeof initialSearchCondition>({
+        pageSize,
+        initialFilters: initialSearchCondition,
+        fetchPage: getAdminConcertPage,
     });
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPage, setTotalPage] = useState(1);
-    const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-
-    useEffect(() => {
-        async function loadConcerts() {
-            try {
-                setIsLoading(true);
-                setErrorMessage("");
-                const response = await getAdminConcertPage({
-                    page: currentPage - 1,
-                    size: pageSize,
-                });
-                setConcerts(response.contents);
-                setTotalPage(Math.max(1, response.totalPages));
-            } catch {
-                setErrorMessage("공연 목록을 불러오지 못했습니다.");
-            } finally {
-                setIsLoading(false);
-            }
-        }
-
-        void loadConcerts();
-    }, [currentPage]);
-
-    const filteredConcerts = useMemo(() => {
-        const titleKeyword = searchCondition.title.trim().toLowerCase();
-        const codeKeyword = searchCondition.code.trim().toLowerCase();
-        const venueKeyword = searchCondition.venue.trim().toLowerCase();
-        const venueCodeKeyword = searchCondition.venueCode.trim().toLowerCase();
-
-        return concerts.filter((concert) => {
-            const matchesTitle = titleKeyword ? (concert.title ?? "").toLowerCase().includes(titleKeyword) : true;
-            const matchesCode = codeKeyword ? String(concert.id).includes(codeKeyword) : true;
-            const matchesVenue = venueKeyword ? (concert.venueName ?? "").toLowerCase().includes(venueKeyword) : true;
-            const matchesVenueCode = venueCodeKeyword ? String(concert.venueId).includes(venueCodeKeyword) : true;
-
-            return matchesTitle && matchesCode && matchesVenue && matchesVenueCode;
-        });
-    }, [concerts, searchCondition]);
-
-    const pagedConcerts = filteredConcerts;
+    const pagedConcerts = pageResult.contents;
 
     const handleSearchClick = () => {
-        setSearchCondition({
-            title: titleInput,
-            code: codeInput,
-            venue: venueInput,
+        search({
+            concertName: titleInput,
+            concertCode: codeInput,
+            venueName: venueInput,
             venueCode: venueCodeInput,
         });
-        setCurrentPage(1);
-    };
-
-    const handlePrevPageClick = () => {
-        setCurrentPage((page) => Math.max(1, page - 1));
-    };
-
-    const handleNextPageClick = () => {
-        setCurrentPage((page) => Math.min(totalPage, page + 1));
     };
 
     return (
@@ -150,7 +114,7 @@ function AdminConcertListPage() {
                     </button>
                 </div>
 
-                {errorMessage && <p className="admin-page__error-text">{errorMessage}</p>}
+                {error && <p className="admin-page__error-text">공연 목록을 불러오지 못했습니다.</p>}
 
                 <table className="admin-page__table">
                     <thead>
@@ -175,7 +139,7 @@ function AdminConcertListPage() {
                     ) : (
                         pagedConcerts.map((concert) => (
                             <tr key={concert.id}>
-                                <td>{concert.id}</td>
+                                <td>{concert.concertCode ?? "-"}</td>
                                 <td>
                                     <button type="button" className="admin-page__link-button" onClick={() => navigate(`/admin/concerts/${concert.id}`)}>
                                         {concert.title ?? "-"}
@@ -192,10 +156,10 @@ function AdminConcertListPage() {
                 </table>
 
                 <div className="admin-page__pagination">
-                    <button type="button" onClick={handlePrevPageClick} disabled={currentPage === 1}>
+                    <button type="button" onClick={previousPage} disabled={currentPage === 1}>
                         ‹
                     </button>
-                    {Array.from({length: totalPage}).map((_, index) => {
+                    {Array.from({length: totalPages}).map((_, index) => {
                         const page = index + 1;
 
                         return (
@@ -203,13 +167,13 @@ function AdminConcertListPage() {
                                 key={page}
                                 type="button"
                                 className={currentPage === page ? "active" : undefined}
-                                onClick={() => setCurrentPage(page)}
+                                onClick={() => changePage(page)}
                             >
                                 {page}
                             </button>
                         );
                     })}
-                    <button type="button" onClick={handleNextPageClick} disabled={currentPage === totalPage}>
+                    <button type="button" onClick={nextPage} disabled={currentPage === totalPages}>
                         ›
                     </button>
                 </div>

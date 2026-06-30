@@ -71,6 +71,7 @@ public class AdminConcertController {
     @GetMapping("/api/admin/concerts")
     public ResponseEntity<PageResponse<AdminConcertDetailResponse>> getConcerts(
             @RequestParam(name = "concertNames", required = false) String concertNames,
+            @RequestParam(name = "concertCode", required = false) String concertCode,
             @RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
             @RequestParam(name = "size", defaultValue = "4", required = false) Integer size,
             @RequestParam(name = "status", required = false) String status,
@@ -82,6 +83,11 @@ public class AdminConcertController {
                 adminConcertService.getConcerts(
                         ConcertPageQuery.builder()
                                 .pageQuery(PageQuery.builder().page(page).size(size).build())
+                                .concertNames(concertNames == null ? java.util.List.of() : java.util.List.of(concertNames))
+                                .concertCode(concertCode)
+                                .status(status)
+                                .venueCode(venueCode)
+                                .venueNames(venueNames)
                                 .build()
                 ),
                         AdminConcertDetailResponse::from));

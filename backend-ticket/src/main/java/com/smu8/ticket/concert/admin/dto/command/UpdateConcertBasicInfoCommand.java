@@ -5,12 +5,19 @@ import com.smu8.ticket.concert.entity.Concert;
 import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Builder
 public record UpdateConcertBasicInfoCommand(
         Long id,
         String title,
         String description,
         String runningTime,
+        List<UpdateScheduleCommand> schedules,
+        List<UpdateSeatGradeCommand> seatGrades,
+        List<UpdateSeatCommand> seats,
+        Integer rowMax,
+        Integer colMax,
         MultipartFile cardPoster,
         MultipartFile bannerPoster,
         MultipartFile descriptionPoster
@@ -27,6 +34,11 @@ public record UpdateConcertBasicInfoCommand(
                 .title(request.title())
                 .description(request.description())
                 .runningTime(request.runningTime())
+                .schedules(request.schedules())
+                .seatGrades(request.seatGrades())
+                .seats(request.seats())
+                .rowMax(request.rowMax())
+                .colMax(request.colMax())
                 .cardPoster(cardPoster)
                 .bannerPoster(bannerPoster)
                 .descriptionPoster(descriptionPoster)

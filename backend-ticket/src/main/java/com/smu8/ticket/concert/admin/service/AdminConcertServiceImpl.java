@@ -15,10 +15,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.smu8.ticket.concert.entity.PerformanceSchedule;
+import com.smu8.ticket.concert.entity.Seat;
+import com.smu8.ticket.concert.entity.SeatGrade;
+import com.smu8.ticket.concert.repository.PerformanceScheduleRepository;
+import com.smu8.ticket.concert.repository.SeatGradeRepository;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +36,8 @@ public class AdminConcertServiceImpl implements AdminConcertService {
     private final ConcertRepository concertRepository;
     private final StorageService storageService;
     private final VenueRepository venueRepository;
+    private final PerformanceScheduleRepository performanceScheduleRepository;
+    private final SeatGradeRepository seatGradeRepository;
 
     @Transactional
     @Override
@@ -92,6 +104,14 @@ public class AdminConcertServiceImpl implements AdminConcertService {
         Concert concert = getById(command.id());
         command.update(concert);
 
+        if (command.schedules() != null) {
+            syncSchedules(concert, command);
+        }
+
+        if (command.seatGrades() != null) {
+            syncSeatGrades(concert, command.seatGrades());
+        }
+
         String newCardPosterKey = null;
         String newBannerPosterKey = null;
         String newDescriptionPosterKey = null;
@@ -116,6 +136,123 @@ public class AdminConcertServiceImpl implements AdminConcertService {
             deleteStoredFile(newBannerPosterKey, exception);
             deleteStoredFile(newCardPosterKey, exception);
             throw exception;
+        }
+    }
+
+    private void syncSchedules(Concert concert, UpdateConcertBasicInfoCommand command) {
+        List<UpdateScheduleCommand> requestedSchedules = command.schedules();
+        Set<Long> keepIds = requestedSchedules.stream()
+                .map(UpdateScheduleCommand::id)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        List<PerformanceSchedule> toRemove = concert.getPerformanceSchedules().stream()
+                .filter(schedule -> !keepIds.contains(schedule.getId()))
+                .toList();
+
+        for (PerformanceSchedule schedule : toRemove) {
+            if (!schedule.getReservations().isEmpty()) {
+                throw new InvalidConcertException(
+                        "이미 예약이 존재하는 회차는 삭제할 수 없습니다. (회차 ID: " + schedule.getId() + ")");
+            }
+        }
+        concert.getPerformanceSchedules().removeAll(toRemove);
+        performanceScheduleRepository.deleteAll(toRemove);
+
+        LocalDateTime reservationStartAt = concert.getPerformanceSchedules().stream()
+                .map(PerformanceSchedule::getReservationStartAt)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(LocalDateTime.now());
+
+        Integer rowMax = command.rowMax();
+        Integer colMax = command.colMax();
+
+        for (UpdateScheduleCommand scheduleCommand : requestedSchedules) {
+            if (scheduleCommand.id() != null) {
+                PerformanceSchedule existing = concert.getPerformanceSchedules().stream()
+                        .filter(schedule -> schedule.getId().equals(scheduleCommand.id()))
+                        .findFirst()
+                        .orElseThrow(() -> new InvalidConcertException(
+                                "존재하지 않는 회차입니다. (회차 ID: " + scheduleCommand.id() + ")"));
+                existing.setShowStartAt(scheduleCommand.date());
+                existing.setReservationEndAt(scheduleCommand.reservationEndAt());
+            } else {
+                PerformanceSchedule newSchedule = PerformanceSchedule.builder()
+                        .showStartAt(scheduleCommand.date())
+                        .reservationStartAt(reservationStartAt)
+                        .reservationEndAt(scheduleCommand.reservationEndAt())
+                        .seatRowCount(rowMax)
+                        .seatColumnCount(colMax)
+                        .build();
+                concert.addPerformanceSchedule(newSchedule);
+
+                if (command.seats() != null && rowMax != null && colMax != null) {
+                    addSeatsToSchedule(newSchedule, concert, command.seats());
+                }
+            }
+        }
+    }
+
+    private void addSeatsToSchedule(PerformanceSchedule schedule, Concert concert, List<UpdateSeatCommand> seatCommands) {
+        Map<String, SeatGrade> seatGradeByName = concert.getSeatGrades().stream()
+                .collect(Collectors.toMap(SeatGrade::getGradeName, Function.identity(), (a, b) -> a));
+
+        for (UpdateSeatCommand seatCommand : seatCommands) {
+            SeatGrade seatGrade = seatGradeByName.get(seatCommand.seatGradeName());
+            if (seatGrade == null) {
+                continue;
+            }
+            Seat seat = Seat.builder()
+                    .performanceSchedule(schedule)
+                    .seatGrade(seatGrade)
+                    .rowIndex(seatCommand.row())
+                    .columnIndex(seatCommand.col())
+                    .build();
+            schedule.getSeats().add(seat);
+            seatGrade.getSeats().add(seat);
+        }
+    }
+
+    private void syncSeatGrades(Concert concert, List<UpdateSeatGradeCommand> requestedSeatGrades) {
+        Set<Long> keepIds = requestedSeatGrades.stream()
+                .map(UpdateSeatGradeCommand::id)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        List<SeatGrade> toRemove = concert.getSeatGrades().stream()
+                .filter(seatGrade -> !keepIds.contains(seatGrade.getId()))
+                .toList();
+
+        for (SeatGrade seatGrade : toRemove) {
+            boolean hasReservedSeat = seatGrade.getSeats().stream()
+                    .anyMatch(seat -> !seat.getReservationSeats().isEmpty());
+            if (hasReservedSeat) {
+                throw new InvalidConcertException(
+                        "이미 예약이 존재하는 좌석등급은 삭제할 수 없습니다. (등급명: " + seatGrade.getGradeName() + ")");
+            }
+        }
+        concert.getSeatGrades().removeAll(toRemove);
+        seatGradeRepository.deleteAll(toRemove);
+
+        for (UpdateSeatGradeCommand seatGradeCommand : requestedSeatGrades) {
+            if (seatGradeCommand.id() != null) {
+                SeatGrade existing = concert.getSeatGrades().stream()
+                        .filter(seatGrade -> seatGrade.getId().equals(seatGradeCommand.id()))
+                        .findFirst()
+                        .orElseThrow(() -> new InvalidConcertException(
+                                "존재하지 않는 좌석등급입니다. (등급 ID: " + seatGradeCommand.id() + ")"));
+                existing.setGradeName(seatGradeCommand.gradeName());
+                existing.setPrice(seatGradeCommand.price());
+                existing.setColor(seatGradeCommand.color());
+            } else {
+                SeatGrade newSeatGrade = SeatGrade.builder()
+                        .gradeName(seatGradeCommand.gradeName())
+                        .price(seatGradeCommand.price())
+                        .color(seatGradeCommand.color())
+                        .build();
+                concert.addSeatGrade(newSeatGrade);
+            }
         }
     }
 

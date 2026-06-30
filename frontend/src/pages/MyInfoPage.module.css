@@ -36,11 +36,14 @@
 }
 
 .label {
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
     color: #374151;
     font-size: 13px;
     font-weight: 400;
     text-align: right;
-    padding-top: 8px;
     padding-right: 24px;
     box-sizing: border-box;
     white-space: nowrap;
@@ -48,17 +51,18 @@
 
 .inputArea {
     display: flex;
-    align-items: flex-start;
-    min-height: 32px;
+    align-items: center;
+    min-height: 36px;
 }
 
 .idText {
     color: #111827;
-    min-height: 30px;
+    height: 36px;
     display: inline-flex;
     align-items: center;
     font-size: 13px;
     font-weight: 400;
+    line-height: 1.4;
 }
 
 .input {

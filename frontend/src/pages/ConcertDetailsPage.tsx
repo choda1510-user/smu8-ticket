@@ -253,7 +253,7 @@ function ConcertDetailsPage() {
                 <section ref={noticeRef} className
                     ={styles.guideSection}>
                     <h2 className
-                            ={styles.guideTitle}>예매 안내사항</h2>
+                            ={styles.guideTitle}>예매안내</h2>
 
                     <div className
                              ={styles.guideBox}>

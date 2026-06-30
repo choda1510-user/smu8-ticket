@@ -1,0 +1,87 @@
+package com.smu8.waiting.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.util.StreamUtils;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+
+@EnableWebSecurity
+@Configuration
+public class SecurityConfig {
+    @Bean
+    public SecretKey jwtSecretKey(
+            @Value("classpath:jwt-secret-key") Resource secretKeyResource
+    ) throws IOException {
+        String base64Secret = StreamUtils.copyToString(
+                secretKeyResource.getInputStream(),
+                StandardCharsets.UTF_8
+        ).trim();
+
+        byte[] keyBytes = Base64.getDecoder().decode(base64Secret);
+
+        if (keyBytes.length < 32) {
+            throw new IllegalArgumentException("JWT HS256 secret key must be at least 32 bytes.");
+        }
+
+        return new SecretKeySpec(keyBytes, "HmacSHA256");
+    }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter) {
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .addFilterBefore(
+                        bearerTokenAuthenticationFilter,
+                        AuthorizationFilter.class)
+                .build();
+    }
+    @Bean
+    public BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter(AuthenticationManager authenticationManager) {
+        return new BearerTokenAuthenticationFilter(authenticationManager);
+    }
+    @Bean
+    public AuthenticationManager authenticationManager(JwtAuthenticationProvider jwtAuthenticationProvider) {
+        return new ProviderManager(Collections.singletonList(jwtAuthenticationProvider));
+    }
+    @Bean
+    public JwtAuthenticationProvider jwtAuthenticationProvider(JwtDecoder jwtDecoder) {
+        return new JwtAuthenticationProvider(jwtDecoder);
+    }
+    @Bean
+    public JwtEncoder jwtEncoder(SecretKey jwtSecretKey) {
+        return NimbusJwtEncoder.withSecretKey(jwtSecretKey).build();
+    }
+    @Bean
+    public JwtDecoder jwtDecoder(SecretKey jwtSecretKey) {
+        return NimbusJwtDecoder.withSecretKey(jwtSecretKey).build();
+    }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}

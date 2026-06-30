@@ -19,22 +19,12 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	testImplementation 'com.h2database:h2'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	// Source: https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi
-	// implementation 'org.springdoc:springdoc-openapi'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
-
-	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-data-redis-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testCompileOnly 'org.projectlombok:lombok'
@@ -47,13 +37,14 @@ tasks.named('test') {
 }
 
 bootJar {
-	archiveFileName = 'smu8ticket-backend.jar'
+	archiveFileName = 'smu8waiting-backend.jar'
 }
+
 tasks.register('bootRunLocal', org.springframework.boot.gradle.tasks.run.BootRun) {
 	group = 'application'
 	description = 'Run the Backend Server with a local-dev profile.'
 
-	mainClass = 'com.smu8.ticket.TicketApplication'
+	mainClass = 'com.smu8.waiting.WaitingApplication'
 	classpath = sourceSets.main.runtimeClasspath
 
 	systemProperty 'spring.profiles.active', 'local-dev'
@@ -64,7 +55,7 @@ tasks.register('bootRunWaitingLocal', org.springframework.boot.gradle.tasks.run.
 	group = 'application'
 	description = 'Run the Backend Server with a local-dev-waiting profile.'
 
-	mainClass = 'com.smu8.ticket.TicketApplication'
+	mainClass = 'com.smu8.waiting.WaitingApplication'
 	classpath = sourceSets.main.runtimeClasspath
 
 	systemProperty 'spring.profiles.active', 'local-dev-waiting'

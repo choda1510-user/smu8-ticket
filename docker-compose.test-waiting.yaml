@@ -48,6 +48,15 @@ services:
       - "6379:6379"
     networks:
       - smu8-ticket-network
+  redis-waiting:
+    build:
+      context: ./redis-waiting
+      dockerfile: Dockerfile.test-waiting
+    container_name: redis-waiting
+    ports:
+      - "6381:6379"
+    networks:
+      - smu8-ticket-network
 volumes:
   mysql_database:
   backend_file_dir:

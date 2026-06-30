@@ -11,5 +11,5 @@ RUN ./gradlew bootJar
 
 FROM eclipse-temurin:21-jre-alpine AS deploy
 WORKDIR /app
-COPY --from=build /backend/build/libs/smu8ticket-backend.jar /app
-CMD ["java", "-jar", "smu8ticket-backend.jar", "--spring.profiles.active=test"]
+COPY --from=build /backend/build/libs/smu8waiting-backend.jar /app
+CMD ["java", "-jar", "smu8ticket-backend.jar", "--spring.profiles.active=test-waiting"]

@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: waiting
+  profiles:
+    active: dev-waiting
+server:
+  port: 8081

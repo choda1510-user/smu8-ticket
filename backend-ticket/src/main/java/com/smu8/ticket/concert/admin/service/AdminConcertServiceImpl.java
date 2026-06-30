@@ -85,6 +85,13 @@ public class AdminConcertServiceImpl implements AdminConcertService {
         command.update(concert, venue);
         return ConcertDetailResult.from(concert);
     }
+    @Override
+    @Transactional
+    public ConcertDetailResult updateConcertBasicInfo(UpdateConcertBasicInfoCommand command) {
+        Concert concert = getById(command.id());
+        command.update(concert);
+        return ConcertDetailResult.from(concert);
+    }
 
     @Override
     public void deleteConcert(Long id) {

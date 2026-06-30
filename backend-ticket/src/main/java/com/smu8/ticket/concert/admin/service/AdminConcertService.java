@@ -1,5 +1,6 @@
 package com.smu8.ticket.concert.admin.service;
 
+import com.smu8.ticket.concert.admin.dto.command.UpdateConcertBasicInfoCommand;
 import com.smu8.ticket.concert.admin.dto.command.CreateConcertCommand;
 import com.smu8.ticket.concert.admin.dto.command.UpdateConcertCommand;
 import com.smu8.ticket.concert.dto.result.ConcertDetailResult;
@@ -15,6 +16,8 @@ public interface AdminConcertService {
     ConcertDetailResult getConcert(ConcertDetailQuery query);
 
     ConcertDetailResult updateConcert(UpdateConcertCommand command);
+
+    ConcertDetailResult updateConcertBasicInfo(UpdateConcertBasicInfoCommand command);
 
     void deleteConcert(Long id);
 }

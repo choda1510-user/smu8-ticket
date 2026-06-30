@@ -1,5 +1,7 @@
 package com.smu8.ticket.concert.admin.controller;
 
+import com.smu8.ticket.concert.admin.dto.command.UpdateConcertBasicInfoCommand;
+import com.smu8.ticket.concert.admin.http.request.UpdateConcertBasicInfoRequest;
 import com.smu8.ticket.concert.admin.dto.command.CreateConcertCommand;
 import com.smu8.ticket.concert.admin.dto.command.UpdateConcertCommand;
 import com.smu8.ticket.concert.dto.result.ConcertDetailResult;
@@ -112,6 +114,7 @@ public class AdminConcertController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<AdminConcertDetailResponse> updateConcert(
+
             @Parameter(description = "수정할 공연 고유 ID", example = "1")
             @PathVariable Long id,
             @RequestPart(value = "cardPoster")
@@ -124,6 +127,19 @@ public class AdminConcertController {
             UpdateConcertRequest updateConcertRequest
     ) {
         ConcertDetailResult result = adminConcertService.updateConcert(UpdateConcertCommand.from(id, updateConcertRequest));
+        return ResponseEntity.ok(AdminConcertDetailResponse.from(result));
+    }
+    @Operation(summary = "관리자 공연 기본정보 수정", description = "관리자가 공연 제목/설명/러닝타임만 빠르게 수정합니다. (포스터/일정/좌석 변경 없음)")
+    @PatchMapping(
+            value = "/api/admin/concerts/{id}/basic-info",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<AdminConcertDetailResponse> updateConcertBasicInfo(
+            @PathVariable Long id,
+            @org.springframework.web.bind.annotation.RequestBody UpdateConcertBasicInfoRequest request
+    ) {
+        ConcertDetailResult result = adminConcertService.updateConcertBasicInfo(
+                UpdateConcertBasicInfoCommand.from(id, request));
         return ResponseEntity.ok(AdminConcertDetailResponse.from(result));
     }
 

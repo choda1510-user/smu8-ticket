@@ -8,7 +8,7 @@ const initialBookingList: BookingPageResult = {
     page: 0,
     size: 0,
     totalElements: 0,
-    totalPages: 1,
+    totalPages: 0,
     hasNext: false,
     hasPrevious: false,
 };

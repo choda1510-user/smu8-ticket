@@ -1,8 +1,9 @@
 import styles from "./ConcertListPage.module.css"
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import {useNavigate, useSearchParams} from "react-router";
 import BottomPaginationBar from "@/sections/BottomPaginationBar";
 import {useConcertListPage} from "@/hooks/useConcertListPage";
+import {useUrlPage} from "@/hooks/useUrlPage";
 import type {ConcertItem} from "@/types/concert";
 
 /*
@@ -27,7 +28,7 @@ function ConcertListPage() {
     const isOpenFilter = filter === "open";
     const isUpcomingFilter = filter === "upcoming";
     const isMainPage = !filter;
-    const [currentPage, setCurrentPage] = useState(1);
+    const {currentPage, changePage} = useUrlPage();
     const {openConcertList, upcomingConcertList} = useConcertListPage(
         currentPage,
         isMainPage ? mainPreviewSize : pageSize,
@@ -39,12 +40,15 @@ function ConcertListPage() {
     const pagedConcerts = activeConcertList.contents;
 
     useEffect(() => {
-        setCurrentPage(1);
-    }, [filter]);
-
-    useEffect(() => {
-        setCurrentPage((page) => Math.min(page, totalPages));
-    }, [totalPages]);
+        if (activeConcertList.totalPages > 0 && currentPage > totalPages) {
+            changePage(totalPages, totalPages, true);
+        }
+    }, [
+        activeConcertList.totalPages,
+        changePage,
+        currentPage,
+        totalPages,
+    ]);
 
     const handleConcertClick = (concertId: number) => {
         navigate(`/concerts/${concertId}`);
@@ -149,7 +153,7 @@ function ConcertListPage() {
                         <BottomPaginationBar
                             currentPage={currentPage}
                             totalPages={totalPages}
-                            onPageChange={setCurrentPage}
+                            onPageChange={(page) => changePage(page, totalPages)}
                         />
                     </div>
                 </>
@@ -171,7 +175,7 @@ function ConcertListPage() {
                         <BottomPaginationBar
                             currentPage={currentPage}
                             totalPages={totalPages}
-                            onPageChange={setCurrentPage}
+                            onPageChange={(page) => changePage(page, totalPages)}
                         />
                     </div>
                 </>

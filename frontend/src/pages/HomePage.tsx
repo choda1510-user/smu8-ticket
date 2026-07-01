@@ -131,7 +131,7 @@ function HomePage() {
                 <div className={styles.bannerIndicatorArea}>
                     {bannerList.map((banner, index) => (
                         <button
-                            key={banner.bannerId}
+                            key={banner.concertId}
                             type="button"
                             className={`${styles.bannerIndicator} ${currentBannerIndex === index ? styles.activeBannerIndicator : ""}`
                             }

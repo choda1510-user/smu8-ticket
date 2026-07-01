@@ -58,13 +58,15 @@ function BookingPaymentPage() {
 
         try {
             const command = JSON.parse(storedDraft) as BookingCreateCommand;
+            // 실제 예매 생성 API에서도 2좌석 제한을 최종 검사하므로 실패하면 완료 페이지로 이동하지 않습니다.
             const bookingSuccess = await createBooking(command);
 
             sessionStorage.setItem(bookingSuccessStorageKey, JSON.stringify(bookingSuccess));
             sessionStorage.removeItem(bookingDraftStorageKey);
             navigate(`/booking/success/${bookingSuccess.concertId}`);
-        } catch {
-            alert("예매 생성에 실패했습니다. 다시 시도해 주세요.");
+        } catch (caughtError) {
+            // 백엔드가 내려준 제한 초과 메시지가 있으면 일반 예매 실패 문구 대신 그대로 보여줍니다.
+            alert(getBookingErrorMessage(caughtError, "예매 생성에 실패했습니다. 다시 시도해 주세요."));
         }
     };
 
@@ -174,4 +176,12 @@ function formatWon(price: number) {
     return `${price.toLocaleString()}원`;
 }
 
+function getBookingErrorMessage(caughtError: unknown, fallbackMessage: string) {
+    // 네트워크/예상 밖 오류는 기본 문구를 쓰고, 백엔드 도메인 메시지만 사용자에게 노출합니다.
+    if (!(caughtError instanceof Error) || caughtError.message.startsWith("API요청 실패")) {
+        return fallbackMessage;
+    }
+
+    return caughtError.message;
+}
 export default BookingPaymentPage;

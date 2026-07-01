@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router";
-import {filterVenuesByKeyword, getVenueList, toVenueSearchResult} from "@/apis/venueApi";
+import {getVenueSearchPage} from "@/apis/venueApi";
+import {useUrlPage} from "@/hooks/useUrlPage";
 import type {VenueSearchPageResult} from "@/types/venue";
 
 const initialVenueSearchResults: VenueSearchPageResult = {
@@ -20,6 +21,7 @@ function getKeyword(searchParams: URLSearchParams) {
 export function useConcertHoleSearchResultPage() {
     const [searchParams] = useSearchParams();
     const keyword = getKeyword(searchParams);
+    const {currentPage, changePage} = useUrlPage();
     const [venueSearchResults, setVenueSearchResults] = useState<VenueSearchPageResult>(initialVenueSearchResults);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
@@ -32,19 +34,13 @@ export function useConcertHoleSearchResultPage() {
                 setIsLoading(true);
                 setError(null);
 
-                const venues = filterVenuesByKeyword(await getVenueList(), keyword)
-                    .map(toVenueSearchResult);
+                const venues = await getVenueSearchPage(
+                    {page: currentPage - 1, size: 4},
+                    keyword,
+                );
 
                 if (isMounted) {
-                    setVenueSearchResults({
-                        contents: venues,
-                        page: 1,
-                        size: venues.length,
-                        totalElements: venues.length,
-                        totalPages: 1,
-                        hasNext: false,
-                        hasPrevious: false
-                    });
+                    setVenueSearchResults(venues);
                 }
             } catch (caughtError) {
                 if (isMounted) {
@@ -62,10 +58,12 @@ export function useConcertHoleSearchResultPage() {
         return () => {
             isMounted = false;
         };
-    }, [keyword]);
+    }, [currentPage, keyword]);
 
     return {
         venueSearchResults,
+        currentPage,
+        changePage,
         isLoading,
         error,
     };

@@ -14,8 +14,13 @@ import {useConcertHoleSearchResultPage} from "@/hooks/useConcertHoleSearchResult
 
 function ConcertHoleSearchResultPage() {
     const navigate = useNavigate();
-    const {venueSearchResults} = useConcertHoleSearchResultPage();
+    const {
+        venueSearchResults,
+        currentPage,
+        changePage,
+    } = useConcertHoleSearchResultPage();
     const venues = venueSearchResults.contents;
+    const totalPages = Math.max(1, venueSearchResults.totalPages);
 
     const handleVenueClick = (venueId: number) => {
         navigate(`/venues/${venueId}`);
@@ -81,7 +86,11 @@ function ConcertHoleSearchResultPage() {
 
                         <div className
                                  ={styles.paginationArea}>
-                            <BottomPaginationBar/>
+                            <BottomPaginationBar
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={(page) => changePage(page, totalPages)}
+                            />
                         </div>
                     </>
                 )}

@@ -1,8 +1,9 @@
 import styles from "./BookingListPage.module.css"
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import {useNavigate} from "react-router";
 import BottomPaginationBar from "@/sections/BottomPaginationBar";
 import {useBookingListPage} from "@/hooks/useBookingListPage";
+import {useUrlPage} from "@/hooks/useUrlPage";
 
 /*
  * 예매내역 페이지
@@ -17,16 +18,21 @@ import {useBookingListPage} from "@/hooks/useBookingListPage";
 
 function BookingListPage() {
     const navigate = useNavigate();
-    const [currentPage, setCurrentPage] = useState(1);
+    const {currentPage, changePage} = useUrlPage();
     const {bookingList} = useBookingListPage(currentPage, 4);
     const bookings = bookingList.contents;
     const totalPages = Math.max(1, bookingList.totalPages);
 
     useEffect(() => {
-        if (currentPage > totalPages) {
-            setCurrentPage(totalPages);
+        if (bookingList.totalPages > 0 && currentPage > totalPages) {
+            changePage(totalPages, totalPages, true);
         }
-    }, [currentPage, totalPages]);
+    }, [
+        bookingList.totalPages,
+        changePage,
+        currentPage,
+        totalPages,
+    ]);
 
     const handleReserveDetailClick = (reserveId: number) => {
         navigate(`/mypage/reserve/${reserveId}`);
@@ -153,7 +159,7 @@ function BookingListPage() {
                     <BottomPaginationBar
                         currentPage={currentPage}
                         totalPages={totalPages}
-                        onPageChange={setCurrentPage}
+                        onPageChange={(page) => changePage(page, totalPages)}
                     />
                 </div>
             )}

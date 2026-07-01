@@ -333,6 +333,26 @@ export async function getConcertPage(
     return pageConvert(response, toConcertItem);
 }
 
+export async function getConcertSearchPage(
+    query: PageRequest,
+    keyword: string,
+) {
+    const params = new URLSearchParams({
+        page: String(query.page),
+        size: String(query.size),
+    });
+
+    if (keyword.trim()) {
+        params.set("concertNames", keyword.trim());
+    }
+
+    const response = await fetchJson<ConcertItemPageResponse>(
+        `${API_BASE_URL}/api/concerts?${params.toString()}`,
+    );
+
+    return pageConvert(response, toConcertSearchResult);
+}
+
 export async function getAdminConcert(id: number): Promise<AdminConcertDetailResponse> {
     return fetchJson<AdminConcertDetailResponse>(`${API_BASE_URL}/api/admin/concerts/${id}`, {
         headers: createJsonHeaders(),

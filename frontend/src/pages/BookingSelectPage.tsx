@@ -254,6 +254,7 @@ function BookingSelectPage() {
         }
 
         try {
+            // 좌석선택완료 시점의 선점 API가 2좌석 제한을 검사하므로 성공할 때만 가격 선택으로 이동합니다.
             await preemptSeats({
                 concertId: seatSelection.concertId,
                 scheduleId: currentScheduleId,
@@ -264,8 +265,9 @@ function BookingSelectPage() {
                 JSON.stringify(toBookingDraft(seatSelection, currentScheduleId, selectedSeatIds)),
             );
             navigate(`/booking/paydetail/${seatSelection.concertId}`);
-        } catch {
-            alert("좌석 선점에 실패했습니다. 다시 시도해 주세요.");
+        } catch (caughtError) {
+            // 백엔드가 내려준 제한 초과 메시지가 있으면 일반 선점 실패 문구 대신 그대로 보여줍니다.
+            alert(getBookingErrorMessage(caughtError, "좌석 선점에 실패했습니다. 다시 시도해 주세요."));
         }
     };
 
@@ -684,5 +686,13 @@ function getMiniSeatStyle(seat: SeatSelectionSeat, grade?: SeatGrade, isSelected
     };
 }
 
+function getBookingErrorMessage(caughtError: unknown, fallbackMessage: string) {
+    // 네트워크/예상 밖 오류는 기본 문구를 쓰고, 백엔드 도메인 메시지만 사용자에게 노출합니다.
+    if (!(caughtError instanceof Error) || caughtError.message.startsWith("API request failed")) {
+        return fallbackMessage;
+    }
+
+    return caughtError.message;
+}
 
 export default BookingSelectPage;

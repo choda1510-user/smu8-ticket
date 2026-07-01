@@ -14,6 +14,11 @@ import {getAccessToken} from "@/apis/authApi";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
+// 백엔드 ErrorResponse에서 사용자에게 보여줄 안내 메시지만 읽기 위한 타입입니다.
+type ApiErrorResponse = {
+    message?: string;
+};
+
 function createJsonHeaders() {
     const headers: HeadersInit = {
         "Content-Type": "application/json",
@@ -27,11 +32,29 @@ function createJsonHeaders() {
     return headers;
 }
 
+// 409 제한 초과 메시지를 화면까지 전달하기 위해 JSON 에러 응답의 message를 Error에 담습니다.
+async function createApiError(response: Response) {
+    let message = `API request failed. status=${response.status}`;
+
+    try {
+        const contentType = response.headers.get("Content-Type") ?? "";
+
+        if (contentType.includes("application/json")) {
+            const errorBody = (await response.json()) as ApiErrorResponse;
+            message = errorBody.message || message;
+        }
+    } catch {
+        return new Error(message);
+    }
+
+    return new Error(message);
+}
+
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     const response = await fetch(url, options);
 
     if (!response.ok) {
-        throw new Error(`API request failed. status=${response.status}`);
+        throw await createApiError(response);
     }
 
     return (await response.json()) as T;
@@ -41,7 +64,7 @@ async function fetchEmpty(url: string, options?: RequestInit): Promise<void> {
     const response = await fetch(url, options);
 
     if (!response.ok) {
-        throw new Error(`API request failed. status=${response.status}`);
+        throw await createApiError(response);
     }
 }
 

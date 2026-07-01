@@ -1,6 +1,6 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState, type ReactNode} from "react";
 import {useNavigate, useParams} from "react-router";
-import DatePicker from "react-datepicker";
+import DatePicker, {CalendarContainer} from "react-datepicker";
 import {format} from "date-fns";
 import {cancelConcert, getAdminConcert, updateConcertBasicInfo} from "@/apis/concertApi";
 import type {AdminConcertDetailResponse} from "@/types/adminConcert";
@@ -128,6 +128,21 @@ function createEmptyPosterFields(): PosterFormFields {
         cardPoster: {...empty},
         bannerPoster: {...empty},
         descriptionPoster: {...empty},
+    };
+}
+
+function createCalendarContainer(onConfirm: () => void) {
+    return function AdminCalendarContainer({className, children}: {className?: string; children?: ReactNode}) {
+        return (
+            <CalendarContainer className={className}>
+                {children}
+                <div className="admin-datepicker__actions">
+                    <button type="button" className="admin-datepicker__confirm-button" onClick={onConfirm}>
+                        확인
+                    </button>
+                </div>
+            </CalendarContainer>
+        );
     };
 }
 
@@ -427,6 +442,8 @@ function AdminConcertDetailPage() {
         setSchedules((currentSchedules) => currentSchedules.filter((schedule) => schedule.id !== id));
     };
 
+    const calendarContainer = createCalendarContainer(() => setOpenedCalendar(null));
+
     const totalSeatCount = concert?.totalSeatCount ?? concert?.seats.length ?? 0;
     const reservedSeatCount = concert?.reservedSeatCount ?? 0;
 
@@ -523,7 +540,6 @@ function AdminConcertDetailPage() {
                                                 <DatePicker
                                                     selected={concertDateTimeDraft}
                                                     onChange={(date: Date | null) => setConcertDateTimeDraft(date)}
-                                                    onSelect={() => setOpenedCalendar(null)}
                                                     onClickOutside={() => setOpenedCalendar(null)}
                                                     open={isEditing && openedCalendar === "concert"}
                                                     disabled={!isEditing}
@@ -531,9 +547,10 @@ function AdminConcertDetailPage() {
                                                     showTimeSelect
                                                     showMonthDropdown
                                                     showYearDropdown
-                                                    shouldCloseOnSelect
+                                                    shouldCloseOnSelect={false}
                                                     dropdownMode="select"
                                                     calendarClassName="admin-datepicker"
+                                                    calendarContainer={calendarContainer}
                                                     popperClassName="admin-datepicker-popper"
                                                     timeFormat="HH:mm"
                                                     timeIntervals={10}
@@ -552,7 +569,6 @@ function AdminConcertDetailPage() {
                                                 <DatePicker
                                                     selected={reservationEndDraft}
                                                     onChange={(date: Date | null) => setReservationEndDraft(date)}
-                                                    onSelect={() => setOpenedCalendar(null)}
                                                     onClickOutside={() => setOpenedCalendar(null)}
                                                     open={isEditing && openedCalendar === "reservationEnd"}
                                                     disabled={!isEditing}
@@ -560,9 +576,10 @@ function AdminConcertDetailPage() {
                                                     showTimeSelect
                                                     showMonthDropdown
                                                     showYearDropdown
-                                                    shouldCloseOnSelect
+                                                    shouldCloseOnSelect={false}
                                                     dropdownMode="select"
                                                     calendarClassName="admin-datepicker"
+                                                    calendarContainer={calendarContainer}
                                                     popperClassName="admin-datepicker-popper"
                                                     timeFormat="HH:mm"
                                                     timeIntervals={10}

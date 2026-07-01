@@ -941,6 +941,37 @@
     color: #ffffff;
 }
 
+.admin-datepicker__actions {
+    width: 96px;
+    margin-left: auto;
+    padding: 8px;
+    clear: both;
+    border-top: 1px solid #eaecf0;
+    border-left: 1px solid #eaecf0;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.admin-datepicker__confirm-button {
+    height: 30px;
+    width: 100%;
+    min-width: 0;
+    padding: 0 10px;
+    border: 1px solid #7c3aed;
+    border-radius: 8px;
+    background: #7c3aed;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-datepicker__confirm-button:hover {
+    background: #6938d3;
+}
+
 .admin-page__period-layout {
     display: grid;
     grid-template-columns: 180px minmax(0, 1fr);

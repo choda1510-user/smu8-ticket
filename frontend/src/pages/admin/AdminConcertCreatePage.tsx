@@ -1,6 +1,6 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState, type ReactNode} from "react";
 import {useNavigate} from "react-router";
-import DatePicker from "react-datepicker";
+import DatePicker, {CalendarContainer} from "react-datepicker";
 import {format} from "date-fns";
 import {addConcert} from "@/apis/concertApi";
 import {getAdminVenueList, getVenueAddress} from "@/apis/venueApi";
@@ -37,6 +37,8 @@ const emptyPosterFile: PosterFileState = {
     previewUrl: "",
 };
 
+const invalidReservationPeriodMessage = "예매 시작일시는 공연일시 및 예매 마감일시보다 이전이어야 하며, 예매 마감일시는 공연일시보다 이전이어야 합니다.";
+
 function formatDateTime(date: Date) {
     return format(date, "yyyy.MM.dd HH:mm");
 }
@@ -47,6 +49,13 @@ function formatPeriod(start: Date, end: Date) {
     }
 
     return `${formatDateTime(start)} ~ ${formatDateTime(end)}`;
+}
+
+function isInvalidReservationPeriod(schedule: Pick<ConcertSchedule, "concertDateTime" | "reservationStart" | "reservationEnd">) {
+    return (
+        schedule.reservationStart.getTime() >= schedule.reservationEnd.getTime() ||
+        schedule.reservationEnd.getTime() >= schedule.concertDateTime.getTime()
+    );
 }
 
 function createInitialSeatLayout(): SeatLayout {
@@ -66,6 +75,21 @@ function createInitialPosterFiles(): PosterFilesState {
         cardPoster: {...emptyPosterFile},
         bannerPoster: {...emptyPosterFile},
         descriptionPoster: {...emptyPosterFile},
+    };
+}
+
+function createCalendarContainer(onConfirm: () => void) {
+    return function AdminCalendarContainer({className, children}: {className?: string; children?: ReactNode}) {
+        return (
+            <CalendarContainer className={className}>
+                {children}
+                <div className="admin-datepicker__actions">
+                    <button type="button" className="admin-datepicker__confirm-button" onClick={onConfirm}>
+                        확인
+                    </button>
+                </div>
+            </CalendarContainer>
+        );
     };
 }
 
@@ -190,6 +214,11 @@ function AdminConcertCreatePage() {
             return;
         }
 
+        if (isInvalidReservationPeriod({concertDateTime, reservationStart, reservationEnd})) {
+            alert(invalidReservationPeriodMessage);
+            return;
+        }
+
         setSchedules((currentSchedules) => [
             ...currentSchedules,
             {
@@ -216,6 +245,11 @@ function AdminConcertCreatePage() {
 
         if (!posterFiles.cardPoster.file || !posterFiles.bannerPoster.file || !posterFiles.descriptionPoster.file) {
             alert("카드형, 스크린형, 작품설명 이미지를 모두 선택해주세요.");
+            return;
+        }
+
+        if (schedules.some(isInvalidReservationPeriod)) {
+            alert(invalidReservationPeriodMessage);
             return;
         }
 
@@ -269,10 +303,12 @@ function AdminConcertCreatePage() {
 
             alert("공연이 등록되었습니다.");
             navigate("/admin/concerts");
-        } catch {
-            alert("공연 등록에 실패했습니다. 공연장 코드가 DB의 공연장 id와 맞는지 확인해주세요.");
+        } catch (error) {
+            alert(error instanceof Error ? error.message : "공연 등록에 실패했습니다.");
         }
     };
+
+    const calendarContainer = createCalendarContainer(() => setOpenedCalendar(null));
 
     return (
         <section className="admin-page">
@@ -314,16 +350,16 @@ function AdminConcertCreatePage() {
                                         <DatePicker
                                             selected={concertDateTime}
                                             onChange={(date: Date | null) => setConcertDateTime(date)}
-                                            onSelect={() => setOpenedCalendar(null)}
                                             onClickOutside={() => setOpenedCalendar(null)}
                                             open={openedCalendar === "concert"}
                                             preventOpenOnFocus
                                             showTimeSelect
                                             showMonthDropdown
                                             showYearDropdown
-                                            shouldCloseOnSelect
+                                            shouldCloseOnSelect={false}
                                             dropdownMode="select"
                                             calendarClassName="admin-datepicker"
+                                            calendarContainer={calendarContainer}
                                             popperClassName="admin-datepicker-popper"
                                             timeFormat="HH:mm"
                                             timeIntervals={10}
@@ -342,16 +378,16 @@ function AdminConcertCreatePage() {
                                         <DatePicker
                                             selected={reservationStart}
                                             onChange={(date: Date | null) => setReservationStart(date)}
-                                            onSelect={() => setOpenedCalendar(null)}
                                             onClickOutside={() => setOpenedCalendar(null)}
                                             open={openedCalendar === "reservationStart"}
                                             preventOpenOnFocus
                                             showTimeSelect
                                             showMonthDropdown
                                             showYearDropdown
-                                            shouldCloseOnSelect
+                                            shouldCloseOnSelect={false}
                                             dropdownMode="select"
                                             calendarClassName="admin-datepicker"
+                                            calendarContainer={calendarContainer}
                                             popperClassName="admin-datepicker-popper"
                                             timeFormat="HH:mm"
                                             timeIntervals={10}
@@ -369,16 +405,16 @@ function AdminConcertCreatePage() {
                                         <DatePicker
                                             selected={reservationEnd}
                                             onChange={(date: Date | null) => setReservationEnd(date)}
-                                            onSelect={() => setOpenedCalendar(null)}
                                             onClickOutside={() => setOpenedCalendar(null)}
                                             open={openedCalendar === "reservationEnd"}
                                             preventOpenOnFocus
                                             showTimeSelect
                                             showMonthDropdown
                                             showYearDropdown
-                                            shouldCloseOnSelect
+                                            shouldCloseOnSelect={false}
                                             dropdownMode="select"
                                             calendarClassName="admin-datepicker"
+                                            calendarContainer={calendarContainer}
                                             popperClassName="admin-datepicker-popper"
                                             timeFormat="HH:mm"
                                             timeIntervals={10}

@@ -94,6 +94,9 @@ public record CreateConcertCommand(
         Map<String, SeatGrade> seatGradeMap = seatGradeEntities.stream()
                 .collect(Collectors.toMap(SeatGrade::getGradeName, Function.identity()));
 
+        // ★ 변경: 1회차(=Concert 레벨) 예매시작일시를 모든 회차가 상속받는다는 걸 명시
+        LocalDateTime inheritedReservationStartAt = startReservationAt;
+
         List<PerformanceSchedule> scheduleEntities = schedules.stream()
                 .map(schedule -> {
                     PerformanceSchedule performanceSchedule = PerformanceSchedule.builder()

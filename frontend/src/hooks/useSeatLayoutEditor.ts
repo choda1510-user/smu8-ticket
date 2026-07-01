@@ -4,6 +4,7 @@ import type {
     SeatLayoutEditorModel,
     UseSeatLayoutEditorParams,
 } from "@/types/seatLayout";
+import {unavailableSeatTypeId} from "@/types/seatLayout";
 
 const colorPalette = ["#8f52ff", "#e86fa7", "#2f80ed", "#12b76a", "#f79009", "#6172f3", "#ef4444"];
 const minSeatZoom = 0.5;
@@ -168,6 +169,10 @@ function useSeatLayoutEditor({
         setSelectedSeatTypeId("aisle");
     };
 
+    const selectUnavailableSeat = () => {
+        setSelectedSeatTypeId(unavailableSeatTypeId);
+    };
+
     const applySeat = (rowIndex: number, colIndex: number) => {
         updateSeatLayout((currentSeatLayout) => ({
             ...currentSeatLayout,
@@ -177,7 +182,11 @@ function useSeatLayoutEditor({
                         return seat;
                     }
 
-                    return selectedSeatTypeId === "aisle" ? "" : selectedSeatTypeId;
+                    if (selectedSeatTypeId === "aisle") {
+                        return "";
+                    }
+
+                    return selectedSeatTypeId;
                 }),
             ),
         }));
@@ -335,6 +344,7 @@ function useSeatLayoutEditor({
         handleSeatTypeNameChange,
         handleSeatPriceChange,
         selectSeatType,
+        selectUnavailableSeat,
         selectAisle,
         toggleSeatEditMode: () =>
             setSeatEditMode((mode) => (mode === "paint" ? "structureDelete" : "paint")),

@@ -1,6 +1,6 @@
-import type {CSSProperties} from "react";
+import type {CSSProperties, MouseEvent} from "react";
 import styles from "./BookingSelectPage.module.css"
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useNavigate} from "react-router";
 import {useBookingReservation} from "@/hooks/useBookingReservation";
 import {useSeatSelectionPage} from "@/hooks/useSeatSelectionPage";
@@ -22,9 +22,17 @@ function BookingSelectPage() {
     const [selectedSeatIds, setSelectedSeatIds] = useState<number[]>([]);
     const [releasedSeatIds, setReleasedSeatIds] = useState<number[]>([]);
     const [isScheduleToggleOpen, setIsScheduleToggleOpen] = useState(false);
+    const [seatViewport, setSeatViewport] = useState({
+        left: 0,
+        top: 0,
+        width: 100,
+        height: 100,
+    });
     const [remainingSeconds, setRemainingSeconds] = useState(
         initialReservationLimitMinutes * 60
     );
+    const seatScrollRef = useRef<HTMLDivElement | null>(null);
+    const miniMapRef = useRef<HTMLSpanElement | null>(null);
     const hasHandledExpirationRef = useRef(false);
 
     const currentScheduleId = seatSelection.selectedScheduleId;
@@ -33,6 +41,33 @@ function BookingSelectPage() {
         seatSelection.seatMaps.find((seatMap) => seatMap.scheduleId === currentScheduleId) ??
         seatSelection.seatMaps[0];
     const formattedRemainingTime = formatRemainingTime(remainingSeconds);
+
+    const updateSeatViewport = useCallback(() => {
+        const scrollElement = seatScrollRef.current;
+
+        if (!scrollElement) {
+            return;
+        }
+
+        const scrollWidth = Math.max(scrollElement.scrollWidth, 1);
+        const scrollHeight = Math.max(scrollElement.scrollHeight, 1);
+        const nextViewport = {
+            left: (scrollElement.scrollLeft / scrollWidth) * 100,
+            top: (scrollElement.scrollTop / scrollHeight) * 100,
+            width: Math.min((scrollElement.clientWidth / scrollWidth) * 100, 100),
+            height: Math.min((scrollElement.clientHeight / scrollHeight) * 100, 100),
+        };
+
+        setSeatViewport((prevViewport) => {
+            const hasChanged =
+                Math.abs(prevViewport.left - nextViewport.left) > 0.1 ||
+                Math.abs(prevViewport.top - nextViewport.top) > 0.1 ||
+                Math.abs(prevViewport.width - nextViewport.width) > 0.1 ||
+                Math.abs(prevViewport.height - nextViewport.height) > 0.1;
+
+            return hasChanged ? nextViewport : prevViewport;
+        });
+    }, []);
 
     const gradeSummaries = useMemo(() => {
         const seats = getSeats(currentSeatMap);
@@ -63,6 +98,17 @@ function BookingSelectPage() {
             window.clearTimeout(timerId);
         };
     }, [remainingSeconds]);
+
+    useEffect(() => {
+        const animationFrameId = window.requestAnimationFrame(updateSeatViewport);
+
+        window.addEventListener("resize", updateSeatViewport);
+
+        return () => {
+            window.cancelAnimationFrame(animationFrameId);
+            window.removeEventListener("resize", updateSeatViewport);
+        };
+    }, [currentSeatMap, error, isLoading, updateSeatViewport]);
 
     useEffect(() => {
         if (remainingSeconds > 0 || seatSelection.concertId === 0 || hasHandledExpirationRef.current) {
@@ -102,7 +148,33 @@ function BookingSelectPage() {
         }
 
         if (!isAlreadySelected && selectedSeatIds.length >= seatSelection.maxSelectableSeatCount) {
-            alert(`좌석은 최대 ${seatSelection.maxSelectableSeatCount}개까지 선택할 수 있습니다.`);
+            const confirmed = confirm("좌석은 1인당 2매만 예매 할 수 있습니다.  좌석을 초기화 하고 다시 선택 하시겠습니까?");
+
+            if (!confirmed) {
+                return;
+            }
+
+            const preemptedSeatIds = getSelectedPreemptedSeatIds(currentSeatMap, selectedSeatIds, releasedSeatIds);
+
+            if (preemptedSeatIds.length > 0) {
+                try {
+                    await removePreemptSeats({
+                        concertId: seatSelection.concertId,
+                        scheduleId: currentScheduleId,
+                        seatIds: preemptedSeatIds,
+                    });
+                    setReleasedSeatIds((prevSeatIds) => [
+                        ...prevSeatIds,
+                        ...preemptedSeatIds.filter((seatId) => !prevSeatIds.includes(seatId)),
+                    ]);
+                } catch {
+                    alert("좌석 선점 해제에 실패했습니다. 다시 시도해 주세요.");
+                    return;
+                }
+            }
+
+            sessionStorage.removeItem(bookingDraftStorageKey);
+            setSelectedSeatIds([seat.seatId]);
             return;
         }
 
@@ -144,6 +216,27 @@ function BookingSelectPage() {
 
         setIsScheduleToggleOpen(false);
         navigate(`/booking/select/${seatSelection.concertId}?scheduleId=${scheduleId}`, {replace: true});
+    };
+
+    const handleMiniMapClick = (event: MouseEvent<HTMLButtonElement>) => {
+        const scrollElement = seatScrollRef.current;
+        const miniMapElement = miniMapRef.current;
+
+        if (!scrollElement || !miniMapElement) {
+            return;
+        }
+
+        const miniMapRect = miniMapElement.getBoundingClientRect();
+        const xRatio = clamp((event.clientX - miniMapRect.left) / miniMapRect.width, 0, 1);
+        const yRatio = clamp((event.clientY - miniMapRect.top) / miniMapRect.height, 0, 1);
+        const nextScrollLeft = xRatio * scrollElement.scrollWidth - scrollElement.clientWidth / 2;
+        const nextScrollTop = yRatio * scrollElement.scrollHeight - scrollElement.clientHeight / 2;
+
+        scrollElement.scrollTo({
+            left: clamp(nextScrollLeft, 0, scrollElement.scrollWidth - scrollElement.clientWidth),
+            top: clamp(nextScrollTop, 0, scrollElement.scrollHeight - scrollElement.clientHeight),
+            behavior: "smooth",
+        });
     };
 
     const handleCompleteClick = async () => {
@@ -267,11 +360,84 @@ function BookingSelectPage() {
 
                                     <div
                                         className
-                                            ={styles.seatGrid}
+                                            ={styles.seatScrollArea}
+                                        ref={seatScrollRef}
+                                        onScroll={updateSeatViewport}
+                                    >
+                                        <div
+                                            className
+                                                ={styles.seatGrid}
+                                            style={{
+                                                gridTemplateColumns: getSeatGridColumns(currentSeatMap),
+                                            }}
+                                            aria-label="좌석 선택"
+                                        >
+                                            {(currentSeatMap?.seatRows ?? []).map((seatRow, rowIndex) => (
+                                                seatRow.map((seat, columnIndex) => {
+                                                    if (seat === null) {
+                                                        return (
+                                                            <span
+                                                                key={`${rowIndex}-${columnIndex}`}
+                                                                className={`${styles.seatButton} ${styles.aisleSeat}`}
+                                                                aria-hidden="true"
+                                                            />
+                                                        );
+                                                    }
+
+                                                    const grade = findGrade(seatSelection.seatGrades, seat.gradeId);
+                                                    const isSelectedSeat = selectedSeatIds.includes(seat.seatId);
+                                                    const isReleasedSeat = releasedSeatIds.includes(seat.seatId);
+                                                    const isUnavailableSeat =
+                                                        seat.status !== "AVAILABLE" && !isSelectedSeat && !isReleasedSeat;
+
+                                                    return (
+                                                        <button
+                                                            key={seat.seatId}
+                                                            type="button"
+                                                            className
+                                                                ={[
+                                                                    styles.seatButton,
+                                                                    isSelectedSeat ? styles.currentSelectedSeat : "",
+                                                                    isUnavailableSeat ? styles.unavailableSeat : "",
+                                                                ].filter(Boolean).join(" ")}
+                                                            style={getSeatStyle(seat, grade, isSelectedSeat || isReleasedSeat)}
+                                                            disabled={isUnavailableSeat}
+                                                            onClick={() => handleSeatClick(seat)}
+                                                            aria-label={seat.seatNumber}
+                                                            title={seat.seatNumber}
+                                                        />
+                                                    );
+                                                })
+                                            ))}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </section>
+
+                        <aside className
+                                   ={styles.sidePanel}>
+                            <div className
+                                     ={styles.logoBox}>SM
+                            </div>
+
+                            <button
+                                type="button"
+                                className={styles.miniMapViewport}
+                                onClick={handleMiniMapClick}
+                                aria-label="전체 좌석 보기에서 위치 이동"
+                            >
+                                <span className={styles.miniMapStage}>{currentSeatMap?.stageLabel ?? "STAGE"}</span>
+                                <span
+                                    ref={miniMapRef}
+                                    className={styles.miniMapBody}
+                                >
+                                    <span
+                                        className={styles.miniMap}
                                         style={{
-                                            gridTemplateColumns: getSeatGridColumns(currentSeatMap),
+                                            gridTemplateColumns: getMiniSeatGridColumns(currentSeatMap),
+                                            gridTemplateRows: getMiniSeatGridRows(currentSeatMap),
                                         }}
-                                        aria-label="좌석 선택"
                                     >
                                         {(currentSeatMap?.seatRows ?? []).map((seatRow, rowIndex) => (
                                             seatRow.map((seat, columnIndex) => {
@@ -279,8 +445,7 @@ function BookingSelectPage() {
                                                     return (
                                                         <span
                                                             key={`${rowIndex}-${columnIndex}`}
-                                                            className={styles.seatButton}
-                                                            style={{visibility: "hidden"}}
+                                                            className={`${styles.miniSeat} ${styles.aisleMiniSeat}`}
                                                             aria-hidden="true"
                                                         />
                                                     );
@@ -293,78 +458,35 @@ function BookingSelectPage() {
                                                     seat.status !== "AVAILABLE" && !isSelectedSeat && !isReleasedSeat;
 
                                                 return (
-                                                    <button
+                                                    <span
                                                         key={seat.seatId}
-                                                        type="button"
                                                         className
                                                             ={[
-                                                                styles.seatButton,
-                                                                isSelectedSeat ? styles.currentSelectedSeat : "",
-                                                                isUnavailableSeat ? styles.unavailableSeat : "",
+                                                                styles.miniSeat,
+                                                                isSelectedSeat ? styles.currentSelectedMiniSeat : "",
+                                                                isUnavailableSeat ? styles.unavailableMiniSeat : "",
                                                             ].filter(Boolean).join(" ")}
-                                                        style={getSeatStyle(seat, grade, isSelectedSeat || isReleasedSeat)}
-                                                        disabled={isUnavailableSeat}
-                                                        onClick={() => handleSeatClick(seat)}
-                                                        aria-label={seat.seatNumber}
-                                                        title={seat.seatNumber}
+
+                                                        style={getMiniSeatStyle(seat, grade, isSelectedSeat || isReleasedSeat)
+                                                        }
                                                     />
                                                 );
                                             })
                                         ))}
-                                    </div>
-                                </>
-                            )}
-                        </section>
+                                    </span>
 
-                        <aside className
-                                   ={styles.sidePanel}>
-                            <div className
-                                     ={styles.logoBox}>SM
-                            </div>
-
-                            <div
-                                className
-                                    ={styles.miniMap}
-                                style={{
-                                    gridTemplateColumns: getMiniSeatGridColumns(currentSeatMap),
-                                }}
-                            >
-                                {(currentSeatMap?.seatRows ?? []).map((seatRow, rowIndex) => (
-                                    seatRow.map((seat, columnIndex) => {
-                                        if (seat === null) {
-                                            return (
-                                                <span
-                                                    key={`${rowIndex}-${columnIndex}`}
-                                                    className={styles.miniSeat}
-                                                    style={{visibility: "hidden"}}
-                                                    aria-hidden="true"
-                                                />
-                                            );
-                                        }
-
-                                        const grade = findGrade(seatSelection.seatGrades, seat.gradeId);
-                                        const isSelectedSeat = selectedSeatIds.includes(seat.seatId);
-                                        const isReleasedSeat = releasedSeatIds.includes(seat.seatId);
-                                        const isUnavailableSeat =
-                                            seat.status !== "AVAILABLE" && !isSelectedSeat && !isReleasedSeat;
-
-                                        return (
-                                            <span
-                                                key={seat.seatId}
-                                                className
-                                                    ={[
-                                                        styles.miniSeat,
-                                                        isSelectedSeat ? styles.currentSelectedMiniSeat : "",
-                                                        isUnavailableSeat ? styles.unavailableMiniSeat : "",
-                                                    ].filter(Boolean).join(" ")}
-
-                                                style={getMiniSeatStyle(seat, grade, isSelectedSeat || isReleasedSeat)
-                                                }
-                                            />
-                                        );
-                                    })
-                                ))}
-                            </div>
+                                    <span
+                                        className={styles.miniMapViewportIndicator}
+                                        style={{
+                                            left: `${seatViewport.left}%`,
+                                            top: `${seatViewport.top}%`,
+                                            width: `${seatViewport.width}%`,
+                                            height: `${seatViewport.height}%`,
+                                        }}
+                                        aria-hidden="true"
+                                    />
+                                </span>
+                            </button>
 
                             <h2 className
                                     ={styles.sideTitle}>좌석등급/잔여석</h2>
@@ -475,6 +597,20 @@ function getSeats(seatMap?: SeatSelectionSeatMap) {
     return seatMap?.seatRows.flatMap((seatRow) => seatRow.filter(isSeat)) ?? [];
 }
 
+function getSelectedPreemptedSeatIds(
+    seatMap: SeatSelectionSeatMap | undefined,
+    selectedSeatIds: number[],
+    releasedSeatIds: number[],
+) {
+    return getSeats(seatMap)
+        .filter((seat) => (
+            selectedSeatIds.includes(seat.seatId) &&
+            seat.status === "SELECTED" &&
+            !releasedSeatIds.includes(seat.seatId)
+        ))
+        .map((seat) => seat.seatId);
+}
+
 function isSeat(seat: SeatSelectionSeat | null): seat is SeatSelectionSeat {
     return seat !== null;
 }
@@ -484,7 +620,19 @@ function getSeatGridColumns(seatMap?: SeatSelectionSeatMap) {
 }
 
 function getMiniSeatGridColumns(seatMap?: SeatSelectionSeatMap) {
-    return `repeat(${seatMap?.columnCount ?? 8}, 14px)`;
+    return `repeat(${seatMap?.columnCount ?? 8}, minmax(0, 1fr))`;
+}
+
+function getMiniSeatGridRows(seatMap?: SeatSelectionSeatMap) {
+    return `repeat(${seatMap?.seatRows.length ?? 8}, minmax(0, 1fr))`;
+}
+
+function clamp(value: number, min: number, max: number) {
+    if (max < min) {
+        return min;
+    }
+
+    return Math.min(Math.max(value, min), max);
 }
 
 function getSeatStyle(seat: SeatSelectionSeat, grade?: SeatGrade, isSelectedSeat = false): CSSProperties {

@@ -1,6 +1,7 @@
 import {useEffect, useLayoutEffect, useRef} from "react";
 import useSeatLayoutEditor from "@/hooks/useSeatLayoutEditor";
 import type {SeatLayout, SeatLayoutChangeHandler} from "@/types/seatLayout";
+import {unavailableSeatTypeId} from "@/types/seatLayout";
 
 interface AdminSeatLayoutEditorProps {
     seatLayout: SeatLayout;
@@ -120,11 +121,19 @@ function AdminSeatLayoutEditor({
                         ))}
                         <button
                             type="button"
+                            className={editor.selectedSeatTypeId === unavailableSeatTypeId ? "active" : undefined}
+                            onClick={editor.selectUnavailableSeat}
+                        >
+                            <span className="admin-page__unavailable-seat-color" />
+                            선택불가 좌석
+                        </button>
+                        <button
+                            type="button"
                             className={editor.selectedSeatTypeId === "aisle" ? "active" : undefined}
                             onClick={editor.selectAisle}
                         >
                             <span className="admin-page__aisle-color" />
-                            통로/부분삭제
+                            빈 통로
                         </button>
                     </div>
                     <div className="admin-page__seat-type-actions">
@@ -250,6 +259,8 @@ function AdminSeatLayoutEditor({
                                         type="button"
                                         className={[
                                             "admin-page__seat-cell",
+                                            seat === unavailableSeatTypeId ? "admin-page__seat-cell--unavailable" : "",
+                                            !seat ? "admin-page__seat-cell--aisle" : "",
                                             editor.rowDropTargetIndex === rowIndex ? "row-drop-target" : "",
                                             editor.colDropTargetIndex === colIndex ? "col-drop-target" : "",
                                         ].filter(Boolean).join(" ")}

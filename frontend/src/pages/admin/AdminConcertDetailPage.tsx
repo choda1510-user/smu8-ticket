@@ -6,6 +6,11 @@ import {cancelConcert, getAdminConcert, updateConcertBasicInfo} from "@/apis/con
 import type {AdminConcertDetailResponse} from "@/types/adminConcert";
 import AdminSeatLayoutEditor from "@/component/AdminSeatLayoutEditor";
 import type {SeatLayout} from "@/types/seatLayout";
+import {
+    unavailableSeatGradeColor,
+    unavailableSeatGradeName,
+    unavailableSeatTypeId,
+} from "@/types/seatLayout";
 import "react-datepicker/dist/react-datepicker.css";
 import "./AdminPages.css";
 
@@ -106,19 +111,23 @@ function buildSeatLayoutFromConcert(concert: AdminConcertDetailResponse): SeatLa
         }
 
         const seatTypeId = String(seat.seatGradeId);
-        grid[rowIndex][colIndex] = seatGradeNameById.has(seat.seatGradeId) ? seatTypeId : "";
+        grid[rowIndex][colIndex] = seatGradeNameById.get(seat.seatGradeId) === unavailableSeatGradeName
+            ? unavailableSeatTypeId
+            : seatGradeNameById.has(seat.seatGradeId) ? seatTypeId : "";
     });
 
     return {
         rowCount,
         columnCount,
         grid,
-        seatTypes: concert.seatGrades.map((seatGrade) => ({
-            id: String(seatGrade.id),
-            name: seatGrade.gradeName,
-            price: String(seatGrade.price),
-            color: seatGrade.color,
-        })),
+        seatTypes: concert.seatGrades
+            .filter((seatGrade) => seatGrade.gradeName !== unavailableSeatGradeName)
+            .map((seatGrade) => ({
+                id: String(seatGrade.id),
+                name: seatGrade.gradeName,
+                price: String(seatGrade.price),
+                color: seatGrade.color,
+            })),
     };
 }
 
@@ -251,11 +260,28 @@ function AdminConcertDetailPage() {
             price: Number(seatType.price) || 0,
             color: seatType.color,
         }));
+        const hasUnavailableSeats = seatLayout.grid.some((row) => row.includes(unavailableSeatTypeId));
+        const existingUnavailableSeatGrade = concert?.seatGrades.find((seatGrade) => (
+            seatGrade.gradeName === unavailableSeatGradeName
+        ));
+        const nextSeatGradePayload = [
+            ...seatGradePayload,
+            ...(hasUnavailableSeats
+                ? [{
+                    id: existingUnavailableSeatGrade?.id ?? null,
+                    gradeName: unavailableSeatGradeName,
+                    price: 0,
+                    color: unavailableSeatGradeColor,
+                }]
+                : []),
+        ];
 
         const seatTypeNameById = new Map(seatLayout.seatTypes.map((seatType) => [seatType.id, seatType.name]));
         const seatPayload = seatLayout.grid.flatMap((row, rowIndex) =>
             row.flatMap((seatTypeId, colIndex) => {
-                const seatGradeName = seatTypeNameById.get(seatTypeId);
+                const seatGradeName = seatTypeId === unavailableSeatTypeId
+                    ? unavailableSeatGradeName
+                    : seatTypeNameById.get(seatTypeId);
 
                 if (!seatGradeName) {
                     return [];
@@ -280,7 +306,7 @@ function AdminConcertDetailPage() {
                     runningTime,
                     notice: notice.trim(),
                     schedules: schedulePayload,
-                    seatGrades: seatGradePayload,
+                    seatGrades: nextSeatGradePayload,
                     seats: seatPayload,
                     rowMax: seatLayout.rowCount,
                     colMax: seatLayout.columnCount,

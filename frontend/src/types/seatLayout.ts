@@ -5,6 +5,11 @@ export type SeatLayoutSeatType = {
     color: string;
 };
 
+export const unavailableSeatTypeId = "__unavailable_seat__";
+export const unavailableSeatGradeName = "__UNAVAILABLE__";
+export const unavailableSeatGradeDisplayName = "선택불가";
+export const unavailableSeatGradeColor = "#d0d5dd";
+
 export type SeatLayoutGrid = string[][];
 
 export type SeatLayout = {
@@ -41,6 +46,7 @@ export type SeatLayoutEditorModel = {
     handleSeatTypeNameChange: (value: string) => void;
     handleSeatPriceChange: (value: string) => void;
     selectSeatType: (seatType: SeatLayoutSeatType) => void;
+    selectUnavailableSeat: () => void;
     selectAisle: () => void;
     toggleSeatEditMode: () => void;
     finishSeatDrag: () => void;

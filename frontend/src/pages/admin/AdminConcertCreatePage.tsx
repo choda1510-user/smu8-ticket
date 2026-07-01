@@ -6,6 +6,11 @@ import {addConcert} from "@/apis/concertApi";
 import {getAdminVenueList, getVenueAddress} from "@/apis/venueApi";
 import AdminSeatLayoutEditor from "@/component/AdminSeatLayoutEditor";
 import type {SeatLayout} from "@/types/seatLayout";
+import {
+    unavailableSeatGradeColor,
+    unavailableSeatGradeName,
+    unavailableSeatTypeId,
+} from "@/types/seatLayout";
 import "react-datepicker/dist/react-datepicker.css";
 import "./AdminPages.css";
 
@@ -277,6 +282,21 @@ function AdminConcertCreatePage() {
         const seatGradeNameById = new Map(
             seatLayout.seatTypes.map((type) => [type.id, type.name]),
         );
+        const hasUnavailableSeats = seatLayout.grid.some((row) => row.includes(unavailableSeatTypeId));
+        const seatGrades = [
+            ...seatLayout.seatTypes.map((type) => ({
+                gradeName: type.name,
+                price: Number(type.price),
+                color: type.color,
+            })),
+            ...(hasUnavailableSeats
+                ? [{
+                    gradeName: unavailableSeatGradeName,
+                    price: 0,
+                    color: unavailableSeatGradeColor,
+                }]
+                : []),
+        ];
 
         try {
             await addConcert(
@@ -288,18 +308,16 @@ function AdminConcertCreatePage() {
                         reservationStartAt: format(reservationStartAt, apiDateFormat),
                         venueId: parsedVenueId,
                         notice: notice.trim() || undefined,
-                        seatGrades: seatLayout.seatTypes.map((type) => ({
-                            gradeName: type.name,
-                            price: Number(type.price),
-                            color: type.color,
-                        })),
+                        seatGrades,
                         schedules: validSchedules.map((schedule) => ({
                             date: format(schedule.concertDateTime, apiDateFormat),
                             reservationEndAt: format(schedule.reservationEnd, apiDateFormat),
                         })),
                         seats: seatLayout.grid.flatMap((row, rowIndex) =>
                             row.flatMap((seatTypeId, colIndex) => {
-                                const seatGradeName = seatGradeNameById.get(seatTypeId);
+                                const seatGradeName = seatTypeId === unavailableSeatTypeId
+                                    ? unavailableSeatGradeName
+                                    : seatGradeNameById.get(seatTypeId);
 
                                 if (!seatGradeName) {
                                     return [];

@@ -1,0 +1,12 @@
+package com.smu8.waiting.dto.command;
+
+/**
+ * 사용자를 특정 공연의 대기열에 등록할 때 사용하는 명령입니다.
+ */
+public record EnterWaitingQueueCommand(
+        // 사용자가 진입하려는 공연 식별값입니다.
+        String concertId,
+        // 대기열에 등록할 사용자 식별값입니다.
+        String accountId
+) {
+}

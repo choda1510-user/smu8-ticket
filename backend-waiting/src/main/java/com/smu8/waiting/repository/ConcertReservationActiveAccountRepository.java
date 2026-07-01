@@ -7,6 +7,8 @@ public interface ConcertReservationActiveAccountRepository {
 
     boolean contains(String concertId, String accountId);
 
+    void removeExpired(String concertId);
+
     void remove(String concertId, String accountId);
 
     long count(String concertId);

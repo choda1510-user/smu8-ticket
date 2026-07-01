@@ -941,6 +941,19 @@
     color: #ffffff;
 }
 
+/* react-datepicker: 범위 밖(disabled) 날짜는 주말이어도 무조건 회색 처리 */
+.admin-datepicker .react-datepicker__day--disabled,
+.admin-datepicker .react-datepicker__day--outside-month.react-datepicker__day--disabled {
+    color: #ccc !important;
+    background-color: transparent !important;
+    cursor: not-allowed !important;
+}
+
+/* 혹시 주말 전용 클래스가 별도로 색을 강제하는 경우 대비 */
+.admin-datepicker .react-datepicker__day--disabled.react-datepicker__day--weekend {
+    color: #ccc !important;
+}
+
 .admin-page__period-layout {
     display: grid;
     grid-template-columns: 180px minmax(0, 1fr);
@@ -1408,5 +1421,13 @@
     .admin-page__schedule-field input {
         width: 100%;
         flex: none;
+    }
+    .admin-page__schedule-field-hint {
+        margin: 2px 0 4px;
+        font-size: 11px;
+        color: #999999;
+        line-height: 1.3;
+        white-space: normal;      /* 줄바꿈 허용 */
+        word-break: keep-all; /* 한글 단어 단위로 줄바꿈 (어색하게 끊기지 않게) */
     }
 }

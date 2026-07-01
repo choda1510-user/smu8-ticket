@@ -41,14 +41,37 @@ function formatDateTime(date: Date) {
     return format(date, "yyyy.MM.dd HH:mm");
 }
 
-function formatPeriod(start: Date, end: Date) {
+function formatPeriod(start: Date, end: Date ) {
     if (!start || !end) {
         return "-";
     }
-
     return `${formatDateTime(start)} ~ ${formatDateTime(end)}`;
 }
 
+function isSameDay(a: Date, b: Date) {
+    return (
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate()
+    );
+}
+
+function getMinTime(selectedDate: Date | null) {
+    const now = new Date();
+    const referenceDate = selectedDate ?? now; // ★ 변경: null이면 오늘 기준으로 취급
+        if (isSameDay(referenceDate, now)) {
+            return now;
+        }
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    return startOfDay;
+}
+
+function getMaxTime() {
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+    return endOfDay;
+}
 function createInitialSeatLayout(): SeatLayout {
     const rowCount = 6;
     const columnCount = 8;
@@ -185,22 +208,79 @@ function AdminConcertCreatePage() {
     };
 
     const handleScheduleAddClick = () => {
-        if (!concertDateTime || !reservationStart || !reservationEnd) {
-            alert("공연일시와 예매기간을 모두 입력해주세요.");
+        if (!concertDateTime) {
+            alert("공연일시를 입력해주세요.");
             return;
         }
+
+    // ★ 추가: 공연일시가 현재보다 과거면 안 됨
+        if (concertDateTime < new Date()) {
+            alert("공연일시는 현재 시각 이후여야 합니다.");
+            return;
+        }
+
+        const isFirstSchedule = schedules.length === 0;
+
+        // 1회차는 예매시작일시를 직접 입력해야 함
+        if (isFirstSchedule && !reservationStart) {
+            alert("첫 회차는 예매시작일시를 입력해주세요.");
+            return;
+        }
+
+        // 2회차부터는 1회차의 예매시작일시를 자동으로 상속받음
+        const resolvedReservationStart = isFirstSchedule
+            ? reservationStart!
+            : schedules[0].reservationStart;
+
+             // ★ 추가: 예매시작일시가 공연일시보다 이후면 안 됨
+         if (resolvedReservationStart >= concertDateTime) {
+                    alert("예매시작일시는 공연일시보다 이전이어야 합니다.");
+                    return;
+                }
+
+                const resolvedReservationEnd = reservationEnd
+                    ? reservationEnd
+                    : new Date(
+                          concertDateTime.getFullYear(),
+                          concertDateTime.getMonth(),
+                          concertDateTime.getDate(),
+                          0, 0, 0
+                      );
+
+                // ★ 추가: 예매마감을 직접 입력한 경우, 공연일시보다 늦으면 안 되고 예매시작보다는 빨라선 안 됨
+                if (reservationEnd) {
+                    if (reservationEnd > concertDateTime) {
+                        alert("예매마감일시는 공연일시보다 늦을 수 없습니다.");
+                        return;
+                    }
+                    if (reservationEnd <= resolvedReservationStart) {
+                        alert("예매마감일시는 예매시작일시보다 이후여야 합니다.");
+                        return;
+                    }
+                }
+
+             const isDuplicateDate = schedules.some(
+                    (schedule) => schedule.concertDateTime.getTime() === concertDateTime.getTime()
+                );
+                if (isDuplicateDate) {
+                    alert("이미 같은 공연일시가 등록되어 있습니다.");
+                    return;
+                }
 
         setSchedules((currentSchedules) => [
             ...currentSchedules,
             {
                 id: Date.now(),
                 concertDateTime,
-                reservationStart,
-                reservationEnd,
+                reservationStart: resolvedReservationStart,
+                reservationEnd: resolvedReservationEnd,// null이면 서버가 공연일 00:00으로 자동 계산
             },
         ]);
+
         setConcertDateTime(null);
-        setReservationStart(null);
+        if (isFirstSchedule) {
+            setReservationStart(null);
+        }
         setReservationEnd(null);
     };
 
@@ -241,7 +321,7 @@ function AdminConcertCreatePage() {
                         })),
                         schedules: schedules.map((schedule) => ({
                             date: format(schedule.concertDateTime, apiDateFormat),
-                            reservationEndAt: format(schedule.reservationEnd, apiDateFormat),
+                             reservationEndAt: format(schedule.reservationEnd, apiDateFormat), // 항상 값 있음
                         })),
                         seats: seatLayout.grid.flatMap((row, rowIndex) =>
                             row.flatMap((seatTypeId, colIndex) => {
@@ -269,8 +349,9 @@ function AdminConcertCreatePage() {
 
             alert("공연이 등록되었습니다.");
             navigate("/admin/concerts");
-        } catch {
-            alert("공연 등록에 실패했습니다. 공연장 코드가 DB의 공연장 id와 맞는지 확인해주세요.");
+        } catch (error){
+            const message = error instanceof Error ? error.message : "공연 등록에 실패했습니다.";
+            alert(message);
         }
     };
 
@@ -329,6 +410,9 @@ function AdminConcertCreatePage() {
                                             timeIntervals={10}
                                             dateFormat="yyyy.MM.dd HH:mm"
                                             placeholderText="년.월.일 시간"
+                                             minDate={new Date()} // ★ 추가: 오늘 이전 날짜 선택 불가
+                                                minTime={getMinTime(concertDateTime)} // ★ 추가: 오늘이면 현재 시각부터
+                                                maxTime={getMaxTime()} // ★ 추가
                                         />
                                         <button type="button" className="admin-page__calendar-button" onClick={() => setOpenedCalendar("concert")} aria-label="공연일시 달력 열기">
                                             📅
@@ -338,10 +422,16 @@ function AdminConcertCreatePage() {
                                 <button type="button" className="admin-page__button admin-page__button--search admin-page__schedule-add-button" onClick={handleScheduleAddClick}>추가</button>
                                 <label className="admin-page__schedule-field">
                                     <span>예매시작</span>
+                                    <p className="admin-page__schedule-field-hint">비우고 추가시 1회차 값 자동 설정</p>
                                     <div className="admin-page__datepicker-control">
                                         <DatePicker
                                             selected={reservationStart}
                                             onChange={(date: Date | null) => setReservationStart(date)}
+                                            disabled={schedules.length > 0} // 추가
+                                            maxDate={concertDateTime ?? undefined} // 추가 : 공연일시 이후는 선택 불가
+                                            minDate={new Date()} // ★ 추가
+                                                minTime={getMinTime(reservationStart)} // ★ 추가
+                                                maxTime={getMaxTime()} // ★ 추가
                                             onSelect={() => setOpenedCalendar(null)}
                                             onClickOutside={() => setOpenedCalendar(null)}
                                             open={openedCalendar === "reservationStart"}
@@ -358,17 +448,27 @@ function AdminConcertCreatePage() {
                                             dateFormat="yyyy.MM.dd HH:mm"
                                             placeholderText="년.월.일 시간"
                                         />
-                                        <button type="button" className="admin-page__calendar-button" onClick={() => setOpenedCalendar("reservationStart")} aria-label="예매시작 달력 열기">
+                                        <button type="button"
+                                        className="admin-page__calendar-button"
+                                        onClick={() => setOpenedCalendar("reservationStart")}
+                                        aria-label="예매시작 달력 열기"
+                                        disabled={schedules.length > 0}>
                                             📅
                                         </button>
                                     </div>
                                 </label>
                                 <label className="admin-page__schedule-field">
                                     <span>예매마감</span>
+                                    <p className="admin-page__schedule-field-hint">비우고 추가시 공연일 00:00으로 자동 설정</p>
                                     <div className="admin-page__datepicker-control">
                                         <DatePicker
                                             selected={reservationEnd}
-                                            onChange={(date: Date | null) => setReservationEnd(date)}
+                                            onChange={(date: Date | null) => setReservationStart(date)}
+                                            minDate={reservationStart ?? new Date} // 추가: 예매시작 이전 선택 불가
+                                            maxDate={concertDateTime ?? undefined} // 추가 : 공연일시 이후 선택 불가
+
+                                                minTime={getMinTime(reservationStart)} // ★ 추가
+                                                maxTime={getMaxTime()} // ★ 추가
                                             onSelect={() => setOpenedCalendar(null)}
                                             onClickOutside={() => setOpenedCalendar(null)}
                                             open={openedCalendar === "reservationEnd"}

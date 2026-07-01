@@ -1248,26 +1248,30 @@
     background: #ffffff;
 }
 
+.admin-page__seat-editor-area {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .admin-page__seat-map-editor {
     position: relative;
-    width: fit-content;
+    width: 100%;
     max-width: 100%;
-    padding: 58px 48px 48px 18px;
+    padding: 0 44px 44px;
     border: 1px solid #d0d5dd;
     border-radius: 14px;
     background: #fcfcfd;
-    overflow: auto;
+    overflow: visible;
     box-sizing: border-box;
 }
 
 .admin-page__seat-mode-bar {
-    position: absolute;
-    top: 14px;
-    left: 18px;
-    margin-bottom: 0;
+    min-height: 38px;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 10px;
 }
 
@@ -1295,7 +1299,38 @@
     font-weight: 700;
 }
 
+.admin-page__seat-map-scroll {
+    max-width: 100%;
+    max-height: 560px;
+    padding: 22px 24px 24px;
+    overflow: auto;
+    box-sizing: border-box;
+}
+
+.admin-page__seat-map-scroll-inner {
+    width: max-content;
+    min-width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.admin-page__seat-map-content {
+    width: max-content;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.admin-page__seat-map-canvas {
+    width: max-content;
+    min-width: 260px;
+    transform-origin: top center;
+}
+
 .admin-page__seat-stage {
+    width: min(420px, 100%);
+    min-width: min(260px, 100%);
     margin-bottom: 12px;
     padding: 8px 0;
     border-radius: 8px;
@@ -1366,8 +1401,8 @@
 }
 
 .admin-page__seat-mode-bar button.active ~ span,
-.admin-page__seat-map-editor:has(.admin-page__seat-mode-bar button.active) .admin-page__seat-column-handles button,
-.admin-page__seat-map-editor:has(.admin-page__seat-mode-bar button.active) .admin-page__seat-row-handles button {
+.admin-page__seat-editor-area:has(.admin-page__seat-mode-bar button.active) .admin-page__seat-column-handles button,
+.admin-page__seat-editor-area:has(.admin-page__seat-mode-bar button.active) .admin-page__seat-row-handles button {
     border-color: #f97066;
     background: #fffafa;
     cursor: pointer;
@@ -1395,6 +1430,7 @@
 
 .admin-page__seat-add {
     position: absolute;
+    z-index: 2;
     width: 28px;
     height: 28px;
     border: 1px solid #c7d7fe;
@@ -1406,14 +1442,30 @@
     cursor: pointer;
 }
 
+.admin-page__seat-add--left {
+    top: 50%;
+    left: 8px;
+    transform: translateY(-50%);
+}
+
 .admin-page__seat-add--right {
     top: 50%;
-    right: 12px;
+    right: 8px;
+    transform: translateY(-50%);
 }
 
 .admin-page__seat-add--bottom {
     left: 50%;
-    bottom: 12px;
+    bottom: 8px;
+    transform: translateX(-50%);
+}
+
+.admin-page__seat-zoom-guide {
+    margin: 0;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: right;
 }
 
 @media (max-width: 1100px) {

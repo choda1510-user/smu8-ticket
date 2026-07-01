@@ -6,6 +6,9 @@ import type {
 } from "@/types/seatLayout";
 
 const colorPalette = ["#8f52ff", "#e86fa7", "#2f80ed", "#12b76a", "#f79009", "#6172f3", "#ef4444"];
+const minSeatZoom = 0.5;
+const maxSeatZoom = 1.6;
+const seatZoomStep = 0.1;
 
 function cloneGrid(grid: string[][]) {
     return grid.map((row) => [...row]);
@@ -27,6 +30,7 @@ function useSeatLayoutEditor({
     const [draggedColIndex, setDraggedColIndex] = useState<number | null>(null);
     const [rowDropTargetIndex, setRowDropTargetIndex] = useState<number | null>(null);
     const [colDropTargetIndex, setColDropTargetIndex] = useState<number | null>(null);
+    const [seatZoom, setSeatZoom] = useState(1);
 
     const selectedSeatType = seatLayout.seatTypes.find((type) => type.id === selectedSeatTypeId);
     const canUndoSeatDelete = seatUndoStack.length > 0;
@@ -200,6 +204,14 @@ function useSeatLayoutEditor({
         }));
     };
 
+    const addSeatColumnLeft = () => {
+        updateSeatLayout((currentSeatLayout) => ({
+            ...currentSeatLayout,
+            columnCount: currentSeatLayout.columnCount + 1,
+            grid: currentSeatLayout.grid.map((row) => ["", ...row]),
+        }));
+    };
+
     const addSeatRow = () => {
         updateSeatLayout((currentSeatLayout) => ({
             ...currentSeatLayout,
@@ -295,6 +307,16 @@ function useSeatLayoutEditor({
         return seatLayout.seatTypes.find((type) => type.id === seatTypeId)?.color;
     };
 
+    const handleSeatMapWheel = (deltaY: number) => {
+        setSeatZoom((currentZoom) => {
+            const nextZoom = deltaY > 0
+                ? currentZoom - seatZoomStep
+                : currentZoom + seatZoomStep;
+
+            return Math.min(maxSeatZoom, Math.max(minSeatZoom, Number(nextZoom.toFixed(2))));
+        });
+    };
+
     return {
         selectedSeatType,
         canUndoSeatDelete,
@@ -319,6 +341,9 @@ function useSeatLayoutEditor({
         finishSeatDrag: () => setIsDragging(false),
         handleSeatMouseDown,
         handleSeatMouseEnter,
+        seatZoom,
+        handleSeatMapWheel,
+        addSeatColumnLeft,
         addSeatColumn,
         addSeatRow,
         handleColumnDragStart: setDraggedColIndex,

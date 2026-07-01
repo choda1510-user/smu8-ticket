@@ -46,6 +46,9 @@ export type SeatLayoutEditorModel = {
     finishSeatDrag: () => void;
     handleSeatMouseDown: (rowIndex: number, colIndex: number) => void;
     handleSeatMouseEnter: (rowIndex: number, colIndex: number) => void;
+    seatZoom: number;
+    handleSeatMapWheel: (deltaY: number) => void;
+    addSeatColumnLeft: () => void;
     addSeatColumn: () => void;
     addSeatRow: () => void;
     handleColumnDragStart: (colIndex: number) => void;

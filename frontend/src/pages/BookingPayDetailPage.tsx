@@ -39,6 +39,12 @@ function BookingPayDetailPage() {
     }, [bookingSummary.concertId, navigate, remainingSeconds]);
 
     const handlePreviousClick = () => {
+        const confirmed = confirm("현재 선택한 좌석정보가 삭제됩니다. 이동하시겠습니까?");
+
+        if (!confirmed) {
+            return;
+        }
+
         navigate(`/booking/select/${bookingSummary.concertId}?scheduleId=${bookingSummary.scheduleId}`);
     };
 

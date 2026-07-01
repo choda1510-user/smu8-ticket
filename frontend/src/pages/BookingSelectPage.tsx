@@ -6,6 +6,7 @@ import {useBookingReservation} from "@/hooks/useBookingReservation";
 import {useSeatSelectionPage} from "@/hooks/useSeatSelectionPage";
 import {toBookingDraft} from "@/utils/bookingConvertor";
 import type {
+    BookingDraft,
     SeatGrade,
     SeatSelectionSeat,
     SeatSelectionSeatMap,
@@ -16,9 +17,11 @@ const initialReservationLimitMinutes = 5;
 
 function BookingSelectPage() {
     const navigate = useNavigate();
-    const {preemptSeats} = useBookingReservation();
+    const {preemptSeats, removePreemptSeats} = useBookingReservation();
     const {seatSelection, isLoading, error} = useSeatSelectionPage();
     const [selectedSeatIds, setSelectedSeatIds] = useState<number[]>([]);
+    const [releasedSeatIds, setReleasedSeatIds] = useState<number[]>([]);
+    const [isScheduleToggleOpen, setIsScheduleToggleOpen] = useState(false);
     const [remainingSeconds, setRemainingSeconds] = useState(
         initialReservationLimitMinutes * 60
     );
@@ -36,7 +39,8 @@ function BookingSelectPage() {
 
         return seatSelection.seatGrades.map((grade) => {
             const remainingCount = seats.filter((seat) => (
-                seat.gradeId === grade.gradeId && seat.status === "AVAILABLE"
+                seat.gradeId === grade.gradeId &&
+                (seat.status === "AVAILABLE" || releasedSeatIds.includes(seat.seatId))
             )).length;
 
             return {
@@ -44,7 +48,7 @@ function BookingSelectPage() {
                 remainingCount,
             };
         });
-    }, [currentSeatMap, seatSelection.seatGrades]);
+    }, [currentSeatMap, releasedSeatIds, seatSelection.seatGrades]);
 
     useEffect(() => {
         if (remainingSeconds <= 0) {
@@ -70,13 +74,32 @@ function BookingSelectPage() {
         navigate(`/concerts/${seatSelection.concertId}`, {replace: true});
     }, [navigate, remainingSeconds, seatSelection.concertId]);
 
-    const handleSeatClick = (seat: SeatSelectionSeat) => {
-        if (seat.status !== "AVAILABLE") {
+    const handleSeatClick = async (seat: SeatSelectionSeat) => {
+        const isAlreadySelected = selectedSeatIds.includes(seat.seatId);
+        const isReleasedSeat = releasedSeatIds.includes(seat.seatId);
+        const isSelectableSeat = seat.status === "AVAILABLE" || isReleasedSeat || isAlreadySelected;
+
+        if (!isSelectableSeat) {
             alert("선택할 수 없는 좌석입니다.");
             return;
         }
 
-        const isAlreadySelected = selectedSeatIds.includes(seat.seatId);
+        if (isAlreadySelected && seat.status === "SELECTED" && !isReleasedSeat) {
+            try {
+                await removePreemptSeats({
+                    concertId: seatSelection.concertId,
+                    scheduleId: currentScheduleId,
+                    seatIds: [seat.seatId],
+                });
+                removeStoredBookingDraftSeat(seat.seatId);
+                setReleasedSeatIds((prevSeatIds) => (
+                    prevSeatIds.includes(seat.seatId) ? prevSeatIds : [...prevSeatIds, seat.seatId]
+                ));
+            } catch {
+                alert("좌석 선점 해제에 실패했습니다. 다시 시도해 주세요.");
+                return;
+            }
+        }
 
         if (!isAlreadySelected && selectedSeatIds.length >= seatSelection.maxSelectableSeatCount) {
             alert(`좌석은 최대 ${seatSelection.maxSelectableSeatCount}개까지 선택할 수 있습니다.`);
@@ -93,14 +116,33 @@ function BookingSelectPage() {
     };
 
     useEffect(() => {
-        setSelectedSeatIds([]);
-    }, [currentScheduleId]);
-
-    const handleScheduleChange = (scheduleId: number) => {
-        if (scheduleId === currentScheduleId) {
+        if (!seatSelection.concertId || !currentScheduleId) {
+            setSelectedSeatIds([]);
+            setReleasedSeatIds([]);
             return;
         }
 
+        const storedDraft = getStoredBookingDraft();
+        setReleasedSeatIds([]);
+
+        if (
+            storedDraft?.concertId === seatSelection.concertId &&
+            storedDraft.scheduleId === currentScheduleId
+        ) {
+            setSelectedSeatIds(storedDraft.seatIds);
+            return;
+        }
+
+        setSelectedSeatIds([]);
+    }, [currentScheduleId, seatSelection.concertId]);
+
+    const handleScheduleChange = (scheduleId: number) => {
+        if (scheduleId === currentScheduleId) {
+            setIsScheduleToggleOpen(false);
+            return;
+        }
+
+        setIsScheduleToggleOpen(false);
         navigate(`/booking/select/${seatSelection.concertId}?scheduleId=${scheduleId}`, {replace: true});
     };
 
@@ -149,30 +191,6 @@ function BookingSelectPage() {
 
                     <div className
                              ={styles.contentArea}>
-                        <aside className={styles.schedulePanel} aria-label="회차 선택">
-                            <h2 className={styles.scheduleTitle}>회차 선택</h2>
-
-                            <div className={styles.scheduleToggleList}>
-                                {seatSelection.schedules.map((schedule, index) => {
-                                    const isSelected = schedule.scheduleId === currentScheduleId;
-
-                                    return (
-                                        <button
-                                            key={schedule.scheduleId}
-                                            type="button"
-                                            className={`${styles.scheduleToggleButton} ${isSelected ? styles.activeScheduleToggleButton : ""}`}
-                                            onClick={() => handleScheduleChange(schedule.scheduleId)}
-                                            aria-pressed={isSelected}
-                                        >
-                                            <span className={styles.scheduleRound}>{index + 1}회차</span>
-                                            <strong>{schedule.performanceDate}</strong>
-                                            <span>{schedule.performanceTime}</span>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </aside>
-
                         <section className
                                      ={styles.seatArea}>
                             <div className
@@ -191,6 +209,52 @@ function BookingSelectPage() {
                                     예매 가능 시간 : {formattedRemainingTime}
                                 </span>
                             </div>
+
+                            {seatSelection.schedules.length > 1 && (
+                                <div className={styles.scheduleToggleArea} aria-label="회차 선택">
+                                    <span className={styles.scheduleToggleLabel}>회차</span>
+
+                                    <div className={styles.scheduleToggleBox}>
+                                        <button
+                                            type="button"
+                                            className={`${styles.scheduleToggleButton} ${styles.activeScheduleToggleButton}`}
+                                            onClick={() => setIsScheduleToggleOpen((isOpen) => !isOpen)}
+                                            aria-expanded={isScheduleToggleOpen}
+                                        >
+                                            <span className={styles.scheduleRound}>
+                                                {getScheduleRoundText(seatSelection.schedules, currentScheduleId)}
+                                            </span>
+                                            <strong>{currentSchedule?.performanceDate}</strong>
+                                            <span>{currentSchedule?.performanceTime}</span>
+                                            <span className={styles.scheduleToggleIcon}>
+                                                {isScheduleToggleOpen ? "▲" : "▼"}
+                                            </span>
+                                        </button>
+
+                                        {isScheduleToggleOpen && (
+                                            <div className={styles.scheduleToggleList}>
+                                                {seatSelection.schedules.map((schedule, index) => {
+                                                    const isSelected = schedule.scheduleId === currentScheduleId;
+
+                                                    return (
+                                                        <button
+                                                            key={schedule.scheduleId}
+                                                            type="button"
+                                                            className={`${styles.scheduleOptionButton} ${isSelected ? styles.activeScheduleOptionButton : ""}`}
+                                                            onClick={() => handleScheduleChange(schedule.scheduleId)}
+                                                            aria-pressed={isSelected}
+                                                        >
+                                                            <span className={styles.scheduleRound}>{index + 1}회차</span>
+                                                            <strong>{schedule.performanceDate}</strong>
+                                                            <span>{schedule.performanceTime}</span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
 
                             {isLoading ? (
                                 <div className={styles.stateBox}>좌석 정보를 불러오는 중입니다.</div>
@@ -223,15 +287,23 @@ function BookingSelectPage() {
                                                 }
 
                                                 const grade = findGrade(seatSelection.seatGrades, seat.gradeId);
+                                                const isSelectedSeat = selectedSeatIds.includes(seat.seatId);
+                                                const isReleasedSeat = releasedSeatIds.includes(seat.seatId);
+                                                const isUnavailableSeat =
+                                                    seat.status !== "AVAILABLE" && !isSelectedSeat && !isReleasedSeat;
 
                                                 return (
                                                     <button
                                                         key={seat.seatId}
                                                         type="button"
                                                         className
-                                                            ={`${styles.seatButton} ${selectedSeatIds.includes(seat.seatId) ? styles.currentSelectedSeat : ""}`}
-                                                        style={getSeatStyle(seat, grade)}
-                                                        disabled={seat.status !== "AVAILABLE"}
+                                                            ={[
+                                                                styles.seatButton,
+                                                                isSelectedSeat ? styles.currentSelectedSeat : "",
+                                                                isUnavailableSeat ? styles.unavailableSeat : "",
+                                                            ].filter(Boolean).join(" ")}
+                                                        style={getSeatStyle(seat, grade, isSelectedSeat || isReleasedSeat)}
+                                                        disabled={isUnavailableSeat}
                                                         onClick={() => handleSeatClick(seat)}
                                                         aria-label={seat.seatNumber}
                                                         title={seat.seatNumber}
@@ -271,14 +343,22 @@ function BookingSelectPage() {
                                         }
 
                                         const grade = findGrade(seatSelection.seatGrades, seat.gradeId);
+                                        const isSelectedSeat = selectedSeatIds.includes(seat.seatId);
+                                        const isReleasedSeat = releasedSeatIds.includes(seat.seatId);
+                                        const isUnavailableSeat =
+                                            seat.status !== "AVAILABLE" && !isSelectedSeat && !isReleasedSeat;
 
                                         return (
                                             <span
                                                 key={seat.seatId}
                                                 className
-                                                    ={`${styles.miniSeat} ${seat.status !== "AVAILABLE" ? styles.unavailableMiniSeat : ""}`}
+                                                    ={[
+                                                        styles.miniSeat,
+                                                        isSelectedSeat ? styles.currentSelectedMiniSeat : "",
+                                                        isUnavailableSeat ? styles.unavailableMiniSeat : "",
+                                                    ].filter(Boolean).join(" ")}
 
-                                                style={getMiniSeatStyle(seat, grade)
+                                                style={getMiniSeatStyle(seat, grade, isSelectedSeat || isReleasedSeat)
                                                 }
                                             />
                                         );
@@ -326,6 +406,56 @@ function BookingSelectPage() {
     );
 }
 
+function getScheduleRoundText(
+    schedules: {scheduleId: number}[],
+    currentScheduleId: number,
+) {
+    const scheduleIndex = schedules.findIndex((schedule) => schedule.scheduleId === currentScheduleId);
+
+    return `${scheduleIndex >= 0 ? scheduleIndex + 1 : 1}회차`;
+}
+
+function getStoredBookingDraft() {
+    try {
+        const storedDraft = sessionStorage.getItem(bookingDraftStorageKey);
+
+        if (!storedDraft) {
+            return null;
+        }
+
+        return JSON.parse(storedDraft) as BookingDraft;
+    } catch {
+        return null;
+    }
+}
+
+function removeStoredBookingDraftSeat(seatId: number) {
+    const storedDraft = getStoredBookingDraft();
+
+    if (!storedDraft?.seatIds.includes(seatId)) {
+        return;
+    }
+
+    const nextSeatIds = storedDraft.seatIds.filter((storedSeatId) => storedSeatId !== seatId);
+
+    if (nextSeatIds.length === 0) {
+        sessionStorage.removeItem(bookingDraftStorageKey);
+        return;
+    }
+
+    const nextSelectedSeats = storedDraft.selectedSeats.filter((seat) => seat.seatId !== seatId);
+
+    sessionStorage.setItem(
+        bookingDraftStorageKey,
+        JSON.stringify({
+            ...storedDraft,
+            seatIds: nextSeatIds,
+            selectedSeats: nextSelectedSeats,
+            totalAmount: nextSelectedSeats.reduce((sum, seat) => sum + seat.price, 0),
+        }),
+    );
+}
+
 function formatRemainingTime(totalSeconds: number) {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
@@ -357,8 +487,8 @@ function getMiniSeatGridColumns(seatMap?: SeatSelectionSeatMap) {
     return `repeat(${seatMap?.columnCount ?? 8}, 14px)`;
 }
 
-function getSeatStyle(seat: SeatSelectionSeat, grade?: SeatGrade): CSSProperties {
-    if (seat.status !== "AVAILABLE") {
+function getSeatStyle(seat: SeatSelectionSeat, grade?: SeatGrade, isSelectedSeat = false): CSSProperties {
+    if (seat.status !== "AVAILABLE" && !isSelectedSeat) {
         return {};
     }
 
@@ -368,8 +498,8 @@ function getSeatStyle(seat: SeatSelectionSeat, grade?: SeatGrade): CSSProperties
     };
 }
 
-function getMiniSeatStyle(seat: SeatSelectionSeat, grade?: SeatGrade): CSSProperties {
-    if (seat.status !== "AVAILABLE") {
+function getMiniSeatStyle(seat: SeatSelectionSeat, grade?: SeatGrade, isSelectedSeat = false): CSSProperties {
+    if (seat.status !== "AVAILABLE" && !isSelectedSeat) {
         return {};
     }
 

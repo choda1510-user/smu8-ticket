@@ -17,6 +17,7 @@ import com.smu8.ticket.reservation.dto.query.ReservationPageQuery;
 import com.smu8.ticket.reservation.dto.result.*;
 import com.smu8.ticket.reservation.entity.Reservation;
 import com.smu8.ticket.reservation.entity.ReservationSeat;
+import com.smu8.ticket.reservation.exception.ReservationSeatLimitExceededException;
 import com.smu8.ticket.reservation.http.response.SeatStatus;
 import com.smu8.ticket.reservation.repository.PreemptReservationSeatRepository;
 import com.smu8.ticket.reservation.repository.ReservationRepository;
@@ -37,6 +38,9 @@ import java.util.UUID;
 public class ReservationServiceImpl implements ReservationService {
     private static final String RESERVED_STATUS = "RESERVED";
     private static final String CANCELED_STATUS = "CANCELED";
+    // 동일 공연 회차에서 한 사용자가 예매할 수 있는 최대 좌석 수를 한 곳에서 관리합니다.
+    private static final int MAX_RESERVED_SEAT_COUNT_PER_SCHEDULE = 2;
+    private static final String RESERVATION_SEAT_LIMIT_EXCEEDED_MESSAGE = "해당 회차는 1인당 2매까지만 예매할 수 있습니다.";
 
     private final ReservationRepository reservationRepository;
     private final ReservationSeatRepository reservationSeatRepository;
@@ -102,6 +106,8 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional
     public void createPreemptReservationSeats(CreatePreemptReservationSeatCommand command) {
         validateCreatePreemptCommand(command);
+        // 좌석선택완료 요청이 동시에 들어와도 예매 좌석 수 검사를 순서대로 처리하기 위해 잠급니다.
+        getAccountForUpdate(command.accountId());
 
         PerformanceSchedule schedule = performanceScheduleRepository.findById(command.scheduleId())
                 .orElseThrow(() -> new IllegalArgumentException("Performance schedule was not found."));
@@ -113,6 +119,8 @@ public class ReservationServiceImpl implements ReservationService {
         List<Seat> seats = seatRepository.findAllByIdInForUpdate(command.seatIds());
         validateSeats(command.scheduleId(), command.seatIds(), seats);
         validateSeatsNotReserved(command.seatIds());
+        // 가격 선택 단계로 넘어가기 전에 동일 회차 2좌석 제한을 먼저 검사합니다.
+        validateReservationSeatLimit(command.accountId(), command.scheduleId(), command.seatIds().size());
 
         List<String> createdSeatIds = new java.util.ArrayList<>();
         try {
@@ -158,8 +166,8 @@ public class ReservationServiceImpl implements ReservationService {
     public ReservationItemResult createReservation(CreateReservationCommand command) {
         validateCreateCommand(command);
 
-        Account account = accountRepository.findById(command.accountId())
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+        // 선점 API를 우회하거나 결제 단계에서 동시 요청이 들어와도 최종 저장 전 다시 잠급니다.
+        Account account = getAccountForUpdate(command.accountId());
         PerformanceSchedule schedule = performanceScheduleRepository.findById(command.scheduleId())
                 .orElseThrow(() -> new IllegalArgumentException("공연 회차를 찾을 수 없습니다."));
 
@@ -181,6 +189,8 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalStateException("이미 예매된 좌석이 포함되어 있습니다.");
         }
 
+        // 실제 Reservation 저장 직전에 한 번 더 검사해 서버 데이터 정합성을 보장합니다.
+        validateReservationSeatLimit(command.accountId(), command.scheduleId(), command.seatIds().size());
         validateSeatsPreemptedByAccount(command.accountId(), command.seatIds());
 
         Reservation reservation = Reservation.builder()
@@ -223,6 +233,12 @@ public class ReservationServiceImpl implements ReservationService {
     private Reservation getOwnedReservation(Long reservationId, String accountId) {
         return reservationRepository.findByReservationIdAndAccountId(reservationId, accountId)
                 .orElseThrow(() -> new IllegalArgumentException("예매 정보를 찾을 수 없습니다."));
+    }
+
+    // 같은 사용자의 예매 제한 검사와 저장 흐름을 직렬화하기 위해 Account를 비관적 락으로 조회합니다.
+    private Account getAccountForUpdate(String accountId) {
+        return accountRepository.findByIdForUpdate(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
     }
 
     private void validateCreateCommand(CreateReservationCommand command) {
@@ -271,6 +287,22 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalStateException("Some seats are already reserved.");
         }
     }
+
+    // 이미 예매한 좌석 수와 이번에 선택한 좌석 수를 합쳐 회차별 2좌석 제한을 판단합니다.
+    private void validateReservationSeatLimit(String accountId, Long scheduleId, int selectedSeatCount) {
+        Long reservedSeatCount = reservationRepository.sumTotalQuantityByAccountIdAndScheduleIdAndReservationStatus(
+                accountId,
+                scheduleId,
+                RESERVED_STATUS
+        );
+
+        int totalReservedSeatCount = reservedSeatCount == null ? 0 : Math.toIntExact(reservedSeatCount);
+        //사용자가 해당 회차에 예매 완료한 좌석 수 + 좌석선택 완료 버튼을 누르면서 새로 선택한 좌석 수 >2
+        if (totalReservedSeatCount + selectedSeatCount > MAX_RESERVED_SEAT_COUNT_PER_SCHEDULE) {
+            throw new ReservationSeatLimitExceededException(RESERVATION_SEAT_LIMIT_EXCEEDED_MESSAGE);
+        }
+    } // 같은 회차 2매 , 같은 회차 1매 다른회차 1매 가능 , 회차가 서로 다르지만 같은 공연이면 2매 2매 가능.
+    // 같은 회차 공연 2매 초과 xxx
 
     private void validateSeatsPreemptedByAccount(String accountId, List<Long> seatIds) {
         for (Long seatId : seatIds) {

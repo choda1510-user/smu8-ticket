@@ -12,7 +12,7 @@ public record HomeBannerResult(
         String imageUrl
 ) {
     public static HomeBannerResult from(Concert concert, StorageService storageService) {
-        // 별도 배너 테이블이 없으므로 현재는 공연 ID를 배너 식별값으로 함께 사용합니다.
+        // 별도 배너 테이블이 없으므로 현재는 공연 ID를 배너클릭 이동 기준으로 사용한다
         return HomeBannerResult.builder()
                 .concertId(concert.getId())
                 .title(concert.getTitle())

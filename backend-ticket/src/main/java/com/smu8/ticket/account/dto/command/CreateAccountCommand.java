@@ -24,6 +24,7 @@ public record CreateAccountCommand(
                 .username(username)
                 .password(passwordEncoder.encode(password))
                 .nickname(nickname)
+                .memberStatus("ACTIVE")
                 .build();
     }
 }

@@ -50,6 +50,10 @@ function formatEditableDateTime(date: Date) {
 }
 
 function getReservationStatusText(concert: AdminConcertDetailResponse) {
+    if (concert.reservationStatus === "공연취소") {
+        return "공연취소";
+    }
+
     const now = Date.now();
     const reservationStartTime = concert.reservationStartAt ? new Date(concert.reservationStartAt).getTime() : NaN;
     const reservationEndTimes = concert.schedules
@@ -285,17 +289,17 @@ function AdminConcertDetailPage() {
         }
     };
     const handleDeleteClick = async () => {
-        if (!concertNumericId || !confirm("삭제 하시겠습니까?")) {
+        if (!concertNumericId || !confirm("공연을 취소 처리하시겠습니까? 공연상태가 공연취소로 변경됩니다.")) {
             return;
         }
 
         try {
             setIsLoading(true);
             await cancelConcert(concertNumericId);
-            alert("공연이 삭제되었습니다.");
+            alert("공연이 취소 처리되었습니다.");
             navigate("/admin/concerts");
         } catch {
-            alert("공연 삭제에 실패했습니다.");
+            alert("공연 취소 처리에 실패했습니다.");
         } finally {
             setIsLoading(false);
         }
@@ -448,7 +452,7 @@ function AdminConcertDetailPage() {
                     ) : (
                         <>
                             <button type="button" className="admin-page__button admin-page__button--muted" onClick={handleDeleteClick} disabled={isLoading}>
-                                삭제
+                                공연 취소
                             </button>
                             <button type="button" className="admin-page__button admin-page__button--pink" onClick={handleEditClick} disabled={isLoading || !concert}>
                                 수정

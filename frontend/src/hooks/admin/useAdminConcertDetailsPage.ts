@@ -117,14 +117,14 @@ const handleUpdateClick = async () => {
 };
 
 const handleDeleteClick = async () => {
-    if (!concertNumericId || !confirm("삭제 하시겠습니까?")) return;
+    if (!concertNumericId || !confirm("공연을 취소 처리하시겠습니까? 공연상태가 공연취소로 변경됩니다.")) return;
     try{
         setIsLoading(true);
         await cancelConcert(concertNumericId);
-        alert("공연이 삭제되었습니다.");
+        alert("공연이 취소 처리되었습니다.");
         navigate("/admin/concerts");
     } catch {
-        alert("공연 삭제에 실패했습니다.")
+        alert("공연 취소 처리에 실패했습니다.")
     } finally {
         setIsLoading(false);
     }

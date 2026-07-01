@@ -158,7 +158,7 @@ function getBadgeText(reservationStartAt: string) {
    const target = new Date(reservationStartAt);
 
    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-   const targetDate = new Date(target.getFullYear(),target.getMonth(), today.getDate());
+   const targetDate = new Date(target.getFullYear(), target.getMonth(), target.getDate());
 
     const diff = Math.ceil(
         (targetDate.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24)

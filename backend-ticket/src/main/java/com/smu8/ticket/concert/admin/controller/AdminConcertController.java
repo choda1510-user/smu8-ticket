@@ -163,7 +163,7 @@ public class AdminConcertController {
         return ResponseEntity.ok(AdminConcertDetailResponse.from(result));
     }
 
-    @Operation(summary = "관리자 공연 삭제", description = "관리자가 공연을 삭제합니다.")
+    @Operation(summary = "관리자 공연 취소", description = "관리자가 공연상태를 공연취소로 변경합니다.")
     @DeleteMapping("/api/admin/concerts/{id}")
     public ResponseEntity<Void> deleteConcert(
             @Parameter(description = "삭제할 공연 고유 ID", example = "1")

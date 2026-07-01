@@ -46,14 +46,7 @@ function isUpcomingConcert(concert: ConcertItem) {
         return false;
     }
 
-    const now = new Date();
-    const startDate = new Date(startTime);
-    const isAfterToday =
-        startDate.getFullYear() > now.getFullYear() ||
-        (startDate.getFullYear() === now.getFullYear() && startDate.getMonth() > now.getMonth()) ||
-        (startDate.getFullYear() === now.getFullYear() && startDate.getMonth() === now.getMonth() && startDate.getDate() > now.getDate());
-
-    return startTime > now.getTime() && isAfterToday;
+    return startTime > Date.now();
 }
 
 function toHomeConcertCard(concert: ConcertItem): HomeConcertCard {

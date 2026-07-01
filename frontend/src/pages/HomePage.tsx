@@ -25,9 +25,19 @@ function HomePage() {
         isBannerVisible,
         sortedOpenConcertList,
         sortedUpcomingConcertList,
+        openConcertSlideIndex,
+        upcomingConcertSlideIndex,
+        canMoveOpenConcertPrev,
+        canMoveOpenConcertNext,
+        canMoveUpcomingConcertPrev,
+        canMoveUpcomingConcertNext,
         handlePrevBannerClick,
         handleNextBannerClick,
         handleIndicatorClick,
+        handlePrevOpenConcertSlideClick,
+        handleNextOpenConcertSlideClick,
+        handlePrevUpcomingConcertSlideClick,
+        handleNextUpcomingConcertSlideClick,
     } = useHomePage();
 
     const handleBannerClick = () => {
@@ -137,6 +147,11 @@ function HomePage() {
                 description="지금 좌석을 선택할 수 있는 공연입니다."
                 tone="open"
                 concerts={sortedOpenConcertList}
+                slideIndex={openConcertSlideIndex}
+                canMovePrev={canMoveOpenConcertPrev}
+                canMoveNext={canMoveOpenConcertNext}
+                onPrevSlideClick={handlePrevOpenConcertSlideClick}
+                onNextSlideClick={handleNextOpenConcertSlideClick}
                 onMoreClick={handleOpenConcertMoreClick}
                 onConcertClick={handleConcertClick}
             />
@@ -146,6 +161,11 @@ function HomePage() {
                 description="티켓 오픈 일정을 미리 확인해보세요."
                 tone="upcoming"
                 concerts={sortedUpcomingConcertList}
+                slideIndex={upcomingConcertSlideIndex}
+                canMovePrev={canMoveUpcomingConcertPrev}
+                canMoveNext={canMoveUpcomingConcertNext}
+                onPrevSlideClick={handlePrevUpcomingConcertSlideClick}
+                onNextSlideClick={handleNextUpcomingConcertSlideClick}
                 onMoreClick={handleUpcomingConcertMoreClick}
                 onConcertClick={handleConcertClick}
             />
@@ -158,6 +178,11 @@ type HomeConcertSectionProps = {
     description: string;
     tone: "open" | "upcoming";
     concerts: ConcertCard[];
+    slideIndex: number;
+    canMovePrev: boolean;
+    canMoveNext: boolean;
+    onPrevSlideClick: () => void;
+    onNextSlideClick: () => void;
     onMoreClick: () => void;
     onConcertClick: (concertId: number) => void;
 };
@@ -167,6 +192,11 @@ function HomeConcertSection({
                                 description,
                                 tone,
                                 concerts,
+                                slideIndex,
+                                canMovePrev,
+                                canMoveNext,
+                                onPrevSlideClick,
+                                onNextSlideClick,
                                 onMoreClick,
                                 onConcertClick,
                             }: HomeConcertSectionProps) {
@@ -189,44 +219,71 @@ function HomeConcertSection({
             {concerts.length === 0 ? (
                 <div className={styles.emptyBox}>등록된 공연이 없습니다.</div>
             ) : (
-                <ul className={styles.cardList}>
-                    {concerts.map((concert) => (
-                        <li key={concert.concertId} className={styles.cardItem}>
-                            <button
-                                type="button"
-                                className={styles.concertCard}
-                                onClick={() => onConcertClick(concert.concertId)}
-                            >
-                                <div className={styles.posterBox}>
-                                    {concert.posterUrl ? (
-                                        <img
-                                            src={concert.posterUrl}
-                                            alt="공연 포스터"
-                                            className={styles.posterImage}
-                                        />
-                                    ) : (
-                                        <span>공연 카드</span>
-                                    )}
-                                </div>
+                <div className={styles.sliderFrame}>
+                    <button
+                        type="button"
+                        className={`${styles.sliderButton} ${styles.prevSliderButton}`}
+                        onClick={onPrevSlideClick}
+                        disabled={!canMovePrev}
+                        aria-label={`${title} 이전 카드 보기`}
+                    >
+                        ‹
+                    </button>
 
-                                <div className={styles.cardInfo}>
-                                    <strong className={styles.cardTitle}>{concert.title}</strong>
+                    <div className={styles.sliderViewport}>
+                        <ul
+                            className={styles.cardList}
+                            style={{transform: `translateX(calc(-1 * ${slideIndex} * (100% + 22px)))`}}
+                        >
+                            {concerts.map((concert) => (
+                                <li key={concert.concertId} className={styles.cardItem}>
+                                    <button
+                                        type="button"
+                                        className={styles.concertCard}
+                                        onClick={() => onConcertClick(concert.concertId)}
+                                    >
+                                        <div className={styles.posterBox}>
+                                            {concert.posterUrl ? (
+                                                <img
+                                                    src={concert.posterUrl}
+                                                    alt="공연 포스터"
+                                                    className={styles.posterImage}
+                                                />
+                                            ) : (
+                                                <span>공연 카드</span>
+                                            )}
+                                        </div>
 
-                                    <span className={styles.cardPeriodLabel}>예매기간</span>
+                                        <div className={styles.cardInfo}>
+                                            <strong className={styles.cardTitle}>{concert.title}</strong>
 
-                                    <span className={styles.cardPeriod}>
-                                        {concert.reservationPeriod}
-                                    </span>
+                                            <span className={styles.cardPeriodLabel}>예매기간</span>
 
-                                    <span className={styles.cardFooter}>
-                                        <span className={styles.cardBadge}>{concert.badgeText}</span>
-                                        <span className={styles.cardCta}>예매하기</span>
-                                    </span>
-                                </div>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
+                                            <span className={styles.cardPeriod}>
+                                                {concert.reservationPeriod}
+                                            </span>
+
+                                            <span className={styles.cardFooter}>
+                                                <span className={styles.cardBadge}>{concert.badgeText}</span>
+                                                <span className={styles.cardCta}>예매하기</span>
+                                            </span>
+                                        </div>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <button
+                        type="button"
+                        className={`${styles.sliderButton} ${styles.nextSliderButton}`}
+                        onClick={onNextSlideClick}
+                        disabled={!canMoveNext}
+                        aria-label={`${title} 다음 카드 보기`}
+                    >
+                        ›
+                    </button>
+                </div>
             )}
         </section>
     );

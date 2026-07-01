@@ -314,17 +314,66 @@
     background: #fff0f5;
 }
 
+.sliderButton {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid #e3e5ec;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #374151;
+    font-family: inherit;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.16);
+    transform: translateY(-50%);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.sliderButton:hover:not(:disabled) {
+    border-color: #f47fa6;
+    color: #f47fa6;
+    background: #fff0f5;
+}
+
+.sliderButton:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.prevSliderButton {
+    left: -21px;
+}
+
+.nextSliderButton {
+    right: -21px;
+}
+
+.sliderFrame {
+    position: relative;
+}
+
+.sliderViewport {
+    overflow: hidden;
+}
+
 .cardList {
     margin: 0;
     padding: 0;
     list-style: none;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    display: flex;
     gap: 22px;
+    transition: transform 0.35s ease;
+    will-change: transform;
 }
 
 .cardItem {
     min-width: 0;
+    flex: 0 0 calc((100% - 66px) / 4);
 }
 
 .concertCard {
@@ -462,6 +511,7 @@
 .primaryButton:focus-visible,
 .secondaryButton:focus-visible,
 .moreButton:focus-visible,
+.sliderButton:focus-visible,
 .concertCard:focus-visible {
     outline: 3px solid rgba(255, 159, 189, 0.45);
     outline-offset: 2px;
@@ -478,8 +528,8 @@
         justify-content: flex-start;
     }
 
-    .cardList {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .cardItem {
+        flex-basis: calc((100% - 22px) / 2);
     }
 }
 
@@ -551,7 +601,21 @@
         align-self: flex-start;
     }
 
-    .cardList {
-        grid-template-columns: 1fr;
+    .cardItem {
+        flex-basis: 100%;
+    }
+
+    .sliderButton {
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
+    }
+
+    .prevSliderButton {
+        left: -14px;
+    }
+
+    .nextSliderButton {
+        right: -14px;
     }
 }

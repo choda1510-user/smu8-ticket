@@ -44,11 +44,11 @@ public class Concert {
     @Column (columnDefinition = "text")
     private String notice;
     @Column
-    private String cardPosterUrl;
+    private String cardPosterId;
     @Column
-    private String screenPosterUrl;
+    private String screenPosterId;
     @Column
-    private String descriptionPosterUrl;
+    private String descriptionPosterId;
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate

@@ -3,6 +3,7 @@ package com.smu8.ticket.reservation.dto.result;
 import com.smu8.ticket.account.dto.result.AccountDetailResult;
 import com.smu8.ticket.concert.dto.result.ConcertDetailResult;
 import com.smu8.ticket.concert.dto.result.PerformanceScheduleDetailResult;
+import com.smu8.ticket.file.service.StorageService;
 import com.smu8.ticket.reservation.entity.Reservation;
 import com.smu8.ticket.reservation.entity.ReservationSeat;
 import com.smu8.ticket.venue.dto.result.VenueDetailResult;
@@ -26,13 +27,13 @@ public record ReservationDetailResult (
         LocalDateTime createdAt
 ){
 
-    public static ReservationDetailResult from(Reservation reservation, List<ReservationSeatDetailResult> reservationSeats){
+    public static ReservationDetailResult from(Reservation reservation, List<ReservationSeatDetailResult> reservationSeats, StorageService storageService){
         return ReservationDetailResult.builder()
                 .reservationId(reservation.getReservationId())
                 .reservationNo(reservation.getReservationNo())
                 .account(AccountDetailResult.from(reservation.getAccount()))
                 .performanceSchedule(PerformanceScheduleDetailResult.from(reservation.getPerformanceSchedule()))
-                .concert(ConcertDetailResult.from(reservation.getPerformanceSchedule().getConcert()))
+                .concert(ConcertDetailResult.from(reservation.getPerformanceSchedule().getConcert(), storageService))
                 .venue(VenueDetailResult.from(reservation.getPerformanceSchedule().getConcert().getVenue()))
                 .reservationStatus(reservation.getReservationStatus())
                 .totalQuantity(reservation.getTotalQuantity())

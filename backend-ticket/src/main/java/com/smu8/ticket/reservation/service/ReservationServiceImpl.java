@@ -8,6 +8,7 @@ import com.smu8.ticket.concert.entity.SeatGrade;
 import com.smu8.ticket.concert.repository.PerformanceScheduleRepository;
 import com.smu8.ticket.concert.repository.SeatRepository;
 import com.smu8.ticket.dto.result.PageResult;
+import com.smu8.ticket.file.service.StorageService;
 import com.smu8.ticket.reservation.dto.command.CreatePreemptReservationSeatCommand;
 import com.smu8.ticket.reservation.dto.command.CreateReservationCommand;
 import com.smu8.ticket.reservation.dto.command.RemovePreemptReservationSeatCommand;
@@ -43,6 +44,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final PerformanceScheduleRepository performanceScheduleRepository;
     private final SeatRepository seatRepository;
     private final PreemptReservationSeatRepository preemptReservationSeatRepository;
+    private final StorageService storageService;
 
     @Override
     @Transactional(readOnly = true)
@@ -52,7 +54,7 @@ public class ReservationServiceImpl implements ReservationService {
                 PageRequest.of(query.pageQuery().page(), query.pageQuery().size())
         );
 
-        return PageResult.from(reservations.map(ReservationItemResult::from));
+        return PageResult.from(reservations.map((reservation) -> ReservationItemResult.from(reservation, storageService)));
     }
 
     @Override
@@ -63,7 +65,8 @@ public class ReservationServiceImpl implements ReservationService {
                 reservation,
                 reservationSeatRepository.findByReservationReservationId(reservationId).stream()
                         .map((reservationSeat) -> ReservationSeatDetailResult.from(reservationSeat, getSeatStatus(reservationSeat)))
-                        .toList()
+                        .toList(),
+                storageService
         );
     }
 
@@ -199,7 +202,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         removePreemptReservationSeatsAfterCommit(command.accountId(), command.seatIds());
 
-        return ReservationItemResult.from(savedReservation);
+        return ReservationItemResult.from(savedReservation, storageService);
     }
 
     @Override
@@ -214,7 +217,7 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.cancel(CANCELED_STATUS);
         reservationSeatRepository.deleteByReservationReservationId(reservationId);
 
-        return ReservationItemResult.from(reservation);
+        return ReservationItemResult.from(reservation, storageService);
     }
 
     private Reservation getOwnedReservation(Long reservationId, String accountId) {

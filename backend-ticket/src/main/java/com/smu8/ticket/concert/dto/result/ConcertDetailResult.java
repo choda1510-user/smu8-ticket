@@ -1,6 +1,7 @@
 package com.smu8.ticket.concert.dto.result;
 
 import com.smu8.ticket.concert.entity.Concert;
+import com.smu8.ticket.file.service.StorageService;
 import com.smu8.ticket.venue.dto.result.VenueDetailResult;
 import lombok.Builder;
 
@@ -33,7 +34,7 @@ public record ConcertDetailResult(
         Long venueId,
         String venueName
 ) {
-    public static ConcertDetailResult from(Concert concert) {
+    public static ConcertDetailResult from(Concert concert, StorageService storageService) {
         return ConcertDetailResult.builder()
                 .id(concert.getId())
                 .performanceCode(concert.getPerformanceCode())
@@ -42,9 +43,9 @@ public record ConcertDetailResult(
                 .description(concert.getDescription())
                 .venue(VenueDetailResult.from(concert.getVenue()))
                 .runningTime(concert.getRunningTime())
-                .cardPosterUrl(concert.getCardPosterUrl())
-                .screenPosterUrl(concert.getScreenPosterUrl())
-                .descriptionPosterUrl(concert.getDescriptionPosterUrl())
+                .cardPosterUrl(storageService.getUrl(concert.getCardPosterId()))
+                .screenPosterUrl(storageService.getUrl(concert.getScreenPosterId()))
+                .descriptionPosterUrl(storageService.getUrl(concert.getDescriptionPosterId()))
                 .createdAt(concert.getCreatedAt())
                 .updatedAt(concert.getUpdatedAt())
                 .venueId(concert.getVenue().getId())

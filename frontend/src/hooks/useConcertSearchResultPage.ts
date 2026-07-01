@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router";
-import {filterConcertsByKeyword, getConcertList, toConcertSearchResult} from "@/apis/concertApi";
+import {getConcertSearchPage} from "@/apis/concertApi";
+import {useUrlPage} from "@/hooks/useUrlPage";
 import type {ConcertItemPageResult} from "@/types/concert";
 
 const initialConcertSearchResults: ConcertItemPageResult = {
@@ -20,6 +21,7 @@ function getKeyword(searchParams: URLSearchParams) {
 export function useConcertSearchResultPage() {
     const [searchParams] = useSearchParams();
     const keyword = getKeyword(searchParams);
+    const {currentPage, changePage} = useUrlPage();
     const [concertSearchResults, setConcertSearchResults] = useState<ConcertItemPageResult>(initialConcertSearchResults);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
@@ -32,19 +34,13 @@ export function useConcertSearchResultPage() {
                 setIsLoading(true);
                 setError(null);
 
-                const concerts = filterConcertsByKeyword(await getConcertList(), keyword)
-                    .map(toConcertSearchResult);
+                const concerts = await getConcertSearchPage(
+                    {page: currentPage - 1, size: 10},
+                    keyword,
+                );
 
                 if (isMounted) {
-                    setConcertSearchResults({
-                        contents: concerts,
-                        page: 1,
-                        size: concerts.length,
-                        totalElements: concerts.length,
-                        totalPages: 1,
-                        hasNext: false,
-                        hasPrevious: false
-                    });
+                    setConcertSearchResults(concerts);
                 }
             } catch (caughtError) {
                 if (isMounted) {
@@ -62,10 +58,12 @@ export function useConcertSearchResultPage() {
         return () => {
             isMounted = false;
         };
-    }, [keyword]);
+    }, [currentPage, keyword]);
 
     return {
         concertSearchResults,
+        currentPage,
+        changePage,
         isLoading,
         error,
     };

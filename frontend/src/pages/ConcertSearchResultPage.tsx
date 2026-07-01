@@ -15,8 +15,13 @@ import {useConcertSearchResultPage} from "@/hooks/useConcertSearchResultPage";
 
 function ConcertSearchResultPage() {
     const navigate = useNavigate();
-    const {concertSearchResults} = useConcertSearchResultPage();
+    const {
+        concertSearchResults,
+        currentPage,
+        changePage,
+    } = useConcertSearchResultPage();
     const concerts = concertSearchResults.contents;
+    const totalPages = Math.max(1, concertSearchResults.totalPages);
 
     const handleConcertClick = (concertId: number) => {
         navigate(`/concerts/${concertId}`);
@@ -103,7 +108,11 @@ function ConcertSearchResultPage() {
 
                     <div className
                              ={styles.paginationArea}>
-                        <BottomPaginationBar/>
+                        <BottomPaginationBar
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={(page) => changePage(page, totalPages)}
+                        />
                     </div>
                 </>
             )}

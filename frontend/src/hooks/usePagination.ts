@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useState} from "react";
+import {useSearchParams} from "react-router";
 import type {PageRequest, PageResponse} from "@/types/api";
 
 type PageFetcher<T, F> = (
@@ -17,6 +18,11 @@ export function usePagination<T, F>({
     initialFilters,
     fetchPage,
 }: UsePaginationOptions<T, F>) {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const pageParam = Number(searchParams.get("page"));
+    const currentPage = Number.isInteger(pageParam) && pageParam > 0
+        ? pageParam
+        : 1;
     const [pageResult, setPageResult] = useState<PageResponse<T>>({
         page: 1,
         size: pageSize,
@@ -26,7 +32,6 @@ export function usePagination<T, F>({
         hasPrevious: false,
         contents: [],
     });
-    const [currentPage, setCurrentPage] = useState(1);
     const [filters, setFilters] = useState(initialFilters);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
@@ -69,18 +74,27 @@ export function usePagination<T, F>({
 
     const totalPages = Math.max(1, pageResult.totalPages);
 
+    const changePage = useCallback((page: number) => {
+        const nextPage = Math.min(Math.max(page, 1), totalPages);
+        const nextSearchParams = new URLSearchParams(searchParams);
+
+        nextSearchParams.set("page", String(nextPage));
+        setSearchParams(nextSearchParams);
+    }, [searchParams, setSearchParams, totalPages]);
+
     useEffect(() => {
-        setCurrentPage((page) => Math.min(page, totalPages));
-    }, [totalPages]);
+        if (pageResult.totalPages > 0 && currentPage > totalPages) {
+            changePage(totalPages);
+        }
+    }, [changePage, currentPage, pageResult.totalPages, totalPages]);
 
     const search = useCallback((nextFilters: F) => {
-        setCurrentPage(1);
-        setFilters(nextFilters);
-    }, []);
+        const nextSearchParams = new URLSearchParams(searchParams);
 
-    const changePage = useCallback((page: number) => {
-        setCurrentPage(Math.min(Math.max(page, 1), totalPages));
-    }, [totalPages]);
+        nextSearchParams.set("page", "1");
+        setSearchParams(nextSearchParams);
+        setFilters(nextFilters);
+    }, [searchParams, setSearchParams]);
 
     const previousPage = useCallback(() => {
         changePage(currentPage - 1);

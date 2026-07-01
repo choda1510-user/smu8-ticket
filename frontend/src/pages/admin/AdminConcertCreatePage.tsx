@@ -58,6 +58,20 @@ function isInvalidReservationPeriod(schedule: Pick<ConcertSchedule, "concertDate
     );
 }
 
+function sortSchedulesByConcertDateTime(schedules: ConcertSchedule[]) {
+    return [...schedules].sort((a, b) => a.concertDateTime.getTime() - b.concertDateTime.getTime());
+}
+
+function getEarliestReservationStart(schedules: ConcertSchedule[]) {
+    return schedules.reduce<Date | null>((earliestDate, schedule) => {
+        if (!earliestDate || schedule.reservationStart.getTime() < earliestDate.getTime()) {
+            return schedule.reservationStart;
+        }
+
+        return earliestDate;
+    }, null);
+}
+
 function createInitialSeatLayout(): SeatLayout {
     const rowCount = 6;
     const columnCount = 8;
@@ -112,6 +126,7 @@ function AdminConcertCreatePage() {
     const [description, setDescription] = useState("");
     const [seatLayout, setSeatLayout] = useState<SeatLayout>(() => createInitialSeatLayout());
     const posterFilesRef = useRef(posterFiles);
+    const scheduleIdRef = useRef(0);
 
     useEffect(() => {
         posterFilesRef.current = posterFiles;
@@ -222,7 +237,7 @@ function AdminConcertCreatePage() {
         setSchedules((currentSchedules) => [
             ...currentSchedules,
             {
-                id: Date.now(),
+                id: ++scheduleIdRef.current,
                 concertDateTime,
                 reservationStart,
                 reservationEnd,
@@ -233,12 +248,17 @@ function AdminConcertCreatePage() {
         setReservationEnd(null);
     };
 
+    const handleScheduleDeleteClick = (scheduleId: number) => {
+        setSchedules((currentSchedules) => currentSchedules.filter((schedule) => schedule.id !== scheduleId));
+    };
+
     const handleRegisterClick = async () => {
-        const firstSchedule = schedules[0];
+        const validSchedules = sortSchedulesByConcertDateTime(schedules);
+        const reservationStartAt = getEarliestReservationStart(validSchedules);
         const parsedVenueId = Number(venueCodeInput || venue?.code);
         const runningMinutes = Number(duration.replace(/[^0-9]/g, ""));
 
-        if (!title.trim() || !description.trim() || !firstSchedule || !parsedVenueId) {
+        if (!title.trim() || !description.trim() || validSchedules.length === 0 || !reservationStartAt || !parsedVenueId) {
             alert("공연명, 작품설명, 공연일시, 공연장을 모두 입력해주세요.");
             return;
         }
@@ -248,7 +268,7 @@ function AdminConcertCreatePage() {
             return;
         }
 
-        if (schedules.some(isInvalidReservationPeriod)) {
+        if (validSchedules.some(isInvalidReservationPeriod)) {
             alert(invalidReservationPeriodMessage);
             return;
         }
@@ -265,7 +285,7 @@ function AdminConcertCreatePage() {
                         title: title.trim(),
                         description: description.trim(),
                         runningTime: String(runningMinutes || 120),
-                        reservationStartAt: format(firstSchedule.reservationStart, apiDateFormat),
+                        reservationStartAt: format(reservationStartAt, apiDateFormat),
                         venueId: parsedVenueId,
                         notice: notice.trim() || undefined,
                         seatGrades: seatLayout.seatTypes.map((type) => ({
@@ -273,7 +293,7 @@ function AdminConcertCreatePage() {
                             price: Number(type.price),
                             color: type.color,
                         })),
-                        schedules: schedules.map((schedule) => ({
+                        schedules: validSchedules.map((schedule) => ({
                             date: format(schedule.concertDateTime, apiDateFormat),
                             reservationEndAt: format(schedule.reservationEnd, apiDateFormat),
                         })),
@@ -439,7 +459,7 @@ function AdminConcertCreatePage() {
                                             <button
                                                 type="button"
                                                 className="admin-page__button admin-page__button--light"
-                                                onClick={() => setSchedules((currentSchedules) => currentSchedules.filter((item) => item.id !== schedule.id))}
+                                                onClick={() => handleScheduleDeleteClick(schedule.id)}
                                             >
                                                 삭제
                                             </button>

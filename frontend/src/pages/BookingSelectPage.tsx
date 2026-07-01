@@ -13,20 +13,18 @@ import type {
 
 const bookingDraftStorageKey = "smu8-ticket-booking-draft";
 const initialReservationLimitMinutes = 5;
-const initialSelectedScheduleId = 0;
 
 function BookingSelectPage() {
     const navigate = useNavigate();
     const {preemptSeats} = useBookingReservation();
-    const {seatSelection} = useSeatSelectionPage();
-    const [selectedScheduleId, setSelectedScheduleId] = useState(initialSelectedScheduleId);
+    const {seatSelection, isLoading, error} = useSeatSelectionPage();
     const [selectedSeatIds, setSelectedSeatIds] = useState<number[]>([]);
     const [remainingSeconds, setRemainingSeconds] = useState(
         initialReservationLimitMinutes * 60
     );
     const hasHandledExpirationRef = useRef(false);
 
-    const currentScheduleId = selectedScheduleId || seatSelection.selectedScheduleId;
+    const currentScheduleId = seatSelection.selectedScheduleId;
     const currentSchedule = seatSelection.schedules.find((schedule) => schedule.scheduleId === currentScheduleId);
     const currentSeatMap =
         seatSelection.seatMaps.find((seatMap) => seatMap.scheduleId === currentScheduleId) ??
@@ -94,9 +92,16 @@ function BookingSelectPage() {
         });
     };
 
-    const handleScheduleChange = (scheduleId: number) => {
-        setSelectedScheduleId(scheduleId);
+    useEffect(() => {
         setSelectedSeatIds([]);
+    }, [currentScheduleId]);
+
+    const handleScheduleChange = (scheduleId: number) => {
+        if (scheduleId === currentScheduleId) {
+            return;
+        }
+
+        navigate(`/booking/select/${seatSelection.concertId}?scheduleId=${scheduleId}`, {replace: true});
     };
 
     const handleCompleteClick = async () => {
@@ -144,6 +149,30 @@ function BookingSelectPage() {
 
                     <div className
                              ={styles.contentArea}>
+                        <aside className={styles.schedulePanel} aria-label="회차 선택">
+                            <h2 className={styles.scheduleTitle}>회차 선택</h2>
+
+                            <div className={styles.scheduleToggleList}>
+                                {seatSelection.schedules.map((schedule, index) => {
+                                    const isSelected = schedule.scheduleId === currentScheduleId;
+
+                                    return (
+                                        <button
+                                            key={schedule.scheduleId}
+                                            type="button"
+                                            className={`${styles.scheduleToggleButton} ${isSelected ? styles.activeScheduleToggleButton : ""}`}
+                                            onClick={() => handleScheduleChange(schedule.scheduleId)}
+                                            aria-pressed={isSelected}
+                                        >
+                                            <span className={styles.scheduleRound}>{index + 1}회차</span>
+                                            <strong>{schedule.performanceDate}</strong>
+                                            <span>{schedule.performanceTime}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </aside>
+
                         <section className
                                      ={styles.seatArea}>
                             <div className
@@ -151,18 +180,11 @@ function BookingSelectPage() {
                                 <strong className
                                             ={styles.concertTitle}>{seatSelection.concertTitle}</strong>
 
-                                <select
-                                    value={currentSchedule?.scheduleId ?? ""}
-                                    className
-                                        ={styles.dateSelect}
-                                    onChange={(event) => handleScheduleChange(Number(event.target.value))}
-                                >
-                                    {seatSelection.schedules.map((schedule) => (
-                                        <option key={schedule.scheduleId} value={schedule.scheduleId}>
-                                            {schedule.label}
-                                        </option>
-                                    ))}
-                                </select>
+                                {currentSchedule && (
+                                    <span className={styles.selectedScheduleText}>
+                                        {currentSchedule.label}
+                                    </span>
+                                )}
 
                                 <span className
                                           ={styles.remainingTime}>
@@ -170,48 +192,56 @@ function BookingSelectPage() {
                                 </span>
                             </div>
 
-                            <div className
-                                     ={styles.stageArea}>{currentSeatMap?.stageLabel ?? "STAGE"}</div>
+                            {isLoading ? (
+                                <div className={styles.stateBox}>좌석 정보를 불러오는 중입니다.</div>
+                            ) : error ? (
+                                <div className={styles.stateBox}>좌석 정보를 불러오지 못했습니다.</div>
+                            ) : (
+                                <>
+                                    <div className
+                                             ={styles.stageArea}>{currentSeatMap?.stageLabel ?? "STAGE"}</div>
 
-                            <div
-                                className
-                                    ={styles.seatGrid}
-                                style={{
-                                    gridTemplateColumns: getSeatGridColumns(currentSeatMap),
-                                }}
-                                aria-label="좌석 선택"
-                            >
-                                {(currentSeatMap?.seatRows ?? []).map((seatRow, rowIndex) => (
-                                    seatRow.map((seat, columnIndex) => {
-                                        if (seat === null) {
-                                            return (
-                                                <span
-                                                    key={`${rowIndex}-${columnIndex}`}
-                                                    className={styles.seatButton}
-                                                    style={{visibility: "hidden"}}
-                                                    aria-hidden="true"
-                                                />
-                                            );
-                                        }
+                                    <div
+                                        className
+                                            ={styles.seatGrid}
+                                        style={{
+                                            gridTemplateColumns: getSeatGridColumns(currentSeatMap),
+                                        }}
+                                        aria-label="좌석 선택"
+                                    >
+                                        {(currentSeatMap?.seatRows ?? []).map((seatRow, rowIndex) => (
+                                            seatRow.map((seat, columnIndex) => {
+                                                if (seat === null) {
+                                                    return (
+                                                        <span
+                                                            key={`${rowIndex}-${columnIndex}`}
+                                                            className={styles.seatButton}
+                                                            style={{visibility: "hidden"}}
+                                                            aria-hidden="true"
+                                                        />
+                                                    );
+                                                }
 
-                                        const grade = findGrade(seatSelection.seatGrades, seat.gradeId);
+                                                const grade = findGrade(seatSelection.seatGrades, seat.gradeId);
 
-                                        return (
-                                            <button
-                                                key={seat.seatId}
-                                                type="button"
-                                                className
-                                                    ={`${styles.seatButton} ${selectedSeatIds.includes(seat.seatId) ? styles.currentSelectedSeat : ""}`}
-                                                style={getSeatStyle(seat, grade)}
-                                                disabled={seat.status !== "AVAILABLE"}
-                                                onClick={() => handleSeatClick(seat)}
-                                                aria-label={seat.seatNumber}
-                                                title={seat.seatNumber}
-                                            />
-                                        );
-                                    })
-                                ))}
-                            </div>
+                                                return (
+                                                    <button
+                                                        key={seat.seatId}
+                                                        type="button"
+                                                        className
+                                                            ={`${styles.seatButton} ${selectedSeatIds.includes(seat.seatId) ? styles.currentSelectedSeat : ""}`}
+                                                        style={getSeatStyle(seat, grade)}
+                                                        disabled={seat.status !== "AVAILABLE"}
+                                                        onClick={() => handleSeatClick(seat)}
+                                                        aria-label={seat.seatNumber}
+                                                        title={seat.seatNumber}
+                                                    />
+                                                );
+                                            })
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                         </section>
 
                         <aside className

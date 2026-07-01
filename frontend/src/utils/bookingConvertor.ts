@@ -17,6 +17,7 @@ import type {
     SeatSelectionSeat,
 } from "@/types/booking";
 import type {ConcertScheduleResponse, SeatGradeResponse} from "@/types/concert";
+import type {ConcertDetail, ConcertSchedule} from "@/types/concert";
 
 function formatDateTime(value: string) {
     if (!value) {
@@ -178,6 +179,15 @@ function toSchedule(response: ConcertScheduleResponse) {
     };
 }
 
+function toSeatSelectionSchedule(schedule: ConcertSchedule) {
+    return {
+        scheduleId: schedule.id,
+        performanceDate: schedule.date,
+        performanceTime: schedule.time,
+        label: `${schedule.date} ${schedule.time}`.trim(),
+    };
+}
+
 export function toBookingItemResult(response: BookingItemResponse): BookingItemResult {
     return {
         reserveId: response.reservationId,
@@ -221,17 +231,23 @@ export function toBookingDetailResult(response: BookingDetailResponse): BookingD
     };
 }
 
-export function toSeatSelectionResult(response: BookingConcertSeatFrameResponse): SeatSelection {
+export function toSeatSelectionResult(
+    response: BookingConcertSeatFrameResponse,
+    concertDetail?: ConcertDetail,
+): SeatSelection {
     const schedule = toSchedule(response.selectSchedule);
     const seatRows = toSeatRows(response.seats, response.rowMax, response.colMax);
+    const schedules = concertDetail?.schedules.length
+        ? concertDetail.schedules.map(toSeatSelectionSchedule)
+        : [schedule];
 
     return {
         concertId: response.concertId,
-        concertTitle: "",
-        venueId: 0,
-        venueName: "",
+        concertTitle: concertDetail?.concertTitle ?? "",
+        venueId: concertDetail?.venueId ?? 0,
+        venueName: concertDetail?.venueName ?? "",
         selectedScheduleId: schedule.scheduleId,
-        schedules: [schedule],
+        schedules,
         reservationLimitMinutes: 3,
         maxSelectableSeatCount: 2,
         seatGrades: response.seatGrades.map(toSeatGrade),

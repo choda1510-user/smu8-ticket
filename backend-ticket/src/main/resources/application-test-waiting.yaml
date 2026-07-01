@@ -18,6 +18,9 @@ spring:
     redis-ticket:
       host: redis-ticket
       port: 6379
+    redis-waiting:
+      host: redis-waiting
+      port: 6379
   storage:
     url: http://192.168.0.6:8080/api/images
 cors:

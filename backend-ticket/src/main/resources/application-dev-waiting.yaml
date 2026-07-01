@@ -21,6 +21,9 @@ spring:
     redis-file:
       host: 192.168.0.6
       port: 6380
+    redis-waiting:
+      host: 192.168.0.6
+      port: 6381
   storage:
     url: http://localhost:8080/api/images
 

@@ -12,8 +12,6 @@ public interface ConcertWaitingQueueRepository {
 
     List<String> findWaitingAccounts(String concertId, long start, long end);
 
-    List<String> popWaitingAccounts(String concertId, long count);
-
     void remove(String concertId, String accountId);
 
     long count(String concertId);

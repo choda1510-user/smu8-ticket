@@ -5,3 +5,11 @@ spring:
     active: dev-waiting
 server:
   port: 8081
+
+waiting:
+  admission:
+    enabled: true
+    fixed-delay-millis: 1000
+    count-per-cycle: 10
+    active-ttl-seconds: 300
+    lock-ttl-millis: 1000

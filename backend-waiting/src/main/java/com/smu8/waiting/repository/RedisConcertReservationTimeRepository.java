@@ -2,9 +2,13 @@ package com.smu8.waiting.repository;
 
 import com.smu8.waiting.entity.ConcertReservationTime;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -37,6 +41,23 @@ public class RedisConcertReservationTimeRepository implements ConcertReservation
     @Override
     public boolean existsByConcertId(String concertId) {
         return Boolean.TRUE.equals(concertReservationTimeRedisTemplate.hasKey(key(concertId)));
+    }
+
+    @Override
+    public List<ConcertReservationTime> findAll() {
+        List<ConcertReservationTime> concertReservationTimes = new ArrayList<>();
+
+        try (Cursor<String> cursor = concertReservationTimeRedisTemplate.scan(
+                ScanOptions.scanOptions()
+                        .match(KEY_PREFIX + "*")
+                        .count(100)
+                        .build())) {
+            cursor.forEachRemaining((key) ->
+                    Optional.ofNullable(concertReservationTimeRedisTemplate.opsForValue().get(key))
+                            .ifPresent(concertReservationTimes::add));
+        }
+
+        return concertReservationTimes;
     }
 
     @Override

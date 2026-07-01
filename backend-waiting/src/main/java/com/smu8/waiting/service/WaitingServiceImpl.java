@@ -1,6 +1,5 @@
 package com.smu8.waiting.service;
 
-import com.smu8.waiting.dto.command.AdmitWaitingAccountsCommand;
 import com.smu8.waiting.dto.command.DeleteConcertReservationTimeCommand;
 import com.smu8.waiting.dto.command.EnterWaitingQueueCommand;
 import com.smu8.waiting.dto.command.LeaveWaitingQueueCommand;
@@ -10,7 +9,6 @@ import com.smu8.waiting.dto.query.ActiveAccountQuery;
 import com.smu8.waiting.dto.query.ConcertReservationTimeQuery;
 import com.smu8.waiting.dto.query.WaitingQueueStatusQuery;
 import com.smu8.waiting.dto.result.ActiveAccountResult;
-import com.smu8.waiting.dto.result.AdmitWaitingAccountsResult;
 import com.smu8.waiting.dto.result.ConcertReservationTimeResult;
 import com.smu8.waiting.dto.result.WaitingQueueEntryResult;
 import com.smu8.waiting.dto.result.WaitingQueueStatusResult;
@@ -22,8 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class WaitingServiceImpl implements WaitingService {
@@ -122,30 +118,6 @@ public class WaitingServiceImpl implements WaitingService {
                 rank,
                 concertWaitingQueueRepository.count(query.concertId()),
                 isReservationOpen(concertReservationTime)
-        );
-    }
-
-    @Override
-    public AdmitWaitingAccountsResult admitWaitingAccounts(AdmitWaitingAccountsCommand command) {
-        validateConcertId(command.concertId());
-        getConcertReservationTimeOrThrow(command.concertId());
-
-        if (command.count() <= 0) {
-            throw new IllegalArgumentException("Admit count must be greater than 0.");
-        }
-
-        if (command.activeTtl() == null || command.activeTtl().isZero() || command.activeTtl().isNegative()) {
-            throw new IllegalArgumentException("Active TTL must be greater than 0.");
-        }
-
-        List<String> accountIds = concertWaitingQueueRepository.popWaitingAccounts(command.concertId(), command.count());
-        accountIds.forEach((accountId) ->
-                concertReservationActiveAccountRepository.add(command.concertId(), accountId, command.activeTtl()));
-
-        return new AdmitWaitingAccountsResult(
-                command.concertId(),
-                accountIds,
-                concertWaitingQueueRepository.count(command.concertId())
         );
     }
 

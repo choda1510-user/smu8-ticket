@@ -12,10 +12,12 @@ import com.smu8.ticket.dto.result.PageResult;
 import com.smu8.ticket.file.service.StorageService;
 import com.smu8.ticket.venue.entity.Venue;
 import com.smu8.ticket.venue.repository.VenueRepository;
+import com.smu8.ticket.waiting.event.ConcertWaitingRegistrationEvent;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -46,6 +48,7 @@ public class AdminConcertServiceImpl implements AdminConcertService {
     private final PerformanceScheduleRepository performanceScheduleRepository;
     private final SeatGradeRepository seatGradeRepository;
     private final SeatRepository seatRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
@@ -69,6 +72,7 @@ public class AdminConcertServiceImpl implements AdminConcertService {
                     descriptionPosterKey
             );
             Concert savedConcert = concertRepository.saveAndFlush(concert);
+            publishConcertWaitingRegistrationEvent(savedConcert, command.startReservationAt());
             return ConcertDetailResult.from(savedConcert, storageService);
 
         } catch (RuntimeException exception) {
@@ -77,6 +81,20 @@ public class AdminConcertServiceImpl implements AdminConcertService {
             deleteStoredFile(cardPosterKey, exception);
             throw exception;
         }
+    }
+
+    private void publishConcertWaitingRegistrationEvent(Concert concert, LocalDateTime reservationStartAt) {
+        LocalDateTime reservationLastEndAt = concert.getPerformanceSchedules().stream()
+                .map(PerformanceSchedule::getReservationEndAt)
+                .filter(Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .orElseThrow(() -> new InvalidConcertException("Reservation end date is required."));
+
+        eventPublisher.publishEvent(new ConcertWaitingRegistrationEvent(
+                String.valueOf(concert.getId()),
+                reservationStartAt,
+                reservationLastEndAt
+        ));
     }
 
 

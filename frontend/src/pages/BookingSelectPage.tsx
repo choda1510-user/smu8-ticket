@@ -14,6 +14,9 @@ import type {
 
 const bookingDraftStorageKey = "smu8-ticket-booking-draft";
 const initialReservationLimitMinutes = 5;
+const seatCellSize = 28;
+const miniSeatCellSize = 10;
+const miniSeatGapSize = 2;
 
 function BookingSelectPage() {
     const navigate = useNavigate();
@@ -27,6 +30,7 @@ function BookingSelectPage() {
         top: 0,
         width: 100,
         height: 100,
+        isScrollable: false,
     });
     const [remainingSeconds, setRemainingSeconds] = useState(
         initialReservationLimitMinutes * 60
@@ -56,6 +60,9 @@ function BookingSelectPage() {
             top: (scrollElement.scrollTop / scrollHeight) * 100,
             width: Math.min((scrollElement.clientWidth / scrollWidth) * 100, 100),
             height: Math.min((scrollElement.clientHeight / scrollHeight) * 100, 100),
+            isScrollable:
+                scrollElement.scrollWidth > scrollElement.clientWidth + 1 ||
+                scrollElement.scrollHeight > scrollElement.clientHeight + 1,
         };
 
         setSeatViewport((prevViewport) => {
@@ -63,7 +70,8 @@ function BookingSelectPage() {
                 Math.abs(prevViewport.left - nextViewport.left) > 0.1 ||
                 Math.abs(prevViewport.top - nextViewport.top) > 0.1 ||
                 Math.abs(prevViewport.width - nextViewport.width) > 0.1 ||
-                Math.abs(prevViewport.height - nextViewport.height) > 0.1;
+                Math.abs(prevViewport.height - nextViewport.height) > 0.1 ||
+                prevViewport.isScrollable !== nextViewport.isScrollable;
 
             return hasChanged ? nextViewport : prevViewport;
         });
@@ -429,9 +437,13 @@ function BookingSelectPage() {
                             >
                                 <span className={styles.miniMapStage}>{currentSeatMap?.stageLabel ?? "STAGE"}</span>
                                 <span
-                                    ref={miniMapRef}
                                     className={styles.miniMapBody}
                                 >
+                                    <span
+                                        ref={miniMapRef}
+                                        className={styles.miniMapCanvas}
+                                        style={getMiniMapCanvasStyle(currentSeatMap)}
+                                    >
                                     <span
                                         className={styles.miniMap}
                                         style={{
@@ -475,16 +487,19 @@ function BookingSelectPage() {
                                         ))}
                                     </span>
 
-                                    <span
-                                        className={styles.miniMapViewportIndicator}
-                                        style={{
-                                            left: `${seatViewport.left}%`,
-                                            top: `${seatViewport.top}%`,
-                                            width: `${seatViewport.width}%`,
-                                            height: `${seatViewport.height}%`,
-                                        }}
-                                        aria-hidden="true"
-                                    />
+                                    {seatViewport.isScrollable && (
+                                        <span
+                                            className={styles.miniMapViewportIndicator}
+                                            style={{
+                                                left: `${seatViewport.left}%`,
+                                                top: `${seatViewport.top}%`,
+                                                width: `${seatViewport.width}%`,
+                                                height: `${seatViewport.height}%`,
+                                            }}
+                                            aria-hidden="true"
+                                        />
+                                    )}
+                                    </span>
                                 </span>
                             </button>
 
@@ -616,7 +631,7 @@ function isSeat(seat: SeatSelectionSeat | null): seat is SeatSelectionSeat {
 }
 
 function getSeatGridColumns(seatMap?: SeatSelectionSeatMap) {
-    return `repeat(${seatMap?.columnCount ?? 8}, 48px)`;
+    return `repeat(${seatMap?.columnCount ?? 8}, ${seatCellSize}px)`;
 }
 
 function getMiniSeatGridColumns(seatMap?: SeatSelectionSeatMap) {
@@ -625,6 +640,18 @@ function getMiniSeatGridColumns(seatMap?: SeatSelectionSeatMap) {
 
 function getMiniSeatGridRows(seatMap?: SeatSelectionSeatMap) {
     return `repeat(${seatMap?.seatRows.length ?? 8}, minmax(0, 1fr))`;
+}
+
+function getMiniMapCanvasStyle(seatMap?: SeatSelectionSeatMap): CSSProperties {
+    const columnCount = seatMap?.columnCount ?? 8;
+    const rowCount = seatMap?.seatRows.length ?? 8;
+    const width = columnCount * miniSeatCellSize + Math.max(columnCount - 1, 0) * miniSeatGapSize;
+    const height = rowCount * miniSeatCellSize + Math.max(rowCount - 1, 0) * miniSeatGapSize;
+
+    return {
+        width: `min(100%, ${width}px)`,
+        height: `min(100%, ${height}px)`,
+    };
 }
 
 function clamp(value: number, min: number, max: number) {

@@ -68,9 +68,9 @@ function BookingPayDetailPage() {
                         <section className={styles.priceArea}>
                             <div className={styles.remainingTime}>예매 가능 시간 : {formattedRemainingTime}</div>
 
-                            <h1 className={styles.sectionTitle}>선택 좌석</h1>
-
                             <div className={styles.priceTable}>
+                                <h1 className={styles.sectionTitle}>선택 좌석</h1>
+
                                 <div className={styles.tableHeader}>
                                     <span>좌석</span>
                                     <span>금액</span>

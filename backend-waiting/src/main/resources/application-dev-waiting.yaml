@@ -2,6 +2,10 @@ spring:
   config:
     activate:
       on-profile: dev-waiting
+  data:
+    redis-waiting:
+      host: 192.168.0.6
+      port: 6381
 cors:
   origins:
     - http://localhost:5173

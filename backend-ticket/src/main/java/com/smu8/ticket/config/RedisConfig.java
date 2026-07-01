@@ -22,7 +22,7 @@ public class RedisConfig {
 
     @Primary
     @Bean(name = "redisTemplate")
-    public RedisTemplate<?, ?> redisTemplate() {
+    public RedisTemplate<String, String> redisTemplate() {
         return redisTicketTemplate();
     }
 
@@ -31,9 +31,13 @@ public class RedisConfig {
         return new LettuceConnectionFactory(host, port);
     }
     @Bean(name = "redisTicketTemplate")
-    public RedisTemplate<?, ?> redisTicketTemplate() {
-        RedisTemplate<?, ?> redisTemplate = new RedisTemplate<>();
+    public RedisTemplate<String, String> redisTicketTemplate() {
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisTicketConnectionFactory());
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
         return redisTemplate;
     }
     @Profile("dev")

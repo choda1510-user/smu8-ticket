@@ -39,6 +39,12 @@ function BookingPayDetailPage() {
     }, [bookingSummary.concertId, navigate, remainingSeconds]);
 
     const handlePreviousClick = () => {
+        const confirmed = confirm("현재 선택한 좌석정보가 삭제됩니다. 이동하시겠습니까?");
+
+        if (!confirmed) {
+            return;
+        }
+
         navigate(`/booking/select/${bookingSummary.concertId}?scheduleId=${bookingSummary.scheduleId}`);
     };
 
@@ -62,9 +68,9 @@ function BookingPayDetailPage() {
                         <section className={styles.priceArea}>
                             <div className={styles.remainingTime}>예매 가능 시간 : {formattedRemainingTime}</div>
 
-                            <h1 className={styles.sectionTitle}>선택 좌석</h1>
-
                             <div className={styles.priceTable}>
+                                <h1 className={styles.sectionTitle}>선택 좌석</h1>
+
                                 <div className={styles.tableHeader}>
                                     <span>좌석</span>
                                     <span>금액</span>

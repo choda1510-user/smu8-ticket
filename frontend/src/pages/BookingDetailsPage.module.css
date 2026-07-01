@@ -4,32 +4,37 @@
     justify-content: center;
     padding-top: 18px;
     box-sizing: border-box;
-    color: #222;
+    color: #202124;
 }
 
 .inner {
     width: 620px;
+    max-width: 100%;
 }
 
 .pageTitle {
-    margin: 0 0 18px;
+    margin: 0 0 20px;
     text-align: center;
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 800;
 }
 
 .card {
     width: 100%;
-    border: 1px solid #d9d9e3;
-    background-color: #fff;
+    border: none;
+    border-radius: 16px;
+    background:
+        linear-gradient(180deg, #ffffff 0%, #fff8fb 100%);
+    box-shadow: 0 16px 36px rgba(32, 33, 36, 0.08);
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .summarySection {
     display: flex;
     gap: 32px;
     padding: 28px 28px 22px;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid #f0e5ec;
     box-sizing: border-box;
 }
 
@@ -44,9 +49,9 @@
 .posterBox {
     width: 120px;
     height: 150px;
-    border: 1px solid #d6d6df;
+    border: 1px solid #efe8f0;
     border-radius: 10px;
-    background-color: #ececf3;
+    background-color: #f8f4f8;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -70,16 +75,31 @@
     padding: 0;
     border: none;
     background-color: transparent;
-    color: #777;
+    color: #4b4b58;
     font-size: 12px;
-    text-decoration: underline;
+    font-weight: 800;
+    line-height: 1.45;
+    text-decoration: none;
     cursor: pointer;
+    max-width: 130px;
+    display: -webkit-box;
+    overflow: hidden;
+    text-align: center;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.posterTitle:hover {
+    color: #ff5aa5;
 }
 
 .infoArea {
     flex: 1;
     display: flex;
     align-items: center;
+    min-width: 0;
 }
 
 .infoGrid {
@@ -94,101 +114,145 @@
     display: flex;
     align-items: center;
     min-height: 18px;
-    white-space: nowrap;
+    min-width: 0;
 }
 
 .infoLabel {
     width: 58px;
     flex-shrink: 0;
-    color: #555;
+    color: #8a7f89;
     font-size: 12px;
+    font-weight: 800;
 }
 
 .infoValue {
-    color: #222;
+    min-width: 0;
+    color: #303038;
     font-size: 12px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.infoItem:first-child {
+    grid-column: 1 / -1;
+}
+
+.infoItem:first-child .infoValue {
+    white-space: normal;
+    line-height: 1.45;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 .linkText {
+    min-width: 0;
     padding: 0;
     border: none;
     background-color: transparent;
-    color: #222;
+    color: #303038;
     font-size: 12px;
-    text-decoration: underline;
+    font-weight: 700;
+    text-decoration: none;
     cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .purchaseSection {
-    border-bottom: 1px solid #e8e8e8;
+    border-bottom: 1px solid #f0e5ec;
 }
 
 .sectionTitle {
     margin: 0;
-    padding: 8px 32px;
-    background-color: #eeeeee;
-    font-size: 13px;
-    font-weight: 700;
+    padding: 12px 32px;
+    background-color: #ffffff;
+    color: #4b4b58;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .purchaseRow {
-    min-height: 38px;
+    min-height: 54px;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 0 32px;
+    padding: 0 32px 14px;
     box-sizing: border-box;
     font-size: 12px;
-    white-space: nowrap;
+    overflow-x: auto;
 }
 
 .purchaseLabel {
-    color: #555;
+    color: #8a7f89;
     font-size: 12px;
+    font-weight: 800;
 }
 
 .purchaseValue {
-    color: #222;
+    color: #303038;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 800;
 }
 
 .priceBox {
     min-width: 54px;
-    height: 22px;
-    padding: 0 5px;
-    border: 1px solid #a8a8a8;
+    height: 26px;
+    padding: 0 9px;
+    border: 1px solid #f0e5ec;
+    border-radius: 999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
     background-color: #fff;
-    color: #222;
+    color: #303038;
     font-size: 12px;
+    font-weight: 800;
 }
 
 .seatSection {
-    padding-bottom: 34px;
+    padding-bottom: 28px;
 }
 
 .table {
-    width: 100%;
-    border-collapse: collapse;
+    width: calc(100% - 36px);
+    margin: 0 18px;
+    border-collapse: separate;
+    border-spacing: 0 8px;
     font-size: 12px;
 }
 
 .tableHead {
-    height: 32px;
+    height: 30px;
     text-align: center;
-    font-weight: 400;
-    color: #555;
-    border-bottom: 1px solid #eeeeee;
+    font-weight: 800;
+    color: #8a7f89;
 }
 
 .tableCell {
-    height: 32px;
+    height: 36px;
+    background-color: #ffffff;
     text-align: center;
-    color: #222;
+    color: #303038;
+    font-weight: 700;
+}
+
+.table tbody tr {
+    box-shadow: 0 6px 16px rgba(32, 33, 36, 0.04);
+}
+
+.table tbody td:first-child {
+    border-radius: 10px 0 0 10px;
+}
+
+.table tbody td:last-child {
+    border-radius: 0 10px 10px 0;
 }
 
 .buttonArea {
@@ -198,10 +262,36 @@
 }
 
 .backButton {
-    padding: 0;
-    border: none;
-    background-color: transparent;
-    color: #cf7373;
+    min-width: 92px;
+    height: 34px;
+    padding: 0 18px;
+    border: 1px solid #ffb9d7;
+    border-radius: 999px;
+    background-color: #fff;
+    color: #d44495;
     font-size: 13px;
+    font-weight: 800;
     cursor: pointer;
+}
+
+.backButton:hover {
+    background-color: #ff5aa5;
+    color: #ffffff;
+}
+
+@media (max-width: 720px) {
+    .summarySection {
+        gap: 20px;
+        padding: 22px 18px;
+    }
+
+    .infoGrid {
+        grid-template-columns: 1fr;
+        row-gap: 12px;
+    }
+
+    .purchaseRow {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
 }

@@ -165,7 +165,7 @@
 
 .bookingControl {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     gap: 6px;
 }

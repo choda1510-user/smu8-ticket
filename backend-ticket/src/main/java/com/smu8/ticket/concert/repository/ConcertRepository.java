@@ -16,13 +16,40 @@ import java.time.LocalDateTime;
 public interface ConcertRepository extends JpaRepository<Concert, Long>, JpaSpecificationExecutor<Concert> {
     Page<Concert> findAll(Pageable pageable);
 
-    Page<Concert> findDistinctByPerformanceSchedulesReservationStartAtAfter(
-            LocalDateTime reservationStartAt,
+    @Query("""
+            select distinct concert
+            from Concert concert
+            where concert.performanceStatus <> :canceledStatus
+            """)
+    Page<Concert> findActiveConcerts(
+            @Param("canceledStatus") String canceledStatus,
             Pageable pageable
     );
 
-    Page<Concert> findDistinctByPerformanceSchedulesReservationStartAtLessThanEqual(
-            LocalDateTime reservationStartAt,
+    @Query("""
+            select distinct concert
+            from Concert concert
+            join concert.performanceSchedules schedule
+            where concert.performanceStatus <> :canceledStatus
+              and schedule.reservationStartAt > :now
+            """)
+    Page<Concert> findUpcomingConcerts(
+            @Param("canceledStatus") String canceledStatus,
+            @Param("now") LocalDateTime now,
+            Pageable pageable
+    );
+
+    @Query("""
+            select distinct concert
+            from Concert concert
+            join concert.performanceSchedules schedule
+            where concert.performanceStatus <> :canceledStatus
+              and schedule.reservationStartAt <= :now
+              and schedule.reservationEndAt >= :now
+            """)
+    Page<Concert> findOpenConcerts(
+            @Param("canceledStatus") String canceledStatus,
+            @Param("now") LocalDateTime now,
             Pageable pageable
     );
 

@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {addBooking, preemptBookingSeats} from "@/apis/bookingApi";
+import {addBooking, preemptBookingSeats, removePreemptBookingSeats} from "@/apis/bookingApi";
 import type {
     BookingCreateCommand,
     BookingPreemptSeatCommand,
@@ -20,6 +20,20 @@ export function useBookingReservation(): BookingReservationHookResult {
             await preemptBookingSeats(command);
         } catch (caughtError) {
             const nextError = caughtError instanceof Error ? caughtError : new Error("Unknown booking preempt error");
+            setError(nextError);
+            throw nextError;
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    async function removePreemptSeats(command: BookingPreemptSeatCommand) {
+        try {
+            setIsLoading(true);
+            setError(null);
+            await removePreemptBookingSeats(command);
+        } catch (caughtError) {
+            const nextError = caughtError instanceof Error ? caughtError : new Error("Unknown booking preempt removal error");
             setError(nextError);
             throw nextError;
         } finally {
@@ -51,6 +65,7 @@ export function useBookingReservation(): BookingReservationHookResult {
         isLoading,
         error,
         preemptSeats,
+        removePreemptSeats,
         createBooking,
     };
 }

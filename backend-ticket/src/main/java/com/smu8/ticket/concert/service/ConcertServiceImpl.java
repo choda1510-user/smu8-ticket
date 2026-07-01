@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class ConcertServiceImpl implements ConcertService {
+    private static final String CANCELED_STATUS = "\uacf5\uc5f0\ucde8\uc18c";
+
     private final ConcertRepository concertRepository;
     private final StorageService storageService;
 
@@ -30,7 +32,8 @@ public class ConcertServiceImpl implements ConcertService {
 
         if ("upcoming".equalsIgnoreCase(query.status())) {
             return PageResult.from(concertRepository
-                    .findDistinctByPerformanceSchedulesReservationStartAtAfter(
+                    .findUpcomingConcerts(
+                            CANCELED_STATUS,
                             LocalDateTime.now(),
                             pageRequest
                     )
@@ -39,14 +42,15 @@ public class ConcertServiceImpl implements ConcertService {
 
         if ("open".equalsIgnoreCase(query.status())) {
             return PageResult.from(concertRepository
-                    .findDistinctByPerformanceSchedulesReservationStartAtLessThanEqual(
+                    .findOpenConcerts(
+                            CANCELED_STATUS,
                             LocalDateTime.now(),
                             pageRequest
                     )
                     .map((concert -> ConcertDetailResult.from(concert, storageService))));
         }
 
-        return PageResult.from(concertRepository.findAll(pageRequest)
+        return PageResult.from(concertRepository.findActiveConcerts(CANCELED_STATUS, pageRequest)
                 .map((concert -> ConcertDetailResult.from(concert, storageService))));
     }
 

@@ -67,7 +67,19 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     const response = await fetch(url, options);
 
     if (!response.ok) {
-        throw new Error(`API request failed. status=${response.status}`);
+        let errorMessage = `API request failed. status=${response.status}`;
+
+        try {
+            const errorBody = await response.json();
+
+            if (typeof errorBody?.message === "string" && errorBody.message.trim()) {
+                errorMessage = errorBody.message;
+            }
+        } catch {
+            // Ignore non-JSON error bodies and keep the default status message.
+        }
+
+        throw new Error(errorMessage);
     }
 
     return (await response.json()) as T;
@@ -154,8 +166,14 @@ function formatReservationPeriod(reservationStartAt: string | undefined, schedul
 }
 
 function getBadgeText(reservationStartAt: string) {
+   const today = new Date();
+   const target = new Date(reservationStartAt);
+
+   const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+   const targetDate = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+
     const diff = Math.ceil(
-        (new Date(reservationStartAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        (targetDate.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24)
     );
 
     if (diff > 0) return `D-${diff}`;

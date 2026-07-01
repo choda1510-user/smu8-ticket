@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
-import {useParams, useSearchParams} from "react-router";
+import {useNavigate, useParams, useSearchParams} from "react-router";
 import {getBookingSeats} from "@/apis/bookingApi";
+import {getConcert} from "@/apis/concertApi";
 import type {SeatSelection, SeatSelectionHookResult} from "@/types/booking";
 import {toSeatSelectionResult} from "@/utils/bookingConvertor";
 
@@ -19,6 +20,7 @@ const initialSeatSelection: SeatSelection = {
 
 export function useSeatSelectionPage(): SeatSelectionHookResult {
     const {concertId} = useParams();
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [seatSelection, setSeatSelection] = useState<SeatSelection>(initialSeatSelection);
     const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +30,7 @@ export function useSeatSelectionPage(): SeatSelectionHookResult {
         const nextConcertId = Number(concertId);
         const scheduleId = Number(searchParams.get("scheduleId"));
 
-        if (!nextConcertId || !scheduleId) {
+        if (!nextConcertId) {
             return;
         }
 
@@ -39,8 +41,29 @@ export function useSeatSelectionPage(): SeatSelectionHookResult {
                 setIsLoading(true);
                 setError(null);
 
-                const response = await getBookingSeats({concertId: nextConcertId, scheduleId});
-                const result = toSeatSelectionResult(response);
+                const concertDetail = await getConcert(nextConcertId);
+                const nextScheduleId = scheduleId || concertDetail.schedules[0]?.id;
+
+                if (!nextScheduleId) {
+                    if (isMounted) {
+                        setSeatSelection({
+                            ...initialSeatSelection,
+                            concertId: nextConcertId,
+                            concertTitle: concertDetail.concertTitle,
+                            venueId: concertDetail.venueId,
+                            venueName: concertDetail.venueName,
+                        });
+                    }
+
+                    return;
+                }
+
+                if (!scheduleId) {
+                    navigate(`/booking/select/${nextConcertId}?scheduleId=${nextScheduleId}`, {replace: true});
+                }
+
+                const response = await getBookingSeats({concertId: nextConcertId, scheduleId: nextScheduleId});
+                const result = toSeatSelectionResult(response, concertDetail);
 
                 if (isMounted) {
                     setSeatSelection(result);
@@ -61,7 +84,7 @@ export function useSeatSelectionPage(): SeatSelectionHookResult {
         return () => {
             isMounted = false;
         };
-    }, [concertId, searchParams]);
+    }, [concertId, navigate, searchParams]);
 
     return {seatSelection, isLoading, error};
 }

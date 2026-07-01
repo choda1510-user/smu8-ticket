@@ -941,6 +941,37 @@
     color: #ffffff;
 }
 
+.admin-datepicker__actions {
+    width: 96px;
+    margin-left: auto;
+    padding: 8px;
+    clear: both;
+    border-top: 1px solid #eaecf0;
+    border-left: 1px solid #eaecf0;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.admin-datepicker__confirm-button {
+    height: 30px;
+    width: 100%;
+    min-width: 0;
+    padding: 0 10px;
+    border: 1px solid #7c3aed;
+    border-radius: 8px;
+    background: #7c3aed;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-datepicker__confirm-button:hover {
+    background: #6938d3;
+}
+
 .admin-page__period-layout {
     display: grid;
     grid-template-columns: 180px minmax(0, 1fr);
@@ -1217,26 +1248,42 @@
     background: #ffffff;
 }
 
+.admin-page__unavailable-seat-color {
+    border: 1px solid #d0d5dd;
+    background:
+        repeating-linear-gradient(
+            135deg,
+            #ececf2 0,
+            #ececf2 2px,
+            #ffffff 2px,
+            #ffffff 4px
+        );
+}
+
+.admin-page__seat-editor-area {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .admin-page__seat-map-editor {
     position: relative;
-    width: fit-content;
+    width: 100%;
     max-width: 100%;
-    padding: 58px 48px 48px 18px;
+    padding: 0 44px 44px;
     border: 1px solid #d0d5dd;
     border-radius: 14px;
     background: #fcfcfd;
-    overflow: auto;
+    overflow: visible;
     box-sizing: border-box;
 }
 
 .admin-page__seat-mode-bar {
-    position: absolute;
-    top: 14px;
-    left: 18px;
-    margin-bottom: 0;
+    min-height: 38px;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 10px;
 }
 
@@ -1264,7 +1311,38 @@
     font-weight: 700;
 }
 
+.admin-page__seat-map-scroll {
+    max-width: 100%;
+    max-height: 560px;
+    padding: 22px 24px 24px;
+    overflow: auto;
+    box-sizing: border-box;
+}
+
+.admin-page__seat-map-scroll-inner {
+    width: max-content;
+    min-width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.admin-page__seat-map-content {
+    width: max-content;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.admin-page__seat-map-canvas {
+    width: max-content;
+    min-width: 260px;
+    transform-origin: top center;
+}
+
 .admin-page__seat-stage {
+    width: min(420px, 100%);
+    min-width: min(260px, 100%);
     margin-bottom: 12px;
     padding: 8px 0;
     border-radius: 8px;
@@ -1335,8 +1413,8 @@
 }
 
 .admin-page__seat-mode-bar button.active ~ span,
-.admin-page__seat-map-editor:has(.admin-page__seat-mode-bar button.active) .admin-page__seat-column-handles button,
-.admin-page__seat-map-editor:has(.admin-page__seat-mode-bar button.active) .admin-page__seat-row-handles button {
+.admin-page__seat-editor-area:has(.admin-page__seat-mode-bar button.active) .admin-page__seat-column-handles button,
+.admin-page__seat-editor-area:has(.admin-page__seat-mode-bar button.active) .admin-page__seat-row-handles button {
     border-color: #f97066;
     background: #fffafa;
     cursor: pointer;
@@ -1349,6 +1427,24 @@
     border-radius: 5px;
     background: #ffffff;
     cursor: pointer;
+}
+
+.admin-page__seat-cell--aisle {
+    border-color: #e4e7ec;
+    background: #fbfcfd;
+    box-shadow: inset 0 0 0 1px #f2f4f7;
+}
+
+.admin-page__seat-cell--unavailable {
+    border-style: dashed;
+    background:
+        repeating-linear-gradient(
+            135deg,
+            #f0f1f5 0,
+            #f0f1f5 4px,
+            #ffffff 4px,
+            #ffffff 8px
+        );
 }
 
 .admin-page__seat-cell:hover {
@@ -1364,6 +1460,7 @@
 
 .admin-page__seat-add {
     position: absolute;
+    z-index: 2;
     width: 28px;
     height: 28px;
     border: 1px solid #c7d7fe;
@@ -1375,14 +1472,30 @@
     cursor: pointer;
 }
 
+.admin-page__seat-add--left {
+    top: 50%;
+    left: 8px;
+    transform: translateY(-50%);
+}
+
 .admin-page__seat-add--right {
     top: 50%;
-    right: 12px;
+    right: 8px;
+    transform: translateY(-50%);
 }
 
 .admin-page__seat-add--bottom {
     left: 50%;
-    bottom: 12px;
+    bottom: 8px;
+    transform: translateX(-50%);
+}
+
+.admin-page__seat-zoom-guide {
+    margin: 0;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: right;
 }
 
 @media (max-width: 1100px) {

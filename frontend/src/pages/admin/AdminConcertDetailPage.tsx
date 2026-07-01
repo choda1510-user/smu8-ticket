@@ -1,11 +1,16 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState, type ReactNode} from "react";
 import {useNavigate, useParams} from "react-router";
-import DatePicker from "react-datepicker";
+import DatePicker, {CalendarContainer} from "react-datepicker";
 import {format} from "date-fns";
 import {cancelConcert, getAdminConcert, updateConcertBasicInfo} from "@/apis/concertApi";
 import type {AdminConcertDetailResponse} from "@/types/adminConcert";
 import AdminSeatLayoutEditor from "@/component/AdminSeatLayoutEditor";
 import type {SeatLayout} from "@/types/seatLayout";
+import {
+    unavailableSeatGradeColor,
+    unavailableSeatGradeName,
+    unavailableSeatTypeId,
+} from "@/types/seatLayout";
 import "react-datepicker/dist/react-datepicker.css";
 import "./AdminPages.css";
 
@@ -50,6 +55,10 @@ function formatEditableDateTime(date: Date) {
 }
 
 function getReservationStatusText(concert: AdminConcertDetailResponse) {
+    if (concert.reservationStatus === "공연취소") {
+        return "공연취소";
+    }
+
     const now = Date.now();
     const reservationStartTime = concert.reservationStartAt ? new Date(concert.reservationStartAt).getTime() : NaN;
     const reservationEndTimes = concert.schedules
@@ -102,19 +111,23 @@ function buildSeatLayoutFromConcert(concert: AdminConcertDetailResponse): SeatLa
         }
 
         const seatTypeId = String(seat.seatGradeId);
-        grid[rowIndex][colIndex] = seatGradeNameById.has(seat.seatGradeId) ? seatTypeId : "";
+        grid[rowIndex][colIndex] = seatGradeNameById.get(seat.seatGradeId) === unavailableSeatGradeName
+            ? unavailableSeatTypeId
+            : seatGradeNameById.has(seat.seatGradeId) ? seatTypeId : "";
     });
 
     return {
         rowCount,
         columnCount,
         grid,
-        seatTypes: concert.seatGrades.map((seatGrade) => ({
-            id: String(seatGrade.id),
-            name: seatGrade.gradeName,
-            price: String(seatGrade.price),
-            color: seatGrade.color,
-        })),
+        seatTypes: concert.seatGrades
+            .filter((seatGrade) => seatGrade.gradeName !== unavailableSeatGradeName)
+            .map((seatGrade) => ({
+                id: String(seatGrade.id),
+                name: seatGrade.gradeName,
+                price: String(seatGrade.price),
+                color: seatGrade.color,
+            })),
     };
 }
 
@@ -124,6 +137,21 @@ function createEmptyPosterFields(): PosterFormFields {
         cardPoster: {...empty},
         bannerPoster: {...empty},
         descriptionPoster: {...empty},
+    };
+}
+
+function createCalendarContainer(onConfirm: () => void) {
+    return function AdminCalendarContainer({className, children}: {className?: string; children?: ReactNode}) {
+        return (
+            <CalendarContainer className={className}>
+                {children}
+                <div className="admin-datepicker__actions">
+                    <button type="button" className="admin-datepicker__confirm-button" onClick={onConfirm}>
+                        확인
+                    </button>
+                </div>
+            </CalendarContainer>
+        );
     };
 }
 
@@ -232,11 +260,28 @@ function AdminConcertDetailPage() {
             price: Number(seatType.price) || 0,
             color: seatType.color,
         }));
+        const hasUnavailableSeats = seatLayout.grid.some((row) => row.includes(unavailableSeatTypeId));
+        const existingUnavailableSeatGrade = concert?.seatGrades.find((seatGrade) => (
+            seatGrade.gradeName === unavailableSeatGradeName
+        ));
+        const nextSeatGradePayload = [
+            ...seatGradePayload,
+            ...(hasUnavailableSeats
+                ? [{
+                    id: existingUnavailableSeatGrade?.id ?? null,
+                    gradeName: unavailableSeatGradeName,
+                    price: 0,
+                    color: unavailableSeatGradeColor,
+                }]
+                : []),
+        ];
 
         const seatTypeNameById = new Map(seatLayout.seatTypes.map((seatType) => [seatType.id, seatType.name]));
         const seatPayload = seatLayout.grid.flatMap((row, rowIndex) =>
             row.flatMap((seatTypeId, colIndex) => {
-                const seatGradeName = seatTypeNameById.get(seatTypeId);
+                const seatGradeName = seatTypeId === unavailableSeatTypeId
+                    ? unavailableSeatGradeName
+                    : seatTypeNameById.get(seatTypeId);
 
                 if (!seatGradeName) {
                     return [];
@@ -261,7 +306,7 @@ function AdminConcertDetailPage() {
                     runningTime,
                     notice: notice.trim(),
                     schedules: schedulePayload,
-                    seatGrades: seatGradePayload,
+                    seatGrades: nextSeatGradePayload,
                     seats: seatPayload,
                     rowMax: seatLayout.rowCount,
                     colMax: seatLayout.columnCount,
@@ -285,17 +330,17 @@ function AdminConcertDetailPage() {
         }
     };
     const handleDeleteClick = async () => {
-        if (!concertNumericId || !confirm("삭제 하시겠습니까?")) {
+        if (!concertNumericId || !confirm("공연을 취소 처리하시겠습니까? 공연상태가 공연취소로 변경됩니다.")) {
             return;
         }
 
         try {
             setIsLoading(true);
             await cancelConcert(concertNumericId);
-            alert("공연이 삭제되었습니다.");
+            alert("공연이 취소 처리되었습니다.");
             navigate("/admin/concerts");
         } catch {
-            alert("공연 삭제에 실패했습니다.");
+            alert("공연 취소 처리에 실패했습니다.");
         } finally {
             setIsLoading(false);
         }
@@ -423,6 +468,8 @@ function AdminConcertDetailPage() {
         setSchedules((currentSchedules) => currentSchedules.filter((schedule) => schedule.id !== id));
     };
 
+    const calendarContainer = createCalendarContainer(() => setOpenedCalendar(null));
+
     const totalSeatCount = concert?.totalSeatCount ?? concert?.seats.length ?? 0;
     const reservedSeatCount = concert?.reservedSeatCount ?? 0;
 
@@ -448,7 +495,7 @@ function AdminConcertDetailPage() {
                     ) : (
                         <>
                             <button type="button" className="admin-page__button admin-page__button--muted" onClick={handleDeleteClick} disabled={isLoading}>
-                                삭제
+                                공연 취소
                             </button>
                             <button type="button" className="admin-page__button admin-page__button--pink" onClick={handleEditClick} disabled={isLoading || !concert}>
                                 수정
@@ -519,7 +566,6 @@ function AdminConcertDetailPage() {
                                                 <DatePicker
                                                     selected={concertDateTimeDraft}
                                                     onChange={(date: Date | null) => setConcertDateTimeDraft(date)}
-                                                    onSelect={() => setOpenedCalendar(null)}
                                                     onClickOutside={() => setOpenedCalendar(null)}
                                                     open={isEditing && openedCalendar === "concert"}
                                                     disabled={!isEditing}
@@ -527,9 +573,10 @@ function AdminConcertDetailPage() {
                                                     showTimeSelect
                                                     showMonthDropdown
                                                     showYearDropdown
-                                                    shouldCloseOnSelect
+                                                    shouldCloseOnSelect={false}
                                                     dropdownMode="select"
                                                     calendarClassName="admin-datepicker"
+                                                    calendarContainer={calendarContainer}
                                                     popperClassName="admin-datepicker-popper"
                                                     timeFormat="HH:mm"
                                                     timeIntervals={10}
@@ -548,7 +595,6 @@ function AdminConcertDetailPage() {
                                                 <DatePicker
                                                     selected={reservationEndDraft}
                                                     onChange={(date: Date | null) => setReservationEndDraft(date)}
-                                                    onSelect={() => setOpenedCalendar(null)}
                                                     onClickOutside={() => setOpenedCalendar(null)}
                                                     open={isEditing && openedCalendar === "reservationEnd"}
                                                     disabled={!isEditing}
@@ -556,9 +602,10 @@ function AdminConcertDetailPage() {
                                                     showTimeSelect
                                                     showMonthDropdown
                                                     showYearDropdown
-                                                    shouldCloseOnSelect
+                                                    shouldCloseOnSelect={false}
                                                     dropdownMode="select"
                                                     calendarClassName="admin-datepicker"
+                                                    calendarContainer={calendarContainer}
                                                     popperClassName="admin-datepicker-popper"
                                                     timeFormat="HH:mm"
                                                     timeIntervals={10}

@@ -247,5 +247,6 @@ export type BookingReservationHookResult = {
     isLoading: boolean;
     error: Error | null;
     preemptSeats: (command: BookingPreemptSeatCommand) => Promise<void>;
+    removePreemptSeats: (command: BookingPreemptSeatCommand) => Promise<void>;
     createBooking: (command: BookingCreateCommand) => Promise<BookingSuccess>;
 };

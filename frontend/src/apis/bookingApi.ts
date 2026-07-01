@@ -114,6 +114,18 @@ export function preemptBookingSeats(command: BookingPreemptSeatCommand): Promise
     });
 }
 
+export function removePreemptBookingSeats(command: BookingPreemptSeatCommand): Promise<void> {
+    return fetchEmpty(`${API_BASE_URL}/api/reservations/preempt-seats`, {
+        method: "DELETE",
+        headers: createJsonHeaders(),
+        body: JSON.stringify({
+            concertId: command.concertId,
+            scheduleId: command.scheduleId,
+            seatIds: command.seatIds,
+        }),
+    });
+}
+
 export function addBooking(command: BookingCreateCommand): Promise<BookingItemResponse> {
     return fetchJson<BookingItemResponse>(`${API_BASE_URL}/api/reservations`, {
         method: "POST",

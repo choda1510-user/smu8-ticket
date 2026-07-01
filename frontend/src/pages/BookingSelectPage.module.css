@@ -11,15 +11,18 @@
     width: 100%;
     max-width: 980px;
     margin: 0 auto;
-    border: 14px solid #f7f4fa;
+    border: 1px solid #f0e5ec;
+    border-radius: 18px;
     background-color: #fff;
     padding: 44px;
+    box-shadow: 0 18px 42px rgba(32, 33, 36, 0.08);
     box-sizing: border-box;
 }
 
 .bookingBox {
     width: 100%;
-    border: 1px solid #222;
+    border: 1px solid #ececf2;
+    border-radius: 14px;
     background-color: #fff;
     box-sizing: border-box;
     overflow: hidden;
@@ -30,7 +33,7 @@
     display: grid;
     grid-template-columns: 1fr 42px 1fr 42px 1fr;
     align-items: center;
-    border-bottom: 1px solid #dedee6;
+    border-bottom: 1px solid #f0e5ec;
     background-color: #fff;
 }
 
@@ -39,7 +42,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #888;
+    color: #9a93a0;
     font-size: 20px;
     font-weight: 700;
 }
@@ -56,14 +59,132 @@
 
 .contentArea {
     display: grid;
-    grid-template-columns: 1fr 270px;
-    min-height: 520px;
-    background-color: #f8f8fb;
+    grid-template-columns: minmax(0, 1fr) 270px;
+    min-height: 580px;
+    background-color: #fbf8fb;
+}
+
+.scheduleToggleArea {
+    margin: -6px 0 20px;
+    padding: 10px;
+    border: 1px solid #dedee6;
+    border-radius: 10px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+}
+
+.scheduleToggleLabel {
+    flex: 0 0 auto;
+    color: #d7cfda;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.scheduleToggleBox {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    max-width: 360px;
+}
+
+.scheduleToggleButton {
+    width: 100%;
+    min-height: 38px;
+    padding: 7px 10px;
+    border: 1px solid #dedee6;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #555;
+    display: grid;
+    grid-template-columns: 52px minmax(92px, 1fr) 44px 16px;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.scheduleOptionButton {
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 10px;
+    border: none;
+    border-bottom: 1px solid #ececf2;
+    background: #ffffff;
+    color: #555;
+    display: grid;
+    grid-template-columns: 52px minmax(92px, 1fr) 44px;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.scheduleOptionButton:last-child {
+    border-bottom: none;
+}
+
+.scheduleToggleButton strong,
+.scheduleOptionButton strong {
+    color: #222;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.scheduleToggleButton span,
+.scheduleOptionButton span {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.scheduleRound {
+    color: #ff5aa5;
+    text-align: left;
+}
+
+.activeScheduleToggleButton {
+    border-color: #ff5aa5;
+    background: #fff4f9;
+    box-shadow: 0 0 0 3px rgba(255, 90, 165, 0.14);
+}
+
+.scheduleToggleIcon {
+    color: #777;
+    text-align: right;
+}
+
+.scheduleToggleList {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 5;
+    border: 1px solid #dedee6;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 12px 28px rgba(34, 34, 34, 0.12);
+    overflow: hidden;
+}
+
+.activeScheduleOptionButton {
+    background: #fff4f9;
+    color: #ff5aa5;
 }
 
 .seatArea {
     padding: 36px 28px;
     box-sizing: border-box;
+    min-width: 0;
 }
 
 .concertInfoRow {
@@ -82,10 +203,20 @@
 .dateSelect {
     height: 26px;
     border: 1px solid #777;
-    background-color: #fff;
-    color: #222;
+    background-color: #fbfbfd;
+    color: #202124;
     font-size: 14px;
     font-weight: 600;
+}
+
+.selectedScheduleText {
+    padding: 5px 9px;
+    border: 1px solid #dedee6;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #555;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .remainingTime {
@@ -95,10 +226,23 @@
     font-weight: 700;
 }
 
+.stateBox {
+    min-height: 360px;
+    background-color: #f5f5f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 14px;
+    font-weight: 800;
+}
+
 .stageArea {
     height: 56px;
-    border-bottom: 1px solid #9c9ca8;
-    background-color: #f1f1f4;
+    border: 1px solid #e5e1e8;
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    background-color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -107,25 +251,48 @@
     font-weight: 800;
 }
 
+.seatScrollArea {
+    height: min(56vh, 520px);
+    min-height: 360px;
+    overflow: auto;
+    background-color: #f5f5f8;
+    box-sizing: border-box;
+    overscroll-behavior: contain;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    border: 1px solid #e5e1e8;
+    border-radius: 0 0 12px 12px;
+}
+
 .seatGrid {
     display: grid;
-    gap: 18px 18px;
+    gap: 8px;
     justify-content: center;
-    padding: 46px 14px 52px;
-    background-color: #f1f1f4;
+    align-content: start;
+    width: max-content;
+    min-width: 100%;
+    padding: 42px 32px 48px;
+    background-color: #f5f5f8;
     box-sizing: border-box;
 }
 
 .seatButton {
-    width: 48px;
-    height: 36px;
-    border-radius: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
     cursor: pointer;
 }
 
+.aisleSeat {
+    border: 1px dashed #d9d9e2;
+    background-color: rgba(255, 255, 255, 0.45);
+    cursor: default;
+}
+
 .currentSelectedSeat {
-    outline: 3px solid #ff5aa5;
-    outline-offset: 3px;
+    outline: 2px solid #ff5aa5;
+    outline-offset: 2px;
 }
 
 .unavailableSeat {
@@ -135,38 +302,85 @@
 }
 
 .sidePanel {
-    border-left: 1px solid #ececf2;
+    border-left: 1px solid #f0e5ec;
     background-color: #fff;
-    padding: 28px 22px;
+    padding: 18px 18px 22px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
 }
 
 .logoBox {
-    height: 74px;
+    height: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 34px;
-    color: #222;
+    font-size: 24px;
+    font-weight: 800;
+    color: #202124;
+}
+
+.miniMapViewport {
+    position: relative;
+    width: calc(100% - 12px);
+    height: 230px;
+    margin: 8px 6px 0;
+    border: 1px solid #ececf2;
+    border-radius: 12px;
+    background-color: #fbfbfd;
+    cursor: crosshair;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 0;
+    font-family: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.miniMapStage {
+    flex: 0 0 24px;
+    margin: 8px 8px 0;
+    border-radius: 4px;
+    background: #101828;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 24px;
+    text-align: center;
+}
+
+.miniMapBody {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    margin: 0 8px 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.miniMapCanvas {
+    position: relative;
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .miniMap {
+    width: 100%;
+    height: 100%;
     display: grid;
-    gap: 7px;
-    justify-content: center;
-    margin: 0 6px;
-    padding: 22px 8px;
-    background-color: #fafafa;
-    box-sizing: border-box;
+    gap: 2px;
 }
 
 .miniSeat {
-    width: 14px;
-    height: 10px;
-    border-radius: 3px;
+    min-width: 0;
+    min-height: 0;
+    border-radius: 2px;
     display: block;
+    box-sizing: border-box;
 }
 
 .unavailableMiniSeat {
@@ -174,8 +388,27 @@
     background-color: #e5e5ec;
 }
 
+.aisleMiniSeat {
+    border: 1px dashed #d9d9e2;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.currentSelectedMiniSeat {
+    outline: 2px solid #ff5aa5;
+    outline-offset: 0;
+}
+
+.miniMapViewportIndicator {
+    position: absolute;
+    border: 2px solid #ff5aa5;
+    background-color: rgba(255, 90, 165, 0.14);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9);
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
 .sideTitle {
-    margin: 28px 0 12px;
+    margin: 22px 0 12px;
     font-size: 16px;
     font-weight: 800;
 }
@@ -183,7 +416,9 @@
 .gradeBox {
     min-height: 128px;
     margin: 0 6px;
-    border: 1px solid #aaa;
+    border: 1px solid #ececf2;
+    border-radius: 12px;
+    background-color: #fbfbfd;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -221,9 +456,45 @@
     height: 44px;
     margin: 22px 6px 0;
     border: none;
-    background-color: #ffacae;
-    color: #5f3131;
+    border-radius: 999px;
+    background-color: #ff5aa5;
+    color: #ffffff;
     font-size: 14px;
     font-weight: 800;
     cursor: pointer;
+    box-shadow: 0 10px 22px rgba(255, 90, 165, 0.22);
+}
+
+@media (max-width: 1080px) {
+    .frame {
+        padding: 28px;
+    }
+
+    .contentArea {
+        grid-template-columns: 1fr 270px;
+    }
+
+    .scheduleToggleBox {
+        max-width: none;
+    }
+}
+
+@media (max-width: 760px) {
+    .page {
+        padding: 28px 16px;
+    }
+
+    .frame {
+        padding: 16px;
+        border-width: 8px;
+    }
+
+    .contentArea {
+        grid-template-columns: 1fr;
+    }
+
+    .sidePanel {
+        border-left: none;
+        border-top: 1px solid #ececf2;
+    }
 }

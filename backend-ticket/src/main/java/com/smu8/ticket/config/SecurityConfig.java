@@ -140,6 +140,8 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/api/account/check-username").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/account/check-nickname").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/concerts/**").permitAll()
+                            // 홈 화면 배너는 비회원도 볼 수 있어야 하므로 조회 요청만 공개합니다.
+                            .requestMatchers(HttpMethod.GET, "/api/home/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/venues/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/test").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()

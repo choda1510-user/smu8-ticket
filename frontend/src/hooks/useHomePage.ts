@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useState} from "react";
 import {getConcertItems} from "@/apis/concertApi";
+import {getHomeBanners} from "@/apis/homeApi";
 import type {ConcertItem, HomeConcertCard} from "@/types/concert";
 import type {BannerItem} from "@/types/home";
 
@@ -67,17 +68,10 @@ function toHomeConcertCard(concert: ConcertItem): HomeConcertCard {
     };
 }
 
-function toBannerItem(concert: ConcertItem, index: number): BannerItem {
-    return {
-        bannerId: concert.concertId || index + 1,
-        concertId: concert.concertId,
-        title: concert.title,
-        imageUrl: concert.bannerPosterUrl,
-    };
-}
-
 export function useHomePage() {
     const [concerts, setConcerts] = useState<ConcertItem[]>([]);
+    // 배너는 홈 전용 API에서 관리해 공연 목록 조회와 추천/배너 선정 책임을 분리.
+    const [bannerList, setBannerList] = useState<BannerItem[]>([]);
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const [isBannerVisible, setIsBannerVisible] = useState(true);
 
@@ -105,16 +99,38 @@ export function useHomePage() {
         };
     }, []);
 
+    // 배너 영역은 공연 목록과 별도로 호출해 이후 추천 API로 바뀌어도 이 훅의 영향 범위를 줄입니다.
+    useEffect(() => {
+        let isMounted = true;
+
+        async function loadHomeBanners() {
+            try {
+                const banners = await getHomeBanners();
+
+                if (isMounted) {
+                    setBannerList(banners);
+                }
+            } catch {
+                if (isMounted) {
+                    setBannerList([]);
+                }
+            }
+        }
+
+        void loadHomeBanners();
+
+        return () => {
+            // 언마운트 후 비동기 응답이 도착해도 상태 변경이 일어나지 않도록 막습니다.
+            isMounted = false;
+        };
+    }, []);
+
     const openConcertList = useMemo(() => {
         return concerts.filter((concert) => !isUpcomingConcert(concert)).map(toHomeConcertCard);
     }, [concerts]);
 
     const upcomingConcertList = useMemo(() => {
         return concerts.filter(isUpcomingConcert).map(toHomeConcertCard);
-    }, [concerts]);
-
-    const bannerList = useMemo(() => {
-        return concerts.slice(0, maxHomeConcertCount).map(toBannerItem);
     }, [concerts]);
 
     const currentBanner = bannerList[currentBannerIndex] ?? bannerList[0];

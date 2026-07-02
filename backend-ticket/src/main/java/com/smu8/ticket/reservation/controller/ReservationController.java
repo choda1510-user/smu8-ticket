@@ -63,7 +63,7 @@ public class ReservationController {
                 )
         );
     }
-    @GetMapping("/api/reservaions/preempt-seats")
+    @GetMapping("/api/reservations/preempt-seats")
     public ResponseEntity<ReservationConcertSeatFrameResponse> getPreemptSeats(
             @RequestParam(name = "concertId") Long concertId,
             @RequestParam(name = "scheduleId") Long scheduleId

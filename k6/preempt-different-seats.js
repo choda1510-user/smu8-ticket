@@ -100,7 +100,7 @@ function loginAll(targetAccounts) {
 
 function loadAvailableSeatIds(token) {
   const response = http.get(
-    `${API_BASE_URL}/api/reservaions/preempt-seats?concertId=${CONCERT_ID}&scheduleId=${SCHEDULE_ID}`,
+    `${API_BASE_URL}/api/reservations/preempt-seats?concertId=${CONCERT_ID}&scheduleId=${SCHEDULE_ID}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

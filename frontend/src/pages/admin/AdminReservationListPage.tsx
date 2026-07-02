@@ -1,63 +1,29 @@
 import {useMemo, useState} from "react";
-import {useNavigate} from "react-router";
-import DatePicker from "react-datepicker";
-import {format} from "date-fns";
-import {useBookingListPage} from "@/hooks/useBookingListPage";
-import type {BookingItemResult} from "@/types/booking";
-import "react-datepicker/dist/react-datepicker.css";
+import {useAdminReservationListPage} from "@/hooks/admin/useAdminReservationListPage";
+import type {AdminReservationItemResult} from "@/types/adminReservation";
 import "./AdminPages.css";
 
 const pageSize = 5;
 
-function formatDate(date: Date) {
-    return format(date, "yyyy.MM.dd");
-}
-
 function AdminReservationListPage() {
-    const navigate = useNavigate();
-    const {bookingList} = useBookingListPage();
+    const [currentPage, setCurrentPage] = useState(1);
     const [titleInput, setTitleInput] = useState("");
-    const [reservationNumberInput, setReservationNumberInput] = useState("");
-    const [startDateInput, setStartDateInput] = useState<Date | null>(null);
-    const [endDateInput, setEndDateInput] = useState<Date | null>(null);
-    const [openedCalendar, setOpenedCalendar] = useState<"start" | "end" | null>(null);
+    const [accountIdInput, setAccountIdInput] = useState("");
     const [searchCondition, setSearchCondition] = useState({
         title: "",
-        reservationNumber: "",
-        startDate: "",
-        endDate: "",
+        accountId: "",
     });
-    const [hasSearched, setHasSearched] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
+    const {reservationList} = useAdminReservationListPage(currentPage, pageSize, searchCondition.accountId);
 
     const filteredReservations = useMemo(() => {
-        if (!hasSearched) {
-            return [];
-        }
-
         const titleKeyword = searchCondition.title.trim().toLowerCase();
-        const reservationNumberKeyword = searchCondition.reservationNumber.trim().toLowerCase();
-        const searchStartDate = parseDateValue(searchCondition.startDate);
-        const searchEndDate = parseDateValue(searchCondition.endDate);
 
-        return bookingList.contents.filter((reservation: BookingItemResult) => {
-            const [concertStartDate, concertEndDate] = parseConcertPeriod(reservation.concertPeriod);
-            const matchesTitle = titleKeyword
+        return reservationList.contents.filter((reservation: AdminReservationItemResult) => {
+            return titleKeyword
                 ? reservation.concertTitle.toLowerCase().includes(titleKeyword)
                 : true;
-            const matchesReservationNumber = reservationNumberKeyword
-                ? reservation.reservationNumber.toLowerCase().includes(reservationNumberKeyword)
-                : true;
-            const matchesStartDate = searchStartDate && concertEndDate
-                ? concertEndDate >= searchStartDate
-                : true;
-            const matchesEndDate = searchEndDate && concertStartDate
-                ? concertStartDate <= searchEndDate
-                : true;
-
-            return matchesTitle && matchesReservationNumber && matchesStartDate && matchesEndDate;
         });
-    }, [bookingList.contents, hasSearched, searchCondition]);
+    }, [reservationList.contents, searchCondition.title]);
 
     const totalPage = Math.max(1, Math.ceil(filteredReservations.length / pageSize));
     const startIndex = (currentPage - 1) * pageSize;
@@ -66,11 +32,8 @@ function AdminReservationListPage() {
     const handleSearchClick = () => {
         setSearchCondition({
             title: titleInput,
-            reservationNumber: reservationNumberInput,
-            startDate: startDateInput ? formatDate(startDateInput) : "",
-            endDate: endDateInput ? formatDate(endDateInput) : "",
+            accountId: accountIdInput,
         });
-        setHasSearched(true);
         setCurrentPage(1);
     };
 
@@ -102,67 +65,13 @@ function AdminReservationListPage() {
                         />
                     </div>
                     <div className="admin-page__field">
-                        <label>예매번호</label>
+                        <label>계정 ID</label>
                         <input
-                            aria-label="예매번호 검색"
-                            value={reservationNumberInput}
-                            onChange={(event) => setReservationNumberInput(event.target.value)}
-                            placeholder="예매번호"
+                            aria-label="계정 ID 검색"
+                            value={accountIdInput}
+                            onChange={(event) => setAccountIdInput(event.target.value)}
+                            placeholder="계정 ID"
                         />
-                    </div>
-                    <div className="admin-page__field">
-                        <label>공연 날짜</label>
-                        <div className="admin-page__datepicker-control">
-                            <DatePicker
-                                selected={startDateInput}
-                                onChange={(date: Date | null) => {
-                                    setStartDateInput(date);
-                                    setOpenedCalendar(null);
-                                }}
-                                onInputClick={() => setOpenedCalendar("start")}
-                                onClickOutside={() => setOpenedCalendar(null)}
-                                open={openedCalendar === "start"}
-                                dateFormat="yyyy.MM.dd"
-                                placeholderText="시작일"
-                                calendarClassName="admin-datepicker"
-                                popperClassName="admin-datepicker-popper"
-                            />
-                            <button
-                                type="button"
-                                className="admin-page__calendar-button"
-                                onClick={() => setOpenedCalendar("start")}
-                                aria-label="공연 기간 시작일 달력 열기"
-                            >
-                                📅
-                            </button>
-                        </div>
-                    </div>
-                    <div className="admin-page__date-separator">~</div>
-                    <div className="admin-page__field admin-page__field--date-end">
-                        <div className="admin-page__datepicker-control">
-                            <DatePicker
-                                selected={endDateInput}
-                                onChange={(date: Date | null) => {
-                                    setEndDateInput(date);
-                                    setOpenedCalendar(null);
-                                }}
-                                onInputClick={() => setOpenedCalendar("end")}
-                                onClickOutside={() => setOpenedCalendar(null)}
-                                open={openedCalendar === "end"}
-                                dateFormat="yyyy.MM.dd"
-                                placeholderText="종료일"
-                                calendarClassName="admin-datepicker"
-                                popperClassName="admin-datepicker-popper"
-                            />
-                            <button
-                                type="button"
-                                className="admin-page__calendar-button"
-                                onClick={() => setOpenedCalendar("end")}
-                                aria-label="공연 기간 종료일 달력 열기"
-                            >
-                                📅
-                            </button>
-                        </div>
                     </div>
                     <button
                         type="button"
@@ -177,31 +86,27 @@ function AdminReservationListPage() {
                     <thead>
                     <tr>
                         <th>공연명</th>
-                        <th>공연장</th>
-                        <th>공연기간</th>
-                        <th>예매번호</th>
-                        <th>관람일시</th>
+                        <th>예매자 ID</th>
+                        <th>예매자명</th>
+                        <th>예매일시</th>
                         <th>매수</th>
+                        <th>결제금액</th>
                         <th>상태</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {pagedReservations.map((reservation: BookingItemResult) => (
-                        <tr key={reservation.reserveId}>
+                    {pagedReservations.map((reservation: AdminReservationItemResult) => (
+                        <tr key={reservation.id}>
                             <td>{reservation.concertTitle}</td>
-                            <td>{reservation.venueName}</td>
-                            <td>{reservation.concertPeriod}</td>
-                            <td>
-                                <button type="button" className="admin-page__link-button" onClick={() => navigate(`/admin/reserve/${reservation.reserveId}`)}>
-                                    {reservation.reservationNumber}
-                                </button>
-                            </td>
-                            <td>{reservation.viewingDateTime}</td>
-                            <td>{reservation.ticketCount}</td>
-                            <td>{reservation.status}</td>
+                            <td>{reservation.accountId}</td>
+                            <td>{reservation.accountName}</td>
+                            <td>{reservation.createdAt}</td>
+                            <td>{reservation.seatCount}</td>
+                            <td>{reservation.totalPrice}</td>
+                            <td>{reservation.reservationStatus}</td>
                         </tr>
                     ))}
-                    {hasSearched && pagedReservations.length === 0 && (
+                    {pagedReservations.length === 0 && (
                         <tr>
                             <td colSpan={7}>조회된 예매가 없습니다.</td>
                         </tr>
@@ -209,46 +114,31 @@ function AdminReservationListPage() {
                     </tbody>
                 </table>
 
-                {hasSearched && (
-                    <div className="admin-page__pagination">
-                        <button type="button" onClick={handlePrevPageClick} disabled={currentPage === 1}>
-                            ‹
-                        </button>
-                        {Array.from({length: totalPage}).map((_, index) => {
-                            const page = index + 1;
+                <div className="admin-page__pagination">
+                    <button type="button" onClick={handlePrevPageClick} disabled={currentPage === 1}>
+                        ‹
+                    </button>
+                    {Array.from({length: totalPage}).map((_, index) => {
+                        const page = index + 1;
 
-                            return (
-                                <button
-                                    key={page}
-                                    type="button"
-                                    className={currentPage === page ? "active" : undefined}
-                                    onClick={() => setCurrentPage(page)}
-                                >
-                                    {page}
-                                </button>
-                            );
-                        })}
-                        <button type="button" onClick={handleNextPageClick} disabled={currentPage === totalPage}>
-                            ›
-                        </button>
-                    </div>
-                )}
+                        return (
+                            <button
+                                key={page}
+                                type="button"
+                                className={currentPage === page ? "active" : undefined}
+                                onClick={() => setCurrentPage(page)}
+                            >
+                                {page}
+                            </button>
+                        );
+                    })}
+                    <button type="button" onClick={handleNextPageClick} disabled={currentPage === totalPage}>
+                        ›
+                    </button>
+                </div>
             </div>
         </section>
     );
-}
-
-function parseConcertPeriod(concertPeriod: string) {
-    const [startDateText, endDateText] = concertPeriod.split(" - ");
-
-    return [parseDateValue(startDateText), parseDateValue(endDateText)];
-}
-
-function parseDateValue(dateValue: string) {
-    const normalizedDateValue = dateValue.trim().replaceAll(".", "-");
-    const timestamp = Date.parse(normalizedDateValue);
-
-    return Number.isNaN(timestamp) ? null : timestamp;
 }
 
 export default AdminReservationListPage;

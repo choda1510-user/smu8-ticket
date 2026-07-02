@@ -3,22 +3,46 @@ import type {ReactNode} from "react";
 import {ApiError, getMyInfo, login as requestLogin, logout as requestLogout} from "@/apis/accountApi.ts";
 import type {AccountDetailResult, LoginContextValue, LoginRequest} from "@/types/member.ts";
 import type { LoginUser } from "@/types/auth";
-import { delAccessToken, getAccessToken, setAccessToken } from "@/apis/authApi";
+import {delAccessToken, getAccessToken, SESSION_EXPIRED_EVENT_NAME, setAccessToken} from "@/apis/authApi";
 import { toAccountDetailResult } from "@/utils/memberConvertor";
 
 type LoginProviderProps = {
     children: ReactNode;
 };
 const LoginContext = createContext<LoginContextValue | null>(null);
+let hasNotifiedSessionExpired = false;
 
 function isAuthenticationError(error: unknown) {
     return error instanceof ApiError && (error.status === 401 || error.status === 403);
+}
+
+function notifySessionExpired() {
+    if (hasNotifiedSessionExpired) {
+        return;
+    }
+
+    hasNotifiedSessionExpired = true;
+    alert("로그인 시간이 만료되어 자동으로 로그아웃되었습니다. 다시 로그인해주세요.");
 }
 
 export function LoginProvider({children}: LoginProviderProps) {
     const [user, setUser] = useState<LoginUser | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isAuthReady, setIsAuthReady] = useState(false);
+
+    useEffect(() => {
+        function handleSessionExpired() {
+            setUser(null);
+            delAccessToken();
+            notifySessionExpired();
+        }
+
+        window.addEventListener(SESSION_EXPIRED_EVENT_NAME, handleSessionExpired);
+
+        return () => {
+            window.removeEventListener(SESSION_EXPIRED_EVENT_NAME, handleSessionExpired);
+        };
+    }, []);
 
     useEffect(() => {
         let ignore = false;
@@ -48,6 +72,7 @@ export function LoginProvider({children}: LoginProviderProps) {
                     setUser(null);
                     if (isAuthenticationError(error)) {
                         delAccessToken();
+                        notifySessionExpired();
                     }
                 }
             } finally {
@@ -77,6 +102,7 @@ export function LoginProvider({children}: LoginProviderProps) {
                     accessToken: tokenValue,
                 });
                 setAccessToken(tokenValue);
+                hasNotifiedSessionExpired = false;
                 return accountDetail;
             } else {
                 throw new Error("accountResponse is falsy. at the useLogin");

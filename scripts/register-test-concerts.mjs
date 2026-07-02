@@ -1,7 +1,29 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const dataFile = process.argv[2] ?? "testdata/smu8-ticket-venues-2.json";
+const rawArgs = process.argv.slice(2);
+const options = {};
+let dataFile = "testdata/smu8-ticket-concerts-2.json";
+
+for (const arg of rawArgs) {
+  if (arg.startsWith("--")) {
+    const [key, value] = arg.slice(2).split("=");
+    options[key] = value;
+  } else {
+    dataFile = arg;
+  }
+}
+
+const reservationStart = options["reservation-start"];
+const reservationEnd = options["reservation-end"];
+
+if (!reservationStart || !reservationEnd) {
+  console.error(
+    "사용법: node scripts/register-test-concerts.mjs [파일경로] --reservation-start=2026-07-05T10:00:00 --reservation-end=2026-07-15T23:59:59",
+  );
+  process.exit(1);
+}
+
 const apiBaseUrl = process.env.API_BASE_URL ?? "http://localhost:8080";
 const adminUsername = process.env.ADMIN_USERNAME ?? "loadtest_admin";
 
@@ -43,16 +65,6 @@ const venueIdMap = JSON.parse(
 );
 
 // 좌석 자동 생성 함수
-function buildSeats(rowMax, colMax, seatGrades) {
-  const seats = [];
-  for (let row = 1; row <= rowMax; row += 1) {
-    for (let col = 1; col <= colMax; col += 1) {
-      const grade = seatGrades[(row + col) % seatGrades.length];
-      seats.push({ seatGradeName: grade.gradeName, row, col });
-    }
-  }
-  return seats;
-}
 
 console.log(`공연 ${concerts.length}개 등록 시작`);
 
@@ -69,12 +81,15 @@ for (const concert of concerts) {
     title: concert.title,
     description: concert.description,
     runningTime: concert.runningTime,
-    reservationStartAt: concert.reservationStartAt,
+    reservationStartAt: reservationStart,
     venueId,
     notice: concert.notice,
     seatGrades: concert.seatGrades,
-    schedules: concert.schedules,
-    seats: buildSeats(concert.rowMax, concert.colMax, concert.seatGrades),
+    schedules: concert.schedules.map((schedule) => ({
+        date: schedule.date,
+        reservationEndAt: reservationEnd,
+        })),
+    seats: concert.seats,
     rowMax: concert.rowMax,
     colMax: concert.colMax,
   };

@@ -1,0 +1,57 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>같은 좌석 동시 선점 k6 테스트 케이스</title>
+  <style>
+    body { font-family: "Malgun Gothic", Arial, sans-serif; line-height: 1.65; color: #111827; max-width: 980px; margin: 40px auto; padding: 0 24px; }
+    h1 { font-size: 28px; border-bottom: 2px solid #111827; padding-bottom: 12px; }
+    h2 { font-size: 20px; margin-top: 32px; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; text-align: left; }
+    th { background: #f3f4f6; }
+    code, pre { font-family: Consolas, monospace; }
+    pre { background: #f3f4f6; padding: 12px; overflow-x: auto; border-radius: 4px; }
+    .pass { font-weight: 700; color: #047857; }
+    .note { background: #fff7ed; border-left: 4px solid #f97316; padding: 10px 12px; }
+  </style>
+</head>
+<body>
+  <h1>같은 좌석 동시 선점 k6 테스트 케이스</h1>
+  <h2>1. 테스트 목적</h2>
+  <p>같은 공연, 같은 회차, 같은 좌석에 여러 사용자가 동시에 선점 요청을 보냈을 때 좌석 선점이 정확히 1건만 성공하는지 검증합니다.</p>
+  <p>이 테스트는 Redis 기반 좌석 선점 로직의 동시성 정합성을 확인하기 위한 테스트입니다.</p>
+
+  <h2>2. 테스트 대상</h2>
+  <table><tr><th>항목</th><th>값</th></tr><tr><td>대상 API</td><td>POST /api/reservations/preempt-seats</td></tr><tr><td>k6 스크립트</td><td>k6/preempt-same-seat.js</td></tr><tr><td>테스트 유형</td><td>같은 좌석 동시 선점 경쟁</td></tr><tr><td>실행 계정</td><td>smu8_user_0001 ~ smu8_user_0500</td></tr><tr><td>기본 비밀번호</td><td>password1234</td></tr><tr><td>테스트 일자</td><td>2026-07-01</td></tr></table>
+
+  <h2>3. 테스트 데이터</h2>
+  <table><tr><th>항목</th><th>값</th></tr><tr><td>BASE_URL</td><td>http://127.0.0.1:8080</td></tr><tr><td>CONCERT_ID</td><td>1</td></tr><tr><td>SCHEDULE_ID</td><td>1</td></tr><tr><td>SEAT_ID</td><td>1</td></tr><tr><td>Redis 선점 key</td><td>reservation:preempt:seat:1</td></tr></table>
+
+  <h2>4. 사전 조건</h2>
+  <ul><li>백엔드 서버가 http://127.0.0.1:8080 에서 실행 중이어야 합니다.</li><li>MySQL과 Redis가 실행 중이어야 합니다.</li><li>DB에 smu8_user_0001부터 smu8_user_0500까지 테스트 계정이 존재해야 합니다.</li><li>각 테스트 실행 전에 Redis 선점 key를 삭제해야 합니다.</li></ul>
+  <pre>sudo docker exec redis-ticket redis-cli DEL reservation:preempt:seat:1</pre>
+
+  <h2>5. 실행 방법</h2>
+  <pre>&amp; 'C:\Program Files\k6\k6.exe' run `
+  -e BASE_URL=http://127.0.0.1:8080 `
+  -e VUS=100 `
+  -e CONCERT_ID=1 `
+  -e SCHEDULE_ID=1 `
+  -e SEAT_ID=1 `
+  --summary-export .\k6\result-vus-100.json `
+  .\k6\preempt-same-seat.js</pre>
+
+  <h2>6. 판정 기준</h2>
+  <table><tr><th>항목</th><th>정상 기준</th></tr><tr><td>preempt_success</td><td>1</td></tr><tr><td>preempt_rejected</td><td>VUS - 1</td></tr><tr><td>preempt_unexpected</td><td>0</td></tr></table>
+  <p>http_req_failed 값은 높게 나올 수 있습니다. 같은 좌석을 이미 다른 사용자가 선점한 뒤 나머지 요청이 실패 응답을 받는 것은 이 테스트에서 기대하는 동작입니다.</p>
+
+  <h2>7. 실제 실행 결과</h2>
+  <table><tr><th>VUS</th><th>결과 파일</th><th>성공</th><th>거절</th><th>예상외</th><th>HTTP 요청 수</th><th>HTTP 실패율</th><th>평균 응답 시간(ms)</th><th>p95(ms)</th><th>최대(ms)</th><th>판정</th></tr><tr><td>100</td><td>result-vus-100.json</td><td>1</td><td>99</td><td>0</td><td>200</td><td>49.50%</td><td>138.21</td><td>333.76</td><td>389.02</td><td class="pass">PASS</td></tr><tr><td>200</td><td>result-vus-200.json</td><td>1</td><td>199</td><td>0</td><td>400</td><td>49.75%</td><td>301.27</td><td>995.78</td><td>1144.35</td><td class="pass">PASS</td></tr><tr><td>300</td><td>result-vus-300.json</td><td>1</td><td>299</td><td>0</td><td>600</td><td>49.83%</td><td>376.14</td><td>1189.05</td><td>1417.74</td><td class="pass">PASS</td></tr><tr><td>400</td><td>result-vus-400.json</td><td>1</td><td>399</td><td>0</td><td>800</td><td>49.88%</td><td>474.55</td><td>1450.70</td><td>1681.82</td><td class="pass">PASS</td></tr><tr><td>500</td><td>result-vus-500.json</td><td>1</td><td>499</td><td>0</td><td>1000</td><td>49.90%</td><td>556.67</td><td>1856.64</td><td>2058.24</td><td class="pass">PASS</td></tr></table>
+
+  <h2>8. 결론</h2>
+  <p>100명부터 500명까지 같은 좌석을 동시에 선점하도록 요청했을 때 모든 테스트에서 선점 성공은 1건만 발생했습니다.</p>
+  <p>따라서 현재 Redis 좌석 선점 로직은 같은 좌석 동시 선점 상황에서 중복 선점을 허용하지 않는 것으로 확인했습니다.</p>
+
+  </body>
+</html>

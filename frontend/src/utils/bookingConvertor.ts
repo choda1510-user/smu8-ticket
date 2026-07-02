@@ -17,6 +17,8 @@ import type {
     SeatSelectionSeat,
 } from "@/types/booking";
 import type {ConcertScheduleResponse, SeatGradeResponse} from "@/types/concert";
+import type {ConcertDetail, ConcertSchedule} from "@/types/concert";
+import {unavailableSeatGradeName} from "@/types/seatLayout";
 
 function formatDateTime(value: string) {
     if (!value) {
@@ -133,17 +135,24 @@ function toSeatGrade(response: SeatGradeResponse): SeatGrade {
     };
 }
 
-function toSeatSelectionSeat(response: BookingConcertSeatFrameResponse["seats"][number]): SeatSelectionSeat {
+function toSeatSelectionSeat(
+    response: BookingConcertSeatFrameResponse["seats"][number],
+    seatGrades: SeatGradeResponse[],
+): SeatSelectionSeat {
+    const seatGrade = findSeatGrade(seatGrades, response.seat.seatGradeId);
+    const isUnavailableSeat = seatGrade?.gradeName === unavailableSeatGradeName;
+
     return {
         seatId: response.seat.id,
         seatNumber: toSeatNumber(response.seat.row, response.seat.col),
         gradeId: String(response.seat.seatGradeId),
-        status: response.status,
+        status: isUnavailableSeat ? "UNAVAILABLE" : response.status,
     };
 }
 
 function toSeatRows(
     seats: ConcertSeatStatusResponse[],
+    seatGrades: SeatGradeResponse[],
     rowCount: number,
     columnCount: number,
 ) {
@@ -159,7 +168,7 @@ function toSeatRows(
             return;
         }
 
-        seatRows[rowIndex][columnIndex] = toSeatSelectionSeat(seatResponse);
+        seatRows[rowIndex][columnIndex] = toSeatSelectionSeat(seatResponse, seatGrades);
     });
 
     return seatRows;
@@ -175,6 +184,15 @@ function toSchedule(response: ConcertScheduleResponse) {
         performanceDate: formatDate(response.date),
         performanceTime: formatTime(response.date),
         label: `${formatDate(response.date)} ${formatTime(response.date)}`.trim(),
+    };
+}
+
+function toSeatSelectionSchedule(schedule: ConcertSchedule) {
+    return {
+        scheduleId: schedule.id,
+        performanceDate: schedule.date,
+        performanceTime: schedule.time,
+        label: `${schedule.date} ${schedule.time}`.trim(),
     };
 }
 
@@ -221,20 +239,28 @@ export function toBookingDetailResult(response: BookingDetailResponse): BookingD
     };
 }
 
-export function toSeatSelectionResult(response: BookingConcertSeatFrameResponse): SeatSelection {
+export function toSeatSelectionResult(
+    response: BookingConcertSeatFrameResponse,
+    concertDetail?: ConcertDetail,
+): SeatSelection {
     const schedule = toSchedule(response.selectSchedule);
-    const seatRows = toSeatRows(response.seats, response.rowMax, response.colMax);
+    const seatRows = toSeatRows(response.seats, response.seatGrades, response.rowMax, response.colMax);
+    const schedules = concertDetail?.schedules.length
+        ? concertDetail.schedules.map(toSeatSelectionSchedule)
+        : [schedule];
 
     return {
         concertId: response.concertId,
-        concertTitle: "",
-        venueId: 0,
-        venueName: "",
+        concertTitle: concertDetail?.concertTitle ?? "",
+        venueId: concertDetail?.venueId ?? 0,
+        venueName: concertDetail?.venueName ?? "",
         selectedScheduleId: schedule.scheduleId,
-        schedules: [schedule],
+        schedules,
         reservationLimitMinutes: 3,
         maxSelectableSeatCount: 2,
-        seatGrades: response.seatGrades.map(toSeatGrade),
+        seatGrades: response.seatGrades
+            .filter((seatGrade) => seatGrade.gradeName !== unavailableSeatGradeName)
+            .map(toSeatGrade),
         seatMaps: [
             {
                 scheduleId: schedule.scheduleId,

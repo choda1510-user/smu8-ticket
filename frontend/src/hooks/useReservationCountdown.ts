@@ -4,15 +4,15 @@ const countdownWindowMs = 59 * 60 * 1000 + 59 * 1000 + 990;
 const maxTimeoutMs = 2_147_000_000;
 
 function formatRemainingTime(remainingMs: number) {
-    const totalCentiseconds = Math.max(0, Math.ceil(remainingMs / 10));
-    const minutes = Math.floor(totalCentiseconds / 6000);
-    const seconds = Math.floor((totalCentiseconds % 6000) / 100);
-    const centiseconds = totalCentiseconds % 100;
+    const totalSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
 
     return [
         String(minutes).padStart(2, "0"),
         String(seconds).padStart(2, "0"),
-    ].join(":") + `.${String(centiseconds).padStart(2, "0")}`;
+    ].join(":");
 }
 
 function getDDayText(reservationStartTime: number, currentTime: number) {
@@ -32,7 +32,7 @@ function getDDayText(reservationStartTime: number, currentTime: number) {
         (reservationDay - currentDay) / (24 * 60 * 60 * 1000),
     );
 
-    return remainingDays > 0 ? `D-${remainingDays}` : "D-DAY";
+    return remainingDays > 0 ? `D-${remainingDays}` : "";
 }
 
 export function useReservationCountdown(reservationStartAt?: string) {
@@ -60,7 +60,7 @@ export function useReservationCountdown(reservationStartAt?: string) {
 
             const nextDelay = remainingMs > countdownWindowMs
                 ? remainingMs - countdownWindowMs
-                : 10;
+                : 1000;
 
             timerId = window.setTimeout(
                 updateCountdown,
@@ -87,7 +87,7 @@ export function useReservationCountdown(reservationStartAt?: string) {
         : isBookingOpen
             ? "OPEN"
             : isCountdownVisible
-                ? "D-DAY"
+                ? ""
                 : getDDayText(reservationStartTime, now);
 
     return {

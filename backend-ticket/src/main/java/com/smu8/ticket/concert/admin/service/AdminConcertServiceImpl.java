@@ -40,6 +40,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AdminConcertServiceImpl implements AdminConcertService {
+    private static final String CANCELED_STATUS = "\uacf5\uc5f0\ucde8\uc18c";
+
     private final ConcertRepository concertRepository;
     private final StorageService storageService;
     private final VenueRepository venueRepository;
@@ -360,8 +362,10 @@ public class AdminConcertServiceImpl implements AdminConcertService {
     }
 
     @Override
+    @Transactional
     public void deleteConcert(Long id) {
-        concertRepository.delete(getById(id));
+        Concert concert = getById(id);
+        concert.setPerformanceStatus(CANCELED_STATUS);
     }
 
     private Concert getById(Long id) {

@@ -1,6 +1,6 @@
 import type {PageRequest, PageResponse, PageResult} from "@/types/api";
 
-export type ReservationStatus = "READY" | "BEFORE_OPEN" | "OPEN" | "CLOSED"; // 예매 오픈 전, 예매 가능, 예매 종료 상태
+export type ReservationStatus = "READY" | "BEFORE_OPEN" | "OPEN" | "CLOSED" | "공연취소"; // 예매 오픈 전, 예매 가능, 예매 종료 상태
 
 export type ConcertScheduleResponse = {
     id: number; // 공연 회차 고유 ID

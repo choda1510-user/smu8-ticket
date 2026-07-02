@@ -1,9 +1,26 @@
 import {useEffect, useMemo, useState} from "react";
 import {getConcertItems} from "@/apis/concertApi";
+import {getHomeBanners} from "@/apis/homeApi";
 import type {ConcertItem, HomeConcertCard} from "@/types/concert";
 import type {BannerItem} from "@/types/home";
 
 const maxHomeConcertCount = 4;
+
+function getHomeConcertSlideSize() {
+    if (typeof window === "undefined") {
+        return maxHomeConcertCount;
+    }
+
+    if (window.matchMedia("(max-width: 640px)").matches) {
+        return 1;
+    }
+
+    if (window.matchMedia("(max-width: 900px)").matches) {
+        return 2;
+    }
+
+    return maxHomeConcertCount;
+}
 
 function sortByReservationEndDate(concerts: HomeConcertCard[]) {
     return [...concerts].sort((a, b) => {
@@ -46,14 +63,7 @@ function isUpcomingConcert(concert: ConcertItem) {
         return false;
     }
 
-    const now = new Date();
-    const startDate = new Date(startTime);
-    const isAfterToday =
-        startDate.getFullYear() > now.getFullYear() ||
-        (startDate.getFullYear() === now.getFullYear() && startDate.getMonth() > now.getMonth()) ||
-        (startDate.getFullYear() === now.getFullYear() && startDate.getMonth() === now.getMonth() && startDate.getDate() > now.getDate());
-
-    return startTime > now.getTime() && isAfterToday;
+    return startTime > Date.now();
 }
 
 function toHomeConcertCard(concert: ConcertItem): HomeConcertCard {
@@ -67,19 +77,15 @@ function toHomeConcertCard(concert: ConcertItem): HomeConcertCard {
     };
 }
 
-function toBannerItem(concert: ConcertItem, index: number): BannerItem {
-    return {
-        bannerId: concert.concertId || index + 1,
-        concertId: concert.concertId,
-        title: concert.title,
-        imageUrl: concert.bannerPosterUrl,
-    };
-}
-
 export function useHomePage() {
     const [concerts, setConcerts] = useState<ConcertItem[]>([]);
+    // 배너는 홈 전용 API에서 관리해 공연 목록 조회와 추천/배너 선정 책임을 분리.
+    const [bannerList, setBannerList] = useState<BannerItem[]>([]);
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const [isBannerVisible, setIsBannerVisible] = useState(true);
+    const [openConcertSlideIndex, setOpenConcertSlideIndex] = useState(0);
+    const [upcomingConcertSlideIndex, setUpcomingConcertSlideIndex] = useState(0);
+    const [homeConcertSlideSize, setHomeConcertSlideSize] = useState(getHomeConcertSlideSize);
 
     useEffect(() => {
         let isMounted = true;
@@ -105,6 +111,44 @@ export function useHomePage() {
         };
     }, []);
 
+    // 배너 영역은 공연 목록과 별도로 호출해 이후 추천 API로 바뀌어도 이 훅의 영향 범위를 줄입니다.
+    useEffect(() => {
+        let isMounted = true;
+
+        async function loadHomeBanners() {
+            try {
+                const banners = await getHomeBanners();
+
+                if (isMounted) {
+                    setBannerList(banners);
+                }
+            } catch {
+                if (isMounted) {
+                    setBannerList([]);
+                }
+            }
+        }
+
+        void loadHomeBanners();
+
+        return () => {
+            // 언마운트 후 비동기 응답이 도착해도 상태 변경이 일어나지 않도록 막습니다.
+            isMounted = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setHomeConcertSlideSize(getHomeConcertSlideSize());
+        };
+
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
+
     const openConcertList = useMemo(() => {
         return concerts.filter((concert) => !isUpcomingConcert(concert)).map(toHomeConcertCard);
     }, [concerts]);
@@ -113,19 +157,24 @@ export function useHomePage() {
         return concerts.filter(isUpcomingConcert).map(toHomeConcertCard);
     }, [concerts]);
 
-    const bannerList = useMemo(() => {
-        return concerts.slice(0, maxHomeConcertCount).map(toBannerItem);
-    }, [concerts]);
-
     const currentBanner = bannerList[currentBannerIndex] ?? bannerList[0];
 
     const sortedOpenConcertList = useMemo(() => {
-        return sortByReservationEndDate(openConcertList).slice(0, maxHomeConcertCount);
+        return sortByReservationEndDate(openConcertList);
     }, [openConcertList]);
 
     const sortedUpcomingConcertList = useMemo(() => {
-        return sortByReservationEndDate(upcomingConcertList).slice(0, maxHomeConcertCount);
+        return sortByReservationEndDate(upcomingConcertList);
     }, [upcomingConcertList]);
+
+    const openConcertMaxSlideIndex = Math.max(
+        0,
+        Math.ceil(sortedOpenConcertList.length / homeConcertSlideSize) - 1,
+    );
+    const upcomingConcertMaxSlideIndex = Math.max(
+        0,
+        Math.ceil(sortedUpcomingConcertList.length / homeConcertSlideSize) - 1,
+    );
 
     useEffect(() => {
         if (bannerList.length === 0) {
@@ -158,6 +207,14 @@ export function useHomePage() {
             setCurrentBannerIndex(0);
         }
     }, [bannerList.length, currentBannerIndex]);
+
+    useEffect(() => {
+        setOpenConcertSlideIndex((index) => Math.min(index, openConcertMaxSlideIndex));
+    }, [openConcertMaxSlideIndex]);
+
+    useEffect(() => {
+        setUpcomingConcertSlideIndex((index) => Math.min(index, upcomingConcertMaxSlideIndex));
+    }, [upcomingConcertMaxSlideIndex]);
 
     const moveBanner = (nextIndex: number) => {
         setIsBannerVisible(false);
@@ -202,6 +259,22 @@ export function useHomePage() {
         moveBanner(index);
     };
 
+    const handlePrevOpenConcertSlideClick = () => {
+        setOpenConcertSlideIndex((index) => Math.max(0, index - 1));
+    };
+
+    const handleNextOpenConcertSlideClick = () => {
+        setOpenConcertSlideIndex((index) => Math.min(openConcertMaxSlideIndex, index + 1));
+    };
+
+    const handlePrevUpcomingConcertSlideClick = () => {
+        setUpcomingConcertSlideIndex((index) => Math.max(0, index - 1));
+    };
+
+    const handleNextUpcomingConcertSlideClick = () => {
+        setUpcomingConcertSlideIndex((index) => Math.min(upcomingConcertMaxSlideIndex, index + 1));
+    };
+
     return {
         bannerList,
         currentBanner,
@@ -209,8 +282,18 @@ export function useHomePage() {
         isBannerVisible,
         sortedOpenConcertList,
         sortedUpcomingConcertList,
+        openConcertSlideIndex,
+        upcomingConcertSlideIndex,
+        canMoveOpenConcertPrev: openConcertSlideIndex > 0,
+        canMoveOpenConcertNext: openConcertSlideIndex < openConcertMaxSlideIndex,
+        canMoveUpcomingConcertPrev: upcomingConcertSlideIndex > 0,
+        canMoveUpcomingConcertNext: upcomingConcertSlideIndex < upcomingConcertMaxSlideIndex,
         handlePrevBannerClick,
         handleNextBannerClick,
         handleIndicatorClick,
+        handlePrevOpenConcertSlideClick,
+        handleNextOpenConcertSlideClick,
+        handlePrevUpcomingConcertSlideClick,
+        handleNextUpcomingConcertSlideClick,
     };
 }

@@ -1,8 +1,12 @@
 package com.smu8.waiting.repository;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.connection.RedisZSetCommands;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.nio.charset.StandardCharsets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +28,13 @@ public class RedisConcertWaitingQueueRepository implements ConcertWaitingQueueRe
 
     @Override
     public boolean enqueue(String concertId, String accountId, double score) {
-        return Boolean.TRUE.equals(concertWaitingQueueRedisTemplate.opsForZSet().add(key(concertId), accountId, score));
+        return Boolean.TRUE.equals(concertWaitingQueueRedisTemplate.execute((RedisCallback<Boolean>) connection ->
+                connection.zSetCommands().zAdd(
+                        bytes(key(concertId)),
+                        score,
+                        bytes(accountId),
+                        RedisZSetCommands.ZAddArgs.ifNotExists()
+                )));
     }
 
     @Override
@@ -61,5 +71,9 @@ public class RedisConcertWaitingQueueRepository implements ConcertWaitingQueueRe
 
     private String key(String concertId) {
         return KEY_PREFIX + concertId;
+    }
+
+    private byte[] bytes(String value) {
+        return value.getBytes(StandardCharsets.UTF_8);
     }
 }

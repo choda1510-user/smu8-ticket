@@ -41,3 +41,12 @@ logging:
     com.smu8.ticket: Debug
 server:
   port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always

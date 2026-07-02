@@ -1,6 +1,8 @@
 CREATE DATABASE smu8ticket;
 CREATE USER admin IDENTIFIED BY 'admin';
 GRANT ALL PRIVILEGES ON smu8ticket.* TO 'admin'@'%';
+CREATE USER exporter IDENTIFIED BY 'exporter';
+GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO 'exporter'@'%';
 
 USE smu8ticket;
 

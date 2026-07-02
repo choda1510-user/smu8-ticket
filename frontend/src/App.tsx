@@ -15,6 +15,7 @@ import SignUpPage from './pages/SignUpPage'
 import ConcertSearchResultPage from "@/pages/ConcertSearchResultPage.tsx";
 import HomePage from "@/pages/HomePage.tsx";
 import BookingSelectPage from "@/pages/BookingSelectPage.tsx";
+import BookingWaitingPage from "@/pages/BookingWaitingPage.tsx"
 import BookingPayDetailPage from "@/pages/BookingPayDetailPage.tsx";
 import BookingPaymentPage from "@/pages/BookingPaymentPage.tsx";
 import BookingSuccessPage from "@/pages/BookingSuccessPage.tsx";
@@ -56,6 +57,7 @@ function App() {
           </Route>
           <Route path={""} element={<HomePage></HomePage>}/>
         </Route>
+        <Route path={"/booking/waiting/:concertId"} element={<BookingWaitingPage />} />
         <Route path={"/booking/select/:concertId"} element={<BookingSelectPage />} />
         <Route path={"/booking/paydetail/:concertId"} element={<BookingPayDetailPage />} />
         <Route path={"/booking/payment/:concertId"} element={<BookingPaymentPage />} />

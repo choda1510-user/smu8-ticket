@@ -3,6 +3,7 @@ import {useRef, useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {useConcertDetailsPage} from "@/hooks/useConcertDetailsPage";
 import {useReservationCountdown} from "@/hooks/useReservationCountdown";
+import {enterWaitingQueue} from "@/apis/waitingApi";
 
 /*
  * 공연 상세 페이지
@@ -33,9 +34,8 @@ function ConcertDetailsPage() {
     const venueRef = useRef<HTMLElement | null>(null);
     const noticeRef = useRef<HTMLElement | null>(null);
 
-    const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(
-        null
-    );
+    const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(null);
+    const [isEnteringWaitingQueue, setIsEnteringWaitingQueue] = useState(false);
     const [isDetailExpanded, setIsDetailExpanded] = useState(false);
     const [activeMenu, setActiveMenu] = useState<DetailMenu>("detail");
 
@@ -43,13 +43,33 @@ function ConcertDetailsPage() {
         setSelectedScheduleId(scheduleId);
     };
 
-    const handleBookingClick = () => {
+    const handleBookingClick = async () => {
         if (!selectedScheduleId) {
             alert("공연 날짜와 시간을 선택해주세요.");
             return;
         }
 
-        window.open(`/booking/select/${currentConcertId}?scheduleId=${selectedScheduleId}`, "_blank", "noopener,noreferrer");
+        if (isEnteringWaitingQueue) {
+            return;
+        }
+
+        try {
+            setIsEnteringWaitingQueue(true);
+
+            const waitingEntry = await enterWaitingQueue(currentConcertId);
+
+            if (waitingEntry.active) {
+                window.open(`/booking/select/${currentConcertId}?scheduleId=${selectedScheduleId}`, "_blank", "noopener,noreferrer");
+                return;
+            }
+
+            navigate(`/booking/waiting/${currentConcertId}?scheduleId=${selectedScheduleId}`);
+        } catch (error) {
+            console.error(error);
+            alert("대기열 입장 요청에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        } finally {
+            setIsEnteringWaitingQueue(false);
+        }
     };
 
     const handleVenueClick = () => {
@@ -155,9 +175,9 @@ function ConcertDetailsPage() {
                                     className
                                         ={styles.bookingButton}
                                     onClick={handleBookingClick}
-                                    disabled={!isBookingOpen}
+                                    disabled={!isBookingOpen || isEnteringWaitingQueue}
                                 >
-                                    예매하기
+                                    {isEnteringWaitingQueue ? "대기열 입장 중" : "예매하기"}
                                 </button>
                             </div>
                         </div>

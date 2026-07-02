@@ -43,6 +43,15 @@ function ConcertDetailsPage() {
     const [activeMenu, setActiveMenu] = useState<DetailMenu>("detail");
     const scheduleIdQuery = searchParams.get("scheduleId");
 
+    // 공연 상세 진입 시 UI를 최상단으로 이동시키는 코드 추가
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: "auto",
+        });
+    }, [concertId]);
+    
     useEffect(() => {
         if (!scheduleIdQuery) {
             return;

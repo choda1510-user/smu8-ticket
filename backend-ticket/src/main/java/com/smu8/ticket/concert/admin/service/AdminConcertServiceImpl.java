@@ -12,10 +12,12 @@ import com.smu8.ticket.dto.result.PageResult;
 import com.smu8.ticket.file.service.StorageService;
 import com.smu8.ticket.venue.entity.Venue;
 import com.smu8.ticket.venue.repository.VenueRepository;
+import com.smu8.ticket.waiting.event.ConcertWaitingRegistrationEvent;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,7 @@ public class AdminConcertServiceImpl implements AdminConcertService {
     private final PerformanceScheduleRepository performanceScheduleRepository;
     private final SeatGradeRepository seatGradeRepository;
     private final SeatRepository seatRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
@@ -71,6 +74,7 @@ public class AdminConcertServiceImpl implements AdminConcertService {
                     descriptionPosterKey
             );
             Concert savedConcert = concertRepository.saveAndFlush(concert);
+            publishConcertWaitingRegistrationEvent(savedConcert, command.startReservationAt());
             return ConcertDetailResult.from(savedConcert, storageService);
 
         } catch (RuntimeException exception) {
@@ -79,6 +83,20 @@ public class AdminConcertServiceImpl implements AdminConcertService {
             deleteStoredFile(cardPosterKey, exception);
             throw exception;
         }
+    }
+
+    private void publishConcertWaitingRegistrationEvent(Concert concert, LocalDateTime reservationStartAt) {
+        LocalDateTime reservationLastEndAt = concert.getPerformanceSchedules().stream()
+                .map(PerformanceSchedule::getReservationEndAt)
+                .filter(Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .orElseThrow(() -> new InvalidConcertException("Reservation end date is required."));
+
+        eventPublisher.publishEvent(new ConcertWaitingRegistrationEvent(
+                String.valueOf(concert.getId()),
+                reservationStartAt,
+                reservationLastEndAt
+        ));
     }
 
 
@@ -194,6 +212,10 @@ public class AdminConcertServiceImpl implements AdminConcertService {
         Integer colMax = command.colMax();
 
         for (UpdateScheduleCommand scheduleCommand : requestedSchedules) {
+
+            // ★ 추가
+            LocalDateTime resolvedReservationEndAt = scheduleCommand.resolvedReservationEndAt();
+
             if (scheduleCommand.id() != null) {
                 PerformanceSchedule existing = concert.getPerformanceSchedules().stream()
                         .filter(schedule -> schedule.getId().equals(scheduleCommand.id()))
@@ -207,6 +229,13 @@ public class AdminConcertServiceImpl implements AdminConcertService {
                     updateExistingScheduleSeats(existing, concert, command.seats(), rowMax, colMax);
                 }
             } else {
+                // ★ 추가: 신규 회차 등록 시 중복검증
+                if (performanceScheduleRepository.existsByConcert_Venue_IdAndShowStartAt(
+                        concert.getVenue().getId(), scheduleCommand.date())) {
+                    throw new InvalidConcertException(
+                            "해당 공연장에 동일 일시(" + scheduleCommand.date() + ")의 공연이 이미 존재합니다.");
+                }
+
                 PerformanceSchedule newSchedule = PerformanceSchedule.builder()
                         .concert(concert)
                         .showStartAt(scheduleCommand.date())
@@ -509,16 +538,22 @@ public class AdminConcertServiceImpl implements AdminConcertService {
             if (!scheduleDates.add(schedule.date())){
                 throw new InvalidConcertException("같은 공연 시작일시를 중복해서 등록할 수 없습니다.");
             }
-            if (schedule.reservationEndAt()==null){
-                throw new InvalidConcertException("예매 종료일시는 필수입니다.");
+            // ★ 추가: 동일 공연장 + 동일 일시 중복 등록 방지
+            if (performanceScheduleRepository.existsByConcert_Venue_IdAndShowStartAt(
+                    command.venueId(), schedule.date())) {
+                throw new InvalidConcertException(
+                        "해당 공연장에 동일 일시(" + schedule.date() + ")의 공연이 이미 존재합니다.");
             }
-            if (!command.startReservationAt()
-                    .isBefore(schedule.reservationEndAt())) {
+
+            // ★ 변경: reservationEndAt 관련 검증 3개를 resolvedReservationEndAt() 기준으로 교체
+            LocalDateTime resolvedReservationEndAt = schedule.resolvedReservationEndAt();
+            if (!command.startReservationAt().isBefore(resolvedReservationEndAt)) {
                 throw new InvalidConcertException("예매 시작일시는 예매 종료일시보다 이전이어야 합니다.");
             }
-            if (!schedule.reservationEndAt().isBefore(schedule.date())){
-                throw new InvalidConcertException("예매 종료일시는 공연 시작일시보다 이전이어야 합니다.");
+            if (resolvedReservationEndAt.isAfter(schedule.date())) {
+                throw new InvalidConcertException("예매 종료일시는 공연 시작일시보다 늦을 수 없습니다.");
             }
+
             if (schedule.rowMax()== null|| schedule.rowMax() <= 0 || schedule.rowMax()>1000){
                 throw new InvalidConcertException("좌석 행 개수는 1개 이상 1000개 이하여야합니다.");
             }

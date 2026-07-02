@@ -10,4 +10,10 @@ public record UpdateScheduleCommand(
         LocalDateTime date,
         LocalDateTime reservationEndAt
 ) {
+    // ★ 추가: 값이 있으면 그대로 사용(연장 등), 없으면 공연시작일 00:00 자동 계산
+    public LocalDateTime resolvedReservationEndAt() {
+        return reservationEndAt != null
+                ? reservationEndAt
+                : date.toLocalDate().atStartOfDay();
+}
 }

@@ -81,7 +81,7 @@ function toReservationSeatsUrl(query: ConcertSeatsStatusQuery) {
     params.set("concertId", String(query.concertId));
     params.set("scheduleId", String(query.scheduleId));
 
-    return `${API_BASE_URL}/api/reservaions/preempt-seats?${params.toString()}`;
+    return `${API_BASE_URL}/api/reservations/preempt-seats?${params.toString()}`;
 }
 
 export function getBooking(query: BookingDetailQuery): Promise<BookingDetailResponse> {

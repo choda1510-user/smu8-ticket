@@ -1,8 +1,9 @@
 import styles from "./ConcertDetailsPage.module.css"
-import {useRef, useState} from "react";
-import {useNavigate, useParams} from "react-router";
+import {useEffect, useRef, useState} from "react";
+import {useNavigate, useParams, useSearchParams} from "react-router";
 import {useConcertDetailsPage} from "@/hooks/useConcertDetailsPage";
 import {useReservationCountdown} from "@/hooks/useReservationCountdown";
+import useLogin from "@/hooks/useLogin";
 
 /*
  * 공연 상세 페이지
@@ -19,6 +20,8 @@ type DetailMenu = "detail" | "venue" | "notice";
 function ConcertDetailsPage() {
     const navigate = useNavigate();
     const {concertId} = useParams();
+    const [searchParams] = useSearchParams();
+    const {isLoggedIn, isAuthReady} = useLogin();
     const {concertDetail} = useConcertDetailsPage();
     const {
         bookingStatusText,
@@ -38,6 +41,20 @@ function ConcertDetailsPage() {
     );
     const [isDetailExpanded, setIsDetailExpanded] = useState(false);
     const [activeMenu, setActiveMenu] = useState<DetailMenu>("detail");
+    const scheduleIdQuery = searchParams.get("scheduleId");
+
+    useEffect(() => {
+        if (!scheduleIdQuery) {
+            return;
+        }
+
+        const scheduleId = Number(scheduleIdQuery);
+        const hasSchedule = concertDetail.schedules.some((schedule) => schedule.id === scheduleId);
+
+        if (Number.isInteger(scheduleId) && hasSchedule) {
+            setSelectedScheduleId(scheduleId);
+        }
+    }, [concertDetail.schedules, scheduleIdQuery]);
 
     const handleScheduleClick = (scheduleId: number) => {
         setSelectedScheduleId(scheduleId);
@@ -46,6 +63,17 @@ function ConcertDetailsPage() {
     const handleBookingClick = () => {
         if (!selectedScheduleId) {
             alert("공연 날짜와 시간을 선택해주세요.");
+            return;
+        }
+
+        if (!isAuthReady) {
+            alert("로그인 상태를 확인 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+        }
+
+        if (!isLoggedIn) {
+            alert("로그인이 필요합니다.");
+            navigate(`/login?redirect=${encodeURIComponent(`/concerts/${currentConcertId}?scheduleId=${selectedScheduleId}`)}`);
             return;
         }
 

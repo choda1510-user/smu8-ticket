@@ -76,14 +76,11 @@ public class WaitingServiceImpl implements WaitingService {
             );
         }
 
-        boolean entered = false;
-        if (!concertWaitingQueueRepository.contains(command.concertId(), command.accountId())) {
-            entered = concertWaitingQueueRepository.enqueue(
-                    command.concertId(),
-                    command.accountId(),
-                    System.currentTimeMillis()
-            );
-        }
+        boolean entered = concertWaitingQueueRepository.enqueue(
+                command.concertId(),
+                command.accountId(),
+                System.currentTimeMillis()
+        );
 
         Long rank = concertWaitingQueueRepository.findRank(command.concertId(), command.accountId())
                 .map(this::toWaitingRank)

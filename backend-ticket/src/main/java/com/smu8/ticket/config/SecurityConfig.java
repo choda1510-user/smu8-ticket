@@ -74,6 +74,20 @@ public class SecurityConfig {
 
         return new SecretKeySpec(keyBytes, "HmacSHA256");
     }
+    @Order(-1)
+    @Bean
+    public SecurityFilterChain actuatorFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/actuator/**")
+                .authorizeHttpRequests((authorize) -> authorize
+                        .anyRequest().permitAll())
+                .sessionManagement((session) ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .build();
+    }
     @Order(4)
     @Bean
     public SecurityFilterChain swaggerFilterChain(HttpSecurity http) throws Exception {

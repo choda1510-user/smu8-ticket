@@ -2,6 +2,10 @@ spring:
   config:
     activate:
       on-profile: load-test-waiting
+  data:
+    redis-waiting:
+      host: 192.168.0.6
+      port: 6381
 cors:
   origins:
     - http://192.168.0.6:80

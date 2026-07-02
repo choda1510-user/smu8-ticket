@@ -8,14 +8,19 @@ import com.smu8.ticket.auth.service.TokenService;
 import com.smu8.ticket.authentication.AccountAuthenticationConvertor;
 import com.smu8.ticket.authentication.AccountAuthenticationProvider;
 import com.smu8.ticket.authentication.Authority;
+import com.smu8.ticket.waiting.filter.WaitingActiveAccountFilter;
+import com.smu8.ticket.waiting.provider.WaitingActiveAccountProvider;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,7 +50,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 @EnableWebSecurity
 @Configuration
@@ -122,6 +129,31 @@ public class SecurityConfig {
                 .addFilterBefore(
                         refreshTokenCookieAuthenticationFilter,
                         AuthorizationFilter.class)
+                .build();
+    }
+    @Order(0)
+    @Bean
+    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting"})
+    public SecurityFilterChain waitingReservationFilterChain(
+            HttpSecurity http,
+            BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter,
+            WaitingActiveAccountFilter waitingActiveAccountFilter
+    ) throws Exception {
+        return http.securityMatcher("/api/reservations/**", "/api/reservaions/**")
+                .authorizeHttpRequests((authorize) -> authorize
+                        .anyRequest().authenticated())
+                .sessionManagement((session) ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .addFilterBefore(
+                        bearerTokenAuthenticationFilter,
+                        AuthorizationFilter.class)
+                .addFilterAfter(
+                        waitingActiveAccountFilter,
+                        BearerTokenAuthenticationFilter.class)
                 .build();
     }
     @Order(3)
@@ -204,9 +236,15 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(
             JwtAuthenticationProvider jwtAuthenticationProvider,
             AccountAuthenticationProvider accountAuthenticationProvider,
-            RefreshTokenAuthenticationProvider refreshTokenAuthenticationProvider
+            RefreshTokenAuthenticationProvider refreshTokenAuthenticationProvider,
+            ObjectProvider<WaitingActiveAccountProvider> waitingActiveAccountProvider
     ) {
-        return new ProviderManager(jwtAuthenticationProvider, accountAuthenticationProvider, refreshTokenAuthenticationProvider);
+        List<AuthenticationProvider> providers = new ArrayList<>();
+        providers.add(jwtAuthenticationProvider);
+        providers.add(accountAuthenticationProvider);
+        providers.add(refreshTokenAuthenticationProvider);
+        waitingActiveAccountProvider.ifAvailable(providers::add);
+        return new ProviderManager(providers);
     }
     @Bean
     public RefreshTokenAuthenticationProvider refreshTokenAuthenticationProvider(JwtDecoder jwtDecoder, AccountAuthenticationService accountAuthenticationService, TokenService tokenService) {

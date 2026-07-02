@@ -57,8 +57,11 @@ services:
       - "6381:6379"
     networks:
       - smu8-ticket-network
+    volumes:
+      - redis_waiting_volume:/data
 volumes:
-  mysql_database:
+  mysql_test_database:
+  redis_waiting_volume:
   backend_file_dir:
 networks:
   smu8-ticket-network:

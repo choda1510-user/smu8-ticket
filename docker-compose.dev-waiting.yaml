@@ -39,9 +39,12 @@ services:
       - "6381:6379"
     networks:
       - smu8-ticket-network
+    volumes:
+      - redis_waiting_volume:/data
 volumes:
   mysql_database:
   redis_file_volume:
+  redis_waiting_volume:
 networks:
   smu8-ticket-network:
     driver: bridge

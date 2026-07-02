@@ -39,18 +39,6 @@ tasks.named('test') {
 bootJar {
 	archiveFileName = 'smu8waiting-backend.jar'
 }
-
-tasks.register('bootRunLocal', org.springframework.boot.gradle.tasks.run.BootRun) {
-	group = 'application'
-	description = 'Run the Backend Server with a local-dev profile.'
-
-	mainClass = 'com.smu8.waiting.WaitingApplication'
-	classpath = sourceSets.main.runtimeClasspath
-
-	systemProperty 'spring.profiles.active', 'local-dev'
-	jvmArgs = ["-Dcustom.property=true"]
-}
-
 tasks.register('bootRunWaitingLocal', org.springframework.boot.gradle.tasks.run.BootRun) {
 	group = 'application'
 	description = 'Run the Backend Server with a local-dev-waiting profile.'

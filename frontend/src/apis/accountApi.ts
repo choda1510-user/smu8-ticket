@@ -10,6 +10,16 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
+export class ApiError extends Error {
+    status: number;
+
+    constructor(message: string, status: number) {
+        super(message);
+        this.name = "ApiError";
+        this.status = status;
+    }
+}
+
 function createBasicAuthorization(username: string, password: string) {
     return `Basic ${btoa(`${username}:${password}`)}`;
 }
@@ -125,7 +135,7 @@ export async function getMyInfo(accessToken?: string | null): Promise<AccountMyI
     });
 
     if (!response.ok) {
-        throw new Error("Failed to fetch information.");
+        throw new ApiError("Failed to fetch information.", response.status);
     }
 
     return (await response.json()) as AccountMyInfoResponse;

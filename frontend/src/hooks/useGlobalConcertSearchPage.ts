@@ -1,11 +1,7 @@
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router";
-import {
-    filterConcertsByKeyword,
-    getConcertList,
-    toConcertResult,
-} from "@/apis/concertApi";
-import {filterVenuesByKeyword, getVenueList, toVenueResult} from "@/apis/venueApi";
+import {getConcertSearchPage} from "@/apis/concertApi";
+import {getVenueSearchPage} from "@/apis/venueApi";
 import type {ConcertItemPageResult} from "@/types/concert";
 import type { VenueSearchPageResult} from "@/types/venue";
 
@@ -50,31 +46,13 @@ export function useGlobalConcertSearchPage() {
                 setError(null);
 
                 const [concerts, venues] = await Promise.all([
-                    getConcertList(),
-                    getVenueList(),
+                    getConcertSearchPage({page: 0, size: 10}, keyword),
+                    getVenueSearchPage({page: 0, size: 10}, keyword),
                 ]);
-                const filteredConcerts = filterConcertsByKeyword(concerts, keyword);
-                const filteredVenues = filterVenuesByKeyword(venues, keyword);
 
                 if (isMounted) {
-                    setConcertResults({
-                        contents: filteredConcerts.map(toConcertResult),
-                        page: 1,
-                        size: filteredConcerts.length,
-                        totalElements: filteredConcerts.length,
-                        totalPages: 1,
-                        hasNext: false,
-                        hasPrevious: false,
-                    });
-                    setVenueResults({
-                        contents: filteredVenues.map(toVenueResult),
-                        page: 1,
-                        size: filteredVenues.length,
-                        totalElements: filteredVenues.length,
-                        totalPages: 1,
-                        hasNext: false,
-                        hasPrevious: false,
-                    });
+                    setConcertResults(concerts);
+                    setVenueResults(venues);
                 }
             } catch (caughtError) {
                 if (isMounted) {

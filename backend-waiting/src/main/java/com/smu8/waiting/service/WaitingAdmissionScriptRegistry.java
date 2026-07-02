@@ -38,6 +38,7 @@ public class WaitingAdmissionScriptRegistry {
     private static final String SCRIPT_SHA_KEY = "waiting:script:admit-waiting-accounts:sha";
     private static final String SCRIPT_LOAD_LOCK_KEY = "waiting:script:admit-waiting-accounts:load-lock";
     private static final Duration SCRIPT_LOAD_LOCK_TTL = Duration.ofSeconds(10);
+    private static final int SCRIPT_LOAD_LOCK_WAIT_ATTEMPTS = 120;
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -63,21 +64,8 @@ public class WaitingAdmissionScriptRegistry {
     }
 
     public String reloadScript() {
-        Boolean locked = redisTemplate.opsForValue()
-                .setIfAbsent(SCRIPT_LOAD_LOCK_KEY, "1", SCRIPT_LOAD_LOCK_TTL);
-        if (Boolean.TRUE.equals(locked)) {
-            try {
-                String loadedScriptSha = loadScript();
-                redisTemplate.opsForValue().set(SCRIPT_SHA_KEY, loadedScriptSha);
-                this.scriptSha = loadedScriptSha;
-                return loadedScriptSha;
-            } finally {
-                redisTemplate.delete(SCRIPT_LOAD_LOCK_KEY);
-            }
-        }
-
-        waitForScriptLoadLock();
-        return getScriptSha();
+        this.scriptSha = registerScriptWithLock(true);
+        return scriptSha;
     }
 
     private String getOrRegisterScriptSha() {
@@ -86,40 +74,54 @@ public class WaitingAdmissionScriptRegistry {
             return savedScriptSha;
         }
 
+        return registerScriptWithLock(false);
+    }
+
+    private String registerScriptWithLock(boolean forceLoad) {
         Boolean locked = redisTemplate.opsForValue()
                 .setIfAbsent(SCRIPT_LOAD_LOCK_KEY, "1", SCRIPT_LOAD_LOCK_TTL);
         if (Boolean.TRUE.equals(locked)) {
             try {
-                String loadedScriptSha = loadScript();
-                redisTemplate.opsForValue().set(SCRIPT_SHA_KEY, loadedScriptSha);
-                return loadedScriptSha;
+                if (!forceLoad) {
+                    String savedScriptSha = redisTemplate.opsForValue().get(SCRIPT_SHA_KEY);
+                    if (hasText(savedScriptSha)) {
+                        return savedScriptSha;
+                    }
+                }
+                return loadAndSaveScriptSha();
             } finally {
                 redisTemplate.delete(SCRIPT_LOAD_LOCK_KEY);
             }
         }
 
-        return waitForRegisteredScriptSha();
+        String savedScriptSha = waitForRegisteredScriptSha();
+        if (hasText(savedScriptSha)) {
+            return savedScriptSha;
+        }
+
+        return registerScriptWithLock(true);
     }
 
     private String waitForRegisteredScriptSha() {
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < SCRIPT_LOAD_LOCK_WAIT_ATTEMPTS; i++) {
+            boolean locked = Boolean.TRUE.equals(redisTemplate.hasKey(SCRIPT_LOAD_LOCK_KEY));
             String savedScriptSha = redisTemplate.opsForValue().get(SCRIPT_SHA_KEY);
-            if (hasText(savedScriptSha)) {
+            if (!locked && hasText(savedScriptSha)) {
                 return savedScriptSha;
             }
-            sleep();
-        }
-
-        return reloadScript();
-    }
-
-    private void waitForScriptLoadLock() {
-        for (int i = 0; i < 20; i++) {
-            if (!Boolean.TRUE.equals(redisTemplate.hasKey(SCRIPT_LOAD_LOCK_KEY))) {
-                return;
+            if (!locked) {
+                return null;
             }
             sleep();
         }
+
+        return null;
+    }
+
+    private String loadAndSaveScriptSha() {
+        String loadedScriptSha = loadScript();
+        redisTemplate.opsForValue().set(SCRIPT_SHA_KEY, loadedScriptSha);
+        return loadedScriptSha;
     }
 
     private String loadScript() {

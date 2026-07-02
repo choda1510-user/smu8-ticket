@@ -1,8 +1,10 @@
 package com.smu8.waiting.config;
 
+import com.smu8.waiting.authentication.WaitingJwtAuthenticationConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -25,7 +27,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 
@@ -49,6 +50,23 @@ public class SecurityConfig {
 
         return new SecretKeySpec(keyBytes, "HmacSHA256");
     }
+    @Order(1)
+    @Bean
+    public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http, BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter) {
+        return http
+                .securityMatcher("/api/admin/**")
+                .authorizeHttpRequests(authorize ->
+                        authorize
+                                .anyRequest().hasAuthority("ADMIN"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .addFilterBefore(
+                        bearerTokenAuthenticationFilter,
+                        AuthorizationFilter.class)
+                .build();
+    }
+    @Order(2)
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter) {
         return http
@@ -72,8 +90,13 @@ public class SecurityConfig {
         return new ProviderManager(Collections.singletonList(jwtAuthenticationProvider));
     }
     @Bean
-    public JwtAuthenticationProvider jwtAuthenticationProvider(JwtDecoder jwtDecoder) {
-        return new JwtAuthenticationProvider(jwtDecoder);
+    public JwtAuthenticationProvider jwtAuthenticationProvider(
+            JwtDecoder jwtDecoder,
+            WaitingJwtAuthenticationConverter waitingJwtAuthenticationConverter
+    ) {
+        JwtAuthenticationProvider jwtAuthenticationProvider = new JwtAuthenticationProvider(jwtDecoder);
+        jwtAuthenticationProvider.setJwtAuthenticationConverter(waitingJwtAuthenticationConverter);
+        return jwtAuthenticationProvider;
     }
     @Bean
     public JwtEncoder jwtEncoder(SecretKey jwtSecretKey) {

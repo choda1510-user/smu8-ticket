@@ -59,7 +59,16 @@ tasks.register('bootRunLocal', org.springframework.boot.gradle.tasks.run.BootRun
 	systemProperty 'spring.profiles.active', 'local-dev'
 	jvmArgs = ["-Dcustom.property=true"]
 }
+tasks.register('bootRunWaiting', org.springframework.boot.gradle.tasks.run.BootRun) {
+	group = 'application'
+	description = 'Run the Backend Server with a dev-waiting profile.'
 
+	mainClass = 'com.smu8.ticket.TicketApplication'
+	classpath = sourceSets.main.runtimeClasspath
+
+	systemProperty 'spring.profiles.active', 'dev-waiting'
+	jvmArgs = ["-Dcustom.property=true"]
+}
 tasks.register('bootRunWaitingLocal', org.springframework.boot.gradle.tasks.run.BootRun) {
 	group = 'application'
 	description = 'Run the Backend Server with a local-dev-waiting profile.'

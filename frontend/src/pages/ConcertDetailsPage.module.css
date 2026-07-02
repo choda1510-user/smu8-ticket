@@ -340,6 +340,11 @@
     background-color: #071120;
     color: #fff;
 }
+/*호버 스타일 오류 해결 active상태 추가*/
+.activeDetailMenuButton:hover{
+    background-color: #071120;
+    color: #fff;
+}
 
 .detailSection {
     margin-top: 34px;

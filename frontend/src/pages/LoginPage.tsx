@@ -1,7 +1,7 @@
 /*import type { } from "react";*/
 import { useState } from "react";
 import type { SyntheticEvent } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import useLogin from "@/hooks/useLogin.tsx";
 import styles from "./LoginPage.module.css"
 /*
@@ -16,6 +16,7 @@ import styles from "./LoginPage.module.css"
 
 function LoginPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { login, isLoading } = useLogin();
 
     const [loginId, setLoginId] = useState("");
@@ -46,7 +47,12 @@ function LoginPage() {
             });
 
             alert("로그인되었습니다.");
-            navigate("/");
+            const redirectPath = searchParams.get("redirect");
+            const safeRedirectPath = redirectPath && redirectPath.startsWith("/") && !redirectPath.startsWith("//")
+                ? redirectPath
+                : "/";
+
+            navigate(safeRedirectPath, {replace: true});
         } catch {
             setLoginErrorMessage("아이디(로그인 전화번호, 로그인 전용 아이디) 또는 비밀번호가 잘못 되었습니다. 아이디와 비밀번호를 정확히 입력해 주세요.");
         }

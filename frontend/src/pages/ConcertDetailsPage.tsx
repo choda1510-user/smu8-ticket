@@ -1,8 +1,10 @@
 import styles from "./ConcertDetailsPage.module.css"
-import {useRef, useState} from "react";
-import {useNavigate, useParams} from "react-router";
+import {useEffect, useRef, useState} from "react";
+import {useNavigate, useParams, useSearchParams} from "react-router";
 import {useConcertDetailsPage} from "@/hooks/useConcertDetailsPage";
 import {useReservationCountdown} from "@/hooks/useReservationCountdown";
+import {enterWaitingQueue} from "@/apis/waitingApi";
+import useLogin from "@/hooks/useLogin";
 
 /*
  * 공연 상세 페이지
@@ -19,6 +21,8 @@ type DetailMenu = "detail" | "venue" | "notice";
 function ConcertDetailsPage() {
     const navigate = useNavigate();
     const {concertId} = useParams();
+    const [searchParams] = useSearchParams();
+    const {isLoggedIn, isAuthReady} = useLogin();
     const {concertDetail} = useConcertDetailsPage();
     const {
         bookingStatusText,
@@ -33,23 +37,76 @@ function ConcertDetailsPage() {
     const venueRef = useRef<HTMLElement | null>(null);
     const noticeRef = useRef<HTMLElement | null>(null);
 
-    const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(
-        null
-    );
+    const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(null);
+    const [isEnteringWaitingQueue, setIsEnteringWaitingQueue] = useState(false);
     const [isDetailExpanded, setIsDetailExpanded] = useState(false);
     const [activeMenu, setActiveMenu] = useState<DetailMenu>("detail");
+    const scheduleIdQuery = searchParams.get("scheduleId");
+
+    // 공연 상세 진입 시 UI를 최상단으로 이동시키는 코드 추가
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: "auto",
+        });
+    }, [concertId]);
+    
+    useEffect(() => {
+        if (!scheduleIdQuery) {
+            return;
+        }
+
+        const scheduleId = Number(scheduleIdQuery);
+        const hasSchedule = concertDetail.schedules.some((schedule) => schedule.id === scheduleId);
+
+        if (Number.isInteger(scheduleId) && hasSchedule) {
+            setSelectedScheduleId(scheduleId);
+        }
+    }, [concertDetail.schedules, scheduleIdQuery]);
 
     const handleScheduleClick = (scheduleId: number) => {
         setSelectedScheduleId(scheduleId);
     };
 
-    const handleBookingClick = () => {
+    const handleBookingClick = async () => {
         if (!selectedScheduleId) {
             alert("공연 날짜와 시간을 선택해주세요.");
             return;
         }
 
-        window.open(`/booking/select/${currentConcertId}?scheduleId=${selectedScheduleId}`, "_blank", "noopener,noreferrer");
+        if (!isAuthReady) {
+            alert("로그인 상태를 확인 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+        }
+
+        if (!isLoggedIn) {
+            alert("로그인이 필요합니다.");
+            navigate(`/login?redirect=${encodeURIComponent(`/concerts/${currentConcertId}?scheduleId=${selectedScheduleId}`)}`);
+            return;
+        }
+
+        if (isEnteringWaitingQueue) {
+            return;
+        }
+
+        try {
+            setIsEnteringWaitingQueue(true);
+
+            const waitingEntry = await enterWaitingQueue(currentConcertId);
+
+            if (waitingEntry.active) {
+                window.open(`/booking/select/${currentConcertId}?scheduleId=${selectedScheduleId}`, "_blank", "noopener,noreferrer");
+                return;
+            }
+
+            navigate(`/booking/waiting/${currentConcertId}?scheduleId=${selectedScheduleId}`);
+        } catch (error) {
+            console.error(error);
+            alert("대기열 입장 요청에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        } finally {
+            setIsEnteringWaitingQueue(false);
+        }
     };
 
     const handleVenueClick = () => {
@@ -155,9 +212,9 @@ function ConcertDetailsPage() {
                                     className
                                         ={styles.bookingButton}
                                     onClick={handleBookingClick}
-                                    disabled={!isBookingOpen}
+                                    disabled={!isBookingOpen || isEnteringWaitingQueue}
                                 >
-                                    예매하기
+                                    {isEnteringWaitingQueue ? "대기열 입장 중" : "예매하기"}
                                 </button>
                             </div>
                         </div>

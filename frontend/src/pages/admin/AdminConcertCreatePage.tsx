@@ -209,7 +209,7 @@ async function loadVenueBookedDates(venueId: number) {
         });
         console.log("추출된 예약 날짜들", dates);
         setVenueBookedDates(dates);
-    } catch {
+    } catch (error) {
         console.log("불러오기 실패", error);
         setVenueBookedDates(new Set());
     }

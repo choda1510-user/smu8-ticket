@@ -1,6 +1,6 @@
 import {createContext, useCallback, useContext, useEffect, useMemo, useState} from "react";
 import type {ReactNode} from "react";
-import {getMyInfo, login as requestLogin, logout as requestLogout} from "@/apis/accountApi.ts";
+import {ApiError, getMyInfo, login as requestLogin, logout as requestLogout} from "@/apis/accountApi.ts";
 import type {AccountDetailResult, LoginContextValue, LoginRequest} from "@/types/member.ts";
 import type { LoginUser } from "@/types/auth";
 import { delAccessToken, getAccessToken, setAccessToken } from "@/apis/authApi";
@@ -10,6 +10,10 @@ type LoginProviderProps = {
     children: ReactNode;
 };
 const LoginContext = createContext<LoginContextValue | null>(null);
+
+function isAuthenticationError(error: unknown) {
+    return error instanceof ApiError && (error.status === 401 || error.status === 403);
+}
 
 export function LoginProvider({children}: LoginProviderProps) {
     const [user, setUser] = useState<LoginUser | null>(null);
@@ -39,10 +43,12 @@ export function LoginProvider({children}: LoginProviderProps) {
                         accessToken: storedToken,
                     });
                 }
-            } catch {
+            } catch (error) {
                 if (!ignore) {
                     setUser(null);
-                    delAccessToken();
+                    if (isAuthenticationError(error)) {
+                        delAccessToken();
+                    }
                 }
             } finally {
                 if (!ignore) {

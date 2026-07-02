@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "name": "SMU8 Ticket 테스트 공연장 데이터",
+    "createdAt": "2026-07-02",
+    "counts": {
+      "venues": 2
+    },
+    "note": "소규모 기능테스트용 공연장 데이터입니다."
+  },
+  "venues": [
+    {
+      "name": "서울 아트홀 001",
+      "description": "서울에 위치한 테스트용 아트홀입니다.",
+      "capacity": 1200,
+      "zoneNo": "10001",
+      "roadAddress": "서울시 테스트로 1길 01",
+      "jibunAddress": "서울시 테스트동 1번지",
+      "detailAddress": "2층",
+      "buildingName": "아트홀 빌딩 001"
+    },
+    {
+      "name": "부산 체육관 002",
+      "description": "부산에 위치한 테스트용 체육관입니다.",
+      "capacity": 3000,
+      "zoneNo": "10002",
+      "roadAddress": "부산시 테스트로 2길 02",
+      "jibunAddress": "부산시 테스트동 2번지",
+      "detailAddress": "1층",
+      "buildingName": "체육관 빌딩 002"
+    }
+  ]
+}

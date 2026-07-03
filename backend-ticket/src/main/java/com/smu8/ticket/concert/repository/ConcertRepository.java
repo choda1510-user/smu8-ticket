@@ -65,7 +65,7 @@ public interface ConcertRepository extends JpaRepository<Concert, Long>, JpaSpec
                     or lower(venue.name) like lower(concat('%', :venueName, '%')))
               and (:venueId is null or venue.id = :venueId)
               and (:status is null
-                    or lower(concert.performanceStatus) = lower(:status))
+                    or lower(concert.performanceStatus) = lower(:status))                               
             """)
     Page<Concert> search(
             @Param("concertName") String concertName,

@@ -61,7 +61,7 @@ function GlobalConcertSearchPage() {
                             <h2 className
                                     ={styles.sectionTitle}>공연</h2>
                             <span className
-                                      ={styles.resultCount}>{concerts.length}건</span>
+                                      ={styles.resultCount}>{concertResults.totalElements}건</span>
                         </div>
                         <button
                             type="button"
@@ -145,7 +145,7 @@ function GlobalConcertSearchPage() {
                             <h2 className
                                     ={styles.sectionTitle}>공연장</h2>
                             <span className
-                                      ={styles.resultCount}>{venues.length}건</span>
+                                      ={styles.resultCount}>{venueResults.totalElements}건</span>
                         </div>
 
                         <button

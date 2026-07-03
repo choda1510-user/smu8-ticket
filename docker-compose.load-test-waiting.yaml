@@ -1,16 +1,34 @@
 services:
-  backend:
+  backend-ticket:
     build:
       context: ./backend-ticket
-      dockerfile: Dockerfile.test
-    container_name: backend
+      dockerfile: Dockerfile.load-test-waiting
+    container_name: backend-ticket
     ports:
       - "8080:8080"
     depends_on:
       database:
         condition: service_healthy
+      redis-ticket:
+        condition: service_started
+      redis-waiting:
+        condition: service_started
     environment:
-      - SPRING_PROFILES_ACTIVE=test
+      - SPRING_PROFILES_ACTIVE=load-test-waiting
+    networks:
+      - smu8-ticket-network
+  backend-waiting:
+    build:
+      context: ./backend-waiting
+      dockerfile: Dockerfile.load-test-waiting
+    container_name: backend-waiting
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=load-test-waiting
+    depends_on:
+      redis-waiting:
+        condition: service_started
     networks:
       - smu8-ticket-network
   database:
@@ -23,9 +41,9 @@ services:
     networks:
       - smu8-ticket-network
     volumes:
-      - mysql_database:/var/lib/mysql
+      - mysql_test_database:/var/lib/mysql
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$root']
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$$root']
       timeout: 20s
       retries: 10
   redis-ticket:
@@ -33,6 +51,14 @@ services:
       context: ./redis-ticket
       dockerfile: Dockerfile.dev
     container_name: redis-ticket
+    command:
+      - redis-server
+      - --maxmemory
+      - 768mb
+      - --maxmemory-policy
+      - noeviction
+    mem_limit: 1g
+    memswap_limit: 1g
     ports:
       - "6379:6379"
     networks:
@@ -42,15 +68,105 @@ services:
       context: ./redis-waiting
       dockerfile: Dockerfile.load-test-waiting
     container_name: redis-waiting
+    command:
+      - redis-server
+      - --maxmemory
+      - 1536mb
+      - --maxmemory-policy
+      - noeviction
+    mem_limit: 2g
+    memswap_limit: 2g
     ports:
       - "6381:6379"
     networks:
       - smu8-ticket-network
     volumes:
       - redis_waiting_volume:/data
+  mysql-exporter:
+    image: prom/mysqld-exporter:v0.15.1
+    container_name: mysql-exporter
+    environment:
+      - DATA_SOURCE_NAME=exporter:exporter@(database:3306)/
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - smu8-ticket-network
+  redis-ticket-exporter:
+    image: oliver006/redis_exporter:v1.62.0
+    container_name: redis-ticket-exporter
+    environment:
+      - REDIS_ADDR=redis://redis-ticket:6379
+    depends_on:
+      redis-ticket:
+        condition: service_started
+    networks:
+      - smu8-ticket-network
+  redis-waiting-exporter:
+    image: oliver006/redis_exporter:v1.62.0
+    container_name: redis-waiting-exporter
+    environment:
+      - REDIS_ADDR=redis://redis-waiting:6379
+    depends_on:
+      redis-waiting:
+        condition: service_started
+    networks:
+      - smu8-ticket-network
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: cadvisor
+    privileged: true
+    ports:
+      - "8082:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    networks:
+      - smu8-ticket-network
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/load-test-waiting.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    depends_on:
+      - backend-ticket
+      - backend-waiting
+      - cadvisor
+      - mysql-exporter
+      - redis-ticket-exporter
+      - redis-waiting-exporter
+    networks:
+      - smu8-ticket-network
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - smu8-ticket-network
 volumes:
   mysql_test_database:
   redis_waiting_volume:
+  prometheus_data:
+  grafana_data:
 networks:
   smu8-ticket-network:
     driver: bridge

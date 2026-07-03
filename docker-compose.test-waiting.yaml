@@ -8,22 +8,33 @@ services:
       - "80:80"
     networks:
       - smu8-ticket-network
-  backend:
+  backend-ticket:
     build:
       context: ./backend-ticket
-      dockerfile: Dockerfile.test
-    container_name: backend
+      dockerfile: Dockerfile.test-waiting
+    container_name: backend-ticket
     ports:
       - "8080:8080"
     depends_on:
       database:
         condition: service_healthy
     environment:
-      - SPRING_PROFILES_ACTIVE=test
+      - SPRING_PROFILES_ACTIVE=test-waiting
     networks:
       - smu8-ticket-network
     volumes:
       - backend_file_dir:/app/upload-dir
+  backend-waiting:
+    build:
+      context: ./backend-waiting
+      dockerfile: Dockerfile.test-waiting
+    container_name: backend-waiting
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=test-waiting
+    networks:
+      - smu8-ticket-network
   database:
     build:
       context: ./database
@@ -34,9 +45,9 @@ services:
     networks:
       - smu8-ticket-network
     volumes:
-      - mysql_database:/var/lib/mysql
+      - mysql_test_database:/var/lib/mysql
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$root']
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$$root']
       timeout: 20s
       retries: 10
   redis-ticket:

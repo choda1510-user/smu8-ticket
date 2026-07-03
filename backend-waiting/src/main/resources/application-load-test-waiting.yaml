@@ -4,10 +4,11 @@ spring:
       on-profile: load-test-waiting
   data:
     redis-waiting:
-      host: 192.168.0.6
-      port: 6381
+      host: redis-waiting
+      port: 6379
 cors:
   origins:
+    - http://localhost:5173
     - http://192.168.0.6:80
     - http://192.168.0.6
   headers:
@@ -22,3 +23,12 @@ cors:
     - PATCH
     - HEAD
   credentials: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always

@@ -1,0 +1,26 @@
+{
+  "name": "smu8-ticket-test-ops",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "accounts:local": "node ./scripts/run-with-env.mjs .env.local node ./scripts/register-test-accounts.mjs ./testdata/smu8-ticket-accounts-500.json",
+    "accounts:remote": "node ./scripts/run-with-env.mjs .env.remote node ./scripts/register-test-accounts.mjs ./testdata/smu8-ticket-accounts-500.json",
+    "admin-token:local": "node ./scripts/run-with-env.mjs .env.local node ./scripts/get-admin-token.mjs",
+    "admin-token:remote": "node ./scripts/run-with-env.mjs .env.remote node ./scripts/get-admin-token.mjs",
+    "venues:local": "node ./scripts/run-with-env.mjs .env.local node ./scripts/register-test-venues.mjs ./testdata/smu8-ticket-venues-2.json",
+    "venues:remote": "node ./scripts/run-with-env.mjs .env.remote node ./scripts/register-test-venues.mjs ./testdata/smu8-ticket-venues-2.json",
+    "concert:0001:local": "node ./scripts/run-with-env.mjs .env.local node ./scripts/register-test-concert.mjs ./testdata/smu8-ticket-concerts-0001.json --reservation-start=2026-07-03T00:00:00 --concert-date=2026-07-16T19:00:00",
+    "concert:0001:remote": "node ./scripts/run-with-env.mjs .env.remote node ./scripts/register-test-concert.mjs ./testdata/smu8-ticket-concerts-0001.json --reservation-start=2026-07-03T00:00:00 --concert-date=2026-07-16T19:00:00",
+    "concert:0002:local": "node ./scripts/run-with-env.mjs .env.local node ./scripts/register-test-concert.mjs ./testdata/smu8-ticket-concerts-0002.json --reservation-start=2026-07-03T00:00:00 --concert-date=2026-07-20T19:00:00",
+    "concert:0002:remote": "node ./scripts/run-with-env.mjs .env.remote node ./scripts/register-test-concert.mjs ./testdata/smu8-ticket-concerts-0002.json --reservation-start=2026-07-03T00:00:00 --concert-date=2026-07-20T19:00:00",
+    "seed:local": "npm run accounts:local && npm run admin-token:local && npm run venues:local && npm run concert:0001:local && npm run concert:0002:local",
+    "seed:remote": "npm run accounts:remote && npm run admin-token:remote && npm run venues:remote && npm run concert:0001:remote && npm run concert:0002:remote",
+    "k6:different-seats:local": "node ./scripts/run-with-env.mjs .env.local k6 run ./k6/preempt-different-seats.js",
+    "k6:different-seats:remote": "node ./scripts/run-with-env.mjs .env.remote k6 run ./k6/preempt-different-seats.js",
+    "k6:waiting-different-seats:local": "node ./scripts/run-with-env.mjs .env.local k6 run ./k6/preempt-different-seats-with-waiting.js",
+    "k6:waiting-different-seats:remote": "node ./scripts/run-with-env.mjs .env.remote k6 run ./k6/preempt-different-seats-with-waiting.js",
+    "k6:same-seat:local": "node ./scripts/run-with-env.mjs .env.local k6 run ./k6/preempt-same-seat.js",
+    "k6:same-seat:remote": "node ./scripts/run-with-env.mjs .env.remote k6 run ./k6/preempt-same-seat.js"
+  }
+}

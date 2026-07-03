@@ -20,9 +20,13 @@ public interface ConcertRepository extends JpaRepository<Concert, Long>, JpaSpec
             select distinct concert
             from Concert concert
             where concert.performanceStatus <> :canceledStatus
+                        and (:concertName is null
+              or lower(concert.title)
+              like lower(concat('%', :concertName, '%')))
             """)
     Page<Concert> findActiveConcerts(
             @Param("canceledStatus") String canceledStatus,
+            @Param("concertName") String concertName,
             Pageable pageable
     );
 
@@ -32,10 +36,14 @@ public interface ConcertRepository extends JpaRepository<Concert, Long>, JpaSpec
             join concert.performanceSchedules schedule
             where concert.performanceStatus <> :canceledStatus
               and schedule.reservationStartAt > :now
+              and (:concertName is null
+              or lower(concert.title)
+              like lower(concat('%', :concertName, '%')))            
             """)
     Page<Concert> findUpcomingConcerts(
             @Param("canceledStatus") String canceledStatus,
             @Param("now") LocalDateTime now,
+            @Param("concertName") String concertName,
             Pageable pageable
     );
 
@@ -46,10 +54,14 @@ public interface ConcertRepository extends JpaRepository<Concert, Long>, JpaSpec
             where concert.performanceStatus <> :canceledStatus
               and schedule.reservationStartAt <= :now
               and schedule.reservationEndAt >= :now
+              and (:concertName is null
+              or lower(concert.title)
+              like lower(concat('%', :concertName, '%')))                          
             """)
     Page<Concert> findOpenConcerts(
             @Param("canceledStatus") String canceledStatus,
             @Param("now") LocalDateTime now,
+            @Param("concertName") String concertName,
             Pageable pageable
     );
 
@@ -65,7 +77,7 @@ public interface ConcertRepository extends JpaRepository<Concert, Long>, JpaSpec
                     or lower(venue.name) like lower(concat('%', :venueName, '%')))
               and (:venueId is null or venue.id = :venueId)
               and (:status is null
-                    or lower(concert.performanceStatus) = lower(:status))
+                    or lower(concert.performanceStatus) = lower(:status))                               
             """)
     Page<Concert> search(
             @Param("concertName") String concertName,

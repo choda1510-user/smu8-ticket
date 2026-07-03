@@ -21,7 +21,14 @@ public class ConcertServiceImpl implements ConcertService {
 
     private final ConcertRepository concertRepository;
     private final StorageService storageService;
+    private String getConcertName(ConcertPageQuery query) {
+        if (query.concertNames() == null || query.concertNames().isEmpty()) {
+            return null;
+        }
 
+        String concertName = query.concertNames().get(0);
+        return concertName == null || concertName.isBlank() ? null : concertName.trim();
+    }
     @Override
     @Transactional(readOnly = true)
     public PageResult<ConcertDetailResult> getConcerts(ConcertPageQuery query) {
@@ -29,12 +36,15 @@ public class ConcertServiceImpl implements ConcertService {
                 query.pageQuery().page(),
                 query.pageQuery().size()
         );
+        String concertName = getConcertName(query);
+
 
         if ("upcoming".equalsIgnoreCase(query.status())) {
             return PageResult.from(concertRepository
                     .findUpcomingConcerts(
                             CANCELED_STATUS,
                             LocalDateTime.now(),
+                            concertName,
                             pageRequest
                     )
                     .map((concert -> ConcertDetailResult.from(concert, storageService))));
@@ -45,12 +55,13 @@ public class ConcertServiceImpl implements ConcertService {
                     .findOpenConcerts(
                             CANCELED_STATUS,
                             LocalDateTime.now(),
+                            concertName,
                             pageRequest
                     )
                     .map((concert -> ConcertDetailResult.from(concert, storageService))));
         }
 
-        return PageResult.from(concertRepository.findActiveConcerts(CANCELED_STATUS, pageRequest)
+        return PageResult.from(concertRepository.findActiveConcerts(CANCELED_STATUS,concertName,pageRequest)
                 .map((concert -> ConcertDetailResult.from(concert, storageService))));
     }
 

@@ -22,6 +22,8 @@ const authCheckSuccess = new Counter("auth_check_success");
 const authCheckFailed = new Counter("auth_check_failed");
 const preemptSuccess = new Counter("preempt_success");
 const preemptFailed = new Counter("preempt_failed");
+const reservationSuccess = new Counter("reservation_success");
+const reservationFailed = new Counter("reservation_failed");
 const waitingDuration = new Trend("waiting_duration");
 
 const accounts = new SharedArray("accounts", () => {
@@ -46,6 +48,8 @@ export const options = {
     auth_check_failed: ["count==0"],
     preempt_success: [`count==${ACCOUNT_LIMIT}`],
     preempt_failed: ["count==0"],
+    reservation_success: [`count==${ACCOUNT_LIMIT}`],
+    reservation_failed: ["count==0"],
     checks: ["rate>0.99"],
   },
 };
@@ -295,13 +299,15 @@ export default function (data) {
     return;
   }
 
-  const response = http.post(
+  const requestBody = JSON.stringify({
+    concertId: CONCERT_ID,
+    scheduleId: SCHEDULE_ID,
+    seatIds: [seatId],
+  });
+
+  const preemptResponse = http.post(
     `${API_BASE_URL}/api/reservations/preempt-seats`,
-    JSON.stringify({
-      concertId: CONCERT_ID,
-      scheduleId: SCHEDULE_ID,
-      seatIds: [seatId],
-    }),
+    requestBody,
     {
       headers: jsonBearerHeaders(testCase.token),
       tags: {
@@ -310,14 +316,36 @@ export default function (data) {
     },
   );
 
-  const success = check(response, {
+  const preempted = check(preemptResponse, {
     "대기열 통과 후 선점 요청 성공": (r) => r.status === 200,
   });
 
-  if (success) {
-    preemptSuccess.add(1);
+  if (!preempted) {
+    preemptFailed.add(1);
     return;
   }
 
-  preemptFailed.add(1);
+  preemptSuccess.add(1);
+
+  const reservationResponse = http.post(
+    `${API_BASE_URL}/api/reservations`,
+    requestBody,
+    {
+      headers: jsonBearerHeaders(testCase.token),
+      tags: {
+        name: "POST /api/reservations after waiting",
+      },
+    },
+  );
+
+  const reserved = check(reservationResponse, {
+    "대기열 통과 후 예매 요청 성공": (r) => r.status === 200,
+  });
+
+  if (reserved) {
+    reservationSuccess.add(1);
+    return;
+  }
+
+  reservationFailed.add(1);
 }

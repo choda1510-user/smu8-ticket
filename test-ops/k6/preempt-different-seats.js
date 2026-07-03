@@ -1,6 +1,7 @@
 import encoding from "k6/encoding";
 import http from "k6/http";
 import { check } from "k6";
+import { Counter } from "k6/metrics";
 import { SharedArray } from "k6/data";
 
 const API_BASE_URL = __ENV.API_BASE_URL || "http://localhost:8080";
@@ -8,6 +9,11 @@ const CONCERT_ID = Number(__ENV.CONCERT_ID || 1);
 const SCHEDULE_ID = Number(__ENV.SCHEDULE_ID || 1);
 const ACCOUNT_LIMIT = Number(__ENV.ACCOUNT_LIMIT || 500);
 const LOGIN_BATCH_SIZE = Number(__ENV.LOGIN_BATCH_SIZE || 50);
+
+const preemptSuccess = new Counter("preempt_success");
+const preemptFailed = new Counter("preempt_failed");
+const reservationSuccess = new Counter("reservation_success");
+const reservationFailed = new Counter("reservation_failed");
 
 const accounts = new SharedArray("accounts", () => {
   const data = JSON.parse(open("../testdata/smu8-ticket-accounts-500.json"));
@@ -27,6 +33,10 @@ export const options = {
   thresholds: {
     http_req_failed: ["rate<0.01"],
     http_req_duration: ["p(95)<1000"],
+    preempt_success: [`count==${ACCOUNT_LIMIT}`],
+    preempt_failed: ["count==0"],
+    reservation_success: [`count==${ACCOUNT_LIMIT}`],
+    reservation_failed: ["count==0"],
     checks: ["rate>0.99"],
   },
 };
@@ -126,6 +136,13 @@ function loadAvailableSeatIds(token) {
   return availableSeatIds.slice(0, accounts.length);
 }
 
+function jsonBearerHeaders(token) {
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
+
 export function setup() {
   const tokens = loginAll(accounts);
   const seatIds = loadAvailableSeatIds(tokens[0]);
@@ -142,25 +159,53 @@ export function setup() {
 export default function (data) {
   const testCase = data.cases[__VU - 1];
 
-  const response = http.post(
+  const requestBody = JSON.stringify({
+    concertId: CONCERT_ID,
+    scheduleId: SCHEDULE_ID,
+    seatIds: [testCase.seatId],
+  });
+
+  const preemptResponse = http.post(
     `${API_BASE_URL}/api/reservations/preempt-seats`,
-    JSON.stringify({
-      concertId: CONCERT_ID,
-      scheduleId: SCHEDULE_ID,
-      seatIds: [testCase.seatId],
-    }),
+    requestBody,
     {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${testCase.token}`,
-      },
+      headers: jsonBearerHeaders(testCase.token),
       tags: {
         name: "POST /api/reservations/preempt-seats different seats",
       },
     },
   );
 
-  check(response, {
+  const preempted = check(preemptResponse, {
     "선점 요청 성공": (r) => r.status === 200,
   });
+
+  if (!preempted) {
+    preemptFailed.add(1);
+    return;
+  }
+
+  preemptSuccess.add(1);
+
+  const reservationResponse = http.post(
+    `${API_BASE_URL}/api/reservations`,
+    requestBody,
+    {
+      headers: jsonBearerHeaders(testCase.token),
+      tags: {
+        name: "POST /api/reservations different seats",
+      },
+    },
+  );
+
+  const reserved = check(reservationResponse, {
+    "예매 요청 성공": (r) => r.status === 200,
+  });
+
+  if (reserved) {
+    reservationSuccess.add(1);
+    return;
+  }
+
+  reservationFailed.add(1);
 }

@@ -10,62 +10,159 @@
 .inner {
     width: 100%;
     max-width: 1180px;
-    min-height: 720px;
+    min-height: calc(100vh - 120px);
     margin: 0 auto;
     background-color: #fbf7ff;
-    padding: 46px 48px 56px;
+    padding: 46px 48px 72px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .pageTitle {
-    margin: 0 0 42px;
+    width: 100%;
+    margin: 0 0 72px;
     color: #272631;
     font-size: 28px;
     font-weight: 800;
+    text-align: center;
 }
 
 .successBox {
-    width: 78%;
-    min-height: 280px;
-    margin: 210px 0 0 68px;
-    border: 1px solid #222;
+    width: min(720px, 100%);
+    min-height: 320px;
+    margin: 0 auto;
+    border: 1px solid #e3e3ea;
+    border-radius: 8px;
     background-color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
+    padding: 48px 56px;
+    box-shadow: 0 16px 36px rgba(34, 34, 34, 0.08);
 }
 
 .messageArea {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
 }
 
+.successBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 82px;
+    height: 32px;
+    border-radius: 999px;
+    background-color: #fff0f7;
+    color: #d63b7a;
+    font-size: 14px;
+    font-weight: 700;
+}
+
 .successTitle {
+    margin-top: 22px;
     color: #111;
-    font-size: 30px;
-    font-weight: 500;
+    font-size: 28px;
+    font-weight: 800;
     line-height: 1.35;
 }
 
 .successMessage {
-    margin: 18px 0 56px;
-    color: #777;
+    margin: 14px 0 28px;
+    color: #666;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+.reservationInfo {
+    width: 100%;
+    max-width: 440px;
+    margin: 0 0 36px;
+    padding: 0;
+    border-top: 1px solid #ededf2;
+    border-bottom: 1px solid #ededf2;
+}
+
+.reservationInfoRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 54px;
+}
+
+.reservationInfoRow dt,
+.reservationInfoRow dd {
+    margin: 0;
     font-size: 15px;
+}
+
+.reservationInfoRow dt {
+    color: #777;
     font-weight: 600;
 }
 
+.reservationInfoRow dd {
+    color: #222;
+    font-weight: 800;
+}
+
 .confirmButton {
-    min-width: 58px;
+    min-width: 120px;
     height: 46px;
     border: none;
-    border-radius: 22px;
-    background-color: #ffd9ec;
-    color: #222;
-    padding: 0 18px;
-    font-size: 20px;
-    font-weight: 500;
+    border-radius: 8px;
+    background-color: #222;
+    color: #fff;
+    padding: 0 28px;
+    font-size: 16px;
+    font-weight: 700;
     cursor: pointer;
+}
+
+.confirmButton:hover {
+    background-color: #3a3a3a;
+}
+
+@media (max-width: 768px) {
+    .page {
+        padding: 24px 16px 48px;
+    }
+
+    .inner {
+        min-height: 640px;
+        padding: 32px 20px 48px;
+    }
+
+    .pageTitle {
+        margin-bottom: 40px;
+        font-size: 24px;
+    }
+
+    .successBox {
+        margin-top: 0;
+        padding: 40px 22px;
+    }
+
+    .successTitle {
+        font-size: 24px;
+    }
+
+    .successMessage {
+        font-size: 15px;
+    }
+
+    .reservationInfoRow {
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 14px 0;
+    }
 }

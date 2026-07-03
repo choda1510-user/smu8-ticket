@@ -329,9 +329,9 @@ export function toBookingSuccessResult(response: BookingItemResponse): BookingSu
         reserveId: response.reservationId,
         reservationNumber: response.reservationNo,
         status: "success",
-        title: "Reservation complete",
-        message: "You can check reservation details from My Page.",
-        confirmButtonText: "OK",
+        title: "예매가 완료되었습니다.",
+        message: "예매 상세 내역은 마이페이지 > 예매 내역에서 확인할 수 있습니다.",
+        confirmButtonText: "확인",
         confirmRedirectPath: `/concerts/${response.reservedSchedule.concertId}`,
     };
 }

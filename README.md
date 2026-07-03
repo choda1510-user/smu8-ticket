@@ -19,3 +19,31 @@ sudo docker compose -f docker-compose.test.yaml up -d --build
 ```bash
 sudo docker compose -f docker-compose.test.yaml down
 ```
+
+## 부하 테스트와 테스트 데이터 등록
+
+부하 테스트 스크립트, 테스트 데이터, 데이터 등록 명령은 `test-ops` 폴더에서 관리합니다.
+
+```bash
+cd test-ops
+```
+
+로컬 서버에 테스트 데이터를 등록하려면 다음 명령을 실행합니다.
+
+```bash
+npm run seed:local
+```
+
+원격 서버에 테스트 데이터를 등록하려면 `.env.remote.example`을 `.env.remote`로 복사한 뒤 서버 주소를 수정하고 실행합니다.
+
+```bash
+cp .env.remote.example .env.remote
+npm run seed:remote
+```
+
+k6 부하 테스트도 같은 폴더에서 실행합니다.
+
+```bash
+npm run k6:different-seats:remote
+npm run k6:same-seat:remote
+```

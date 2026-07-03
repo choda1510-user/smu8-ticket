@@ -41,10 +41,9 @@ import org.springframework.security.oauth2.server.resource.web.authentication.Be
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.util.StreamUtils;
+import org.springframework.web.filter.CompositeFilter;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -153,6 +152,12 @@ public class SecurityConfig {
             BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter,
             WaitingActiveAccountFilter waitingActiveAccountFilter
     ) throws Exception {
+        CompositeFilter waitingReservationAuthenticationFilter = new CompositeFilter();
+        waitingReservationAuthenticationFilter.setFilters(List.of(
+                bearerTokenAuthenticationFilter,
+                waitingActiveAccountFilter
+        ));
+
         return http.securityMatcher("/api/reservations/**", "/api/reservaions/**")
                 .authorizeHttpRequests((authorize) -> authorize
                         .anyRequest().authenticated())
@@ -163,11 +168,8 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .addFilterBefore(
-                        bearerTokenAuthenticationFilter,
+                        waitingReservationAuthenticationFilter,
                         AuthorizationFilter.class)
-                .addFilterAfter(
-                        waitingActiveAccountFilter,
-                        BearerTokenAuthenticationFilter.class)
                 .build();
     }
     @Order(3)

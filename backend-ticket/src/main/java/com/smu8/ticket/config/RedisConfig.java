@@ -66,7 +66,7 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting"})
+    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting"})
     @Bean(name = "redisWaitingConnectionFactory")
     public RedisConnectionFactory redisWaitingConnectionFactory(
             @Value("${spring.data.redis-waiting.host}") String host,
@@ -75,7 +75,7 @@ public class RedisConfig {
         return new LettuceConnectionFactory(host, port);
     }
 
-    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting"})
+    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting"})
     @Bean(name = "concertReservationTimeRedisTemplate")
     public RedisTemplate<String, ConcertReservationTime> concertReservationTimeRedisTemplate(
             @Qualifier("redisWaitingConnectionFactory") RedisConnectionFactory redisWaitingConnectionFactory,
@@ -94,7 +94,7 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting"})
+    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting"})
     @Bean(name = "concertPassedUserRedisTemplate")
     public RedisTemplate<String, String> concertPassedUserRedisTemplate(
             @Qualifier("redisWaitingConnectionFactory") RedisConnectionFactory redisWaitingConnectionFactory

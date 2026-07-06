@@ -1,0 +1,33 @@
+spring:
+  config:
+    activate:
+      on-profile: local-test-waiting
+  data:
+    redis-waiting:
+      host: redis-waiting
+      port: 6379
+cors:
+  origins:
+    - http://localhost:80
+    - http://localhost
+  headers:
+    - Content-Type
+    - Authorization
+  methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+    - PATCH
+    - HEAD
+  credentials: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always

@@ -1,8 +1,17 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.local-test-waiting
+    container_name: frontend
+    ports:
+      - "80:80"
+    networks:
+      - smu8-ticket-network
   backend-ticket:
     build:
       context: ./backend-ticket
-      dockerfile: Dockerfile.load-test-waiting
+      dockerfile: Dockerfile.local-test-waiting
     container_name: backend-ticket
     ports:
       - "8080:8080"
@@ -20,7 +29,7 @@ services:
   backend-waiting:
     build:
       context: ./backend-waiting
-      dockerfile: Dockerfile.load-test-waiting
+      dockerfile: Dockerfile.local-test-waiting
     container_name: backend-waiting
     ports:
       - "8081:8081"

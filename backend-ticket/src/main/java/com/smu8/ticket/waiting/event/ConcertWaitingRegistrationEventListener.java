@@ -11,7 +11,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @Component
-@Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting"})
+@Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting"})
 public class ConcertWaitingRegistrationEventListener {
     private static final String CONCERT_RESERVATION_TIME_KEY_PREFIX = "waiting:concert:reservation-time:";
 

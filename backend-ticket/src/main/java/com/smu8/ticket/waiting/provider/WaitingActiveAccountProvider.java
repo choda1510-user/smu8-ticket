@@ -11,7 +11,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting"})
+@Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting"})
 public class WaitingActiveAccountProvider implements AuthenticationProvider {
     private static final String KEY_PREFIX = "waiting:concert:active-account:";
 

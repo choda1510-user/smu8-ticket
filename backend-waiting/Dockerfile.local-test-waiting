@@ -1,0 +1,15 @@
+FROM alpine/java:21-jdk AS build
+
+WORKDIR /backend
+COPY . /backend
+
+RUN chmod +x ./gradlew
+
+RUN ./gradlew clean
+RUN ./gradlew classes
+RUN ./gradlew bootJar
+
+FROM eclipse-temurin:21-jre-alpine AS deploy
+WORKDIR /app
+COPY --from=build /backend/build/libs/smu8waiting-backend.jar /app
+CMD ["java", "-jar", "smu8waiting-backend.jar", "--spring.profiles.active=local-test-waiting"]

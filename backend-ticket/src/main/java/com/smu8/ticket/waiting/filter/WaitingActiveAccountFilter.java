@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Component
-@Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting"})
+@Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting"})
 public class WaitingActiveAccountFilter extends OncePerRequestFilter {
     private final AuthenticationManager authenticationManager;
     private final ObjectMapper objectMapper;

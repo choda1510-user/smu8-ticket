@@ -85,8 +85,9 @@ services:
   mysql-exporter:
     image: prom/mysqld-exporter:v0.15.1
     container_name: mysql-exporter
-    environment:
-      - DATA_SOURCE_NAME=exporter:exporter@(database:3306)/
+    command:
+      - "--mysqld.username=exporter:exporter"
+      - "--mysqld.address=database:3306"
     depends_on:
       database:
         condition: service_healthy

@@ -1,5 +1,6 @@
 package com.smu8.ticket.config;
 
+import com.smu8.ticket.file.config.S3StorageProperties;
 import com.smu8.ticket.file.config.StorageProperties;
 import com.smu8.ticket.file.service.StorageService;
 import org.springframework.boot.CommandLineRunner;
@@ -8,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(StorageProperties.class)
+@EnableConfigurationProperties({StorageProperties.class, S3StorageProperties.class})
 public class FileConfig {
     @Bean
     public CommandLineRunner init(StorageService storageService) {

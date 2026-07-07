@@ -38,3 +38,4 @@ out/
 
 ### Custom ###
 upload-dir/
+src/main/resources/application-prod.yaml

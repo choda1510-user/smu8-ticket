@@ -22,7 +22,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-@Profile("!dev")
+@Profile("!dev & !prod")
 @Service
 public class FileSystemStorageService implements StorageService {
     private final Path rootLocation;

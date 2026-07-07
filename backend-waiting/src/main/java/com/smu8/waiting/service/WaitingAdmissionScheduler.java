@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Slf4j
 @Component
@@ -50,7 +51,7 @@ public class WaitingAdmissionScheduler {
     }
 
     private boolean isReservationOpen(ConcertReservationTime concertReservationTime) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         return !now.isBefore(concertReservationTime.getReservationStartDate())
                 && !now.isAfter(concertReservationTime.getReservationLastEndDate());
     }

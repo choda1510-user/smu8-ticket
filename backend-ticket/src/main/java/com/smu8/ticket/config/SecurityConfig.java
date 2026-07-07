@@ -146,7 +146,7 @@ public class SecurityConfig {
     }
     @Order(0)
     @Bean
-    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting"})
+    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting", "prod"})
     public SecurityFilterChain waitingReservationFilterChain(
             HttpSecurity http,
             BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter,

@@ -201,7 +201,7 @@ async function loadVenueBookedDates(venueId: number) {
         const dates = new Set<string>();
         concerts.forEach((concert) => {
             concert.schedules?.forEach((schedule) => {
-                const d = new Date(schedule.date);
+                const d = parseUtcDateTime(schedule.date);
                 if (!Number.isNaN(d.getTime())) {
                     dates.add(toDateKey(d));
                 }

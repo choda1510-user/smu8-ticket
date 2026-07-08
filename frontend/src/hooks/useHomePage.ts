@@ -25,8 +25,8 @@ function getHomeConcertSlideSize() {
 function sortByReservationEndDate(concerts: HomeConcertCard[]) {
     return [...concerts].sort((a, b) => {
         return (
-            new Date(a.reservationEndDate).getTime() -
-            new Date(b.reservationEndDate).getTime()
+            parseUtcDateTime(a.reservationEndDate).getTime() -
+            parseUtcDateTime(b.reservationEndDate).getTime()
         );
     });
 }
@@ -53,7 +53,7 @@ function formatDateTime(value: string) {
 }
 
 function getReservationStartTime(concert: ConcertItem) {
-    return new Date(concert.reservationStartAt).getTime();
+    return parseUtcDateTime(concert.reservationStartAt).getTime();
 }
 
 function isUpcomingConcert(concert: ConcertItem) {

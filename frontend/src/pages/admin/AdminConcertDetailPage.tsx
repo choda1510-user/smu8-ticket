@@ -60,9 +60,9 @@ function getReservationStatusText(concert: AdminConcertDetailResponse) {
     }
 
     const now = Date.now();
-    const reservationStartTime = concert.reservationStartAt ? new Date(concert.reservationStartAt).getTime() : NaN;
+    const reservationStartTime = concert.reservationStartAt ? parseUtcDateTime(concert.reservationStartAt).getTime() : NaN;
     const reservationEndTimes = concert.schedules
-        .map((schedule) => new Date(schedule.reservationEndAt).getTime())
+        .map((schedule) => parseUtcDateTime(schedule.reservationEndAt).getTime())
         .filter((time) => !Number.isNaN(time))
         .sort((a, b) => a - b);
     const reservationEndTime = reservationEndTimes[reservationEndTimes.length - 1];
@@ -96,8 +96,8 @@ function buildEditableSchedules(concert: AdminConcertDetailResponse): EditableSc
     return concert.schedules.map((schedule) => ({
         id: schedule.id,
         isExisting: true,
-        concertDateTime: parseKSTDateTime(schedule.date),
-        reservationEnd: parseKSTDateTime(schedule.reservationEndAt),
+        concertDateTime: parseUtcDateTime(schedule.date),
+        reservationEnd: parseUtcDateTime(schedule.reservationEndAt),
     }));
 }
 

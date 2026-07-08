@@ -4,6 +4,7 @@ import type {
     AdminReservationItemResponse,
     AdminReservationPageResult,
 } from "@/types/adminReservation";
+import {formatKstDateTime, parseUtcDateTime} from "@/utils/dateUtil";
 
 const initialReservationList: AdminReservationPageResult = {
     contents: [],
@@ -15,26 +16,6 @@ const initialReservationList: AdminReservationPageResult = {
     hasPrevious: false,
 };
 
-function formatDateTime(value: string) {
-    if (!value) {
-        return "";
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return value;
-    }
-
-    return new Intl.DateTimeFormat("ko-KR", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).format(date);
-}
 
 function formatWon(value: number) {
     return `${value.toLocaleString()} KRW`;
@@ -49,7 +30,7 @@ function toAdminReservationItemResult(response: AdminReservationItemResponse) {
         reservationStatus: response.reservationStatus,
         seatCount: String(response.seatCount),
         totalPrice: formatWon(response.totalPrice),
-        createdAt: formatDateTime(response.createdAt),
+        createdAt: formatKstDateTime(response.createdAt),
     };
 }
 

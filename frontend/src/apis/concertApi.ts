@@ -18,6 +18,7 @@ import type {
     AdminConcertUpdateBasicInfoCommand, AdminConcertListPageParameters,
 } from "@/types/adminConcert.ts";
 
+import { formatKstDateTime, parseUtcDateTime } from "@/utils/dateUtil";
 import type {VenueSearch, VenueItemResponse} from "@/types/venue";
 import type {PageRequest} from "@/types/api";
 import {pageConvert} from "@/utils/commonConvertor";
@@ -93,30 +94,9 @@ async function fetchEmpty(url: string, options?: RequestInit): Promise<void> {
     }
 }
 
-function formatDateTime(value: string) {
-    if (!value) {
-        return "";
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return value;
-    }
-
-    return new Intl.DateTimeFormat("ko-KR", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).format(date);
-}
-
 function formatPeriod(startAt: string, endAt: string) {
-    const startText = formatDateTime(startAt);
-    const endText = formatDateTime(endAt);
+    const startText = formatKstDateTime(startAt);
+    const endText = formatKstDateTime(endAt);
 
     if (!startText && !endText) {
         return "";
@@ -127,7 +107,7 @@ function formatPeriod(startAt: string, endAt: string) {
 
 
 function toConcertSchedule(schedule: ConcertScheduleResponse) {
-    const date = new Date(schedule.date);
+    const date = parseUtcDateTime(schedule.date);
 
     return {
         id: schedule.id,
@@ -162,12 +142,12 @@ function formatReservationPeriod(reservationStartAt: string | undefined, schedul
         return "";
     }
 
-    return `${formatDateTime(reservationStartAt ?? "")} ~ ${formatDateTime(reservationEndAt ?? "")}`;
+    return `${formatKstDateTime(reservationStartAt ?? "")} ~ ${formatKstDateTime(reservationEndAt ?? "")}`;
 }
 
 function getBadgeText(reservationStartAt: string) {
    const today = new Date();
-   const target = new Date(reservationStartAt);
+   const target = parseUtcDateTime(reservationStartAt);
 
    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
    const targetDate = new Date(target.getFullYear(), target.getMonth(), target.getDate());
@@ -271,30 +251,6 @@ export function filterConcertsByKeyword(concerts: ConcertItemResponse[], keyword
         );
     });
 }
-
-//export function toConcertDetail(concert: ConcertResponse): ConcertDetail {
- //   return {
-   //     id: concert.id,
-     //   venueId: concert.venueId,
-       // concertTitle: concert.title,
-       // concertPeriod: formatPeriod(concert.startAt, concert.endAt),
-      //  runningTime: "",
-      //  venueName: concert.venueName,
-      //  reservationPeriod: "",
-       // schedules: concert.startAt
-       //     ? [
-        //        {
-        //            id: concert.id,
-        //            date: formatDateTime(concert.startAt),
-         //           time: "",
-         //       },
-          //  ]
-          //  : [],
-       // description: concert.description,
-      //  startAt: concert.startAt,
-      //  endAt: concert.endAt,
-   // };
-// }
 
 export async function getConcert(id: number): Promise<ConcertDetail> {
     const concert = await fetchJson<ConcertDetailResponse>(`${API_BASE_URL}/api/concerts/${id}`);

@@ -3,6 +3,7 @@ import {getConcertItems} from "@/apis/concertApi";
 import {getHomeBanners} from "@/apis/homeApi";
 import type {ConcertItem, HomeConcertCard} from "@/types/concert";
 import type {BannerItem} from "@/types/home";
+import {formatKstDateTime, parseUtcDateTime} from "@/utils/dateUtil";
 
 const maxHomeConcertCount = 4;
 
@@ -25,35 +26,14 @@ function getHomeConcertSlideSize() {
 function sortByReservationEndDate(concerts: HomeConcertCard[]) {
     return [...concerts].sort((a, b) => {
         return (
-            new Date(a.reservationEndDate).getTime() -
-            new Date(b.reservationEndDate).getTime()
+            parseUtcDateTime(a.reservationEndDate).getTime() -
+            parseUtcDateTime(b.reservationEndDate).getTime()
         );
     });
 }
 
-function formatDateTime(value: string) {
-    if (!value) {
-        return "";
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return value;
-    }
-
-    return new Intl.DateTimeFormat("ko-KR", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).format(date);
-}
-
 function getReservationStartTime(concert: ConcertItem) {
-    return new Date(concert.reservationStartAt).getTime();
+    return parseUtcDateTime(concert.reservationStartAt).getTime();
 }
 
 function isUpcomingConcert(concert: ConcertItem) {
@@ -71,7 +51,7 @@ function toHomeConcertCard(concert: ConcertItem): HomeConcertCard {
         concertId: concert.concertId,
         posterUrl: concert.posterUrl,
         title: concert.title,
-        reservationPeriod: `${formatDateTime(concert.reservationStartAt)} ~ ${formatDateTime(concert.reservationEndAt)}`,
+        reservationPeriod: `${formatKstDateTime(concert.reservationStartAt)} ~ ${formatKstDateTime(concert.reservationEndAt)}`,
         reservationEndDate: concert.reservationEndAt,
         badgeText: concert.badgeText,
     };

@@ -13,6 +13,7 @@ services:
         condition: service_started
     environment:
       - SPRING_PROFILES_ACTIVE=load-test
+      - TZ=UTC
     networks:
       - smu8-ticket-network
   database:

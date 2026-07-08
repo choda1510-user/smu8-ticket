@@ -19,34 +19,15 @@ import type {
 import type {ConcertScheduleResponse, SeatGradeResponse} from "@/types/concert";
 import type {ConcertDetail, ConcertSchedule} from "@/types/concert";
 import {unavailableSeatGradeName} from "@/types/seatLayout";
+import {formatKstDateTime, parseUtcDateTime} from "./dateUtil";/
 
-function formatDateTime(value: string) {
-    if (!value) {
-        return "";
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return value;
-    }
-
-    return new Intl.DateTimeFormat("ko-KR", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).format(date);
-}
 
 function formatDate(value: string) {
     if (!value) {
         return "";
     }
 
-    const date = new Date(value);
+    const date = parseUtcDateTime(value);
 
     if (Number.isNaN(date.getTime())) {
         return value.slice(0, 10);
@@ -60,7 +41,7 @@ function formatTime(value: string) {
         return "";
     }
 
-    const date = new Date(value);
+    const date = parseUtcDateTime(value);
 
     if (Number.isNaN(date.getTime())) {
         return value.slice(11, 16);
@@ -206,8 +187,8 @@ export function toBookingItemResult(response: BookingItemResponse): BookingItemR
         reservationNumber: response.reservationNo,
         concertPeriod: toConcertPeriod(response.concertSchedules),
         venueName: response.venueName,
-        viewingDateTime: formatDateTime(response.reservedSchedule.date),
-        cancelDeadline: formatDateTime(response.reservedSchedule.reservationEndAt),
+        viewingDateTime: formatKstDateTime(response.reservedSchedule.date),
+        cancelDeadline: formatKstDateTime(response.reservedSchedule.reservationEndAt),
         ticketCount: String(response.totalQuantity),
         status: response.reservationStatus,
     };
@@ -224,12 +205,12 @@ export function toBookingDetailResult(response: BookingDetailResponse): BookingD
         concertTitle: response.concertTitle,
         reservationNumber: response.reservationNo,
         venueName: response.venueName,
-        reservationDate: formatDateTime(response.reservedAt),
+        reservationDate: formatKstDateTime(response.reservedAt),
         posterUrl: response.cardPosterUrl,
         nickname: response.nickname,
         userId: response.nickname,
-        viewingDateTime: formatDateTime(response.reservedSchedule.date),
-        cancelDeadline: formatDateTime(response.reservedSchedule.reservationEndAt),
+        viewingDateTime: formatKstDateTime(response.reservedSchedule.date),
+        cancelDeadline: formatKstDateTime(response.reservedSchedule.reservationEndAt),
         ticketCount: String(response.totalQuantity),
         status: response.reservationStatus,
         ticketPrice: formatWon(response.totalAmount),

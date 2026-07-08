@@ -1,7 +1,6 @@
 import {useEffect, useRef, useState, type ReactNode} from "react";
 import {useNavigate} from "react-router";
 import DatePicker, {CalendarContainer} from "react-datepicker";
-import {format} from "date-fns";
 import {addConcert, getAdminConcertList} from "@/apis/concertApi";
 import {getAdminVenueList, getVenueAddress} from "@/apis/venueApi";
 import AdminSeatLayoutEditor from "@/component/AdminSeatLayoutEditor";
@@ -201,7 +200,7 @@ async function loadVenueBookedDates(venueId: number) {
         const dates = new Set<string>();
         concerts.forEach((concert) => {
             concert.schedules?.forEach((schedule) => {
-                const d = new Date(schedule.date);
+                const d = parseUtcDateTime(schedule.date);
                 if (!Number.isNaN(d.getTime())) {
                     dates.add(toDateKey(d));
                 }
@@ -396,7 +395,6 @@ async function loadVenueBookedDates(venueId: number) {
             return;
         }
 
-        const apiDateFormat = "yyyy-MM-dd'T'HH:mm:ss";
         const seatGradeNameById = new Map(
             seatLayout.seatTypes.map((type) => [type.id, type.name]),
         );
@@ -423,13 +421,13 @@ async function loadVenueBookedDates(venueId: number) {
                         title: title.trim(),
                         description: description.trim(),
                         runningTime: String(runningMinutes || 120),
-                        reservationStartAt: format(reservationStartAt, apiDateFormat),
+                        reservationStartAt: reservationStartAt.toIS0String(),
                         venueId: parsedVenueId,
                         notice: notice.trim() || undefined,
                         seatGrades,
                         schedules: validSchedules.map((schedule) => ({
-                            date: format(schedule.concertDateTime, apiDateFormat),
-                             reservationEndAt: format(schedule.reservationEnd, apiDateFormat), // 항상 값 있음
+                            date: schedule.concertDateTime.toIS0String(),
+                             reservationEndAt: schedule.reservationEndAt.toIS0String(), // 항상 값 있음
                         })),
                         seats: seatLayout.grid.flatMap((row, rowIndex) =>
                             row.flatMap((seatTypeId, colIndex) => {

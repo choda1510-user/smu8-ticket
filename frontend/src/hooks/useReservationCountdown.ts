@@ -38,7 +38,7 @@ function getDDayText(reservationStartTime: number, currentTime: number) {
 export function useReservationCountdown(reservationStartAt?: string) {
     const [now, setNow] = useState(Date.now());
     const reservationStartTime = useMemo(
-        () => reservationStartAt ? new Date(reservationStartAt).getTime() : NaN,
+        () => reservationStartAt ? parseUtcDateTime(reservationStartAt).getTime() : NaN,
         [reservationStartAt],
     );
 

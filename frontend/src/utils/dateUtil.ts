@@ -1,11 +1,6 @@
 // 문자열을 날짜로
 export function stringToDate(dateString: string): Date {
-  const date = new Date(dateString)
-
-  if (Number.isNaN(date.getTime())) {
-    throw new Error(`Invalid date string: ${dateString}`)
-  }
-
+  const date = parseUtcDateTime(dateString)
   return date;
 }
 
@@ -36,7 +31,7 @@ export function datesToPeriod(dates: string[]): string {
     }
 
     const parsedDates = dates.map((dateString) => {
-        const date = new Date(dateString);
+        const date = parseUtcDateTime(dateString);
 
         if (Number.isNaN(date.getTime())) {
             throw new Error(`유효하지 않은 ISO-8601 날짜 문자열입니다: ${dateString}`);
@@ -63,6 +58,25 @@ function formatDate(date: Date): string {
 
     return `${year}.${month}.${day}`;
 }
+export function parseUtcDateTime(value: string): Date {
+  const hasTimezone = /Z|[+-]\d{2}:\d{2}$/.test(value);
+  const date = new Date(hasTimezone ? value : `${value}Z`);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(`Invalid date string: ${value}`);
+  }
+  return date;
+}
+
+export function formatKstDateTime(value: string): string {
+  if (!value) return "";
+  const date = parseUtcDateTime(value);
+  return new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  }).format(date);
+}
+
 //예매 오픈일자에 맞춘 디데이반환
 export function getDDayText(targetDateString: string): string {
   const today = new Date();

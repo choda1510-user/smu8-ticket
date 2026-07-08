@@ -6,6 +6,8 @@ import type {
     MyInfoForm,
 } from "@/types/member";
 
+import { parseUtcDateTime } from "./dateUtil";
+
 export const toMyInfoResult = (
     response: AccountMyInfoResponse
 ): AccountMyInfoResult => ({

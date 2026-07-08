@@ -13,6 +13,7 @@ import {
 } from "@/types/seatLayout";
 import "react-datepicker/dist/react-datepicker.css";
 import "./AdminPages.css";
+import {formatKstDateTime, parseUtcDateTime} from "@/utils/dateUtil";
 
 type EditableSchedule = {
     id: number;
@@ -28,27 +29,6 @@ type PosterFormState = {
 };
 
 type PosterFormFields = Record<PosterField, PosterFormState>;
-
-function formatDateTime(value?: string) {
-    if (!value) {
-        return "-";
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return value.replace("T", " ");
-    }
-
-    return new Intl.DateTimeFormat("ko-KR", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).format(date);
-}
 
 function formatEditableDateTime(date: Date) {
     return format(date, "yyyy.MM.dd HH:mm");
@@ -84,12 +64,6 @@ function getReservationStatusText(concert: AdminConcertDetailResponse) {
     }
 
     return "예매전";
-}
-
-function parseKSTDateTime(value: string): Date {
-    // UTC 문자열을 KST(UTC+9)로 변환
-    const utcDate = new Date(value + "Z");
-    return utcDate;
 }
 
 function buildEditableSchedules(concert: AdminConcertDetailResponse): EditableSchedule[] {
@@ -549,17 +523,17 @@ function AdminConcertDetailPage() {
                                     <p className="admin-page__period-text">
                                         <span className="admin-page__period-label">공연 기간 :</span>
                                         <span className="admin-page__period-value">
-                                            {formatDateTime(concert.schedules.map((schedule) => schedule.date).filter(Boolean).sort()[0])}
+                                            {formatKstDateTime(concert.schedules.map((schedule) => schedule.date).filter(Boolean).sort()[0]) || "-"}
                                             <br />
-                                            ~ {formatDateTime(concert.schedules.map((schedule) => schedule.date).filter(Boolean).sort().slice(-1)[0])}
+                                            ~ {formatKstDateTime(concert.schedules.map((schedule) => schedule.date).filter(Boolean).sort().slice(-1)[0])|| "-"}
                                         </span>
                                     </p>
                                     <p className="admin-page__period-text">
                                         <span className="admin-page__period-label">예매 가능 기간 :</span>
                                         <span className="admin-page__period-value">
-                                            {formatDateTime(concert.reservationStartAt)}
+                                            {formatKstDateTime(concert.reservationStartAt) || "-"}
                                             <br />
-                                            ~ {formatDateTime(concert.schedules.map((schedule) => schedule.reservationEndAt).filter(Boolean).sort().slice(-1)[0])}
+                                            ~ {formatKstDateTime(concert.schedules.map((schedule) => schedule.reservationEndAt).filter(Boolean).sort().slice(-1)[0])||"-"}
                                         </span>
                                     </p>
                                 </div>
@@ -626,7 +600,7 @@ function AdminConcertDetailPage() {
                                     </div>
                                     {isEditing && (
                                         <p className="admin-page__hint-text">
-                                            예매시작은 회차별로 변경할 수 없습니다. (현재: {formatDateTime(concert.reservationStartAt)})
+                                            예매시작은 회차별로 변경할 수 없습니다. (현재: {formatKstDateTime(concert.reservationStartAt) || "-" })
                                         </p>
                                     )}
 

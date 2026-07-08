@@ -86,12 +86,18 @@ function getReservationStatusText(concert: AdminConcertDetailResponse) {
     return "예매전";
 }
 
+function parseKSTDateTime(value: string): Date {
+    // UTC 문자열을 KST(UTC+9)로 변환
+    const utcDate = new Date(value + "Z");
+    return utcDate;
+}
+
 function buildEditableSchedules(concert: AdminConcertDetailResponse): EditableSchedule[] {
     return concert.schedules.map((schedule) => ({
         id: schedule.id,
         isExisting: true,
-        concertDateTime: new Date(schedule.date),
-        reservationEnd: new Date(schedule.reservationEndAt),
+        concertDateTime: parseKSTDateTime(schedule.date),
+        reservationEnd: parseKSTDateTime(schedule.reservationEndAt),
     }));
 }
 

@@ -13,8 +13,8 @@ export const toMyInfoResult = (
     username: response.username,
     nickname: response.nickname,
     role: response.role,
-    createdAt: new Date(response.createdAt),
-    updatedAt: new Date(response.updatedAt),
+    createdAt: parseUtcDateTime(response.createdAt),
+    updatedAt: parseUtcDateTime(response.updatedAt),
 })
 export const toMyInfoForm = (
     result: AccountMyInfoResult,
@@ -31,8 +31,8 @@ export const toAccountDetailResult = (
     id: response.id,
     nickname: response.nickname,
     role: decodeRoleName(response.role),
-    createdAt: new Date(response.createdAt),
-    updatedAt: new Date(response.updatedAt),
+    createdAt: parseUtcDateTime(response.createdAt),
+    updatedAt: parseUtcDateTime(response.updatedAt),
 })
 
 function decodeRoleName(role: string) {

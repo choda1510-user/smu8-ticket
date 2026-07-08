@@ -46,7 +46,7 @@ function formatDate(value: string) {
         return "";
     }
 
-    const date = new Date(value);
+    const date = parseUtcDateTime(value);
 
     if (Number.isNaN(date.getTime())) {
         return value.slice(0, 10);
@@ -60,7 +60,7 @@ function formatTime(value: string) {
         return "";
     }
 
-    const date = new Date(value);
+    const date = parseUtcDateTime(value);
 
     if (Number.isNaN(date.getTime())) {
         return value.slice(11, 16);

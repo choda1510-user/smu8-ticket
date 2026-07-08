@@ -17,7 +17,7 @@ import type { SeatGradeResponse, SeatResponse } from "@/types/concert";
 export const toAdminConcertSessionResult = (
     response: AdminConcertScheduleResponse,
 ): AdminConcertSessionResult => {
-    const [ date, time ] = splitDatetime(new Date(response.date));
+    const [ date, time ] = splitDatetime(parseUtcDateTime(response.date));
     return {
         id: response.id,
         concertId: response.concertId,

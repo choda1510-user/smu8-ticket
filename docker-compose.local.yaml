@@ -26,6 +26,7 @@ services:
       - backend_file_dir:/app/upload-dir
     environment:
       - SPRING_PROFILES_ACTIVE=local
+      - TZ=UTC
     depends_on:
       database:
         condition: service_healthy

@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState, type ReactNode} from "react";
 import {useNavigate} from "react-router";
 import DatePicker, {CalendarContainer} from "react-datepicker";
+import {format} from "date-fns";
 import {addConcert, getAdminConcertList} from "@/apis/concertApi";
 import {getAdminVenueList, getVenueAddress} from "@/apis/venueApi";
 import AdminSeatLayoutEditor from "@/component/AdminSeatLayoutEditor";
@@ -12,6 +13,7 @@ import {
 } from "@/types/seatLayout";
 import "react-datepicker/dist/react-datepicker.css";
 import "./AdminPages.css";
+import {parseUtcDateTime} from "@/utils/dateUtil";
 
 type ConcertSchedule = {
     id: number;
@@ -421,13 +423,13 @@ async function loadVenueBookedDates(venueId: number) {
                         title: title.trim(),
                         description: description.trim(),
                         runningTime: String(runningMinutes || 120),
-                        reservationStartAt: reservationStartAt.toIS0String(),
+                        reservationStartAt: reservationStartAt.toISOString(),
                         venueId: parsedVenueId,
                         notice: notice.trim() || undefined,
                         seatGrades,
                         schedules: validSchedules.map((schedule) => ({
-                            date: schedule.concertDateTime.toIS0String(),
-                             reservationEndAt: schedule.reservationEndAt.toIS0String(), // 항상 값 있음
+                            date: schedule.concertDateTime.toISOString(),
+                             reservationEndAt: schedule.reservationEnd.toISOString(), // 항상 값 있음
                         })),
                         seats: seatLayout.grid.flatMap((row, rowIndex) =>
                             row.flatMap((seatTypeId, colIndex) => {

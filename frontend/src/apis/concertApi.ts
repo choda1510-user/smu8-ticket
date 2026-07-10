@@ -18,7 +18,7 @@ import type {
     AdminConcertUpdateBasicInfoCommand, AdminConcertListPageParameters,
 } from "@/types/adminConcert.ts";
 
-import { formatKstDateTime, parseUtcDateTime } from "@/utils/dateUtil";
+import { formatKstDateTime, parseUtcDateTime, getReservationStatusText } from "@/utils/dateUtil";
 import type {VenueSearch, VenueItemResponse} from "@/types/venue";
 import type {PageRequest} from "@/types/api";
 import {pageConvert} from "@/utils/commonConvertor";
@@ -145,23 +145,9 @@ function formatReservationPeriod(reservationStartAt: string | undefined, schedul
     return `${formatKstDateTime(reservationStartAt ?? "")} ~ ${formatKstDateTime(reservationEndAt ?? "")}`;
 }
 
-function getBadgeText(reservationStartAt: string) {
-   const today = new Date();
-   const target = parseUtcDateTime(reservationStartAt);
-
-   const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-   const targetDate = new Date(target.getFullYear(), target.getMonth(), target.getDate());
-
-    const diff = Math.ceil(
-        (targetDate.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    if (diff > 0) return `D-${diff}`;
-    if (diff === 0) return "D-DAY";
-    return "예매중";
-}
-
 function toConcertItem(concert: ConcertItemResponse): ConcertItem {
+    const reservationEndAt = getReservationEndAt(concert.dates);
+
     return {
         concertId: concert.concertId,
         posterUrl: concert.cardPosterUrl,
@@ -169,10 +155,10 @@ function toConcertItem(concert: ConcertItemResponse): ConcertItem {
         title: concert.title,
         period: formatPeriodBySchedules(concert.dates),
         reservationStartAt: concert.reservationStartAt,
-        reservationEndAt: getReservationEndAt(concert.dates),
+        reservationEndAt,
         venueId: concert.venueId,
         venueName: concert.venueName,
-        badgeText: getBadgeText(concert.reservationStartAt),
+        badgeText: getReservationStatusText(concert.reservationStartAt, reservationEndAt),
     };
 }
 

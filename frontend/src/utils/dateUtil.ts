@@ -107,3 +107,17 @@ export function getDDayText(targetDateString: string): string {
 
   return "예매중";
 }
+
+// 예매 시작일과 종료일을 함께 확인해 "D-n" / "D-DAY" / "예매중" / "예매마감"을 반환하는 함수
+// 예매 종료일시가 지난 경우, 예매 시작일 기준 디데이 계산보다 우선해서 "예매마감"을 반환한다.
+export function getReservationStatusText(reservationStartAt: string, reservationEndAt?: string): string {
+  if (reservationEndAt) {
+    const endDate = stringToDate(reservationEndAt);
+
+    if (Date.now() > endDate.getTime()) {
+      return "예매마감";
+    }
+  }
+
+  return getDDayText(reservationStartAt);
+}

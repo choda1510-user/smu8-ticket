@@ -1,5 +1,5 @@
 import type { ConcertDetail, ConcertDetailResponse, ConcertItem, ConcertItemResponse, ConcertSchedule, ConcertScheduleResponse } from "@/types/concert";
-import { compareDateAsc, compareDateDesc, splitDatetime, stringToDate, getDDayText, datesToPeriod } from "./dateUtil";
+import { compareDateAsc, compareDateDesc, splitDatetime, stringToDate, getReservationStatusText, datesToPeriod } from "./dateUtil";
 
 export function convertConcertSchedule(response: ConcertScheduleResponse): ConcertSchedule {
     const datetime = stringToDate(response.date);
@@ -46,7 +46,9 @@ export function convertConcertDetail(response: ConcertDetailResponse): ConcertDe
 }
 
 export function badgeTextFrom(response: ConcertItemResponse): string {
-    return getDDayText(response.reservationStartAt);
+    const reservationEndAt = response.dates.map((date) => date.reservationEndAt).filter(Boolean).sort().at(-1) ?? "";
+
+    return getReservationStatusText(response.reservationStartAt, reservationEndAt);
 }
 export function convertConcertItem(response: ConcertItemResponse): ConcertItem {
     return {

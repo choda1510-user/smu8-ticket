@@ -1,46 +1,78 @@
-.page {
-    width: 720px;
+.section {
+    width: 100%;
     margin: 0 auto;
-    color: #222;
+    padding: 30px;
+    border: 1px solid #e3e5ec;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
     box-sizing: border-box;
 }
 
-.resultCountArea {
-    height: 56px;
+.sectionHeader {
+    min-height: 44px;
+    margin-bottom: 22px;
     display: flex;
-    align-items: center;
-    border-bottom: 1px solid #777;
-    box-sizing: border-box;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
 }
 
-.resultCountText {
-    color: #222;
-    font-size: 18px;
+.sectionTitle {
+    margin: 0;
+    color: #111827;
+    font-size: 22px;
+    line-height: 1.25;
     font-weight: 500;
+}
+
+.sectionDescription {
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.5;
 }
 
 .concertList {
     margin: 0;
     padding: 0;
     list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
 }
 
 .concertItem {
-    min-height: 160px;
+    min-width: 0;
+    min-height: 164px;
+    padding: 18px 20px;
+    border: 1px solid #e3e5ec;
+    border-radius: 14px;
+    background: #ffffff;
     display: grid;
-    grid-template-columns: 110px 1.5fr 1fr 1fr 70px;
+    grid-template-columns: 96px minmax(180px, 1.45fr) minmax(150px, 1fr) minmax(120px, 0.8fr) 104px;
     align-items: center;
-    column-gap: 28px;
-    border-bottom: 1px solid #777;
+    column-gap: 24px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     box-sizing: border-box;
 }
 
+.concertItem:hover {
+    transform: translateY(-2px);
+    border-color: #ffc8d9;
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+}
+
 .posterButton {
-    width: 82px;
-    height: 122px;
-    border: 1px solid #777;
-    background-color: #fff;
-    color: #555;
+    width: 86px;
+    height: 128px;
+    padding: 0;
+    border: 1px solid #e3e5ec;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #101b2c, #233154);
+    color: rgba(255, 255, 255, 0.72);
+    font-family: inherit;
     font-size: 13px;
     display: flex;
     align-items: center;
@@ -60,39 +92,62 @@
     padding: 0;
     border: none;
     background-color: transparent;
-    color: #222;
+    color: #111827;
+    font-family: inherit;
     font-size: 17px;
+    line-height: 1.45;
+    font-weight: 500;
     text-align: left;
-    text-decoration: underline;
-    text-underline-offset: 3px;
     cursor: pointer;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
 }
 
-.periodArea {
+.concertTitleButton:hover {
+    color: #f47fa6;
+}
+
+.periodArea,
+.venueArea {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.smallLabel {
+    color: #6b7280;
+    font-size: 11px;
 }
 
 .periodText {
-    color: #222;
+    min-height: 34px;
+    color: #374151;
     font-size: 13px;
-    line-height: 1.35;
-    white-space: pre-line;
-}
-
-.venueArea {
-    display: flex;
-    justify-content: center;
+    line-height: 1.45;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
 }
 
 .venueButton {
     padding: 0;
     border: none;
     background-color: transparent;
-    color: #ff4f7f;
+    color: #f47fa6;
+    font-family: inherit;
     font-size: 14px;
+    text-align: left;
     cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .badgeArea {
@@ -101,23 +156,166 @@
 }
 
 .badge {
-    color: #222;
-    font-size: 12px;
+    display: inline-flex;
+    min-width: 74px;
+    min-height: 30px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #fff0f5;
+    color: #f47fa6;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.2;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow-wrap: anywhere;
+    box-sizing: border-box;
 }
 
 .emptyBox {
     min-height: 220px;
-    border-bottom: 1px solid #777;
+    border: 1px dashed #e3e5ec;
+    border-radius: 14px;
+    background: #f7f8fb;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #777;
-    font-size: 14px;
+    color: #6b7280;
+    font-size: 13px;
 }
 
 .paginationArea {
     width: 100%;
-    margin-top: 18px;
+    margin-top: 26px;
     display: flex;
     justify-content: center;
+}
+
+.paginationArea :global(.pagination-container) {
+    min-height: 54px;
+    padding: 8px;
+    border: 1px solid #e3e5ec;
+    border-radius: 999px;
+    background: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+    box-sizing: border-box;
+}
+
+.paginationArea :global(.pagenation-arrow) {
+    min-width: 38px;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
+    color: #374151;
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.paginationArea :global(.pagenation-arrow:hover:not(:disabled)) {
+    border-color: #ffc8d9;
+    background: #fff0f5;
+    color: #f47fa6;
+}
+
+.paginationArea :global(.pagenation-arrow[aria-current="page"]) {
+    border-color: #071120;
+    background: #071120;
+    color: #ffffff;
+    box-shadow: 0 8px 18px rgba(7, 17, 32, 0.16);
+}
+
+.paginationArea :global(.pagenation-arrow:disabled) {
+    color: #c7ccd6;
+    cursor: not-allowed;
+    background: #f7f8fb;
+}
+
+@media (max-width: 1100px) {
+    .concertItem {
+        grid-template-columns: 86px minmax(170px, 1.2fr) minmax(140px, 1fr) 96px;
+        grid-template-areas:
+            "poster title period badge"
+            "poster venue period badge";
+        row-gap: 12px;
+    }
+
+    .posterButton {
+        grid-area: poster;
+    }
+
+    .concertTitleButton {
+        grid-area: title;
+    }
+
+    .periodArea {
+        grid-area: period;
+    }
+
+    .venueArea {
+        grid-area: venue;
+    }
+
+    .badgeArea {
+        grid-area: badge;
+    }
+}
+
+@media (max-width: 900px) {
+    .concertItem {
+        grid-template-columns: 86px 1fr;
+        grid-template-areas:
+            "poster title"
+            "poster period"
+            "poster venue"
+            "poster badge";
+        align-items: start;
+        row-gap: 10px;
+    }
+
+    .badgeArea {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 640px) {
+    .section {
+        border-radius: 16px;
+        padding: 22px;
+    }
+
+    .sectionHeader {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .concertItem {
+        padding: 16px;
+        column-gap: 16px;
+    }
+
+    .posterButton {
+        width: 78px;
+        height: 116px;
+    }
+
+    .concertTitleButton {
+        font-size: 15px;
+    }
+
+    .paginationArea :global(.pagination-container) {
+        width: 100%;
+        border-radius: 16px;
+        flex-wrap: wrap;
+    }
 }

@@ -36,6 +36,14 @@ function getReservationStartTime(concert: ConcertItem) {
     return parseUtcDateTime(concert.reservationStartAt).getTime();
 }
 
+function getReservationEndTime(concert: ConcertItem) {
+    if (!concert.reservationEndAt) {
+        return NaN;
+    }
+
+    return parseUtcDateTime(concert.reservationEndAt).getTime();
+}
+
 function isUpcomingConcert(concert: ConcertItem) {
     const startTime = getReservationStartTime(concert);
 
@@ -44,6 +52,17 @@ function isUpcomingConcert(concert: ConcertItem) {
     }
 
     return startTime > Date.now();
+}
+
+// 예매 종료일시가 지난 공연: 홈 화면(예매중/오픈예정)에서는 제외하고 통합검색 결과에서만 노출한다.
+function isClosedConcert(concert: ConcertItem) {
+    const endTime = getReservationEndTime(concert);
+
+    if (Number.isNaN(endTime)) {
+        return false;
+    }
+
+    return endTime < Date.now();
 }
 
 function toHomeConcertCard(concert: ConcertItem): HomeConcertCard {
@@ -130,7 +149,9 @@ export function useHomePage() {
     }, []);
 
     const openConcertList = useMemo(() => {
-        return concerts.filter((concert) => !isUpcomingConcert(concert)).map(toHomeConcertCard);
+        return concerts
+            .filter((concert) => !isUpcomingConcert(concert) && !isClosedConcert(concert))
+            .map(toHomeConcertCard);
     }, [concerts]);
 
     const upcomingConcertList = useMemo(() => {

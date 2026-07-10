@@ -32,38 +32,33 @@ function ConcertSearchResultPage() {
     };
 
     return (
-        <section className
-                     ={styles.page}>
-            <div className
-                     ={styles.resultCountArea}>
-        <span className
-                  ={styles.resultCountText}>
-          검색결과 {concerts.length}건
-        </span>
+        <section className={styles.section}>
+            <div className={styles.sectionHeader}>
+                <div>
+                    <h2 className={styles.sectionTitle}>공연 검색결과</h2>
+                    <p className={styles.sectionDescription}>
+                        검색 결과 {concertSearchResults.totalElements}건
+                    </p>
+                </div>
             </div>
 
             {concerts.length === 0 ? (
-                <div className
-                         ={styles.emptyBox}>검색된 공연이 없습니다.</div>
+                <div className={styles.emptyBox}>검색된 공연이 없습니다.</div>
             ) : (
                 <>
-                    <ul className
-                            ={styles.concertList}>
+                    <ul className={styles.concertList}>
                         {concerts.map((concert) => (
-                            <li key={concert.concertId} className
-                                ={styles.concertItem}>
+                            <li key={concert.concertId} className={styles.concertItem}>
                                 <button
                                     type="button"
-                                    className
-                                        ={styles.posterButton}
+                                    className={styles.posterButton}
                                     onClick={() => handleConcertClick(concert.concertId)}
                                 >
                                     {concert.posterUrl ? (
                                         <img
                                             src={concert.posterUrl}
                                             alt="공연 포스터"
-                                            className
-                                                ={styles.posterImage}
+                                            className={styles.posterImage}
                                         />
                                     ) : (
                                         <span>포스터</span>
@@ -72,42 +67,36 @@ function ConcertSearchResultPage() {
 
                                 <button
                                     type="button"
-                                    className
-                                        ={styles.concertTitleButton}
+                                    className={styles.concertTitleButton}
                                     onClick={() => handleConcertClick(concert.concertId)}
                                 >
                                     {concert.title}
                                 </button>
 
-                                <div className
-                                         ={styles.periodArea}>
-                                    <span className
-                                              ={styles.periodText}>{concert.period}</span>
+                                <div className={styles.periodArea}>
+                                    <span className={styles.smallLabel}>공연날짜</span>
+                                    <span className={styles.periodText}>{concert.period}</span>
                                 </div>
 
-                                <div className
-                                         ={styles.venueArea}>
+                                <div className={styles.venueArea}>
+                                    <span className={styles.smallLabel}>공연장</span>
                                     <button
                                         type="button"
-                                        className
-                                            ={styles.venueButton}
+                                        className={styles.venueButton}
                                         onClick={() => handleVenueClick(concert.venueId)}
                                     >
                                         {concert.venueName}
                                     </button>
                                 </div>
 
-                                <div className
-                                         ={styles.badgeArea}>
-                                    <span className
-                                              ={styles.badge}>{concert.badgeText}</span>
+                                <div className={styles.badgeArea}>
+                                    <span className={styles.badge}>{concert.badgeText}</span>
                                 </div>
                             </li>
                         ))}
                     </ul>
 
-                    <div className
-                             ={styles.paginationArea}>
+                    <div className={styles.paginationArea}>
                         <BottomPaginationBar
                             currentPage={currentPage}
                             totalPages={totalPages}

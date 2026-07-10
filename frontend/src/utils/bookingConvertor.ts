@@ -19,7 +19,7 @@ import type {
 import type {ConcertScheduleResponse, SeatGradeResponse} from "@/types/concert";
 import type {ConcertDetail, ConcertSchedule} from "@/types/concert";
 import {unavailableSeatGradeName} from "@/types/seatLayout";
-import {formatKstDateTime, parseUtcDateTime} from "./dateUtil";/
+import {formatKstDateTime, parseUtcDateTime} from "./dateUtil";
 
 
 function formatDate(value: string) {

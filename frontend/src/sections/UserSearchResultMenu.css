@@ -1,72 +1,57 @@
 .search-result-menu {
-    width: 100%;
-    max-width: 1126px;
-    margin: 22px auto 0;
-    padding: 0 20px;
-    display: flex;
+    width: fit-content;
+    margin-top: 24px;
+    padding: 6px;
+    border: 1px solid rgba(255, 200, 217, 0.24);
+    border-radius: 999px;
+    background: rgba(16, 27, 44, 0.82);
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
     box-sizing: border-box;
-    border-bottom: 1px solid #eeeeee;
 }
 
 .search-result-menu a {
-    position: relative;
     min-width: 92px;
-    height: 48px;
+    min-height: 38px;
     padding: 0 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #555555;
-    font-size: 15px;
-    font-weight: 700;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.74);
+    font-size: 13px;
+    font-weight: 400;
     text-decoration: none;
-    letter-spacing: -0.3px;
-    border-radius: 14px 14px 0 0;
-    transition: 0.2s ease;
+    letter-spacing: 0;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .search-result-menu a:hover {
-    color: #111111;
-    background: #f7f7fa;
-}
-
-.search-result-menu a::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    bottom: -1px;
-    width: 0;
-    height: 3px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, #ff4fa3, #9b5cff);
-    transform: translateX(-50%);
-    transition: width 0.25s ease;
+    color: #ffffff;
+    border-color: rgba(255, 159, 189, 0.32);
 }
 
 .search-result-menu a.active {
-    color: #111111;
-    background: linear-gradient(180deg, #ffffff 0%, #fff4fa 100%);
-}
-
-.search-result-menu a.active::after {
-    width: 100%;
+    color: #071120;
+    border-color: #ff9fbd;
+    background: #ff9fbd;
 }
 
 @media (max-width: 768px) {
     .search-result-menu {
-        margin-top: 16px;
-        padding: 0 16px;
-        gap: 8px;
-        overflow-x: auto;
-        white-space: nowrap;
+        width: 100%;
+        border-radius: 16px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .search-result-menu a {
-        min-width: 80px;
-        height: 44px;
-        padding: 0 14px;
-        font-size: 14px;
+        min-width: 0;
+        min-height: 42px;
+        padding: 0 10px;
+        font-size: 13px;
     }
 }

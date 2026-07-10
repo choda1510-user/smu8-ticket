@@ -1,12 +1,88 @@
 .search-result-layout {
-    display: flex;
-    align-items: center;
-    /**/
-    text-align: right;
-    padding: 20px 0;
-
+    width: 100vw;
+    margin-top: -20px;
+    margin-left: calc(50% - 50vw);
+    padding: 34px 24px 88px;
+    box-sizing: border-box;
+    background:
+        linear-gradient(180deg, #071120 0, #101b2c 230px, #f7f8fb 230px, #f7f8fb 100%);
+    color: #111827;
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+    font-weight: 300;
+    text-align: left;
 }
-.search-result-container {
+
+.search-result-category-box {
+    width: min(1160px, 100%);
+    margin: 0 auto 34px;
+    padding: 28px 30px;
+    border: 1px solid rgba(255, 200, 217, 0.24);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 88% 18%, rgba(244, 127, 166, 0.22), transparent 28%),
+        linear-gradient(135deg, #101b2c, #071120);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
+    box-sizing: border-box;
+}
+
+.search-result-eyebrow {
+    color: #ff9fbd;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+
+.search-result-header {
+    margin-top: 10px;
     display: flex;
-    gap: 20px;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.search-result-title {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(24px, 3.4vw, 34px);
+    line-height: 1.3;
+    font-weight: 500;
+    letter-spacing: 0;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+}
+
+.search-result-title strong {
+    color: #ff9fbd;
+    font-weight: 500;
+}
+
+.search-result-description {
+    margin: 10px 0 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 14px;
+    line-height: 1.7;
+    word-break: keep-all;
+}
+
+.search-result-content {
+    width: min(1160px, 100%);
+    margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+    .search-result-layout {
+        padding: 22px 16px 64px;
+        background:
+            linear-gradient(180deg, #071120 0, #101b2c 300px, #f7f8fb 300px, #f7f8fb 100%);
+    }
+
+    .search-result-category-box {
+        border-radius: 16px;
+        padding: 22px;
+    }
+
+    .search-result-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }

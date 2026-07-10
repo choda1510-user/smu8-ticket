@@ -27,74 +27,57 @@ function ConcertHoleSearchResultPage() {
     };
 
     return (
-        <section className
-                     ={styles.page}>
-            <div className
-                     ={styles.inner}>
-                <div className
-                         ={styles.resultCountArea}>
-          <span className
-                    ={styles.resultCountText}>
-            검색결과 {venues.length}건
-          </span>
+        <section className={styles.section}>
+            <div className={styles.sectionHeader}>
+                <div>
+                    <h2 className={styles.sectionTitle}>공연장 검색결과</h2>
+                    <p className={styles.sectionDescription}>
+                        검색 결과 {venueSearchResults.totalElements}건
+                    </p>
                 </div>
-
-                {venues.length === 0 ? (
-                    <div className
-                             ={styles.emptyBox}>검색된 공연장이 없습니다.</div>
-                ) : (
-                    <>
-                        <ul className
-                                ={styles.venueList}>
-                            {venues.map((venue) => (
-                                <li key={venue.id} className
-                                    ={styles.venueItem}>
-                                    <button
-                                        type="button"
-                                        className
-                                            ={styles.venueButton}
-                                        onClick={() => handleVenueClick(venue.id)}
-                                    >
-                                        <div className
-                                                 ={styles.logoArea}>
-                                            <div className
-                                                     ={styles.logoBox}>
-                                                <span className
-                                                          ={styles.logoText}>공연장</span>
-                                            </div>
-                                        </div>
-
-                                        <div className
-                                                 ={styles.venueInfoArea}>
-                                            <strong className
-                                                        ={styles.venueName}>{venue.venueName}</strong>
-
-                                            <p className
-                                                   ={styles.availableConcertText}>
-                                                <span>예매가능 공연</span>
-                                                <strong className
-                                                            ={styles.countNumber}>
-                                                    {venue.availableConcertCount}
-                                                </strong>
-                                                <span>개</span>
-                                            </p>
-                                        </div>
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-
-                        <div className
-                                 ={styles.paginationArea}>
-                            <BottomPaginationBar
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={(page) => changePage(page, totalPages)}
-                            />
-                        </div>
-                    </>
-                )}
             </div>
+
+            {venues.length === 0 ? (
+                <div className={styles.emptyBox}>검색된 공연장이 없습니다.</div>
+            ) : (
+                <>
+                    <ul className={styles.venueList}>
+                        {venues.map((venue) => (
+                            <li key={venue.id} className={styles.venueItem}>
+                                <button
+                                    type="button"
+                                    className={styles.venueCard}
+                                    onClick={() => handleVenueClick(venue.id)}
+                                >
+                                    <div className={styles.venueLogoBox}>
+                                        <span>공연장</span>
+                                    </div>
+
+                                    <div className={styles.venueInfoArea}>
+                                        <strong className={styles.venueName}>{venue.venueName}</strong>
+
+                                        <p className={styles.availableConcertText}>
+                                            <span>예매가능 공연</span>
+                                            <strong className={styles.countNumber}>
+                                                {venue.availableConcertCount}
+                                            </strong>
+                                            <span>개</span>
+                                        </p>
+                                    </div>
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <div className={styles.paginationArea}>
+                        <BottomPaginationBar
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={(page) => changePage(page, totalPages)}
+                        />
+                    </div>
+                </>
+            )}
         </section>
     );
 }

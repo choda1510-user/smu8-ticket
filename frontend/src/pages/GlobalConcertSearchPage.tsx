@@ -35,179 +35,122 @@ function GlobalConcertSearchPage() {
     };
 
     return (
-        <section className
-                     ={styles.page}>
-            <div className
-                     ={styles.inner}>
-
-                <div className
-                         ={styles.searchTitleArea}>
-                    <h1 className
-                            ={styles.searchTitle}>통합 검색 결과</h1>
-                    {keyword && (
-                        <p className
-                               ={styles.searchSubtitle}>
-                            <strong>{keyword}</strong> 검색 결과
+        <section className={styles.page}>
+            <section className={styles.section}>
+                <div className={styles.sectionHeader}>
+                    <div>
+                        <h2 className={styles.sectionTitle}>공연</h2>
+                        <p className={styles.sectionDescription}>
+                            검색 결과 {concertResults.totalElements}건
                         </p>
-                    )}
+                    </div>
+
+                    <button type="button" className={styles.moreButton} onClick={handleMoreConcertClick}>
+                        전체보기
+                    </button>
                 </div>
 
-                <section className
-                             ={styles.resultSection}>
-                    <div className
-                             ={styles.sectionTitleRow}>
-                        <div className
-                                 ={styles.sectionTitleGroup}>
-                            <h2 className
-                                    ={styles.sectionTitle}>공연</h2>
-                            <span className
-                                      ={styles.resultCount}>{concertResults.totalElements}건</span>
-                        </div>
-                        <button
-                            type="button"
-                            className
-                                ={styles.moreButton}
-                            onClick={handleMoreConcertClick}
-                        >
-                            더보기
-                        </button>
-                    </div>
+                {concerts.length === 0 ? (
+                    <div className={styles.emptyBox}>검색된 공연이 없습니다.</div>
+                ) : (
+                    <ul className={styles.concertList}>
+                        {concerts.map((concert) => (
+                            <li key={concert.concertId} className={styles.concertItem}>
+                                <button
+                                    type="button"
+                                    className={styles.posterButton}
+                                    onClick={() => handleConcertClick(concert.concertId)}
+                                >
+                                    {concert.posterUrl ? (
+                                        <img
+                                            src={concert.posterUrl}
+                                            alt="공연 포스터"
+                                            className={styles.posterImage}
+                                        />
+                                    ) : (
+                                        <span>공연 카드</span>
+                                    )}
+                                </button>
 
-                    {concerts.length === 0 ? (
-                        <div className
-                                 ={styles.emptyBox}>검색된 공연이 없습니다.</div>
-                    ) : (
-                        <ul className
-                                ={styles.concertList}>
-                            {concerts.map((concert) => (
-                                <li key={concert.concertId} className
-                                    ={styles.concertItem}>
+                                <button
+                                    type="button"
+                                    className={styles.concertTitleButton}
+                                    onClick={() => handleConcertClick(concert.concertId)}
+                                >
+                                    {concert.title}
+                                </button>
 
-                                    <div className
-                                             ={styles.posterArea}>
-                                        <button
-                                            type="button"
-                                            className
-                                                ={styles.posterButton}
-                                            onClick={() => handleConcertClick(concert.concertId)}
-                                        >
-                                            {concert.posterUrl ? (
-                                                <img src={concert.posterUrl} alt="공연 포스터" className
-                                                    ={styles.posterImage}/>
-                                            ) : (
-                                                <span>공연 카드</span>
-                                            )}
-                                        </button>
-                                    </div>
+                                <div className={styles.periodArea}>
+                                    <span className={styles.smallLabel}>공연날짜</span>
+                                    <span className={styles.periodText}>{concert.period}</span>
+                                </div>
 
-                                    <div>
-                                        <button
-                                            type="button"
-                                            className
-                                                ={styles.concertTitleButton}
-                                            onClick={() => handleConcertClick(concert.concertId)}
-                                        >
-                                            {concert.title}
-                                        </button>
-                                    </div>
-
-                                    <div className
-                                             ={styles.periodArea}>
-                                            <span className
-                                                      ={styles.periodText}>{concert.period}</span>
-                                    </div>
-
-                                    <div className
-                                             ={styles.venueArea}>
-                                            <span className
-                                                      ={styles.venueText}>
-                                                {concert.venueName}
-                                            </span>
-                                    </div>
-
-                                    <div className
-                                             ={styles.badgeArea}>
-                                        <strong className
-                                                    ={styles.badge}>{concert.badgeText}</strong>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </section>
-
-                <section className
-                             ={styles.resultSection}>
-                    <div className
-                             ={styles.sectionTitleRow}>
-                        <div className
-                                 ={styles.sectionTitleGroup}>
-                            <h2 className
-                                    ={styles.sectionTitle}>공연장</h2>
-                            <span className
-                                      ={styles.resultCount}>{venueResults.totalElements}건</span>
-                        </div>
-
-                        <button
-                            type="button"
-                            className
-                                ={styles.moreButton}
-                            onClick={handleMoreVenueClick}
-                        >
-                            더보기
-                        </button>
-                    </div>
-
-                    {venues.length === 0 ? (
-                        <div className
-                                 ={styles.emptyBox}>검색된 공연장이 없습니다.</div>
-                    ) : (
-                        <ul className
-                                ={styles.venueList}>
-                            {venues.map((venue) => (
-                                <li key={venue.id} className
-                                    ={styles.venueItem}>
-                                    <div
-                                        className
-                                            ={styles.venueCard}
+                                <div className={styles.venueArea}>
+                                    <span className={styles.smallLabel}>공연장</span>
+                                    <button
+                                        type="button"
+                                        className={styles.venueButton}
+                                        onClick={() => handleVenueClick(concert.venueId)}
                                     >
-                                        <div className
-                                                 ={styles.venueLogoBox}
-                                        >
-                                            <button
-                                                type="button"
-                                                className
-                                                    ={styles.posterButton}
-                                                onClick={() => handleVenueClick(venue.id)}
-                                            >
-                                                <span style
-                                                          ={{fontSize: "11px", color: "#777"}}>공연장</span>
+                                        {concert.venueName}
+                                    </button>
+                                </div>
 
-                                            </button>
+                                <div className={styles.badgeArea}>
+                                    <span className={styles.badge}>{concert.badgeText}</span>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </section>
 
-                                        </div>
+            <section className={`${styles.section} ${styles.venueSection}`}>
+                <div className={styles.sectionHeader}>
+                    <div>
+                        <h2 className={styles.sectionTitle}>공연장</h2>
+                        <p className={styles.sectionDescription}>
+                            검색 결과 {venueResults.totalElements}건
+                        </p>
+                    </div>
 
-                                        <div className
-                                                 ={styles.venueInfoArea}>
+                    <button type="button" className={styles.moreButton} onClick={handleMoreVenueClick}>
+                        전체보기
+                    </button>
+                </div>
 
-                                            <strong
-                                                className
-                                                    ={styles.venueNameText}
-                                                onClick={() => handleVenueClick(venue.id)}>{venue.venueName}</strong>
-
-
-                                            <span className
-                                                      ={styles.venueCountText}>
-                      예매 가능한 공연 {venue.availableConcertCount}개
-                    </span>
-                                        </div>
+                {venues.length === 0 ? (
+                    <div className={styles.emptyBox}>검색된 공연장이 없습니다.</div>
+                ) : (
+                    <ul className={styles.venueList}>
+                        {venues.map((venue) => (
+                            <li key={venue.id} className={styles.venueItem}>
+                                <button
+                                    type="button"
+                                    className={styles.venueCard}
+                                    onClick={() => handleVenueClick(venue.id)}
+                                >
+                                    <div className={styles.venueLogoBox}>
+                                        <span>공연장</span>
                                     </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </section>
-            </div>
+
+                                    <div className={styles.venueInfoArea}>
+                                        <strong className={styles.venueName}>{venue.venueName}</strong>
+
+                                        <p className={styles.availableConcertText}>
+                                            <span>예매가능 공연</span>
+                                            <strong className={styles.countNumber}>
+                                                {venue.availableConcertCount}
+                                            </strong>
+                                            <span>개</span>
+                                        </p>
+                                    </div>
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </section>
         </section>
     );
 }

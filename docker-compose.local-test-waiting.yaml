@@ -11,7 +11,7 @@ services:
   backend-ticket:
     build:
       context: ./backend-ticket
-      dockerfile: Dockerfile.local-test-waiting
+      dockerfile: Dockerfile
     container_name: backend-ticket
     ports:
       - "8080:8080"
@@ -23,19 +23,19 @@ services:
       redis-waiting:
         condition: service_started
     environment:
-      - SPRING_PROFILES_ACTIVE=load-test-waiting
+      - SPRING_PROFILES_ACTIVE=local-test-waiting
       - TZ=UTC
     networks:
       - smu8-ticket-network
   backend-waiting:
     build:
       context: ./backend-waiting
-      dockerfile: Dockerfile.local-test-waiting
+      dockerfile: Dockerfile
     container_name: backend-waiting
     ports:
       - "8081:8081"
     environment:
-      - SPRING_PROFILES_ACTIVE=load-test-waiting
+      - SPRING_PROFILES_ACTIVE=local-test-waiting
     depends_on:
       redis-waiting:
         condition: service_started

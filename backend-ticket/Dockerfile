@@ -10,6 +10,7 @@ RUN ./gradlew classes
 RUN ./gradlew bootJar
 
 FROM eclipse-temurin:21-jre-alpine AS deploy
+ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
 WORKDIR /app
 COPY --from=build /backend/build/libs/smu8ticket-backend.jar /app
-CMD ["java", "-jar", "smu8ticket-backend.jar", "--spring.profiles.active=local-test-waiting"]
+CMD ["java", "-jar", "smu8ticket-backend.jar", "--spring.profiles.active=${SPRING_PROFILES_ACTIVE}"]

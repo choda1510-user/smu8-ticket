@@ -2,7 +2,7 @@ spring:
   application:
     name: waiting
   profiles:
-    active: dev-waiting
+    active: local-dev-waiting
 server:
   port: 8081
 

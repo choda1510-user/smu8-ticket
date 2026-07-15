@@ -2,7 +2,7 @@ spring:
   application:
     name: ticket
   profiles:
-    active: dev
+    active: local-dev
   servlet:
     multipart:
       max-file-size: 50MB

@@ -1,8 +1,17 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.local-test
+    container_name: frontend
+    ports:
+      - "80:80"
+    networks:
+      - smu8-ticket-network
   backend-ticket:
     build:
       context: ./backend-ticket
-      dockerfile: Dockerfile.load-test-waiting
+      dockerfile: Dockerfile
     container_name: backend-ticket
     ports:
       - "8080:8080"
@@ -14,22 +23,8 @@ services:
       redis-waiting:
         condition: service_started
     environment:
-      - SPRING_PROFILES_ACTIVE=load-test-waiting
+      - SPRING_PROFILES_ACTIVE=local-test
       - TZ=UTC
-    networks:
-      - smu8-ticket-network
-  backend-waiting:
-    build:
-      context: ./backend-waiting
-      dockerfile: Dockerfile.load-test-waiting
-    container_name: backend-waiting
-    ports:
-      - "8081:8081"
-    environment:
-      - SPRING_PROFILES_ACTIVE=load-test-waiting
-    depends_on:
-      redis-waiting:
-        condition: service_started
     networks:
       - smu8-ticket-network
   database:
@@ -64,25 +59,6 @@ services:
       - "6379:6379"
     networks:
       - smu8-ticket-network
-  redis-waiting:
-    build:
-      context: ./redis-waiting
-      dockerfile: Dockerfile.load-test-waiting
-    container_name: redis-waiting
-    command:
-      - redis-server
-      - --maxmemory
-      - 1536mb
-      - --maxmemory-policy
-      - noeviction
-    mem_limit: 2g
-    memswap_limit: 2g
-    ports:
-      - "6381:6379"
-    networks:
-      - smu8-ticket-network
-    volumes:
-      - redis_waiting_volume:/data
   mysql-exporter:
     image: prom/mysqld-exporter:v0.15.1
     container_name: mysql-exporter
@@ -101,16 +77,6 @@ services:
       - REDIS_ADDR=redis://redis-ticket:6379
     depends_on:
       redis-ticket:
-        condition: service_started
-    networks:
-      - smu8-ticket-network
-  redis-waiting-exporter:
-    image: oliver006/redis_exporter:v1.62.0
-    container_name: redis-waiting-exporter
-    environment:
-      - REDIS_ADDR=redis://redis-waiting:6379
-    depends_on:
-      redis-waiting:
         condition: service_started
     networks:
       - smu8-ticket-network

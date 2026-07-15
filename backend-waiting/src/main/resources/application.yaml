@@ -3,6 +3,8 @@ spring:
     name: waiting
   profiles:
     active: local-dev-waiting
+  jackson :
+    time-zone: UTC
 server:
   port: 8081
 

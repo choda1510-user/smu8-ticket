@@ -142,34 +142,6 @@ public class SecurityConfig {
                         AuthorizationFilter.class)
                 .build();
     }
-    @Order(0)
-    @Bean
-    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting", "prod"})
-    public SecurityFilterChain waitingReservationFilterChain(
-            HttpSecurity http,
-            BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter,
-            WaitingActiveAccountFilter waitingActiveAccountFilter
-    ) throws Exception {
-        CompositeFilter waitingReservationAuthenticationFilter = new CompositeFilter();
-        waitingReservationAuthenticationFilter.setFilters(List.of(
-                bearerTokenAuthenticationFilter,
-                waitingActiveAccountFilter
-        ));
-
-        return http.securityMatcher("/api/reservations/**", "/api/reservaions/**")
-                .authorizeHttpRequests((authorize) -> authorize
-                        .anyRequest().authenticated())
-                .sessionManagement((session) ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .addFilterBefore(
-                        waitingReservationAuthenticationFilter,
-                        AuthorizationFilter.class)
-                .build();
-    }
     @Order(3)
     @Bean
     public SecurityFilterChain securityFilterChain(

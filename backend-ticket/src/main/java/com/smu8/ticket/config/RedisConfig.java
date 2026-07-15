@@ -65,47 +65,5 @@ public class RedisConfig {
         redisTemplate.setHashValueSerializer(RedisSerializer.byteArray());
         return redisTemplate;
     }
-
-    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting", "prod"})
-    @Bean(name = "redisWaitingConnectionFactory")
-    public RedisConnectionFactory redisWaitingConnectionFactory(
-            @Value("${spring.data.redis-waiting.host}") String host,
-            @Value("${spring.data.redis-waiting.port}") int port
-    ) {
-        return new LettuceConnectionFactory(host, port);
-    }
-
-    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting", "prod"})
-    @Bean(name = "concertReservationTimeRedisTemplate")
-    public RedisTemplate<String, ConcertReservationTime> concertReservationTimeRedisTemplate(
-            @Qualifier("redisWaitingConnectionFactory") RedisConnectionFactory redisWaitingConnectionFactory,
-            ObjectMapper objectMapper
-    ) {
-        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-        JacksonJsonRedisSerializer<ConcertReservationTime> valueSerializer =
-                new JacksonJsonRedisSerializer<>(objectMapper, ConcertReservationTime.class);
-
-        RedisTemplate<String, ConcertReservationTime> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisWaitingConnectionFactory);
-        redisTemplate.setKeySerializer(stringRedisSerializer);
-        redisTemplate.setHashKeySerializer(stringRedisSerializer);
-        redisTemplate.setValueSerializer(valueSerializer);
-        redisTemplate.setHashValueSerializer(valueSerializer);
-        return redisTemplate;
-    }
-
-    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting", "prod"})
-    @Bean(name = "concertPassedUserRedisTemplate")
-    public RedisTemplate<String, String> concertPassedUserRedisTemplate(
-            @Qualifier("redisWaitingConnectionFactory") RedisConnectionFactory redisWaitingConnectionFactory
-    ) {
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisWaitingConnectionFactory);
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
-        return redisTemplate;
-    }
 }
 

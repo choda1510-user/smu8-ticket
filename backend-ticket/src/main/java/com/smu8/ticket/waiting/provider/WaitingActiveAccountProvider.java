@@ -10,15 +10,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
-@Component
-@Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting", "prod"})
 public class WaitingActiveAccountProvider implements AuthenticationProvider {
     private static final String KEY_PREFIX = "waiting:concert:active-account:";
 
     private final RedisTemplate<String, String> concertPassedUserRedisTemplate;
 
     public WaitingActiveAccountProvider(
-            @Qualifier("concertPassedUserRedisTemplate")
             RedisTemplate<String, String> concertPassedUserRedisTemplate
     ) {
         this.concertPassedUserRedisTemplate = concertPassedUserRedisTemplate;

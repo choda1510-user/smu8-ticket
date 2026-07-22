@@ -37,8 +37,8 @@ import java.util.Collections;
 public class SecurityConfig {
     @Bean
     public SecretKey jwtSecretKey(
-            @Value("${token:secret}") String secret,
-            @Value("${token:algorithm}") String algorithm
+            @Value("${token.secret}") String secret,
+            @Value("${token.algorithm}") String algorithm
     ) {
         String base64Secret = secret.trim();
 

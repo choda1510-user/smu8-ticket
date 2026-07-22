@@ -2,7 +2,7 @@ spring:
   application:
     name: waiting
   profiles:
-    active: local-dev-waiting
+    active: dev-waiting
   jackson :
     time-zone: UTC
 server:

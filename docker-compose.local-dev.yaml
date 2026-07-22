@@ -11,9 +11,7 @@ services:
     volumes:
       - mysql_database:/var/lib/mysql
   redis-ticket:
-    build:
-      context: ./redis-ticket
-      dockerfile: Dockerfile.dev
+    image: redis:latest
     container_name: redis-ticket
     ports:
       - "6379:6379"

@@ -43,9 +43,7 @@ services:
       timeout: 20s
       retries: 10
   redis-ticket:
-    build:
-      context: ./redis-ticket
-      dockerfile: Dockerfile.dev
+    image: redis:latest
     container_name: redis-ticket
     command:
       - redis-server

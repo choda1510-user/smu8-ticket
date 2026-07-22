@@ -1,3 +1,4 @@
+# 로컬 개발환경에서 테스트할 때 사용하는 프로파일
 spring:
   config:
     activate:

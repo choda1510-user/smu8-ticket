@@ -2,7 +2,9 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.local-test
+      dockerfile: Dockerfile
+      args:
+        - BUILD_ARG=build:test
     container_name: frontend
     ports:
       - "80:80"
@@ -19,8 +21,6 @@ services:
       database:
         condition: service_healthy
       redis-ticket:
-        condition: service_started
-      redis-waiting:
         condition: service_started
     environment:
       - SPRING_PROFILES_ACTIVE=local-test
@@ -105,11 +105,9 @@ services:
       - --web.enable-lifecycle
     depends_on:
       - backend-ticket
-      - backend-waiting
       - cadvisor
       - mysql-exporter
       - redis-ticket-exporter
-      - redis-waiting-exporter
     networks:
       - smu8-ticket-network
   grafana:

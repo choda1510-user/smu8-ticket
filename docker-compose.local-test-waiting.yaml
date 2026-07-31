@@ -2,7 +2,9 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.local-test-waiting
+      dockerfile: Dockerfile
+      args:
+        - BUILD_ARG=build:test
     container_name: frontend
     ports:
       - "80:80"

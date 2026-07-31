@@ -58,12 +58,10 @@ import java.util.List;
 public class SecurityConfig {
     @Bean
     public SecretKey jwtSecretKey(
-            @Value("classpath:jwt-secret-key") Resource secretKeyResource
-    ) throws IOException {
-        String base64Secret = StreamUtils.copyToString(
-                secretKeyResource.getInputStream(),
-                StandardCharsets.UTF_8
-        ).trim();
+            @Value("${token.secret}") String secret,
+            @Value("${token.algorithm}") String algorithm
+    ) {
+        String base64Secret = secret.trim();
 
         byte[] keyBytes = Base64.getDecoder().decode(base64Secret);
 
@@ -71,7 +69,7 @@ public class SecurityConfig {
             throw new IllegalArgumentException("JWT HS256 secret key must be at least 32 bytes.");
         }
 
-        return new SecretKeySpec(keyBytes, "HmacSHA256");
+        return new SecretKeySpec(keyBytes, algorithm);
     }
     @Order(-1)
     @Bean
@@ -141,34 +139,6 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .addFilterBefore(
                         refreshTokenCookieAuthenticationFilter,
-                        AuthorizationFilter.class)
-                .build();
-    }
-    @Order(0)
-    @Bean
-    @Profile({"dev-waiting", "local-dev-waiting", "test-waiting", "load-test-waiting", "local-test-waiting", "prod"})
-    public SecurityFilterChain waitingReservationFilterChain(
-            HttpSecurity http,
-            BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter,
-            WaitingActiveAccountFilter waitingActiveAccountFilter
-    ) throws Exception {
-        CompositeFilter waitingReservationAuthenticationFilter = new CompositeFilter();
-        waitingReservationAuthenticationFilter.setFilters(List.of(
-                bearerTokenAuthenticationFilter,
-                waitingActiveAccountFilter
-        ));
-
-        return http.securityMatcher("/api/reservations/**", "/api/reservaions/**")
-                .authorizeHttpRequests((authorize) -> authorize
-                        .anyRequest().authenticated())
-                .sessionManagement((session) ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .addFilterBefore(
-                        waitingReservationAuthenticationFilter,
                         AuthorizationFilter.class)
                 .build();
     }

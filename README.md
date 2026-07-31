@@ -1,14 +1,47 @@
 # SMU 8기 티켓팅 웹사이트 프로젝트
 
-- local
+## 스프링부트 프로파일 접두사 의미
 
+### local
 데이터베이스등 모든 서버를 로컬에서 도커로 실행
-- dev
 
-데이터베이스는 내부 서버를 공유하고 백엔드와 프론트엔드만 각자의 로컬에서 실행
-- test
+backend-ticket gradle tasks
 
-모든 서버를 내부 서버에서 실행
+- bootRunLocal
+- bootRunLocalWaiting
+
+backend-waiting gradle tasks
+
+- bootRunLocalWaiting
+
+---
+
+### dev
+데이터베이스는 원격 서버를 공유하고 백엔드와 프론트엔드만 각자의 로컬에서 실행
+
+backend-ticket gradle tasks
+
+- bootRun
+- bootRunWaiting
+
+backend-waiting gradle tasks
+
+- bootRun
+
+---
+
+### test
+테스트 원격 서버를 기준으로 하는 환경설정
+
+---
+
+### prod
+배포 환경을 기준으로 하는 환경설정
+
+## 스프링부트 프로파일 접미사 의미
+
+### waiting
+대기열 로직을 활성화하는 환경설정
 
 ## 테스트 단계
 도커 컴포즈 올리기

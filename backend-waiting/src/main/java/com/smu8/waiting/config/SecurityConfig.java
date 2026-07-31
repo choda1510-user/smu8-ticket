@@ -37,12 +37,10 @@ import java.util.Collections;
 public class SecurityConfig {
     @Bean
     public SecretKey jwtSecretKey(
-            @Value("classpath:jwt-secret-key") Resource secretKeyResource
-    ) throws IOException {
-        String base64Secret = StreamUtils.copyToString(
-                secretKeyResource.getInputStream(),
-                StandardCharsets.UTF_8
-        ).trim();
+            @Value("${token.secret}") String secret,
+            @Value("${token.algorithm}") String algorithm
+    ) {
+        String base64Secret = secret.trim();
 
         byte[] keyBytes = Base64.getDecoder().decode(base64Secret);
 
@@ -50,7 +48,7 @@ public class SecurityConfig {
             throw new IllegalArgumentException("JWT HS256 secret key must be at least 32 bytes.");
         }
 
-        return new SecretKeySpec(keyBytes, "HmacSHA256");
+        return new SecretKeySpec(keyBytes, algorithm);
     }
     @Order(-1)
     @Bean

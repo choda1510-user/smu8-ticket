@@ -1,3 +1,5 @@
+# 로컬 개발환경에서 테스트할 때 사용하는 프로파일
+# 대기열을 적용한 서버
 spring:
   config:
     activate:
@@ -44,6 +46,15 @@ logging:
     com.smu8.ticket: Debug
 server:
   port: 8080
+token:
+  secret: mWy0rsOo1NgP8KGnEwgOFPZaR7auleEy+BP+1bAOB1M=
+  algorithm: HmacSHA256
+  access-token:
+    prefix: "access-token:"
+    expire: 3600
+  refresh-token:
+    prefix: "refresh-token:"
+    expire: 7200
 
 management:
   endpoints:
